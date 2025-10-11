@@ -21,7 +21,7 @@ import pyqtgraph as pg
 from pyqtgraph import mkPen
 from enum import Enum
 from PyQt6.QtSerialPort import QSerialPortInfo, QSerialPort
-from PyQt6.QtCore import Qt, pyqtSignal, QIODevice, QTimer, QTime, pyqtSlot, QUrl
+from PyQt6.QtCore import Qt, pyqtSignal, QIODevice, QTimer, QTime, pyqtSlot, QUrl, QProcess
 from PyQt6.QtGui import QFont, QIcon, QIntValidator, QColor, QPalette, QTextCursor
 from PyQt6.QtWidgets import (
     QApplication,
@@ -296,6 +296,8 @@ class GroundStationApp(QMainWindow):
         self.__last_gyro_y                  = 0.0
         self.log_repeat_count             = 0
         self.last_msg, self.last_color  = None, None
+        self.__simulation_proc              = None
+        self.__simulation_mode              = False
 
         self.setWindowTitle("CANSAT Ground Station")
         self.setWindowIcon(QIcon('icon.png'))
@@ -558,6 +560,11 @@ class GroundStationApp(QMainWindow):
         self.team_id_field_info.hide()
         self.team_id_field.hide()
 
+        self.gui_simulation_button = QPushButton("Start GUI Simulation")
+        self.gui_simulation_button.setFont(button_font)
+        self.gui_simulation_button.clicked.connect(self.start_stop_gui_simulation) #TODO: WRITE THIS FUNCTION
+        self.gui_simulation_button.hide()
+
         commands_layout.addWidget(self.button_connection_group)
         commands_layout.addWidget(self.combo_select_port)
         commands_layout.addWidget(self.button_connect)
@@ -583,6 +590,7 @@ class GroundStationApp(QMainWindow):
         commands_layout.addWidget(self.button_get_log_data)
         commands_layout.addWidget(self.probe_release_force)
         commands_layout.addLayout(team_id_editing_box)
+        commands_layout.addWidget(self.gui_simulation_button)
         commands_layout.addWidget(self.button_back)
 
         grid_layout.setColumnStretch(0,1)
@@ -605,6 +613,7 @@ class GroundStationApp(QMainWindow):
             self.button_get_log_data,
             self.team_id_field,
             self.team_id_field_info,
+            self.gui_simulation_button,
         ]
 
         self.buttons_telemetry = [
@@ -713,6 +722,12 @@ class GroundStationApp(QMainWindow):
         self.camera2_status_label.setText(f'<span style="color:black;">CAMERA2 Status: \
                                               </span><span style="color:GREY;">N/A</span>')
 
+        self.simulation_on_or_off = QLabel()
+        self.simulation_on_or_off.setFont(command_status_font)
+        self.simulation_on_or_off.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
+        self.simulation_on_or_off.setText(f'<span style="color:black;">GUI Simulation: \
+                                              </span><span style="color:GREY;">OFF</span>')
+        
         status_layout.addWidget(self.label_port)
         status_layout.addWidget(self.label_remote_mode)
         status_layout.addWidget(self.label_remote_state)
@@ -722,6 +737,7 @@ class GroundStationApp(QMainWindow):
         status_layout.addWidget(self.camera1_status_label)
         status_layout.addWidget(self.camera2_status_label)
         status_layout.addWidget(self.label_cmd_echo)
+        status_layout.addWidget(self.simulation_on_or_off)
 
         grid_layout.setColumnStretch(1,1)
 
@@ -1125,6 +1141,35 @@ class GroundStationApp(QMainWindow):
             servo_label = self.servo_id_field.itemText(self.servo_id_field.findData(self.__servo_id))
             self.update_gui_log(f"Sent command to program {servo_label} to {self.__servo_val}")
 
+    def start_stop_gui_simulation(self):
+        if self.__simulation_proc and self.__simulation_proc.state() == QProcess.ProcessState.Running:
+            # need to stop the simulation - will act as a toggle y'allsies
+            self.__simulation_proc.terminate()
+            self.__simulation_proc.waitForFinished(3000) # TODO: make this not block
+            self.__simulation_mode = False
+            self.__simulation_proc = None
+            self.simulation_on_or_off.setText(f'<span style="color:black;">GUI Simulation: \
+                                              </span><span style="color:GREY;">OFF</span>') 
+            self.gui_simulation_button.setText("Start GUI Simulation")
+            self.update_gui_log("GUI Simulation stopped") # TODO: CHECK IF LUKE WANTS THIS
+        else:
+            # need to start simulation - yeehaw!
+            self.__simulation_proc = QProcess(self)
+            self.__simulation_proc.readyReadStandardOutput.connect(self.recv_simulation_data)
+            self.__simulation_proc.start("python", ["cansat_simulation.py"])
+            self.__simulation_mode = True
+            self.simulation_on_or_off.setText(f'<span style="color:black;">GUI Simulation: \
+                                              </span><span style="color:GREEN;">ON</span>') 
+            self.gui_simulation_button.setText("Stop GUI Simulation")
+            self.update_gui_log("GUI Simulation started") # TODO: CHECK IF LUKE WANTS THIS
+    
+    def recv_simulation_data(self):
+        while self.__simulation_proc.canReadLine():
+            line = self.__simulation_proc.readLine().data().decode().strip()
+            self.__recveived_data = line # TODO: CHECK IF THIS IS RIGHT - THERE IS A TYPO WITH THIS VARIABLE THAT IS BOTHERING MEEEEE
+            self.__data_received.emit() 
+
+
     def toggle_camera(self):
         if(self.send_data("CMD,%d,MEC,%s:X" % (self.__TEAM_ID, self.__camera_id))):
             self.update_gui_log(f"Sent {self.__camera_id} toggle command")
@@ -1232,6 +1277,10 @@ class GroundStationApp(QMainWindow):
             self.update_gui_log(f"SERIAL ERROR: {error} detected")
 
     def send_data(self, msg):
+        if self.__simulation_mode and self.__simulation_proc:
+            self.__simulation_proc.write((msg + "\n").encode()) # sending to simulation!!!!
+            return 1
+
         if self.__serial.isOpen() is True:
             try:
                 msg = msg + "\n"
@@ -1367,6 +1416,10 @@ class GroundStationApp(QMainWindow):
         if self.__csv_file is not None:
             if not self.__csv_file.closed:
                 self.__csv_file.close()
+        if self.__simulation_proc:
+            self.__simulation_proc.terminate()
+            self.__simulation_proc.waitForFinished(3000)
+            self.__simulation_proc = None
 
     def update_packet_label(self):
         self.label_packet_count.setText(f'<span style="color:black;">Packets Received: \
