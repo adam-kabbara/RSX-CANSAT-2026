@@ -7,7 +7,6 @@
   */
 
 #include "command_manager.h"
-#include "global_includes.h"
 
 CommandManager::CommandManager()
 {
@@ -361,127 +360,9 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
     strcpy(val, token);
   }
 
-  if(strcmp(mec, "RELEASE") == 0)
+  if(strcmp(mec, "TEST") == 0)
   {
-    sensors.writeReleaseServo(47);
-    sensors.writeGyroServoLeft(90);
-    sensors.writeGyroServoRight(90);
-    info.setOpState(PROBE_RELEASE);
-    info.beginPref("xb-set", false);
-    int state_int = static_cast<int>(PROBE_RELEASE);
-    info.putPrefInt("opstate", state_int);
-    info.endPref();
-    ser.sendInfoMsg("ATTEMPTED PROBE RELEASE FROM MANUAL TRIGGER!");
-  }
-  else if(strcmp(mec, "SERVO") == 0)
-  {
-    const char *sep = strchr(val, '|');
-    if (val != NULL)
-    {
-        char left[4], right[4];
-        size_t len_left = sep - val;
-
-        strncpy(left, val, len_left);
-        left[len_left] = '\0';
-
-        strcpy(right, sep + 1);
-
-        int servo_num = atoi(left);
-        int servo_val = atoi(right);
-
-        switch(servo_num)
-        {
-          case 0:
-            sensors.writeCameraServo(servo_val);
-            ser.sendInfoDataMsg("Wrote %d to camera servo.", servo_val);
-            break;
-          case 1:
-            sensors.writeReleaseServo(servo_val);
-            ser.sendInfoDataMsg("Wrote %d to release servo.", servo_val);
-            break;
-          case 2:
-            sensors.writeGyroServoRight(servo_val);
-            ser.sendInfoDataMsg("Wrote %d to right gyro servo.", servo_val);
-            break;
-          case 3:
-            sensors.writeGyroServoLeft(servo_val);
-            ser.sendInfoDataMsg("Wrote %d to left gyro servo.", servo_val);
-            break;
-          default:
-            ser.sendErrorDataMsg("ERROR: RECEIVED INVALID SERVO #: %d", servo_num);
-            break;
-        }
-    } else
-    {
-        ser.sendErrorMsg("ERROR: SERVO COMMAND FORMAT INCORRECT, DID NOT RECEIVE '#|VAL'");
-    }
-  }
-  else if(strcmp(mec, "CAMERA1") == 0)
-  {
-    if(info.getOpState() != IDLE)
-    {
-      ser.sendErrorMsg("CANNOT TOGGLE CAMERA1 DURING MISSION!");
-      return;
-    }
-    digitalWrite(CAMERA1_SIGNAL_PIN, LOW);
-    delay(1000);
-    digitalWrite(CAMERA1_SIGNAL_PIN, HIGH);
-    delay(1000);
-    int state = digitalRead(CAMERA1_STATUS_PIN);
-    if(state == LOW)
-    {
-      ser.sendInfoMsg("CAMERA1 OFF");
-    }
-    else
-    {
-      ser.sendInfoMsg("CAMERA1 ON");
-    }
-  }
-  else if(strcmp(mec, "CAMERA2") == 0)
-  {
-    if(info.getOpState() != IDLE)
-    {
-      ser.sendErrorMsg("CANNOT TOGGLE CAMERA2 DURING MISSION!");
-      return;
-    }
-    digitalWrite(CAMERA2_SIGNAL_PIN, LOW);
-    delay(1000);
-    digitalWrite(CAMERA2_SIGNAL_PIN, HIGH);
-    delay(1000);
-    digitalWrite(CAMERA2_SIGNAL_PIN, LOW);
-    int state = digitalRead(CAMERA2_STATUS_PIN);
-    if(state == LOW)
-    {
-      ser.sendInfoMsg("CAMERA2 OFF");
-    }
-    else
-    {
-      ser.sendInfoMsg("CAMERA2 ON");
-    }
-  }
-  else if(strcmp(mec, "CAMERA1_STAT") == 0)
-  {
-    int state = digitalRead(CAMERA1_STATUS_PIN);
-    if(state == HIGH)
-    {
-      ser.sendInfoMsg("CAMERA1 ON");
-    }
-    else
-    {
-      ser.sendInfoMsg("CAMERA1 OFF");
-    }
-  }
-  else if(strcmp(mec, "CAMERA2_STAT") == 0)
-  {
-    int state = digitalRead(CAMERA2_STATUS_PIN);
-    if(state == HIGH)
-    {
-      ser.sendInfoMsg("CAMERA2 ON");
-    }
-    else
-    {
-      ser.sendInfoMsg("CAMERA2 OFF");
-    }
+    ser.sendInfoMsg("RECEIVED TEST MEC COMMAND!");
   }
   else
   {
@@ -498,15 +379,8 @@ void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorMan
     return;
   }
 
-  File log = LittleFS.open("/logs.txt", FILE_READ);
-  if(!log)
-  {
-    ser.sendErrorMsg("COULD NOT FIND ANY SAVED LOG FILE!");
-    log.close();
-    return;
-  }
-
-  ser.sendLogFile(log);
+  // TODO: Add once EEPROM is set up
+  ser.sendInfoMsg("GOT TEST LOG COMMAND!");
 
   log.close();
 }
