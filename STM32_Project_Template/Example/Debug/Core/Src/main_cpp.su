@@ -1,3 +1,0 @@
-../Core/Src/main_cpp.cpp:3:6:void setup()	8	static
-../Core/Src/main_cpp.cpp:8:6:void loop()	8	static
-../Core/Src/main_cpp.cpp:19:17:void main_cpp()	8	static
