@@ -1,3 +1,4 @@
+// connect to the correct pins. for arduino mega it's scl and sda not a4 and a5
 #include <Wire.h>
 #include <Adafruit_INA219.h>
 
