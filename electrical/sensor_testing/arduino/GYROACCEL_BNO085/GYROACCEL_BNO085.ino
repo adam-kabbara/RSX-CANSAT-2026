@@ -31,7 +31,9 @@ struct euler_t {
   float roll;
 } ypr;
 
-// wrapped yaw angle (-180, 180]
+// wrapped angles (-180, 180]
+float roll_deg_wrapped = 0.0f;
+float pitch_deg_wrapped = 0.0f;
 float yaw_deg_wrapped = 0.0f;
 
 // ----------------------------
@@ -110,15 +112,29 @@ void loop() {
     prev_gyro_time_us = now_us;
 
     // ------------------ PRINT ON ONE LINE FOR SERIAL MONITOR ------------------
-    // Serial.print("GYRO [dps]:\t"); Serial.print(gx_dps, 2); Serial.print("\t"); Serial.print(gy_dps, 2); Serial.print("\t"); Serial.print(gz_dps, 2); Serial.print("\t");
-    // Serial.print("ANG_ACC [dps^2]:\t"); Serial.print(alpha_x, 2); Serial.print("\t"); Serial.print(alpha_y, 2); Serial.print("\t"); Serial.print(alpha_z, 2); Serial.print("\t");
-    // Serial.print("ACCEL [m/s^2]:\t"); Serial.print(ax, 2); Serial.print("\t"); Serial.print(ay, 2); Serial.print("\t"); Serial.print(az, 2); Serial.print("\t");
-    // Serial.print("YAW [deg]:\t"); Serial.println(yaw_deg_wrapped, 2);
+    Serial.print("GYRO [dps]: ");
+    Serial.print(gx_dps, 2); Serial.print(" ");
+    Serial.print(gy_dps, 2); Serial.print(" ");
+    Serial.print(gz_dps, 2); Serial.print(" | ");
 
+    Serial.print("ANG_ACC [dps^2]: ");
+    Serial.print(alpha_x, 2); Serial.print(" ");
+    Serial.print(alpha_y, 2); Serial.print(" ");
+    Serial.print(alpha_z, 2); Serial.print(" | ");
+
+    Serial.print("ACCEL [m/s^2]: ");
+    Serial.print(ax, 2); Serial.print(" ");
+    Serial.print(ay, 2); Serial.print(" ");
+    Serial.print(az, 2); Serial.print(" | ");
+
+    Serial.print("ROLL/PITCH/YAW [deg]: ");
+    Serial.print(roll_deg_wrapped, 2); Serial.print(" ");
+    Serial.print(pitch_deg_wrapped, 2); Serial.print(" ");
+    Serial.println(yaw_deg_wrapped, 2);
     // ------------------ PRINT ON ONE LINE FOR SERIAL PLOTTER ------------------
-    Serial.print(gx_dps, 3); Serial.print(","); Serial.print(gy_dps, 3); Serial.print(","); Serial.print(gz_dps, 3); Serial.print(","); // GYRO
-    Serial.print(alpha_x, 3); Serial.print(","); Serial.print(alpha_y, 3); Serial.print(","); Serial.print(alpha_z, 3); Serial.print(","); // Angular ACCEL
-    Serial.print(ax, 3); Serial.print(","); Serial.print(ay, 3); Serial.print(","); Serial.println(az, 3); // Linear ACCEL
+    // Serial.print(gx_dps, 3); Serial.print(","); Serial.print(gy_dps, 3); Serial.print(","); Serial.print(gz_dps, 3); Serial.print(","); // GYRO
+    // Serial.print(alpha_x, 3); Serial.print(","); Serial.print(alpha_y, 3); Serial.print(","); Serial.print(alpha_z, 3); Serial.print(","); // Angular ACCEL
+    // Serial.print(ax, 3); Serial.print(","); Serial.print(ay, 3); Serial.print(","); Serial.println(az, 3); // Linear ACCEL
 
   }
 
@@ -135,9 +151,19 @@ void loop() {
     quaternionToEuler(rv.real, rv.i, rv.j, rv.k, &ypr, true);
 
     // wrap yaw to (-180, 180]
+    roll_deg_wrapped = ypr.roll;
+    pitch_deg_wrapped = ypr.pitch;
     yaw_deg_wrapped = ypr.yaw;
+
+    if (roll_deg_wrapped > 180.0f) roll_deg_wrapped -= 360.0f;
+    if (roll_deg_wrapped <= -180.0f) roll_deg_wrapped += 360.0f;
+
+    if (pitch_deg_wrapped > 180.0f) pitch_deg_wrapped -= 360.0f;
+    if (pitch_deg_wrapped <= -180.0f) pitch_deg_wrapped += 360.0f;
+
     if (yaw_deg_wrapped > 180.0f) yaw_deg_wrapped -= 360.0f;
     if (yaw_deg_wrapped <= -180.0f) yaw_deg_wrapped += 360.0f;
+    
   }
 
   delay(10);
