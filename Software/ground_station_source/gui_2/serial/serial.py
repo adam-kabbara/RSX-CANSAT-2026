@@ -1,3 +1,0 @@
-"""
-Manage serial data
-"""

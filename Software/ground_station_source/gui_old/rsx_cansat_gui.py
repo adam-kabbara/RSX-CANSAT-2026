@@ -1,12 +1,5 @@
 """
 GUI for real-time CANSAT data visualisation
-
-Author: RSX
-Version: 1.4
-
-TODO:  
-- graph should auto scroll?
-- remove command log horizontal scrolling (idk how)
 """
 import sys
 import webbrowser
@@ -40,9 +33,6 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
     QTabWidget,
     QFormLayout,
-    QListWidget,
-    QListWidgetItem,
-    QAbstractItemView,
     QTextEdit,
     QApplication,
 )
@@ -294,8 +284,9 @@ class GroundStationApp(QMainWindow):
         self.__last_gyro_r                  = 0.0
         self.__last_gyro_p                  = 0.0
         self.__last_gyro_y                  = 0.0
-        self.log_repeat_count             = 0
-        self.last_msg, self.last_color  = None, None
+        self.__log_repeat_count             = 0
+        self.__last_msg                     = None
+        self.__last_msg_sat                 = False
         self.__simulation_proc              = None
         self.__simulation_mode              = False
 
@@ -752,9 +743,9 @@ class GroundStationApp(QMainWindow):
         gui_log_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         gui_log_title.setFont(graph_sidebar_font)
 
-        error_log_title = QLabel("Error Log")
-        error_log_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        error_log_title.setFont(graph_sidebar_font)
+        cansat_log_title = QLabel("CanSat Log")
+        cansat_log_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        cansat_log_title.setFont(graph_sidebar_font)
 
         self.gui_log = QTextEdit()
         self.gui_log.setReadOnly(True)
@@ -771,12 +762,12 @@ class GroundStationApp(QMainWindow):
             }
         """)
 
-        self.error_log = QTextEdit()
-        self.error_log.setReadOnly(True)
-        self.error_log.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.error_log.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        self.error_log.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.error_log.setStyleSheet("""
+        self.cansat_log = QTextEdit()
+        self.cansat_log.setReadOnly(True)
+        self.cansat_log.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.cansat_log.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        self.cansat_log.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.cansat_log.setStyleSheet("""
             QTextEdit {
                 font-size: 18px;
                 background-color: #dcdcdc;
@@ -789,8 +780,8 @@ class GroundStationApp(QMainWindow):
         log_layout.addWidget(gui_log_title)
         log_layout.addWidget(self.gui_log)
 
-        log_layout.addWidget(error_log_title)
-        log_layout.addWidget(self.error_log)
+        log_layout.addWidget(cansat_log_title)
+        log_layout.addWidget(self.cansat_log)
 
         grid_layout.setColumnStretch(2,1)
 
@@ -991,10 +982,10 @@ class GroundStationApp(QMainWindow):
             if self.gps_map_webview:
                 url = f"http://127.0.0.1:5000"
                 self.gps_map_webview.load(QUrl(url))
-                self.update_gui_log(f"Updated embedded map view to: {url}", "blue")
+                self.update_gui_log(f"Updated embedded map view to: {url}")
             
         except Exception as e:
-            self.update_gui_log(f"Map update failed: {e}", "red")
+            self.update_gui_log_error(f"Map update failed: {e}")
             webbrowser.open("map.html", new=2)
 
 
@@ -1002,29 +993,43 @@ class GroundStationApp(QMainWindow):
         super().resizeEvent(event)
         self.get_log_overlay.setGeometry(self.rect())
 
-    def update_gui_log(self, msg, color="black"):
-        if color == "red":
-            target_log = self.error_log
-        else:
+    def update_gui_log(self, msg):
+        self.update_logs(msg, sat_msg = False, color="black")
+
+    def update_gui_log_error(self, msg):
+        self.update_logs(msg, sat_msg = False, color="red")
+
+    def update_cansat_log(self, msg):
+        self.update_logs(msg, sat_msg = True, color="blue")
+
+    def update_cansat_log_error(self, msg):
+        self.update_logs(msg, sat_msg = True, color="red")
+
+    def update_logs(self, msg, sat_msg = False, color="black"):
+        if sat_msg == False:
             target_log = self.gui_log
+        else:
+            target_log = self.cansat_log
+
         current_time = QTime.currentTime().toString('h:mm AP')
-        if msg == self.last_msg and color == self.last_color:
-            self.log_repeat_count += 1
-            target_log.setTextColor(QColor(color))
+        target_log.setTextColor(QColor(color))
+
+        if msg == self.__last_msg and sat_msg == self.__last_msg_sat:
+            self.__log_repeat_count += 1
             cursor = target_log.textCursor()
             cursor.movePosition(QTextCursor.MoveOperation.End)
             cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock, QTextCursor.MoveMode.MoveAnchor)
             cursor.movePosition(QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.KeepAnchor)
-            cursor.insertText(f"{current_time} [{self.log_repeat_count}] {msg}")
+            cursor.insertText(f"{current_time} [{self.__log_repeat_count}] {msg}")
             cursor.clearSelection()
             cursor.movePosition(QTextCursor.MoveOperation.End)
             target_log.setTextCursor(cursor)
         else:
-            self.log_repeat_count = 1
-            self.last_msg = msg
-            self.last_color = color
-            target_log.setTextColor(QColor(color))
-            target_log.append(f"{current_time}     {msg}")
+            self.__log_repeat_count = 1
+            self.__last_msg = msg
+            self.__last_msg_sat = sat_msg
+            target_log.append(f"{current_time}      {msg}")
+
         scrollbar = target_log.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
 
@@ -1102,7 +1107,7 @@ class GroundStationApp(QMainWindow):
         if self.__serial.isOpen() is True:
             self.__serial.close()
             if self.__serial.isOpen():
-                self.update_gui_log("ERROR: Could not close port!", "red")
+                self.update_gui_log_error("ERROR: Could not close port!")
             else:
                 self.update_gui_log("Ground port was closed")
                 self.set_port_text_closed()
@@ -1114,7 +1119,7 @@ class GroundStationApp(QMainWindow):
             else:
                 self.update_gui_log(f"FAILED to open port: {self.__PORT_SELECTED_INFO.portName()}!")
         else:
-            self.update_gui_log("Select port before connecting!", "red")
+            self.update_gui_log_error("Select port before connecting!")
 
     def check_remote_connection(self):
         if(self.send_data("CMD,%d,TEST,X" % self.__TEAM_ID)):
@@ -1136,7 +1141,7 @@ class GroundStationApp(QMainWindow):
 
     def program_servo(self):
         if(self.__servo_id == -1 or self.__servo_val == -1):
-            self.update_gui_log("ERROR: Enter a servo # and value first!", "red")
+            self.update_gui_log_error("ERROR: Enter a servo # and value first!")
         elif(self.send_data("CMD,%d,MEC,SERVO:%d|%d" % (self.__TEAM_ID, self.__servo_id, self.__servo_val))):
             servo_label = self.servo_id_field.itemText(self.servo_id_field.findData(self.__servo_id))
             self.update_gui_log(f"Sent command to program {servo_label} to {self.__servo_val}")
@@ -1261,20 +1266,20 @@ class GroundStationApp(QMainWindow):
     @pyqtSlot(QSerialPort.SerialPortError)
     def handle_serial_error(self, error):
         if error == QSerialPort.SerialPortError.ResourceError:
-            self.update_gui_log("SERIAL ERROR: Device disconnected", "red")
+            self.update_gui_log_error("SERIAL ERROR: Device disconnected")
             self.__serial.close()
             self.set_port_text_closed()
         
         elif error == QSerialPort.SerialPortError.OpenError:
-            self.update_gui_log("SERIAL ERROR: Could not open port", "red")
+            self.update_gui_log_error("SERIAL ERROR: Could not open port")
 
         elif error == QSerialPort.SerialPortError.DeviceNotFoundError:
-            self.update_gui_log("SERIAL ERROR: Device not found", "red")
+            self.update_gui_log_error("SERIAL ERROR: Device not found")
             self.__serial.close()
             self.set_port_text_closed()
 
         elif error != QSerialPort.SerialPortError.NoError:
-            self.update_gui_log(f"SERIAL ERROR: {error} detected")
+            self.update_gui_log_error(f"SERIAL ERROR: {error} detected")
 
     def send_data(self, msg):
         if self.__simulation_mode and self.__simulation_proc:
@@ -1287,11 +1292,11 @@ class GroundStationApp(QMainWindow):
                 self.__serial.write(msg.encode())
                 return 1
             except Exception as e:
-                self.update_gui_log(f"ERROR: CANNOT SEND DATA - {e}", "red")
+                self.update_gui_log_error(f"ERROR: CANNOT SEND DATA - {e}")
                 self.__serial.close()
                 self.set_port_text_closed()
         else:
-            self.update_gui_log("ERROR: Open port before sending data!", "red")
+            self.update_gui_log_error("ERROR: Open port before sending dataaaaaaaaaaaaaaaaaaa sdaiofa uifah wehuifh ewfhu eafh heuif heuisafh eshuf hesaiufh eishf uieshiofh oiuhf esh fesahfaiuf!")
             return 0
     
     def send_simp_data(self):
@@ -1381,18 +1386,18 @@ class GroundStationApp(QMainWindow):
                         self.current_simp_idx = 0
                         self.simp_timer.start(1000)
                     except FileNotFoundError:
-                        self.update_gui_log("ERROR: Could not find SIMP data file cansat_2023_simp.txt!", "red")
+                        self.update_gui_log_error("ERROR: Could not find SIMP data file cansat_2023_simp.txt!")
 
             if msg.startswith("$E"):
-                self.update_gui_log(f"-> {msg_text}", "red")
+                self.update_cansat_log_error(f"{msg_text}")
             else:
-                self.update_gui_log(f"-> {msg_text}", "blue")
+                self.update_cansat_log(f"{msg_text}")
         else: # telemetry
             self.parse_telemetry_string(msg)
     
     def reset_mission(self):     
         self.gui_log.clear()
-        self.error_log.clear()
+        self.cansat_log.clear()
         for plotter in self.plotters:
                 plotter.reset_plot()
         self.__csv_file.seek(0)
