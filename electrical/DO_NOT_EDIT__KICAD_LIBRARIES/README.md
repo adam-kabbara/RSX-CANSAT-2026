@@ -6,7 +6,7 @@
 
 ### Please do not edit any of these files! They are linked to the Electrical Team's KiCad library setups and any edits will break the custom component connections on our PCB designs.
 
-### If any updates are required, please make sure to let [@danielz-yu](https://github.com/danielz-yu) know and push those change on the [kicad_custom_updates](https://github.com/adam-kabbara/RSX-CANSAT-2026/tree/kicad_custom_updates) branch
+### If any updates are required, please make sure to let [@danielz-yu](https://github.com/danielz-yu) know and push those change on the [kicad_custom_updates](https://github.com/adam-kabbara/RSX-CANSAT-2026/tree/kicad_custom_updates) branch.
 
 ### Download Steps:
 1. 📥 `git pull origin main` to update the [symbols](https://github.com/adam-kabbara/RSX-CANSAT-2026/tree/main/electrical/DO_NOT_EDIT__KICAD_LIBRARIES/symbols) and [footprints](https://github.com/adam-kabbara/RSX-CANSAT-2026/tree/main/electrical/DO_NOT_EDIT__KICAD_LIBRARIES/footprints) folders.
