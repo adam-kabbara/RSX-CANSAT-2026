@@ -20,8 +20,11 @@ This repository contains all files created by the Aerial Team of the Robotics fo
 - 💻 GitHub Repo: [RSX-CANSAT-2025](https://github.com/adam-kabbara/RSX-CANSAT-2025)
 
 <br>
-<div style="align: center;">
+<div style="align: center">
   <img src="competition_documentation/team_assets/mission_patch.png" alt="mission_patch" style="width: 120px; display: inline-block;"/>
   <img src="competition_documentation/team_assets/mascot_capybara_transparent.png" alt="mascot_capybara" width="120"/>
+</div>
+
+<div style="align: center">
   <img src="competition_documentation/team_assets/uoft_engineering.png" alt="uoft_engineering_logo" height="120"/>
 </div>
