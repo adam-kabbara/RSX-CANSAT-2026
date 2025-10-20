@@ -3,13 +3,14 @@
 This repository contains all files created by the Aerial Team of the Robotics for Space eXploration (RSX) design team at the University of Toronto, supporting our entry in the 2026 CanSat Competition for the 2025-2026 design cycle.
 
 **Competition Team Members:**
-| Name | Role |
-|:---:|:---:|
-| Adam Kabbara | Team Lead |
-| Alexey Albert | Jr. Team Lead |
-| Arthur Goetzke-Coburn | Mechanical Team Lead |
-| Daniel Yu | Electrical Team Lead |
-| Luke Watson | Software Team Lead |
+<table align="left">
+  <tr><td align="center">Adam Kabbara</td><td align="center">Team Lead</td></tr>
+  <tr><td align="center">Alexey Albert</td><td align="center">Jr. Team Lead</td></tr>
+  <tr><td align="center">Arthur Goetzke-Coburn</td><td align="center">Mechanical Team Lead</td></tr>
+  <tr><td align="center">Daniel Yu</td><td align="center">Electrical Team Lead</td></tr>
+  <tr><td align="center">Luke Watson</td><td align="center">Software Team Lead</td></tr>
+</table>
+<br><br><br><br><br><br><br><br><br>
 
 **CanSat Competition:**
 - 📅 June 4-7, 2026
@@ -23,11 +24,11 @@ This repository contains all files created by the Aerial Team of the Robotics fo
 
 # 
 
-<div style="align: center">
-  <img src="competition_documentation/team_assets/mission_patch.png" alt="mission_patch" style="width: 100px; margin-right: 20px;"/>
-  <img src="competition_documentation/team_assets/mascot_capybara_transparent.png" alt="mascot_capybara" style="width: 100px;"/>
+<div align="center">
+  <img src="competition_documentation/team_assets/mission_patch.png" alt="mission_patch" width="120" style="margin-right:20px;">
+  <img src="competition_documentation/team_assets/mascot_capybara_transparent.png" alt="mascot_capybara" width="120">
 </div>
 
-<p style="align: center">
+<p align="center">
   <img src="competition_documentation/team_assets/uoft_engineering.png" alt="uoft_engineering_logo" height="120"/>
 </p>
