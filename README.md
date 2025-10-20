@@ -21,7 +21,6 @@ This repository contains all files created by the Aerial Team of the Robotics fo
 
 # 
 
-<br>
 <div style="align: center">
   <img src="competition_documentation/team_assets/mission_patch.png" alt="mission_patch" style="width: 100px; margin-right: 20px;"/>
   <img src="competition_documentation/team_assets/mascot_capybara_transparent.png" alt="mascot_capybara" style="width: 100px;"/>
