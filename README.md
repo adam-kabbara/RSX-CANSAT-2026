@@ -1,5 +1,11 @@
 # RSX CanSat 2T5-2T6 Designs 
 
+<div align="left">
+  <img src="competition_documentation/team_assets/mission_patch.png" alt="mission_patch" width="120" style="margin-right:50px;">
+  <img src="competition_documentation/team_assets/mascot_capybara_transparent.png" alt="mascot_capybara" width="120">
+</div>
+<br>
+
 This repository contains all files created by the Aerial Team of the Robotics for Space eXploration (RSX) design team at the University of Toronto, supporting our entry in the 2026 CanSat Competition for the 2025-2026 design cycle.
 
 **Competition Team Members:**
@@ -24,11 +30,12 @@ This repository contains all files created by the Aerial Team of the Robotics fo
 
 # 
 
-<div align="center">
-  <img src="competition_documentation/team_assets/mission_patch.png" alt="mission_patch" width="120" style="margin-right:20px;">
-  <img src="competition_documentation/team_assets/mascot_capybara_transparent.png" alt="mascot_capybara" width="120">
-</div>
-
+<p align="center">
+  <img src="competition_documentation/team_assets/rsx_logo.png" alt="rsx_logo" height="180"/>
+</p>
 <p align="center">
   <img src="competition_documentation/team_assets/uoft_engineering.png" alt="uoft_engineering_logo" height="120"/>
+</p>
+<p align="center">
+  <img src="competition_documentation/team_assets/cansat_aas_logo.png" alt="cansat_aas_logo" height="500"/>
 </p>
