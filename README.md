@@ -4,10 +4,10 @@ This repository contains all files created by the Aerial Team of the Robotics fo
 
 **Competition Team Members:**
 | Adam Kabbara | Team Lead |
-- | Alexey Albert | Jr. Team Lead |
-- Arthur Goetzke-Coburn | Mechanical Team Lead
-- Daniel Yu | Electrical Team Lead
-- Luke Watson | Software Team Lead
+| Alexey Albert | Jr. Team Lead |
+| Arthur Goetzke-Coburn | Mechanical Team Lead |
+| Daniel Yu | Electrical Team Lead |
+| Luke Watson | Software Team Lead |
 
 **CanSat Competition:**
 - 📅 June 4-7, 2026
