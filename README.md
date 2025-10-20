@@ -3,8 +3,8 @@
 This repository contains all files created by the Aerial Team of the Robotics for Space eXploration (RSX) design team at the University of Toronto, supporting our entry in the 2026 CanSat Competition for the 2025-2026 design cycle.
 
 **Competition Team Members:**
-- Adam Kabbara | Team Lead
-- Alexey Albert | Jr. Team Lead
+| Adam Kabbara | Team Lead |
+- | Alexey Albert | Jr. Team Lead |
 - Arthur Goetzke-Coburn | Mechanical Team Lead
 - Daniel Yu | Electrical Team Lead
 - Luke Watson | Software Team Lead
