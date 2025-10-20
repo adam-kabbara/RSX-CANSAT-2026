@@ -1,2 +1,5 @@
-# lock project template file
+# Lock project template file
 /STM32_Project_Template/ @lj-watson
+
+# Lock KiCad custom models
+/electrical/DO_NOT_EDIT__KICAD_LIBRARIES/ @danielz-yu
