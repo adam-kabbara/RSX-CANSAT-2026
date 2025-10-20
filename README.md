@@ -19,6 +19,7 @@ This repository contains all files created by the Aerial Team of the Robotics fo
 - 🏆 2025 Competiton Results: [5th Place Internationally](https://cansatcompetition.com/winners.html)
 - 💻 GitHub Repo: [RSX-CANSAT-2025](https://github.com/adam-kabbara/RSX-CANSAT-2025)
 
+<br>
 <div style="display: flex; gap: 20px; align-items: center;">
   <img src="competition_documentation/team_assets/mission_patch.png" alt="mission_patch" width="120"/>
   <img src="competition_documentation/team_assets/mascot_capybara_transparent.png" alt="mascot_capybara" width="120"/>
