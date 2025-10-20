@@ -4,7 +4,7 @@ This repository contains all files created by the Aerial Team of the Robotics fo
 
 **Competition Team Members:**
 | Name | Role |
-| --- | --- |
+|:---:|:---:|
 | Adam Kabbara | Team Lead |
 | Alexey Albert | Jr. Team Lead |
 | Arthur Goetzke-Coburn | Mechanical Team Lead |
