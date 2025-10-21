@@ -6,7 +6,7 @@
 </div>
 <br>
 
-This repository contains all files created by the Aerial Team of the Robotics for Space eXploration (RSX) at the University of Toronto, supporting our entry in the 2026 CanSat Competition.
+This repository contains all files created by the Aerial Team of Robotics for Space eXploration (RSX) at the University of Toronto, supporting our entry in the 2026 CanSat Competition.
 
 **Competition Team Members:**
 <table align="left">
