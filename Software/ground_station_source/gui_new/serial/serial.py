@@ -4,18 +4,12 @@ Manage serial connection
 
 from PyQt6.QtSerialPort import QSerialPortInfo, QSerialPort
 from PyQt6.QtCore import QObject, QIODevice, pyqtSignal
-from enum import Enum, auto
-
-class SerialPortToggleStatus(Enum):
-    COULD_NOT_CLOSE  = auto()
-    CLOSED           = auto()
-    OPENED           = auto()
-    COULD_NOT_OPEN   = auto()
-    NO_PORT_SELECTED = auto()
 
 class SerialManager(QObject):
 
     error_catch = pyqtSignal(str)
+    fatal_catch = pyqtSignal(str)
+    print_catch = pyqtSignal(str)
     recv_data_str = pyqtSignal(str)
 
     def __init__(self, parent=None):
@@ -26,44 +20,70 @@ class SerialManager(QObject):
         self._serial.setBaudRate(57600)
         self._serial.readyRead.connect(self.recv_data)
         self._serial.errorOccurred.connect(self.handle_serial_error)
+        self._ports  = None
     
     # Search for open ports
-    @staticmethod
-    def search_ports():
-        return [(p.portName(), p.description(), p) for p in QSerialPortInfo.availablePorts()]
+    def search_ports(self) -> bool:
+        self._ports = QSerialPortInfo.availablePorts()
+        return [(p.portName(), p.description()) for p in self._ports]
     
-    # Open/close ports
-    def open_close_port(self, port_info: QSerialPortInfo):
-        if self._serial.isOpen() is True:
+    # Set port from list
+    def set_port(self, idx):
+        if self._ports is not None:
+            if idx > self._ports.len():
+                self.error_catch.emit("CODE ERROR: Selected port index greater than available list")
+                return
+            self._serial.setPort(self._ports[idx])
+            if self._serial.portName() == "":
+                self.error_catch.emit(f"ERROR: Could not set port to {self._ports[idx].portName()}")
+            else:
+                self.print_catch.emit(f"Port {self._ports[idx].portName()} {self._ports[idx].description()} selected")
+        else:
+            self.error_catch.emit("ERROR: Port list is empty")
+    
+    # Open connection on port
+    def open_port(self) -> bool:
+        if self._serial.portName() == "":
+            self.error_catch.emit("ERROR: No port selected")
+            return False
+        elif self._serial.isOpen():
+            self.error_catch.emit("ERROR: Port is already open")
+            return False
+        else:
+            if self._serial.open(QIODevice.OpenModeFlag.ReadWrite):
+                self.print_catch.emit("Port opened")
+                return True
+            else:
+                self.error_catch.emit("ERROR: Port could not be opened")
+                return False
+
+    # Close connection on port
+    def close_port(self) -> bool:
+        if self._serial.portName() == "":
+            self.error_catch.emit("ERROR: No port selected")
+            return False
+        if self._serial.isOpen():
             self._serial.close()
             if self._serial.isOpen():
-                return SerialPortToggleStatus.COULD_NOT_CLOSE
+                self.error_catch.emit("ERROR: Port could not be closed")
+                return False
             else:
-                return SerialPortToggleStatus.CLOSED
-        elif port_info is not None:
-            self._serial.setPort(self.__PORT_SELECTED_INFO)
-            if self._serial.open(QIODevice.OpenModeFlag.ReadWrite):
-                return SerialPortToggleStatus.OPENED
-            else:
-                return SerialPortToggleStatus.COULD_NOT_OPEN
+                self.print_catch.emit("Port closed")
+                return True
         else:
-            return SerialPortToggleStatus.NO_PORT_SELECTED
+            self.error_catch.emit("ERROR: Port is already closed")
+            return False
+    
+    # Check if port is open
+    def is_port_open(self) -> bool:
+        if self._serial.isOpen():
+            return True
+        return False
     
     # Handle serial connection error
     def handle_serial_error(self, error):
-        if error == QSerialPort.SerialPortError.ResourceError:
-            self.error_catch.emit("FATAL SERIAL ERROR: Device disconnected")
-            self._serial.close()
-        
-        elif error == QSerialPort.SerialPortError.OpenError:
-            self.error_catch.emit("FATAL SERIAL ERROR: Could not open port")
-
-        elif error == QSerialPort.SerialPortError.DeviceNotFoundError:
-            self.error_catch.emit("FATAL SERIAL ERROR: Device not found")
-            self._serial.close()
-
-        elif error != QSerialPort.SerialPortError.NoError:
-            self.error_catch.emit(f"FATAL SERIAL ERROR: {error} detected")
+        self.fatal_catch.emit(f"FATAL SERIAL ERROR: {error}")
+        self._serial.close()
 
     # Send data through serial port
     def send_data(self, msg):
@@ -74,12 +94,11 @@ class SerialManager(QObject):
                 return 1
             except Exception as e:
                 self.error_catch.emit(f"ERROR: CANNOT SEND DATA - {e}")
-                self._serial.close()
         else:
-            self.error_catch.emit("ERROR: Port is not open, cannot send data")
+            self.error_catch.emit("ERROR: Port is closed, cannot send data")
 
     # Process received data
-    def recv_data(self, write_to_logfile=False):
+    def recv_data(self):
         while self.__serial.canReadLine():
             msg = self.__serial.readLine().data().decode().strip()
             if msg:
