@@ -41,7 +41,7 @@ This repository contains all files created by the Aerial Team of Robotics for Sp
   <picture>
     <source srcset="competition_documentation/team_assets/uoft_engineering_logo_dark_mode.png" media="(prefers-color-scheme: dark)">
     <source srcset="competition_documentation/team_assets/uoft_engineering_logo_light_mode.png" media="(prefers-color-scheme: light)">
-    <img src="competition_documentation/team_assets/uoft_engineering_logo_light_mode.png" alt="uoft_engineering_logo" height="120"/>
+    <img src="competition_documentation/team_assets/uoft_engineering_logo_light_mode.png" alt="uoft_engineering_logo" height="120" style="height:120px; width:auto;/>
   </picture>
 </p>
 <p align="center">
