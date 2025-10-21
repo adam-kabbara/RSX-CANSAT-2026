@@ -32,7 +32,7 @@ This repository contains all files created by the Aerial Team of Robotics for Sp
 
 <p align="center">
   <picture>
-    <source srcset="competition_documentation/team_assets/rsx_logo_dark_mode.png" media="(prefers-color-scheme: dark)">
+    <source srcset="competition_documentation/team_assets/rsx_logo_dark_mode.svg" media="(prefers-color-scheme: dark)">
     <source srcset="competition_documentation/team_assets/rsx_logo_light_mode.png" media="(prefers-color-scheme: light)">
     <img src="competition_documentation/team_assets/rsx_logo_light_mode.png" alt="rsx_logo" height="180">
   </picture>
