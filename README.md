@@ -31,10 +31,10 @@ This repository contains all files created by the Aerial Team of Robotics for Sp
 # 
 
 <p align="center">
-  <img src="competition_documentation/team_assets/rsx_logo.png" alt="rsx_logo" height="180"/>
+  <img src="competition_documentation/team_assets/rsx_logo_light_mode.png" alt="rsx_logo" height="180"/>
 </p>
 <p align="center">
-  <img src="competition_documentation/team_assets/uoft_engineering.png" alt="uoft_engineering_logo" height="120"/>
+  <img src="competition_documentation/team_assets/uoft_engineering_light_mode.png" alt="uoft_engineering_logo" height="120"/>
 </p>
 <p align="center">
   <img src="competition_documentation/team_assets/cansat_aas_logo.png" alt="cansat_aas_logo" height="500"/>
