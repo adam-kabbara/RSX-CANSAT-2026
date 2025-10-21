@@ -34,16 +34,16 @@ This repository contains all files created by the Aerial Team of Robotics for Sp
   <picture>
     <source srcset="competition_documentation/team_assets/rsx_logo_dark_mode.svg" media="(prefers-color-scheme: dark)">
     <source srcset="competition_documentation/team_assets/rsx_logo_light_mode.png" media="(prefers-color-scheme: light)">
-    <img src="competition_documentation/team_assets/rsx_logo_light_mode.png" alt="rsx_logo" style="height:100%; width:auto;">
+    <img src="competition_documentation/team_assets/rsx_logo_light_mode.png" alt="rsx_logo" style="height:250px; width:auto;">
   </picture>
 </p>
 <p align="center">
   <picture>
     <source srcset="competition_documentation/team_assets/uoft_engineering_logo_dark_mode.png" media="(prefers-color-scheme: dark)">
     <source srcset="competition_documentation/team_assets/uoft_engineering_logo_light_mode.png" media="(prefers-color-scheme: light)">
-    <img src="competition_documentation/team_assets/uoft_engineering_logo_light_mode.png" alt="uoft_engineering_logo" style="height:100%%; width:auto;">
+    <img src="competition_documentation/team_assets/uoft_engineering_logo_light_mode.png" alt="uoft_engineering_logo" style="height:120px; width:auto;">
   </picture>
 </p>
 <p align="center">
-  <img src="competition_documentation/team_assets/cansat_aas_logo.png" alt="cansat_aas_logo" height="500">
+  <img src="competition_documentation/team_assets/cansat_aas_logo.png" alt="cansat_aas_logo" style="height:500">
 </p>
