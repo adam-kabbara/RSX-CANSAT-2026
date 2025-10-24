@@ -30,26 +30,58 @@ def command_font():
     command_status_font.setWeight(QFont.Weight.Medium)
     return command_status_font
 
-def graph_sidebar_font():
-    graph_sidebar_font = QFont()
-    graph_sidebar_font.setPointSize(14)
-    graph_sidebar_font.setWeight(QFont.Weight.DemiBold)
-    return graph_sidebar_font
-
 def credit_font():
     credit_font = QFont("Courier New")
     credit_font.setPointSize(10)
     return credit_font
 
-def live_graph_data_font():
+def log_font():
+    log_font = QFont()
+    log_font.setPointSize(14)
+    log_font.setWeight(QFont.Weight.DemiBold)
+    return log_font
+
+def sidebar_title_font():
+    sidebar_title_font = QFont()
+    sidebar_title_font.setPointSize(14)
+    sidebar_title_font.setWeight(QFont.Weight.DemiBold)
+    return sidebar_title_font
+
+def graph_font():
+    graph_font = QFont("Roboto Mono")
+    graph_font.setPointSize(14)
+    graph_font.setWeight(QFont.Weight.Bold)
+    return graph_font
+
+def graph_background():
+    return 'W'
+
+def graph_title(text):
+    return f'<span style="font-family: Monospace; font-size:14pt; font-weight:bold;">{text}</span>'
+
+def sidebar_data_font():
     live_graph_data_font = QFont("Roboto Mono")
     live_graph_data_font.setPointSize(14)
     return live_graph_data_font
 
-def live_graph_field_font():
+def sidebar_field_font():
     live_graph_field_font = QFont()
     live_graph_field_font.setPointSize(14)
     return live_graph_field_font
+
+def graph_pen_color(line_num):
+    match line_num:
+        case 0:
+            return (255, 0, 0)
+        case 1:
+            return (0, 255, 0)
+        case 2:
+            return (0, 0, 255)
+        case _:
+            return (144,144,144)
+
+def graph_pen_size():
+    return 3
 
 def set_label_default(text):
     return f'<span style="color:black;">{text} \
@@ -102,25 +134,6 @@ def log_stylesheet():
                 border-radius: 6px;
                 padding: 3px;
                 font-family: monospace;
-            }
-        """
-
-def tab_widget_stylesheet():
-    return """
-            QTabBar::tab {
-                font-size: 14pt;
-                padding: 4px 8px;
-                background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, 
-                                    stop:0 rgba(255, 255, 255, 255), 
-                                    stop:1 rgba(240, 240, 240, 255)); 
-                border: 1px solid lightgray;
-                border-top-left-radius: 6px;
-                border-top-right-radius: 6px;
-            }
-            QTabBar::tab:selected {
-                background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, 
-                                    stop:0 rgba(240, 240, 240, 255), 
-                                    stop:1 rgba(210, 210, 210, 255)); 
             }
         """
 

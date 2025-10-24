@@ -2,14 +2,11 @@
 Front end GUI elements for command window
 """
 
-from PyQt6.QtWidgets import QMainWindow
-import cosmetics
-from serial.serial import SerialManager, SerialPortToggleStatus
 from enum import Enum
-from PyQt6.QtGui import QColor, QIcon, QIntValidator, QTextCursor
-from PyQt6.QtCore import Qt, QTime
 from datetime import datetime, timezone
 import time
+from PyQt6.QtGui import QColor, QIcon, QIntValidator, QTextCursor
+from PyQt6.QtCore import Qt, QTime
 from PyQt6.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -25,6 +22,9 @@ from PyQt6.QtWidgets import (
     QTabWidget,
     QTextEdit,
 )
+
+from serial.serial import SerialManager
+import cosmetics
 
 class CommandButtonGroup(Enum):
     MAIN = 0
@@ -50,8 +50,7 @@ class CommandWindow(QMainWindow):
 
         # ------ FONTS ------ #
         button_font = cosmetics.button_font()
-        graph_sidebar_font = cosmetics.graph_sidebar_font()
-        credit_font = cosmetics.credit_font()
+        log_font = cosmetics.log_font()
         # ------ FONTS ------ #
 
         # CENTRAL WIDGET
@@ -376,11 +375,11 @@ class CommandWindow(QMainWindow):
 
         gui_log_title = QLabel("Command Log")
         gui_log_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        gui_log_title.setFont(graph_sidebar_font)
+        gui_log_title.setFont(log_font)
 
         cansat_log_title = QLabel("CanSat Log")
         cansat_log_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        cansat_log_title.setFont(graph_sidebar_font)
+        cansat_log_title.setFont(log_font)
 
         self.gui_log = QTextEdit()
         self.gui_log.setReadOnly(True)
