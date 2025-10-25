@@ -22,10 +22,9 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QComboBox,
-    QTextEdit,
     QSystemTrayIcon,
     QMessageBox,
-    QApplication
+    QApplication, QAbstractItemView, QTableWidget, QTableWidgetItem, QHeaderView
 )
 
 class CommandButtonGroup(Enum):
@@ -49,6 +48,7 @@ class CommandWindow(QMainWindow):
         self.__CURRENT_CMD_WINDOW = None
         self.__last_msg           = None
         self.__last_msg_sat       = False
+        self.__last_prop_item     = None
         self.__log_repeat_count   = 0
         self._serial              = serial
         self._graph_ui            = graph_ui
@@ -395,19 +395,50 @@ class CommandWindow(QMainWindow):
         cansat_log_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         cansat_log_title.setFont(log_font)
 
-        self.gui_log = QTextEdit()
-        self.gui_log.setReadOnly(True)
+        self.gui_log = QTableWidget()
+        self.gui_log.setColumnCount(2)
+        self.gui_log.setWordWrap(True)
+        self.gui_log.verticalHeader().setVisible(False)
+        self.gui_log.horizontalHeader().setVisible(False)
+        self.gui_log.setShowGrid(False)
+        self.gui_log.setHorizontalHeaderLabels(["Prop", "Message"])
+        self.gui_log.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.gui_log.setColumnWidth(0, 58)
+        self.gui_log.setTextElideMode(Qt.TextElideMode.ElideNone)
+        self.gui_log.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        self.gui_log.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.gui_log.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.gui_log.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        self.gui_log.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.gui_log.setStyleSheet(cosmetics.log_stylesheet())
+        self.gui_log.setStyleSheet("""
+            QTableWidget {
+                font-size: 14px;
+                background-color: #dcdcdc;
+                border-radius: 6px;
+                padding: 3px;
+            }
+        """)
 
-        self.cansat_log = QTextEdit()
-        self.cansat_log.setReadOnly(True)
+        self.cansat_log = QTableWidget()
+        self.cansat_log.setColumnCount(2)
+        self.cansat_log.setWordWrap(True)
+        self.cansat_log.verticalHeader().setVisible(False)
+        self.cansat_log.horizontalHeader().setVisible(False)
+        self.cansat_log.setShowGrid(False)
+        self.cansat_log.setHorizontalHeaderLabels(["Prop", "Message"])
+        self.cansat_log.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.cansat_log.setColumnWidth(0, 58)
+        self.cansat_log.setTextElideMode(Qt.TextElideMode.ElideNone)
+        self.cansat_log.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        self.cansat_log.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.cansat_log.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.cansat_log.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        self.cansat_log.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.cansat_log.setStyleSheet(cosmetics.log_stylesheet())
+        self.cansat_log.setStyleSheet("""
+            QTableWidget {
+                font-size: 14px;
+                background-color: #dcdcdc;
+                border-radius: 6px;
+                padding: 3px;
+            }
+        """)
+
 
         gui_log_layout.addWidget(gui_log_title)
         gui_log_layout.addWidget(self.gui_log)
@@ -445,32 +476,39 @@ class CommandWindow(QMainWindow):
         self.update_logs(msg, sat_msg = True, color=cosmetics.sat_log_error_color())
 
     def update_logs(self, msg, sat_msg = False, color="black"):
+        time = QTime.currentTime().toString('h:mm AP')
+        msg_item = QTableWidgetItem(f"{msg}")
+        msg_item.setForeground(QColor(color))
+
         if sat_msg == False:
             target_log = self.gui_log
         else:
             target_log = self.cansat_log
 
-        current_time = QTime.currentTime().toString('h:mm AP')
-        target_log.setTextColor(QColor(color))
-
+        # Check repeat msgs
         if msg == self.__last_msg and sat_msg == self.__last_msg_sat:
-            self.__log_repeat_count += 1
-            cursor = target_log.textCursor()
-            cursor.movePosition(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.MoveAnchor)
-            cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock, QTextCursor.MoveMode.MoveAnchor)
-            cursor.movePosition(QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.KeepAnchor)
-            cursor.insertText(f"{current_time} [{self.__log_repeat_count}] {msg}")
-            cursor.clearSelection()
-            cursor.movePosition(QTextCursor.MoveOperation.End)
-            target_log.setTextCursor(cursor)
+            # Update prop column
+            self.__log_repeat_count = self.__log_repeat_count + 1
+            prop_item = self.__last_prop_item
+            prop_item.setText(f"{time}\n[{self.__log_repeat_count}]")
+            target_log.resizeRowsToContents()
         else:
+            # Insert a new row
+            if self.__log_repeat_count > 1:
+                prop_item = QTableWidgetItem(f"{time}\n")
+            else:
+                prop_item = QTableWidgetItem(f"{time}")
+            msg_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+            prop_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+            target_log.insertRow(0)
+            target_log.setItem(0, 0, prop_item)
+            target_log.setItem(0, 1, msg_item)
+            target_log.resizeRowsToContents()
+            target_log.scrollToTop()
             self.__log_repeat_count = 1
             self.__last_msg = msg
             self.__last_msg_sat = sat_msg
-            target_log.append(f"{current_time}      {msg}")
-
-        scrollbar = target_log.verticalScrollBar()
-        scrollbar.setValue(scrollbar.maximum())
+            self.__last_prop_item = prop_item
 
     # Change what buttons are shown in the commands box
     def command_group_change_buttons(self, mode):
