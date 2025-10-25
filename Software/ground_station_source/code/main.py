@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     gui.cosmetics.set_app_style(app)
 
-    graphing.showMaximized()
+    graphing.show()
     command.show()
 
     app.exec()

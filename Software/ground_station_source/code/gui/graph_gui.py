@@ -31,6 +31,8 @@ class GraphWindow(QMainWindow):
         self._packets_recv = 0
         self._packets_sent = 0
         self._graph_time_window = 500 # how long data stays on graph
+        self._screen_width_cm = 32.1
+        self._screen_height_cm = 20
 
         self.setWindowTitle("Live Data")
         icon_path = os.path.join(os.path.dirname(__file__), '..', 'media', 'icon.png')
@@ -43,6 +45,10 @@ class GraphWindow(QMainWindow):
         # CENTRAL WIDGET
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
+        pixel_width = int((self._screen_width_cm / 2.54) * 96)
+        self.central_widget.setFixedWidth(pixel_width)
+        pixel_height = int((self._screen_height_cm / 2.54) * 96)
+        self.central_widget.setFixedHeight(pixel_height)
 
         graph_parent_group = QHBoxLayout(self.central_widget)
         
@@ -90,10 +96,6 @@ class GraphWindow(QMainWindow):
         # Sidebar to show all current graph values
         sidebar_widget = QWidget()
         sidebar = QVBoxLayout(sidebar_widget)
-
-        info_label = QLabel("Live Values")
-        info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        info_label.setFont(cosmetics.sidebar_title_font())
         
         credit_label = QLabel("Made by the Engineers of RSX at the University of Toronto")
         credit_label.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -142,7 +144,6 @@ class GraphWindow(QMainWindow):
         form_group = QGroupBox()
         form_group.setLayout(live_graph_values)
 
-        sidebar.addWidget(info_label)
         sidebar.addWidget(form_group)
         sidebar.addStretch()
         sidebar.addWidget(credit_label)

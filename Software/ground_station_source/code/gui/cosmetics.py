@@ -68,12 +68,6 @@ def log_font():
     log_font.setWeight(QFont.Weight.DemiBold)
     return log_font
 
-def sidebar_title_font():
-    sidebar_title_font = QFont()
-    sidebar_title_font.setPointSize(14)
-    sidebar_title_font.setWeight(QFont.Weight.DemiBold)
-    return sidebar_title_font
-
 def graph_font():
     graph_font = QFont("Roboto Mono")
     graph_font.setPointSize(14)
