@@ -1,3 +1,3 @@
 """
-Process simulated pressure data
+Handle simulated pressure data
 """

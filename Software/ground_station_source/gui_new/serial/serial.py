@@ -10,7 +10,7 @@ class SerialManager(QObject):
     error_catch = pyqtSignal(str)
     fatal_catch = pyqtSignal(str)
     print_catch = pyqtSignal(str)
-    recv_data_str = pyqtSignal(str)
+    recv_data_signal = pyqtSignal(str)
 
     def __init__(self, parent=None):
 
@@ -21,6 +21,8 @@ class SerialManager(QObject):
         self._serial.readyRead.connect(self.recv_data)
         self._serial.errorOccurred.connect(self.handle_serial_error)
         self._ports  = None
+        self._port_name = None
+        self._port_desc = None
     
     # Search for open ports
     def search_ports(self) -> bool:
@@ -30,14 +32,16 @@ class SerialManager(QObject):
     # Set port from list
     def set_port(self, idx):
         if self._ports is not None:
-            if idx > self._ports.len():
-                self.error_catch.emit("CODE ERROR: Selected port index greater than available list")
+            if idx > len(self._ports):
+                self.error_catch.emit("CODE ERROR: Selected port index beyond available list")
                 return
             self._serial.setPort(self._ports[idx])
             if self._serial.portName() == "":
                 self.error_catch.emit(f"ERROR: Could not set port to {self._ports[idx].portName()}")
             else:
-                self.print_catch.emit(f"Port {self._ports[idx].portName()} {self._ports[idx].description()} selected")
+                self._port_name = self._ports[idx].portName()
+                self._port_desc = self._ports[idx].description()
+                self.print_catch.emit(f"Port {self._port_name} {self._port_desc} selected")
         else:
             self.error_catch.emit("ERROR: Port list is empty")
     
@@ -51,7 +55,7 @@ class SerialManager(QObject):
             return False
         else:
             if self._serial.open(QIODevice.OpenModeFlag.ReadWrite):
-                self.print_catch.emit("Port opened")
+                self.print_catch.emit(f"Port opened on {self._port_name} {self._port_desc}")
                 return True
             else:
                 self.error_catch.emit("ERROR: Port could not be opened")
@@ -73,6 +77,12 @@ class SerialManager(QObject):
         else:
             self.error_catch.emit("ERROR: Port is already closed")
             return False
+        
+    def get_port_info(self):
+        if self._port_name is not None and self._port_desc is not None:
+            return f"{self._port_name} {self._port_desc}"
+        else:
+            return "ERROR_PORT_INFO_NOT_FOUND"
     
     # Check if port is open
     def is_port_open(self) -> bool:
@@ -94,12 +104,14 @@ class SerialManager(QObject):
                 return 1
             except Exception as e:
                 self.error_catch.emit(f"ERROR: CANNOT SEND DATA - {e}")
+                return 0
         else:
             self.error_catch.emit("ERROR: Port is closed, cannot send data")
+            return 0
 
     # Process received data
     def recv_data(self):
         while self.__serial.canReadLine():
             msg = self.__serial.readLine().data().decode().strip()
             if msg:
-                self.recv_data_str.emit(msg)
+                self.recv_data_signal.emit(msg)

@@ -17,6 +17,7 @@ class BaseDynamicPlotter:
     def __init__(self, title, timewindow, x_unit, y_unit):
         self.timewindow = timewindow
         self.last_time = None
+        self.base_line_color_idx = 0
 
         font = gui.cosmetics.graph_font()
 
@@ -45,8 +46,8 @@ class BaseDynamicPlotter:
 # Plotting system for regular graphs with 1 line
 class DynamicPlotter(BaseDynamicPlotter):
 
-    def __init__(self, plot, title, timewindow, x_unit, y_unit):
-        super().__init__(plot, title, timewindow, x_unit, y_unit)
+    def __init__(self, title, timewindow, x_unit, y_unit):
+        super().__init__(title, timewindow, x_unit, y_unit)
         self.databuffer = deque([0.0] * timewindow, maxlen=timewindow)
         self.x = np.linspace(-timewindow, 0, timewindow)
         self.y = np.zeros(self.databuffer.maxlen, dtype=float)
@@ -79,8 +80,8 @@ class DynamicPlotter(BaseDynamicPlotter):
 
 # Plotting system for graphs with multiple lines
 class DynamicPlotter_MultiLine(BaseDynamicPlotter):
-    def __init__(self, plot, title, timewindow, num_lines, x_unit, y_unit):
-        super().__init__(plot, title, timewindow, x_unit, y_unit)
+    def __init__(self, title, timewindow, num_lines, x_unit, y_unit):
+        super().__init__(title, timewindow, x_unit, y_unit)
         self.num_lines = num_lines
         self.databuffer = [deque([0.0] * timewindow, maxlen=timewindow) for _ in range(num_lines)]
         self.x = np.linspace(-timewindow, 0, timewindow)

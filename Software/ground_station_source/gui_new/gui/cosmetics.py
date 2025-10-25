@@ -9,6 +9,21 @@ def set_app_style(app: QApplication):
     app.setStyle('Fusion')
     app.setPalette(customPalette())
 
+def gui_log_normal_color():
+    return "black"
+
+def gui_log_error_color():
+    return "blue"
+
+def gui_log_fatal_color():
+    return "red"
+
+def sat_log_normal_color():
+    return "black"
+
+def sat_log_error_color():
+    return "red"
+
 def graph_font():
     font = QFont("Roboto Mono")
     font.setPointSize(14)
@@ -54,7 +69,7 @@ def graph_font():
     return graph_font
 
 def graph_background():
-    return 'W'
+    return 'w'
 
 def graph_title(text):
     return f'<span style="font-family: Monospace; font-size:14pt; font-weight:bold;">{text}</span>'

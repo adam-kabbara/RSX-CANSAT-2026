@@ -3,15 +3,18 @@ Front end GUI elements for command window
 """
 
 from enum import Enum
-from datetime import datetime, timezone
-import time
+import os
+from . import cosmetics
+from serial.serial import SerialManager
+from .graph_gui import GraphWindow
+from data.process import DataProcessor
+from command.commands import Commands
 from PyQt6.QtGui import QColor, QIcon, QIntValidator, QTextCursor
 from PyQt6.QtCore import Qt, QTime
 from PyQt6.QtWidgets import (
     QMainWindow,
     QPushButton,
     QWidget,
-    QMessageBox,
     QLabel,
     QGridLayout,
     QGroupBox,
@@ -19,12 +22,11 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QComboBox,
-    QTabWidget,
     QTextEdit,
+    QSystemTrayIcon,
+    QMessageBox,
+    QApplication
 )
-
-from serial.serial import SerialManager
-import cosmetics
 
 class CommandButtonGroup(Enum):
     MAIN = 0
@@ -36,17 +38,42 @@ class CommandButtonGroup(Enum):
 
 class CommandWindow(QMainWindow):
 
-    def __init__(self, parent=None):
-
-        self.__TEAM_ID            = 3114
-        self.__set_time_id        = 1
-        self.__CURRENT_CMD_WINDOW = None
-        self._port_selected_idx   = None
+    def __init__(self, serial: SerialManager, graph_ui: GraphWindow, processor: DataProcessor, parent=None):
 
         super().__init__(parent)
 
+        self.__set_time_id        = 1
+        self.__camera_id          = 1
+        self.__servo_id           = -1
+        self.__servo_val          = -1
+        self.__CURRENT_CMD_WINDOW = None
+        self.__last_msg           = None
+        self.__last_msg_sat       = False
+        self.__log_repeat_count   = 0
+        self._serial              = serial
+        self._graph_ui            = graph_ui
+        self._processor           = processor
+        self.command_manager      = Commands(self._serial)
+
+        self._serial.error_catch.connect(self.update_gui_log_error)
+        self._serial.fatal_catch.connect(self.serial_fatal)
+        self._serial.print_catch.connect(self.update_gui_log)
+
+        self.command_manager.print_signal.connect(self.update_gui_log)
+
+        self._processor.log_end_signal.connect(self.logfile_finish)
+        self._processor.log_begin_signal.connect(self.logfile_start)
+        self._processor.file_error_signal.connect(self.update_gui_log_error)
+        self._processor.sat_resp_signal.connect(self.update_cansat_log)
+        self._processor.sat_error_signal.connect(self.update_cansat_log_error)
+
         self.setWindowTitle("Command Center")
-        self.setWindowIcon(QIcon('../media/icon.png'))
+        icon_path = os.path.join(os.path.dirname(__file__), '..', 'media', 'icon.png')
+        self.setWindowIcon(QIcon(icon_path))
+        tray = QSystemTrayIcon()
+        tray.setIcon(QIcon(icon_path))
+        tray.setVisible(True)
+        tray.show()
 
         # ------ FONTS ------ #
         button_font = cosmetics.button_font()
@@ -91,12 +118,13 @@ class CommandWindow(QMainWindow):
 
         self.button_transmit_on = QPushButton("START MISSION")
         self.button_transmit_on.setFont(button_font)
-        self.button_transmit_on.clicked.connect(lambda: self.toggle_transmission(1))
+        self.button_transmit_on.clicked.connect(self.start_transmission)
         self.button_transmit_on.hide()
 
+        # TODO: close csv file and any other clean up on receiving confirmation of mission end
         self.button_transmit_off = QPushButton("END MISSION")
         self.button_transmit_off.setFont(button_font)
-        self.button_transmit_off.clicked.connect(lambda: self.toggle_transmission(0))
+        self.button_transmit_off.clicked.connect(self.command_manager.command__end_mission)
         self.button_transmit_off.hide()
 
         self.button_advanced = QPushButton("ADVANCED")
@@ -116,14 +144,14 @@ class CommandWindow(QMainWindow):
 
         self.button_restart = QPushButton("RESTART PROCESSOR")
         self.button_restart.setFont(button_font)
-        self.button_restart.clicked.connect(self.send_restart)
+        self.button_restart.clicked.connect(self.command_manager.command__restart)
         self.button_restart.hide()
 
         set_time_box = QHBoxLayout()
 
         self.button_set_time = QPushButton("SET TIME")
         self.button_set_time.setFont(button_font)
-        self.button_set_time.clicked.connect(self.send_time)
+        self.button_set_time.clicked.connect(lambda: self.command_manager.command__send_time(self.__set_time_id))
         self.button_set_time.hide()
 
         self.set_time_field = QComboBox()
@@ -136,29 +164,24 @@ class CommandWindow(QMainWindow):
         set_time_box.addWidget(self.button_set_time)
         set_time_box.addWidget(self.set_time_field)
 
-        self.button_show_map = QPushButton("SHOW MAP")
-        self.button_show_map.setFont(button_font)
-        self.button_show_map.clicked.connect(lambda: self.update_map_view(self.GPS_LAT, self.GPS_LONG))
-        self.button_show_map.hide()
-
-        self.button_reset_mission = QPushButton("CLEAR PLOTS, COMMAND LOG, CSV FILE")
+        self.button_reset_mission = QPushButton("RESET ALL DATA")
         self.button_reset_mission.setFont(button_font)
         self.button_reset_mission.clicked.connect(self.reset_mission)
         self.button_reset_mission.hide()
 
         self.button_sim_mode_enable = QPushButton("SIM MODE ENABLE")
         self.button_sim_mode_enable.setFont(button_font)
-        self.button_sim_mode_enable.clicked.connect(lambda: self.change_sim_mode("ENABLE"))
+        self.button_sim_mode_enable.clicked.connect(lambda: self.command_manager.command__sim_mode("ENABLE"))
         self.button_sim_mode_enable.hide()
 
         self.button_sim_mode_activate = QPushButton("SIM MODE ACTIVATE")
         self.button_sim_mode_activate.setFont(button_font)
-        self.button_sim_mode_activate.clicked.connect(lambda: self.change_sim_mode("ACTIVATE"))
+        self.button_sim_mode_activate.clicked.connect(lambda: self.command_manager.command__sim_mode("ACTIVATE"))
         self.button_sim_mode_activate.hide()
 
         self.button_sim_mode_disable = QPushButton("SIM MODE DISABLE")
         self.button_sim_mode_disable.setFont(button_font)
-        self.button_sim_mode_disable.clicked.connect(lambda: self.change_sim_mode("DISABLE"))
+        self.button_sim_mode_disable.clicked.connect(lambda: self.command_manager.command__sim_mode("DISABLE"))
         self.button_sim_mode_disable.hide()
 
         self.button_refresh_ports = QPushButton("REFRESH PORTS")
@@ -168,7 +191,7 @@ class CommandWindow(QMainWindow):
 
         self.button_get_log_data = QPushButton("GET CANSAT LOG DATA")
         self.button_get_log_data.setFont(button_font)
-        self.button_get_log_data.clicked.connect(self.get_log_data)
+        self.button_get_log_data.clicked.connect(self.command_manager.command__get_log)
         self.button_get_log_data.hide()
 
         self.button_sensor_control = QPushButton("SENSOR CONTROL")
@@ -177,12 +200,12 @@ class CommandWindow(QMainWindow):
 
         self.button_altitude_cal = QPushButton("CALIBRATE ALTITUDE")
         self.button_altitude_cal.setFont(button_font)
-        self.button_altitude_cal.clicked.connect(self.altitude_cal)
+        self.button_altitude_cal.clicked.connect(self.command_manager.command__alt_cal)
         self.button_altitude_cal.hide()
 
         self.button_test_connection = QPushButton("CHECK CONNECTION")
         self.button_test_connection.setFont(button_font)
-        self.button_test_connection.clicked.connect(self.check_remote_connection)
+        self.button_test_connection.clicked.connect(self.command_manager.command__check_connection)
         self.button_test_connection.hide()
 
         ### Program servo
@@ -190,10 +213,10 @@ class CommandWindow(QMainWindow):
 
         self.servo_id_field = QComboBox()
         self.servo_id_field.setPlaceholderText("SELECT SERVO")
-        self.servo_id_field.addItem("Camera [CPL3] [F]", 0)
-        self.servo_id_field.addItem("Gyro [CPL1] [F]", 2)
-        self.servo_id_field.addItem("Release [CLP2] [F]", 1)
-        self.servo_id_field.addItem("Gyro [Camera] [B]", 3)
+        self.servo_id_field.addItem("Servo 1", 0)
+        self.servo_id_field.addItem("Servo 2", 1)
+        self.servo_id_field.addItem("Servo 3", 2)
+        self.servo_id_field.addItem("Servo 4", 3)
         self.servo_id_field.setFont(button_font)
         self.servo_id_field.activated.connect(self.servo_id_edited)
 
@@ -207,7 +230,7 @@ class CommandWindow(QMainWindow):
 
         self.program_servo_button = QPushButton(" PROGRAM SERVO ")
         self.program_servo_button.setFont(button_font)
-        self.program_servo_button.clicked.connect(self.program_servo)
+        self.program_servo_button.clicked.connect(lambda: self.command_manager.command__write_servo(self.__servo_id, self.__servo_val))
         self.program_servo_button.hide()
 
         program_servo_box.addWidget(self.program_servo_button)
@@ -231,7 +254,7 @@ class CommandWindow(QMainWindow):
 
         self.program_camera_button = QPushButton("TOGGLE CAMERA")
         self.program_camera_button.setFont(button_font)
-        self.program_camera_button.clicked.connect(self.toggle_camera)
+        self.program_camera_button.clicked.connect(lambda: self.command_manager.command__toggle_camera(self.__camera_id))
 
         program_camera_box.addWidget(self.program_camera_button)
         program_camera_box.addWidget(self.camera_id_field)
@@ -242,12 +265,12 @@ class CommandWindow(QMainWindow):
 
         self.probe_release_force = QPushButton("FORCE PROBE RELEASE")
         self.probe_release_force.setFont(button_font)
-        self.probe_release_force.clicked.connect(self.force_probe_release)
+        self.probe_release_force.clicked.connect(self.command_manager.command__probe_release)
         self.probe_release_force.hide()
 
         self.camera_status_button = QPushButton("GET CAMERA STATUS")
         self.camera_status_button.setFont(button_font)
-        self.camera_status_button.clicked.connect(self.get_cam_status)
+        self.camera_status_button.clicked.connect(self.command_manager.command__cam_status)
         self.camera_status_button.hide()
 
         self.team_id_field = QLineEdit()
@@ -264,11 +287,6 @@ class CommandWindow(QMainWindow):
         team_id_editing_box.addWidget(self.team_id_field)
         self.team_id_field_info.hide()
         self.team_id_field.hide()
-
-        self.gui_simulation_button = QPushButton("Start GUI Simulation")
-        self.gui_simulation_button.setFont(button_font)
-        self.gui_simulation_button.clicked.connect(self.start_stop_gui_simulation) #TODO: WRITE THIS FUNCTION
-        self.gui_simulation_button.hide()
 
         commands_layout.addWidget(self.button_connection_group)
         commands_layout.addWidget(self.combo_select_port)
@@ -289,14 +307,12 @@ class CommandWindow(QMainWindow):
         commands_layout.addWidget(self.button_advanced)
         commands_layout.addLayout(set_time_box)
         commands_layout.addWidget(self.button_reset_mission)
-        commands_layout.addWidget(self.button_show_map)
         commands_layout.addWidget(self.button_sim_mode_enable)
         commands_layout.addWidget(self.button_sim_mode_activate)
         commands_layout.addWidget(self.button_sim_mode_disable)
         commands_layout.addWidget(self.button_get_log_data)
         commands_layout.addWidget(self.probe_release_force)
         commands_layout.addLayout(team_id_editing_box)
-        commands_layout.addWidget(self.gui_simulation_button)
         commands_layout.addWidget(self.button_back)
 
         grid_layout.setColumnStretch(0,1)
@@ -313,13 +329,11 @@ class CommandWindow(QMainWindow):
         ]
         
         self.buttons_adv = [
-            self.button_show_map,
             self.button_reset_mission,
             self.button_back,
             self.button_get_log_data,
             self.team_id_field,
             self.team_id_field_info,
-            self.gui_simulation_button,
         ]
 
         self.buttons_telemetry = [
@@ -410,31 +424,25 @@ class CommandWindow(QMainWindow):
         grid_layout.addWidget(sat_log_widget, 0, 2)
         # ------ END LOG GROUP ------ #
 
-        # ------ GRAPH GROUP ------ #
-        graph_parent_group = QHBoxLayout()
-        self.tab_widget = QTabWidget()
-        graph_parent_group.addWidget(self.tab_widget, stretch=8)
-
-        self.tab_widget.setStyleSheet(cosmetics.tab_widget_stylesheet())
-        self.tab_widget.currentChanged.connect(self.on_tab_changed)
-
-        self.showMaximized()
-
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.get_log_overlay.setGeometry(self.rect())
 
+    def serial_fatal(self, msg):
+        self.update_logs(msg, sat_msg=False, color=cosmetics.gui_log_fatal_color())
+        self._graph_ui.set_port_text_closed()
+
     def update_gui_log(self, msg):
-        self.update_logs(msg, sat_msg = False, color="black")
+        self.update_logs(msg, sat_msg = False, color=cosmetics.gui_log_normal_color())
 
     def update_gui_log_error(self, msg):
-        self.update_logs(msg, sat_msg = False, color="red")
+        self.update_logs(msg, sat_msg = False, color=cosmetics.gui_log_error_color())
 
     def update_cansat_log(self, msg):
-        self.update_logs(msg, sat_msg = True, color="blue")
+        self.update_logs(msg, sat_msg = True, color=cosmetics.sat_log_normal_color())
 
     def update_cansat_log_error(self, msg):
-        self.update_logs(msg, sat_msg = True, color="red")
+        self.update_logs(msg, sat_msg = True, color=cosmetics.sat_log_error_color())
 
     def update_logs(self, msg, sat_msg = False, color="black"):
         if sat_msg == False:
@@ -448,7 +456,7 @@ class CommandWindow(QMainWindow):
         if msg == self.__last_msg and sat_msg == self.__last_msg_sat:
             self.__log_repeat_count += 1
             cursor = target_log.textCursor()
-            cursor.movePosition(QTextCursor.MoveOperation.End)
+            cursor.movePosition(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.MoveAnchor)
             cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock, QTextCursor.MoveMode.MoveAnchor)
             cursor.movePosition(QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.KeepAnchor)
             cursor.insertText(f"{current_time} [{self.__log_repeat_count}] {msg}")
@@ -519,9 +527,8 @@ class CommandWindow(QMainWindow):
     def refresh_ports(self, b_print):
         self.combo_select_port.clear()
         self.combo_select_port.setPlaceholderText("SELECT PORT")
-        self._port_selected_idx = None
 
-        ports_info = SerialManager.search_ports()
+        ports_info = self._serial.search_ports()
 
         if len(ports_info) == 0:
             self.combo_select_port.addItem("No available ports")
@@ -534,117 +541,24 @@ class CommandWindow(QMainWindow):
             self.update_gui_log("Attempted port refresh")
 
     def port_selected(self):
-        SerialManager.set_port(self.combo_select_port.currentIndex())
+        self._serial.set_port(self.combo_select_port.currentIndex())
 
     def open_port(self):
-        if SerialManager.open_port():
-            self.set_port_text_open()
+        if self._serial.open_port():
+            self._graph_ui.set_port_text_open(self._serial.get_port_info())
     
     def close_port(self):
-        if SerialManager.close_port():
-            self.set_port_text_closed()
+        if self._serial.close_port():
+            self._graph_ui.set_port_text_closed()
 
-    def check_remote_connection(self):
-        if(self.send_data("CMD,%d,TEST,X" % self.__TEAM_ID)):
-            self.update_gui_log("Sent test message")
-    
-    def send_time(self):
-        if(self.__set_time_id):
-           if(self.send_data("CMD,%d,ST,GPS" % (self.__TEAM_ID))):
-                self.update_gui_log(f"Sent GPS Set Time Command") 
-        else:
-            utc_time = datetime.now(timezone.utc)
-            time_str = utc_time.strftime("%H:%M:%S")
-            if(self.send_data("CMD,%d,ST,%s" % (self.__TEAM_ID, time_str))):
-                self.update_gui_log(f"Sent new mission time '{time_str}'")
-
-    def send_restart(self):
-        if(self.send_data("CMD,%d,RR,X" % self.__TEAM_ID)):
-            self.update_gui_log("Sent restart signal")
-
-    def program_servo(self):
-        if(self.__servo_id == -1 or self.__servo_val == -1):
-            self.update_gui_log_error("ERROR: Enter a servo # and value first!")
-        elif(self.send_data("CMD,%d,MEC,SERVO:%d|%d" % (self.__TEAM_ID, self.__servo_id, self.__servo_val))):
-            servo_label = self.servo_id_field.itemText(self.servo_id_field.findData(self.__servo_id))
-            self.update_gui_log(f"Sent command to program {servo_label} to {self.__servo_val}")
-
-    def toggle_camera(self):
-        if(self.send_data("CMD,%d,MEC,%s:X" % (self.__TEAM_ID, self.__camera_id))):
-            self.update_gui_log(f"Sent {self.__camera_id} toggle command")
-    
-    def force_probe_release(self):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle("CONFIRM")
-        msg_box.setText("CONFIRM: SEND PROBE RELEASE COMMAND")
-        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
-        response = msg_box.exec()
-        if response == QMessageBox.StandardButton.Yes:
-            if(self.send_data("CMD,%d,MEC,RELEASE:X" % self.__TEAM_ID)):
-                self.update_gui_log(f"Sent force probe release command")
-
-    def get_cam_status(self):
-        if(self.send_data("CMD,%d,MEC,CAMERA1_STAT:X" % self.__TEAM_ID)):
-            self.update_gui_log("Requesting CAMERA1 status")
-        time.sleep(1)
-        if(self.send_data("CMD,%d,MEC,CAMERA2_STAT:X" % self.__TEAM_ID)):
-            self.update_gui_log("Requesting CAMERA2 status")
-
-    def change_sim_mode(self, mode):
-        if(self.send_data("CMD,%d,SIM,%s" % (self.__TEAM_ID, mode))):
-            self.update_gui_log(f"Sent simulation mode '{mode}'")
-    
-    def altitude_cal(self):
-        if(self.send_data("CMD,%d,CAL,X" % self.__TEAM_ID)):
-            self.update_gui_log(f"Sent altitude calibration command")
-
-    def get_log_data(self):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle("CONFIRM: REQUEST TRANSMISSION OF MISSION LOGFILE")
-        msg_box.setText("THIS WILL BLOCK ALL OTHER PROCESSES UNTIL COMPLETE!!")
-        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
-
-        response = msg_box.exec()
-        if response == QMessageBox.StandardButton.Yes:
-            if(self.send_data("CMD,%d,GTLOGS,X" % self.__TEAM_ID)):
-                self.update_gui_log("Attempting to retreive log data...")
-        
-    def toggle_transmission(self, toggle):
-        # TODO
-        '''
-        if toggle:
-            if(self.send_data("CMD,%d,CX,ON" % self.__TEAM_ID)):  
-                self.update_gui_log("SENT TRANSMISSION ON COMMAND")
-                self.__packet_recv_count = 0
-
-                for plotter in self.plotters:
-                    plotter.reset_plot()
-
-        else:
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Icon.Warning    )
-            msg_box.setWindowTitle("CONFIRM: ENDING MISSION")
-            msg_box.setText("Are you sure you want to end the mission?")
-            msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-            msg_box.setDefaultButton(QMessageBox.StandardButton.No)
-
-            response = msg_box.exec()
-            if response == QMessageBox.StandardButton.Yes:
-                if(self.send_data("CMD,%d,CX,OFF" % self.__TEAM_ID)):
-                    self.update_gui_log("SENT TRANSMISSION OFF COMMAND")
-                    if(self.__cansat_mode == "SIM"):
-                        self.simp_timer.stop()
-                        self.current_simp_idx = 0
-        '''
+    def start_transmission(self):
+        if self.command_manager.command__start_mission():
+            self._graph_ui.reset_data()
 
     def team_id_edited(self):
         self.team_id_field.clearFocus()
         self.__TEAM_ID = int(self.team_id_field.text())
-        self.update_gui_log(f"Updated ground station TEAM ID to '{self.__TEAM_ID}'")
+        self.update_gui_log(f"Updated local TEAM ID to '{self.__TEAM_ID}'")
     
     def servo_id_edited(self, index):
         self.__servo_id = self.servo_id_field.itemData(index)
@@ -658,20 +572,36 @@ class CommandWindow(QMainWindow):
     
     def set_time_field_edited(self, index):
         self.__set_time_id = self.set_time_field.itemData(index)
-
-    def send_data(self, msg):
-        SerialManager.send_data(msg)
         
-    def reset_mission(self):     
-        self.gui_log.clear()
-        self.cansat_log.clear()
-        #TODO
+    def reset_mission(self):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Icon.Warning)
+        msg_box.setWindowTitle("CONFIRM: RESET ALL DATA")
+        msg_box.setText("Are you sure you reset all mission data?")
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
 
-    def set_port_text_closed(self):
-         self.label_port.setText(f'<span style="color:black;">Ground Port: \
-                                              </span><span style="color:RED;">CLOSED</span>')
-        
-    def set_port_text_open(self):
-        open_msg = "OPEN ON: " + self.__PORT_SELECTED_INFO.portName() + self.__PORT_SELECTED_INFO.description()
-        self.label_port.setText(f'<span style="color:black;">Ground Port: \
-                                              </span><span style="color:GREEN;">{open_msg}</span>')
+        response = msg_box.exec()
+        if response == QMessageBox.StandardButton.Yes:
+            self.gui_log.clear()
+            self.cansat_log.clear()
+            self._graph_ui.reset_data()
+            self._processor.reset_csv()
+            self.__last_msg = None
+            self.__last_msg_sat = False
+            self.__log_repeat_count = 0
+
+    def closeEvent(self, event):
+        self._processor.close_csv()
+        self._processor.close_logfile()
+        self._serial.close_port()
+        app = QApplication.instance()
+        app.quit()
+        event.accept()
+
+    def logfile_finish(self):
+        self.get_log_overlay.hide()
+        self.update_gui_log("Log data download complete.")
+
+    def logfile_start(self):
+        self.get_log_overlay.show()
