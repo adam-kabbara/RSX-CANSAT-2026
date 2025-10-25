@@ -9,8 +9,8 @@
 #ifndef INC_COMMAND_MANAGER_H_
 #define INC_COMMAND_MANAGER_H_
 
+#include <serial_manager.h>
 #include "global_includes.h"
-#include "serialManager.h"
 #include "missionManager.h"
 #include "sensorManager.h"
 
