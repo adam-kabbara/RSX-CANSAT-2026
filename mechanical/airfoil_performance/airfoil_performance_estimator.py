@@ -2,12 +2,14 @@ import math
 import numpy as np
 import os
 
+CHAR_LEN = 0.05 # coord len in meters
+WING_LEN = 0.25 *2 # 0.25m estimate wing len that fits in the container - *2 for folding design 
+MASS = 0.3
+
 G = 9.81
-CHAR_LEN = 0.1
 MU_AIR = 1.46e-5
 RHO_AIR = 1.225
-WING_AREA = 0.02
-MASS = 0.3
+WING_AREA = WING_LEN * CHAR_LEN
 DRAG_FACTOR = 1
 v_descent = 5
 
@@ -113,7 +115,8 @@ if __name__ == "__main__":
         v = speed_solver(airfoil_table, alpha, WING_AREA, MASS, RHO_AIR)
         print(reynolds_number(CHAR_LEN, v))
         cl, cd = obtain_cl_cd(airfoil_table, v, alpha)
-        print(f"Alpha: {alpha}, Speed: {v}, Cl: {cl}, Cd: {cd}")
+        v_horizontal = math.sqrt(v**2 - v_descent**2)
+        print(f"Alpha (wing angle): {alpha}, Speed (diagonally x,y): {v}, Speed (x, horizontal): {v_horizontal}, Cl: {cl}, Cd: {cd}")
         lift = get_lift_data(cl, WING_AREA, RHO_AIR, v)
         lifts.append(lift)
         print(f"Lift: {lift}")
