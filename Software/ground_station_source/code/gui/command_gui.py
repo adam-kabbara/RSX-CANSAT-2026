@@ -386,6 +386,10 @@ class CommandWindow(QMainWindow):
         gui_log_layout = QVBoxLayout(gui_log_widget)
         sat_log_widget = QWidget()
         sat_log_layout = QVBoxLayout(sat_log_widget)
+        gui_log_widget.setFixedHeight(300)
+        gui_log_widget.setFixedWidth(500)
+        sat_log_widget.setFixedHeight(300)
+        sat_log_widget.setFixedWidth(500)
 
         gui_log_title = QLabel("Command Log")
         gui_log_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
