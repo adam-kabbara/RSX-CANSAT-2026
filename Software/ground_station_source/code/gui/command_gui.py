@@ -549,7 +549,7 @@ class CommandWindow(QMainWindow):
 
     def open_port(self):
         if self._serial.open_port():
-            self._graph_ui.set_port_text_open(self._serial.get_port_info())
+            self._graph_ui.set_port_text_open()
     
     def close_port(self):
         if self._serial.close_port():

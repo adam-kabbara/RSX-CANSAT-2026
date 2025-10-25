@@ -24,6 +24,18 @@ def sat_log_normal_color():
 def sat_log_error_color():
     return "red"
 
+def data_status_init_color(text):
+    return f'<span style="color:GREY;">{text}'
+
+def data_status_red(text):
+    return f'<span style="color:RED;">{text}' 
+
+def data_status_green(text):
+    return f'<span style="color:GREEN;">{text}'
+
+def data_status_blue(text):
+    return f'<span style="color:BLUE;">{text}'
+
 def graph_font():
     font = QFont("Roboto Mono")
     font.setPointSize(14)

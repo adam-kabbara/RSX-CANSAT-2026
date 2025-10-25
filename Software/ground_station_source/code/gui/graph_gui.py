@@ -98,10 +98,10 @@ class GraphWindow(QMainWindow):
         credit_label = QLabel("Made by the Engineers of RSX at the University of Toronto")
         credit_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         credit_label.setFont(cosmetics.credit_font())
+        credit_label.setWordWrap(True)
 
         live_graph_values = QFormLayout()
 
-        # TODO: Color
         self.sidebar_fields_data = [
             ("Port", "CLOSED"),
             ("Calibration", "Unknown"),
@@ -126,7 +126,7 @@ class GraphWindow(QMainWindow):
         for field_name, field_value in self.sidebar_fields_data:
             # Create the field label and data label
             field_label = QLabel(f"{field_name}:")
-            data_label = QLabel(field_value)
+            data_label = QLabel(cosmetics.data_status_init_color(field_value))
 
             # Set fonts
             field_label.setFont(cosmetics.sidebar_field_font())
@@ -137,6 +137,8 @@ class GraphWindow(QMainWindow):
 
             live_graph_values.addRow(field_label, data_label)
 
+        self.set_port_text_closed()
+        
         form_group = QGroupBox()
         form_group.setLayout(live_graph_values)
 
@@ -149,11 +151,10 @@ class GraphWindow(QMainWindow):
         graph_parent_group.setSpacing(15)
 
     def set_port_text_closed(self):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Port")].setText("CLOSED")
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Port")].setText(cosmetics.data_status_red("CLOSED"))
         
-    def set_port_text_open(self, text):
-        msg = "OPEN ON" + text
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Port")].setText(msg)
+    def set_port_text_open(self):
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Port")].setText(cosmetics.data_status_green("OPEN"))
 
     def reset_data(self):
         self._packets_recv = 0
@@ -174,43 +175,45 @@ class GraphWindow(QMainWindow):
         return self._packets_recv
 
     def update_cal_status(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Calibration")].setText(str)
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Calibration")].setText(cosmetics.data_status_blue(str))
     
     def update_temp(self, val):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Temperature")].setText(str(val))
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Temperature")].setText(cosmetics.data_status_blue(str(val)))
 
     def update_pressure(self, val):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(str(val))
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(cosmetics.data_status_blue(str(val)))
 
+    # TODO: State graph
     def update_state(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("State")].setText(str)
+        self.sidebar_data_labels[self.sidebar_data_dict.get("State")].setText(cosmetics.data_status_blue(str))
 
     def update_mode(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Mode")].setText(str)
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Mode")].setText(cosmetics.data_status_blue(str))
 
     def update_mission_time(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Mission Time")].setText(str)
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Mission Time")].setText(cosmetics.data_status_blue(str))
 
     def update_packet_label(self):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Packets")].setText(f"{self._packets_recv}/{self._packets_sent}")
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Packets")].setText(
+            cosmetics.data_status_blue(f"{self._packets_recv}/{self._packets_sent}"))
 
     def update_sats(self, val):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Satellites")].setText(str(val))
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Satellites")].setText(cosmetics.data_status_blue(str(val)))
     
     def update_camera1_status(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Camera 1")].setText(str)
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Camera 1")].setText(cosmetics.data_status_blue(str))
 
     def update_camera2_status(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Camera 2")].setText(str)
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Camera 2")].setText(cosmetics.data_status_blue(str))
 
     def update_gps_alt(self, val):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Altitude")].setText(str(val))
+        self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Altitude")].setText(cosmetics.data_status_blue(str(val)))
 
     def update_gps_time(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Time")].setText(str)
+        self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Time")].setText(cosmetics.data_status_blue(str))
     
     def update_cmd_echo(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("CMD ECHO")].setText(str)
+        self.sidebar_data_labels[self.sidebar_data_dict.get("CMD ECHO")].setText(cosmetics.data_status_blue(str))
 
     def update_alt_graph(self, data):
         self.plotters[self.graph_title_to_index.get("Altitude")].update_plot(data)
