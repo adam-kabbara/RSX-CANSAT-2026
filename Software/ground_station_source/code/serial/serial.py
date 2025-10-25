@@ -77,12 +77,6 @@ class SerialManager(QObject):
         else:
             self.error_catch.emit("ERROR: Port is already closed")
             return False
-        
-    def get_port_info(self):
-        if self._port_name is not None and self._port_desc is not None:
-            return f"{self._port_name} {self._port_desc}"
-        else:
-            return "ERROR_PORT_INFO_NOT_FOUND"
     
     # Check if port is open
     def is_port_open(self) -> bool:

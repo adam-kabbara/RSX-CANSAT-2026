@@ -24,6 +24,18 @@ def sat_log_normal_color():
 def sat_log_error_color():
     return "red"
 
+def data_status_init_color(text):
+    return f'<span style="color:GREY;">{text}'
+
+def data_status_red(text):
+    return f'<span style="color:RED;">{text}' 
+
+def data_status_green(text):
+    return f'<span style="color:GREEN;">{text}'
+
+def data_status_blue(text):
+    return f'<span style="color:BLUE;">{text}'
+
 def graph_font():
     font = QFont("Roboto Mono")
     font.setPointSize(14)
@@ -55,12 +67,6 @@ def log_font():
     log_font.setPointSize(14)
     log_font.setWeight(QFont.Weight.DemiBold)
     return log_font
-
-def sidebar_title_font():
-    sidebar_title_font = QFont()
-    sidebar_title_font.setPointSize(14)
-    sidebar_title_font.setWeight(QFont.Weight.DemiBold)
-    return sidebar_title_font
 
 def graph_font():
     graph_font = QFont("Roboto Mono")

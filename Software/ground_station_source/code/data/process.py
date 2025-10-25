@@ -229,7 +229,6 @@ class DataProcessor(QObject):
             else:
                 self._graph_ui.update_camera2_status("OFF")
 
-            
         data_dict = data.to_dict()
         self._csv_writer.writerow(data_dict)
     
