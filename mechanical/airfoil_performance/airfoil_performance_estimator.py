@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 CHAR_LEN = 0.05 # coord len in meters
-WING_LEN = 0.25 *2 # 0.25m estimate wing len that fits in the container - *2 for folding design 
+WING_LEN = 0.25 #*2 # 0.25m estimate wing len that fits in the container - *2 for folding design 
 MASS = 0.3
 
 G = 9.81
@@ -13,8 +13,8 @@ WING_AREA = WING_LEN * CHAR_LEN
 DRAG_FACTOR = 1
 v_descent = 5
 
-def reynolds_number(char_len, speed):
-    re = char_len*speed/MU_AIR
+def reynolds_number(char_len, speed, rho=RHO_AIR):
+    re = char_len*speed*rho/MU_AIR
     return re
 
 def obtain_cl_cd(airfoil_table, v, alpha):
@@ -22,7 +22,7 @@ def obtain_cl_cd(airfoil_table, v, alpha):
     closest_re = min(airfoil_table, key=lambda x:abs(x-re))
     closest_alpha = min(airfoil_table[closest_re]["columns"]["alpha"], key=lambda x: abs(x-alpha))
     alpha_index = airfoil_table[closest_re]["columns"]["alpha"].index(closest_alpha)
-    return airfoil_table[closest_re]["columns"]["CD"][alpha_index], airfoil_table[closest_re]["columns"]["CL"][alpha_index]
+    return airfoil_table[closest_re]["columns"]["CL"][alpha_index], airfoil_table[closest_re]["columns"]["CD"][alpha_index]
 
 def speed_solver(airfoil_table, alpha, wing_area, mass, air_density, v_init=12):
     E_descent = mass * G * v_descent
