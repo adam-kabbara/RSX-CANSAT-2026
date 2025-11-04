@@ -13,8 +13,8 @@ WING_AREA = WING_LEN * CHAR_LEN
 DRAG_FACTOR = 1
 v_descent = 5
 
-def reynolds_number(char_len, speed, rho=RHO_AIR):
-    re = char_len*speed*rho/MU_AIR
+def reynolds_number(char_len, speed):
+    re = char_len*speed/MU_AIR
     return re
 
 def obtain_cl_cd(airfoil_table, v, alpha):
