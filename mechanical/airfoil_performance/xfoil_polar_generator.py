@@ -4,6 +4,12 @@ import sys
 import time
 
 # DOES NOT WORK ON WINDOWS, PLS USE LINUX/WSL/Cygwin
+# Some installation notes for WSL2:
+# Xfoil will not work without stuff below, because it uses special characters for graphs
+# https://superuser.com/questions/1729488/wsl2-install-fonts-for-linux-gui-app-using-x-server
+# Need answer by trpt4him to install venv on WSL because that's not included for some reason
+# https://stackoverflow.com/questions/61528500/installing-venv-for-python3-in-wsl-ubuntu
+# To install xfoil, do sudo apt-get install xfoil
 
 def send_foil_command(com):
     xfoil.sendline(com)
