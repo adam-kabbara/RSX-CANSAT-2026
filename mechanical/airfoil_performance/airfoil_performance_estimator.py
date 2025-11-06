@@ -1,16 +1,17 @@
 import math
 import numpy as np
 import os
+import matplotlib.pyplot as plt
 
+AIRFOIL_NAME = "SD7037"
 CHAR_LEN = 0.05 # coord len in meters
 WING_LEN = 0.25 #*2 # 0.25m estimate wing len that fits in the container - *2 for folding design 
-MASS = 0.3
+MASS = 0.3 # Half of target mass, as we are only studying one wing
 
 G = 9.81
-MU_AIR = 1.46e-5
-RHO_AIR = 1.225
-WING_AREA = WING_LEN * CHAR_LEN
-DRAG_FACTOR = 1
+MU_AIR = 1.46e-5 # Kinematic viscosity of air @20C
+RHO_AIR = 1.225 # Density of air @20C
+WING_AREA = WING_LEN * CHAR_LEN # Assuming constant chord width (if we want to do variable we have to recompute Re as we move down the wing)
 v_descent = 5
 
 def reynolds_number(char_len, speed):
@@ -28,16 +29,13 @@ def speed_solver(airfoil_table, alpha, wing_area, mass, air_density, v_init=12):
     E_descent = mass * G * v_descent
     v_prev = v_init
     v = 0
-    re = reynolds_number(CHAR_LEN, v_prev)
-    closest_re = min(airfoil_table, key=lambda x:abs(x-re))
-    closest_alpha = min(airfoil_table[closest_re]["columns"]["alpha"], key=lambda x: abs(x-alpha))
-    alpha_index = airfoil_table[closest_re]["columns"]["alpha"].index(closest_alpha)
     while abs(v-v_prev) > 0.3:
         v_prev = v
         re = reynolds_number(CHAR_LEN, v_prev)
         closest_re = min(airfoil_table, key=lambda x:abs(x-re))
-
-        v = math.cbrt((2*E_descent)/(DRAG_FACTOR * airfoil_table[closest_re]["columns"]["CD"][alpha_index] * air_density * wing_area))
+        closest_alpha = min(airfoil_table[closest_re]["columns"]["alpha"], key=lambda x: abs(x-alpha))
+        alpha_index = airfoil_table[closest_re]["columns"]["alpha"].index(closest_alpha)
+        v = math.cbrt((2*E_descent)/(airfoil_table[closest_re]["columns"]["CD"][alpha_index] * air_density * wing_area))
         print(abs(v-v_prev))
     return v
 
@@ -104,22 +102,41 @@ def parse_xflr5_polar(filename):
 
 
 if __name__ == "__main__":
-    alphas = np.linspace(-5, 18, 100)
+    alphas = np.linspace(0, 20, 100)
     airfoil_table = {}
-    for polar in os.listdir(".\\polars"):
-        parsed_polar = parse_xflr5_polar(os.path.join(".\\polars", polar))
+    for polar in os.listdir(f".\\polars\\{AIRFOIL_NAME}"):
+        parsed_polar = parse_xflr5_polar(os.path.join(f".\\polars\\{AIRFOIL_NAME}", polar))
         airfoil_table[parsed_polar["metadata"]["reynolds"]] = parsed_polar
 
-    lifts = []
+    parameters = {"Alpha" : [], "Speed": [], "Re": [], "Cl": [], "Cd": [], "Cl/Cd": [], "Lift": []}
+    units = {"Alpha" : "deg", "Speed": "m/s", "Re": "", "Cl": "", "Cd": "", "Cl/Cd": "", "Lift": "N"}
     for alpha in alphas:
         v = speed_solver(airfoil_table, alpha, WING_AREA, MASS, RHO_AIR)
-        print(reynolds_number(CHAR_LEN, v))
         cl, cd = obtain_cl_cd(airfoil_table, v, alpha)
         v_horizontal = math.sqrt(v**2 - v_descent**2)
-        print(f"Alpha (wing angle): {alpha}, Speed (diagonally x,y): {v}, Speed (x, horizontal): {v_horizontal}, Cl: {cl}, Cd: {cd}")
+        print(f"Alpha (wing angle): {alpha}, Speed (diagonally x,y): {v}, Speed (x, horizontal): {v_horizontal}, Cl: {cl}, Cd: {cd}, Re: {reynolds_number(CHAR_LEN, v)}")
         lift = get_lift_data(cl, WING_AREA, RHO_AIR, v)
-        lifts.append(lift)
+        parameters["Alpha"].append(alpha)
+        parameters["Speed"].append(v)
+        parameters["Re"].append(reynolds_number(CHAR_LEN, v))
+        parameters["Cl"].append(cl)
+        parameters["Cd"].append(cd)
+        parameters["Cl/Cd"].append(cl/cd)
+        parameters["Lift"].append(lift)
         print(f"Lift: {lift}")
 
-    print(f"Highest Lift: {round(max(lifts), 3)}N")
+    print("\n\nMaximum Lift Parameters")
+    max_lift_index = parameters["Lift"].index(max(parameters["Lift"]))
+    for param in parameters:
+        print(f"{param}: {round(parameters[param][max_lift_index], 2)} {units[param]}")
 
+    print("\nLowest Speed Parameters")
+    min_speed_index = parameters["Speed"].index(min(parameters["Speed"]))
+    for param in parameters:
+        print(f"{param}: {round(parameters[param][min_speed_index], 2)} {units[param]}")
+
+    plt.plot(parameters["Alpha"], parameters["Speed"])
+    plt.plot(parameters["Alpha"], parameters["Lift"])
+    plt.plot(parameters["Alpha"], parameters["Cl/Cd"])
+    plt.legend(["Speed (m/s)", "Lift (N)", "Cl/Cd"])
+    plt.show()
