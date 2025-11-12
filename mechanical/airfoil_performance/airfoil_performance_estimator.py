@@ -27,17 +27,47 @@ def obtain_cl_cd(airfoil_table, v, alpha):
 
 def speed_solver(airfoil_table, alpha, wing_area, mass, air_density, v_init=12):
     E_descent = mass * G * v_descent
-    v_prev = v_init
-    v = 0
+    v_prev = 0
+    v = v_init
     while abs(v-v_prev) > 0.3:
         v_prev = v
-        re = reynolds_number(CHAR_LEN, v_prev)
+        re = reynolds_number(CHAR_LEN, v)
         closest_re = min(airfoil_table, key=lambda x:abs(x-re))
         closest_alpha = min(airfoil_table[closest_re]["columns"]["alpha"], key=lambda x: abs(x-alpha))
         alpha_index = airfoil_table[closest_re]["columns"]["alpha"].index(closest_alpha)
         v = math.cbrt((2*E_descent)/(airfoil_table[closest_re]["columns"]["CD"][alpha_index] * air_density * wing_area))
         print(abs(v-v_prev))
     return v
+
+def lift_optimizer(airfoil_table, wing_area, mass, air_density, v_init=12):
+    E_descent = mass * G * v_descent
+    # E_descent = 0.5 * air_density * wing_area * airfoil_table[re]["columns"]["CD"][some_index] * v**3
+    lift_margin = 1 # N
+    min_lift = mass * G + lift_margin
+
+    v_prev = 0
+    v = v_init
+    cl_index = 0
+    re = 0
+    closest_re = 0
+
+    tol = 0.1
+    while abs(v-v_prev) > tol:
+        v_prev = v
+        re = reynolds_number(CHAR_LEN, v_prev)
+        closest_re = min(airfoil_table, key=lambda x:abs(x-re))
+        best_cl = max(airfoil_table[closest_re]["columns"]["CL"])
+        cl_index = airfoil_table[closest_re]["columns"]["CL"].index(best_cl)
+
+        v = math.sqrt((2*min_lift)/(air_density*wing_area*airfoil_table[closest_re]["columns"]["CL"][cl_index]))
+    
+    # Sanity check
+    if 0.5 * air_density * wing_area * airfoil_table[closest_re]["columns"]["CD"][cl_index] * v**3 > E_descent:
+        print("Too fast for given energy")
+    
+
+    best_alpha = airfoil_table[closest_re]["columns"]["alpha"][cl_index]
+    return v, best_alpha
 
 
 def get_lift_data(cl, wing_area, air_density, speed):
@@ -100,12 +130,11 @@ def parse_xflr5_polar(filename):
     return data
 
 
-
-if __name__ == "__main__":
+def run_speed_solver(a_min, a_max, airfoil=AIRFOIL_NAME):
     alphas = np.linspace(0, 20, 100)
     airfoil_table = {}
-    for polar in os.listdir(f".\\polars\\{AIRFOIL_NAME}"):
-        parsed_polar = parse_xflr5_polar(os.path.join(f".\\polars\\{AIRFOIL_NAME}", polar))
+    for polar in os.listdir(f".\\polars\\{airfoil}"):
+        parsed_polar = parse_xflr5_polar(os.path.join(f".\\polars\\{airfoil}", polar))
         airfoil_table[parsed_polar["metadata"]["reynolds"]] = parsed_polar
 
     parameters = {"Alpha" : [], "Speed": [], "Re": [], "Cl": [], "Cd": [], "Cl/Cd": [], "Lift": []}
@@ -140,3 +169,83 @@ if __name__ == "__main__":
     plt.plot(parameters["Alpha"], parameters["Cl/Cd"])
     plt.legend(["Speed (m/s)", "Lift (N)", "Cl/Cd"])
     plt.show()
+
+
+def run_min_lift_solver(airfoil):
+    airfoil_table = {}
+    for polar in os.listdir(f".\\polars\\{airfoil}"):
+        parsed_polar = parse_xflr5_polar(os.path.join(f".\\polars\\{airfoil}", polar))
+        airfoil_table[parsed_polar["metadata"]["reynolds"]] = parsed_polar
+
+    v, alpha = lift_optimizer(airfoil_table, WING_AREA, MASS, RHO_AIR)
+    parameters = {"Alpha" : [], "Speed": [], "Re": [], "Cl": [], "Cd": [], "Cl/Cd": [], "Lift": [], "Drag": []}
+    units = {"Alpha" : "deg", "Speed": "m/s", "Re": "", "Cl": "", "Cd": "", "Cl/Cd": "", "Lift": "N", "Drag": "N"}
+    cl, cd = obtain_cl_cd(airfoil_table, v, alpha)
+    v_horizontal = math.sqrt(v**2 - v_descent**2)
+    lift = get_lift_data(cl, WING_AREA, RHO_AIR, v)
+    drag = get_lift_data(cd, WING_AREA, RHO_AIR, v)
+
+    parameters["Alpha"].append(alpha)
+    parameters["Speed"].append(v)
+    parameters["Re"].append(reynolds_number(CHAR_LEN, v))
+    parameters["Cl"].append(cl)
+    parameters["Cd"].append(cd)
+    parameters["Cl/Cd"].append(cl/cd)
+    parameters["Lift"].append(lift)
+    parameters["Drag"].append(drag)
+
+    for param in parameters:
+        print(f"{param}: {round(parameters[param][0], 2)} {units[param]}")
+
+    print(f"Max drag: {round(MASS * G, 2)}N --> Available Drag: {round(MASS * G - drag, 2)}N")
+    print(f"Ground Speed: {round(v_horizontal, 2)}m/s")
+
+    return parameters, units
+
+def compare_airfoils():
+    airfoils = [path for path in os.listdir(f".\\polars")]    
+
+    units = None
+
+    lowest_speed = math.inf
+    best_lift_params = None
+    best_lift_airfoil = None
+
+    lowest_drag = math.inf
+    lowest_drag_params = None
+    lowest_drag_airfoil = None
+    for airfoil in airfoils:
+        parameters, units = run_min_lift_solver(airfoil)
+        if parameters["Speed"][0] < lowest_speed:
+            lowest_speed = parameters["Speed"][0]
+            best_lift_params = parameters
+            best_lift_airfoil = airfoil
+        
+        if parameters["Drag"][0] < lowest_drag:
+            lowest_drag = parameters["Drag"][0]
+            lowest_drag_params = parameters
+            lowest_drag_airfoil = airfoil
+
+    print(f"\n\nBEST AIRFOIL (highest lift @ slowest speed): {best_lift_airfoil}")
+    for param in best_lift_params:
+        print(f"{param}: {round(best_lift_params[param][0], 2)} {units[param]}")
+
+    drag = best_lift_params["Drag"][0]
+    print(f"Max usable drag: {round(MASS * G, 2)}N --> Available Drag: {round(MASS * G - drag, 2)}N")
+    v_ground = math.sqrt(best_lift_params["Speed"][0]**2 - v_descent**2)
+    print(f"Ground Speed: {round(v_ground, 2)}m/s --> {round(v_ground*3.6, 2)}km/h")
+
+    print(f"\n\nBEST AIRFOIL (lowest drag @ slowest speed): {lowest_drag_airfoil}")
+    for param in lowest_drag_params:
+        print(f"{param}: {round(lowest_drag_params[param][0], 2)} {units[param]}")
+
+    drag = lowest_drag_params["Drag"][0]
+    print(f"Max usable drag: {round(MASS * G, 2)}N --> Available Drag: {round(MASS * G - drag, 2)}N")
+    v_ground = math.sqrt(lowest_drag_params["Speed"][0]**2 - v_descent**2)
+    print(f"Ground Speed: {round(v_ground, 2)}m/s --> {round(v_ground*3.6, 2)}km/h")
+    
+
+if __name__ == "__main__":
+    #run_speed_solver(0, 20, AIRFOIL_NAME)
+    compare_airfoils()
+    

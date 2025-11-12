@@ -2,6 +2,7 @@ import pexpect
 import os
 import sys
 import time
+import numpy as np
 
 # DOES NOT WORK ON WINDOWS, PLS USE LINUX/WSL/Cygwin
 # Some installation notes for WSL2:
@@ -33,8 +34,7 @@ xfoil.sendline("FILT")
 xfoil.expect(".MDES   c>")
 xfoil.sendline("EXEC")
 xfoil.expect(".MDES   c>")
-xfoil.sendline("")
-xfoil.expect("XFOIL   c>")
+send_foil_command("")
 send_foil_command("PANE")
 send_foil_operation("OPER")
 send_foil_operation("ITER 200")
@@ -47,6 +47,11 @@ xfoil.sendline("test.txt")
 xfoil.expect("Enter  polar dump")
 xfoil.sendline("")
 xfoil.expect(".OPERva   c>")
+
+AOA_min = 0
+AOA_max = 20
+aoas = np.linspace(AOA_min, AOA_max, 100)
+
 xfoil.sendline("ALFA 0")
 xfoil.expect(".OPERva   c>")
 xfoil.sendline("PACC")
