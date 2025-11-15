@@ -74,6 +74,9 @@ def get_lift_data(cl, wing_area, air_density, speed):
     return cl * air_density * ((speed**2)/2) * wing_area
 
 
+def get_ld_coef(force, wing_area, air_density, speed):
+    return (2 * force)/(air_density * speed **2 * wing_area)
+
 def parse_xflr5_polar(filename):
     data = {
         "metadata": {
@@ -214,8 +217,11 @@ def compare_airfoils():
     lowest_drag = math.inf
     lowest_drag_params = None
     lowest_drag_airfoil = None
+
+    airfoil_params = {}
     for airfoil in airfoils:
         parameters, units = run_min_lift_solver(airfoil)
+        airfoil_params[airfoil] = parameters
         if parameters["Speed"][0] < lowest_speed:
             lowest_speed = parameters["Speed"][0]
             best_lift_params = parameters
@@ -232,6 +238,10 @@ def compare_airfoils():
 
     drag = best_lift_params["Drag"][0]
     print(f"Max usable drag: {round(MASS * G, 2)}N --> Available Drag: {round(MASS * G - drag, 2)}N")
+
+    cd = best_lift_params["Cd"][0]
+    max_cd = get_ld_coef(MASS * G, WING_AREA, RHO_AIR, best_lift_params["Speed"][0])
+    print(f"Max allowable CD: {round(max_cd, 4)} --> Available CD: {round(max_cd-cd, 4)}")
     v_ground = math.sqrt(best_lift_params["Speed"][0]**2 - v_descent**2)
     print(f"Ground Speed: {round(v_ground, 2)}m/s --> {round(v_ground*3.6, 2)}km/h")
 
@@ -241,8 +251,30 @@ def compare_airfoils():
 
     drag = lowest_drag_params["Drag"][0]
     print(f"Max usable drag: {round(MASS * G, 2)}N --> Available Drag: {round(MASS * G - drag, 2)}N")
+
+    cd = lowest_drag_params["Cd"][0]
+    max_cd = get_ld_coef(MASS * G, WING_AREA, RHO_AIR, lowest_drag_params["Speed"][0])
+    print(f"Max allowable Cd: {round(max_cd, 4)} --> Available Cd: {round(max_cd-cd, 4)}")
     v_ground = math.sqrt(lowest_drag_params["Speed"][0]**2 - v_descent**2)
     print(f"Ground Speed: {round(v_ground, 2)}m/s --> {round(v_ground*3.6, 2)}km/h")
+
+
+    speed = []
+    cl = []
+    cd = []
+    for airfoil in airfoil_params:
+        speed.append(airfoil_params[airfoil]["Speed"][0])
+        cl.append(airfoil_params[airfoil]["Cl"][0])
+        cd.append(airfoil_params[airfoil]["Cd"][0])
+
+    plt.scatter(cd, cl)
+    for i, txt in enumerate(airfoil_params):
+        plt.annotate(txt, (cd[i], cl[i]), textcoords="offset points", xytext=(0,10), ha='center')
+
+    plt.xlabel("Cd")
+    plt.ylabel("Cl")
+    plt.title("Airfoil Cl VS Cd @ minimum lift")
+    plt.show()
     
 
 if __name__ == "__main__":
