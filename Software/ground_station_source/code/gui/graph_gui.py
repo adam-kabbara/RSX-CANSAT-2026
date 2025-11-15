@@ -5,7 +5,7 @@ Front end GUI elements for graph window
 from plotter.plotters import DynamicPlotter, DynamicPlotter_MultiLine
 from . import cosmetics
 import os
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QUrl
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QMainWindow,
@@ -19,6 +19,8 @@ from PyQt6.QtWidgets import (
     QSystemTrayIcon,
     QApplication
 )
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+import webbrowser
 
 class GraphWindow(QMainWindow):
 
@@ -61,7 +63,7 @@ class GraphWindow(QMainWindow):
             {"title": "Current", "lines": 1, "x_unit": "s", "y_unit": "mA"},
             {"title": "Gyro RPY", "lines": 3, "x_unit": "s", "y_unit": "deg/s"},
             {"title": "Accel RPY ", "lines": 3, "x_unit": "s", "y_unit": "deg/s^2"},
-            {"title": "GPS Map", "lines": 1, "x_unit": "s", "y_unit": "m"}
+            {"title": "GPS Map", "lines": 0, "x_unit": "s", "y_unit": "m"}
         ]   
         
         self.graph_title_to_index = {
@@ -81,15 +83,25 @@ class GraphWindow(QMainWindow):
                                          timewindow=self._graph_time_window,
                                          x_unit=entry["x_unit"],
                                          y_unit=entry["y_unit"])
-            else:
+            elif entry["lines"] != 1:
                 plotter = DynamicPlotter_MultiLine(title=entry["title"], 
                                                    timewindow=self._graph_time_window, 
                                                    num_lines=entry["lines"],
                                                    x_unit=entry["x_unit"],
                                                    y_unit=entry["y_unit"])
-
-            self.plotters.append(plotter)
-            graph_grid_layout.addWidget(plotter.get_graph_object(), i // 2, i % 2)
+            if entry["lines"] != 0: 
+                self.plotters.append(plotter)
+                graph_grid_layout.addWidget(plotter.get_graph_object(), i // 2, i % 2)
+        
+            if entry["title"] == "GPS Map":
+                map_widget = QWebEngineView()
+                # For an HTTP address use a plain QUrl (fromLocalFile is for filesystem paths)
+                map_widget.setUrl(QUrl("http://127.0.0.1:5000"))
+                # Keep a reference to the widget for later updates (and to avoid GC)
+                self.gps_map_webview = map_widget
+                map_widget.setMinimumSize(480, 320)
+                graph_grid_layout.addWidget(map_widget, i // 2, i % 2)
+            
 
         graph_parent_group.addWidget(grid_container, stretch=8)
         
@@ -230,6 +242,10 @@ class GraphWindow(QMainWindow):
 
     def update_accel_graph(self, data):
         self.plotters[self.graph_title_to_index.get("Accel")].update_plot(data)
+    
+    def update_map_view(self, data):
+        self.plotters[self.graph_title_to_index.get("GPS")].update_plot(data)
+
 
     def closeEvent(self, event):
         app = QApplication.instance()
