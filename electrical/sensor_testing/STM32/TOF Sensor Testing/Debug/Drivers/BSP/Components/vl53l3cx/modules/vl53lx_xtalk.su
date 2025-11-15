@@ -1,0 +1,11 @@
+../Drivers/BSP/Components/vl53l3cx/modules/vl53lx_xtalk.c:41:14:VL53LX_xtalk_calibration_process_data	640	static
+../Drivers/BSP/Components/vl53l3cx/modules/vl53lx_xtalk.c:146:14:VL53LX_f_041	32	static
+../Drivers/BSP/Components/vl53l3cx/modules/vl53lx_xtalk.c:202:14:VL53LX_f_039	64	static
+../Drivers/BSP/Components/vl53l3cx/modules/vl53lx_xtalk.c:332:14:VL53LX_f_040	32	static
+../Drivers/BSP/Components/vl53l3cx/modules/vl53lx_xtalk.c:397:14:VL53LX_f_045	176	static
+../Drivers/BSP/Components/vl53l3cx/modules/vl53lx_xtalk.c:490:14:VL53LX_f_046	72	static
+../Drivers/BSP/Components/vl53l3cx/modules/vl53lx_xtalk.c:554:14:VL53LX_f_032	264	static
+../Drivers/BSP/Components/vl53l3cx/modules/vl53lx_xtalk.c:748:14:VL53LX_f_033	136	static
+../Drivers/BSP/Components/vl53l3cx/modules/vl53lx_xtalk.c:825:14:VL53LX_f_047	40	static
+../Drivers/BSP/Components/vl53l3cx/modules/vl53lx_xtalk.c:863:14:VL53LX_f_044	128	static
+../Drivers/BSP/Components/vl53l3cx/modules/vl53lx_xtalk.c:996:14:VL53LX_f_043	32	static
