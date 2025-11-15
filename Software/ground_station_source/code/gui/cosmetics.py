@@ -149,12 +149,11 @@ def log_overlay_stylesheet():
 
 def log_stylesheet():
     return """
-            QTextEdit {
+            QTableWidget {
                 font-size: 18px;
                 background-color: #dcdcdc;
                 border-radius: 6px;
                 padding: 3px;
-                font-family: monospace;
             }
         """
 

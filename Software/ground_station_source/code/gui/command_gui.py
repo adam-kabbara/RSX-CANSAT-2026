@@ -407,19 +407,11 @@ class CommandWindow(QMainWindow):
         self.gui_log.setShowGrid(False)
         self.gui_log.setHorizontalHeaderLabels(["Prop", "Message"])
         self.gui_log.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        self.gui_log.setColumnWidth(0, 58)
         self.gui_log.setTextElideMode(Qt.TextElideMode.ElideNone)
         self.gui_log.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.gui_log.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.gui_log.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.gui_log.setStyleSheet("""
-            QTableWidget {
-                font-size: 14px;
-                background-color: #dcdcdc;
-                border-radius: 6px;
-                padding: 3px;
-            }
-        """)
+        self.gui_log.setStyleSheet(cosmetics.log_stylesheet())
 
         self.cansat_log = QTableWidget()
         self.cansat_log.setColumnCount(2)
@@ -429,20 +421,11 @@ class CommandWindow(QMainWindow):
         self.cansat_log.setShowGrid(False)
         self.cansat_log.setHorizontalHeaderLabels(["Prop", "Message"])
         self.cansat_log.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        self.cansat_log.setColumnWidth(0, 58)
         self.cansat_log.setTextElideMode(Qt.TextElideMode.ElideNone)
         self.cansat_log.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.cansat_log.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.cansat_log.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.cansat_log.setStyleSheet("""
-            QTableWidget {
-                font-size: 14px;
-                background-color: #dcdcdc;
-                border-radius: 6px;
-                padding: 3px;
-            }
-        """)
-
+        self.cansat_log.setStyleSheet(cosmetics.log_stylesheet())
 
         gui_log_layout.addWidget(gui_log_title)
         gui_log_layout.addWidget(self.gui_log)
@@ -480,7 +463,7 @@ class CommandWindow(QMainWindow):
         self.update_logs(msg, sat_msg = True, color=cosmetics.sat_log_error_color())
 
     def update_logs(self, msg, sat_msg = False, color="black"):
-        time = QTime.currentTime().toString('h:mm AP')
+        time = QTime.currentTime().toString('h:mm AP').replace(' ', '\u00A0')
         msg_item = QTableWidgetItem(f"{msg}")
         msg_item.setForeground(QColor(color))
 
@@ -504,11 +487,12 @@ class CommandWindow(QMainWindow):
                 prop_item = QTableWidgetItem(f"{time}")
             msg_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
             prop_item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
-            target_log.insertRow(0)
-            target_log.setItem(0, 0, prop_item)
-            target_log.setItem(0, 1, msg_item)
+            row = target_log.rowCount()
+            target_log.insertRow(row)
+            target_log.setItem(row, 0, prop_item)
+            target_log.setItem(row, 1, msg_item)
             target_log.resizeRowsToContents()
-            target_log.scrollToTop()
+            target_log.scrollToBottom()
             self.__log_repeat_count = 1
             self.__last_msg = msg
             self.__last_msg_sat = sat_msg

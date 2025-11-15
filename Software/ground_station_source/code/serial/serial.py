@@ -31,7 +31,7 @@ class SerialManager(QObject):
     
     # Set port from list
     def set_port(self, idx):
-        if self._ports is not None:
+        if len(self._ports) > 0:
             if idx > len(self._ports):
                 self.error_catch.emit("CODE ERROR: Selected port index beyond available list")
                 return
