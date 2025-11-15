@@ -102,7 +102,7 @@ class SerialManager(QObject):
         else:
             self.error_catch.emit("ERROR: Port is closed, cannot send data")
             return 0
- #test
+        
     # Process received data
     def recv_data(self):
         while self.__serial.canReadLine():
