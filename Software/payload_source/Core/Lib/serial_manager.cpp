@@ -6,13 +6,20 @@
  *      @brief          :
  */
 
-#include <serial_manager.h>
+#include "serial_manager.h"
 #include "global_includes.h"
+// #include "main.h"
+#include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
+
+extern UART_HandleTypeDef huart1;
+static char lineBuff[256]; 
 
 void SerialManager::begin() // done (?)
 {
 	// Skip initialization, already initialized in main.c --> static void MX_USART1_UART_Init(void);
-	if (HAL_UART_Init(&huart1) != HAL_OK)
+	if (HAL_UART_Init(serialPort) != HAL_OK)
 	{
 	    // handle error
 	}
@@ -30,7 +37,7 @@ int SerialManager::get_data(char* cmd_buff) // done
 
 	while (idx < (CMD_BUFF_SIZE - 1))
 	{
-	    if (HAL_UART_Receive(&huart1, &ch, 1, per_byte_timeout_ms) == HAL_OK)
+	    if (HAL_UART_Receive(serialPort, &ch, 1, per_byte_timeout_ms) == HAL_OK)
 	    {
 	        if (ch == '\r') continue; // ignore CR if sender uses CRLF
 	        if (ch == '\n') break;    // end of line
@@ -57,7 +64,7 @@ void SerialManager::sendErrorMsg(const char* msg) // done
     if (len <= 0) return;
 
     size_t to_send = (len < (int)sizeof(buffer)) ? (size_t)len : (sizeof(buffer) - 1);
-    HAL_UART_Transmit(&huart1, (uint8_t*)buffer, (uint16_t)to_send, HAL_MAX_DELAY);
+    HAL_UART_Transmit(serialPort, (uint8_t*)buffer, (uint16_t)to_send, HAL_MAX_DELAY);
 }
 
 void SerialManager::sendInfoMsg(const char* msg) // done (need to add error handling)
@@ -72,7 +79,7 @@ void SerialManager::sendInfoMsg(const char* msg) // done (need to add error hand
     size_t to_send = (len < (int)sizeof(buffer)) ? (size_t)len : (sizeof(buffer) - 1);
 
     // blocking transmit:
-    if (HAL_UART_Transmit(&huart1, (uint8_t*)buffer, (uint16_t)to_send, HAL_MAX_DELAY) != HAL_OK){
+    if (HAL_UART_Transmit(serialPort, (uint8_t*)buffer, (uint16_t)to_send, HAL_MAX_DELAY) != HAL_OK){
     	// toggle some LED to indicate error
     }
 }
@@ -129,16 +136,16 @@ void SerialManager::sendInfoDataMsg(const char *format, ...) // done
 
 void SerialManager::sendTelemetry(char *buff)
 {
-	HAL_UART_Transmit(&huart1, (uint8_t*)buff, strlen(buff), HAL_MAX_DELAY);
+	HAL_UART_Transmit(serialPort, (uint8_t*)buff, strlen(buff), HAL_MAX_DELAY);
 }
 
-void SerialManager::sendLogFile(File log)
+void SerialManager::sendLogFile(FILE* log)
 {
 
 	const char *beginMsg = "$LOGFILE:BEGIN\r\n";
 	const char *endMsg = "$LOGFILE:END\r\n";
 
-    HAL_UART_Transmit(&huart1, (uint8_t*)beginMsg, strlen(beginMsg), HAL_MAX_DELAY);
+    HAL_UART_Transmit(serialPort, (uint8_t*)beginMsg, strlen(beginMsg), HAL_MAX_DELAY);
     HAL_Delay(500);
 
     while (fgets(lineBuff, sizeof(lineBuff), log))
@@ -147,10 +154,10 @@ void SerialManager::sendLogFile(File log)
     	if (len > 0 && (lineBuff[len-1] == '\n' || lineBuff[len-1] == '\r')) {
     		lineBuff[len-1] = '\0';
     	}
-        HAL_UART_Transmit(&huart1, (uint8_t*)lineBuff, strlen(lineBuff), HAL_MAX_DELAY);
-        HAL_UART_Transmit(&huart1, (uint8_t*)"\r\n", 2, HAL_MAX_DELAY); // println
+        HAL_UART_Transmit(serialPort, (uint8_t*)lineBuff, strlen(lineBuff), HAL_MAX_DELAY);
+        HAL_UART_Transmit(serialPort, (uint8_t*)"\r\n", 2, HAL_MAX_DELAY); // println
         HAL_Delay(500);
     }
 
-    HAL_UART_Transmit(&huart1, (uint8_t*)endMsg, strlen(endMsg), HAL_MAX_DELAY);
+    HAL_UART_Transmit(serialPort, (uint8_t*)endMsg, strlen(endMsg), HAL_MAX_DELAY);
 }

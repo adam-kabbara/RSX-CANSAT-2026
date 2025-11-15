@@ -8,17 +8,24 @@
 #ifndef INC_SERIAL_MANAGER_H_
 #define INC_SERIAL_MANAGER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/* add classes and functions here
- */
+#include "stm32g4xx_hal.h"
+#include <stdio.h>
+
+#ifdef __cplusplus
+}
+#endif
 
 class SerialManager
 {
 private:
-    HardwareSerial* serialPort;
+    UART_HandleTypeDef* serialPort;
 
 public:
-    SerialManager(HardwareSerial& port)
+    SerialManager(UART_HandleTypeDef& port)
         : serialPort(&port)
         {}
 
@@ -36,7 +43,7 @@ public:
 
     void sendTelemetry(char *buff);
 
-    void sendLogFile(File log);
+    void sendLogFile(FILE* log);
 
 };
 
