@@ -1,0 +1,17 @@
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:48:5:_I2CWrite	24	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:52:5:_I2CRead	24	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:56:14:VL53LX_WriteMulti	32	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:74:14:VL53LX_ReadMulti	32	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:95:14:VL53LX_WrByte	24	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:112:14:VL53LX_WrWord	24	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:130:14:VL53LX_WrDWord	32	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:148:14:VL53LX_UpdateByte	24	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:162:14:VL53LX_RdByte	32	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:183:14:VL53LX_RdWord	32	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:208:14:VL53LX_RdDWord	32	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:233:14:VL53LX_GetTickCount	24	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:260:14:VL53LX_GetTimerFrequency	16	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:268:14:VL53LX_WaitMs	16	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:273:14:VL53LX_WaitUs	16	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:278:14:VL53LX_WaitValueMaskEx	568	static
+../Drivers/BSP/Components/vl53l3cx/porting/vl53lx_platform.c:385:21:VL53LX_Delay	24	static
