@@ -1,11 +1,11 @@
 EEPROM pin connections -> Arduino Uno:
 
-    1: CS (Chip Select) -> D10
-    2: SO (Master In Slave Out) -> D12
+    1: CS (Chip Select) -> D10          | CS/SS
+    2: SO (Master In Slave Out) -> D12  | MISO
     3: WP -> GND
     4: 0V (Ground)-> GND
-    5: SI (Master Out Slave In) -> D11
-    6: SCK -> D13
+    5: SI (Master Out Slave In) -> D11  | MOSI
+    6: SCK -> D13                       | SCK
     7: HOLD -> 3.3V
     8: Vcc -> 3.3V
 
