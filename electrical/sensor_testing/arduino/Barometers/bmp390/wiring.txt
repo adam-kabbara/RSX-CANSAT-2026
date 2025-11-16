@@ -1,0 +1,16 @@
+Connect Vin to the power supply, 3-5V is fine. (Red
+wire on STEMMA QT version.) Use the same
+voltage that the microcontroller logic is based off
+of. For most older Arduinos, that is 5V.
+Connect GND to common power/data
+ground. (Black wire on STEMMA QT version.)
+Connect the SCK/SCL pin to the 12C clock SCL pin
+on your Arduino. (Yellow wire on STEMMA QT
+version.) On an UNO & '328 based Arduino, this is
+also known as A5, on a Mega it is also known as
+digital 21 and on a Leonardo/Micro, digital 3.
+Connect the SDI/SDA pin to the 12C data SDA pin
+on your Arduino. (Blue wire on STEMMA QT
+version.) On an UNO & '328 based Arduino, this is
+also known as A4, on a Mega it is also known as
+digital 20 and on a Leonardo/Micro, digital 2.
