@@ -1,0 +1,7 @@
+MAX-M10S pin connections -> Arduino Uno:
+
+    1: SCL -> SCL
+    2: SDA -> SDA
+    3: 3v3 -> 3.3v
+    4: GND -> GND
+    
