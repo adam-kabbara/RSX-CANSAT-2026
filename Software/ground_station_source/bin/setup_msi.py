@@ -6,7 +6,7 @@ import sys
 # Run command: python setup.py bdist_msi
 
 loc = os.path.dirname(os.path.abspath(__file__))
-parent = os.path.abspath(os.path.join(loc, ".."))
+parent = os.path.abspath(os.path.join(loc, "../code"))
 
 sys.path.insert(0, parent)
 
@@ -28,15 +28,15 @@ bdist_msi_options = {
 }
 
 # Only for windows:
-# base = 'gui'
+base = 'gui'
 
 executables = [
-    Executable(script=os.path.join(parent, "main.py"), base=base, target_name = 'RSX-CansatGUI', icon=os.path.join(parent,"media/icon.ico"))
+    Executable(script=os.path.join(parent, "main.py"), base=base, target_name = 'RSX-AerialGUI', icon=os.path.join(parent,"media/icon.ico"))
 ]
 
-setup(name='RSX Aerial Command Center',
+setup(name='RSX Aerial GUI',
       version = '2',
       author="RSX",
-      description = 'CANSAT GUI',
+      description = 'LIVE COMMAND & TELEMETRY GUI',
       options = {'bdist_msi': bdist_msi_options, 'build_exe': build_options},
       executables = executables)
