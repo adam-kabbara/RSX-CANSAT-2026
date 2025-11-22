@@ -8,7 +8,7 @@
 #ifndef INC_SERIAL_MANAGER_HPP_
 #define INC_SERIAL_MANAGER_HPP_
 
-#include <stdio.h>
+#include "global_includes.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,8 +30,6 @@ public:
         : serialPort(&port)
         {}
 
-    void begin();
-
     int get_data(char *cmd_buff);
 
     void sendErrorMsg(const char *msg);
@@ -44,7 +42,7 @@ public:
 
     void sendTelemetry(char *buff);
 
-    void sendLogFile(FILE* log);
+    // void sendLogFile(FILE* log);
 
 };
 

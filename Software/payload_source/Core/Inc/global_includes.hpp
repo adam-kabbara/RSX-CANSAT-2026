@@ -14,6 +14,7 @@
 #include <cstring>
 #include <stdarg.h>
 #include <string>
+#include <stdio.h>
 
 #define CMD_BUFF_SIZE 128
 #define RESP_SIZE 128

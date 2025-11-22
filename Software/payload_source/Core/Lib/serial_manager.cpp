@@ -1,33 +1,12 @@
 /*
- * serialManager.cpp
+ * serial_manager.cpp
  *
- *  	Created on: Oct 25, 2025
- *      Author: avaniyadav
- *      @brief          :
+ *  Manages all serial functions
  */
 
-#include <global_includes.hpp>
-#include <serial_manager.hpp>
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
+#include "serial_manager.hpp"
 
-extern UART_HandleTypeDef huart1;
-static char lineBuff[256]; 
-
-void SerialManager::begin() // done (?)
-{
-	// Skip initialization, already initialized in main.c --> static void MX_USART1_UART_Init(void);
-	if (HAL_UART_Init(serialPort) != HAL_OK)
-	{
-	    // handle error
-	}
-
-	HAL_Delay(1000);
-
-}
-
-int SerialManager::get_data(char* cmd_buff) // done
+int SerialManager::get_data(char* cmd_buff)
 {
 	memset(cmd_buff, 0, CMD_BUFF_SIZE);
 	uint8_t ch;
@@ -50,13 +29,14 @@ int SerialManager::get_data(char* cmd_buff) // done
 	}
 
 	cmd_buff[idx] = '\0';
-	if (idx == 0){
+	if (idx == 0)
+	{
 		return 0;
 	}
 	return 1;
 }
 
-void SerialManager::sendErrorMsg(const char* msg) // done
+void SerialManager::sendErrorMsg(const char* msg)
 {
     char buffer[RESP_SIZE];
     int len = snprintf(buffer, sizeof(buffer), "$E MSG:%s\r\n", msg);
@@ -66,11 +46,12 @@ void SerialManager::sendErrorMsg(const char* msg) // done
     HAL_UART_Transmit(serialPort, (uint8_t*)buffer, (uint16_t)to_send, HAL_MAX_DELAY);
 }
 
-void SerialManager::sendInfoMsg(const char* msg) // done (need to add error handling)
+void SerialManager::sendInfoMsg(const char* msg) // TODO:(need to add error handling)
 {
     char buffer[RESP_SIZE];
     int len = snprintf(buffer, sizeof(buffer), "$I MSG:%s", msg);
-    if (len < 0){
+    if (len < 0)
+    {
     	// handle formatting error!
     	return;
     }
@@ -78,13 +59,14 @@ void SerialManager::sendInfoMsg(const char* msg) // done (need to add error hand
     size_t to_send = (len < (int)sizeof(buffer)) ? (size_t)len : (sizeof(buffer) - 1);
 
     // blocking transmit:
-    if (HAL_UART_Transmit(serialPort, (uint8_t*)buffer, (uint16_t)to_send, HAL_MAX_DELAY) != HAL_OK){
+    if (HAL_UART_Transmit(serialPort, (uint8_t*)buffer, (uint16_t)to_send, HAL_MAX_DELAY) != HAL_OK)
+    {
     	// toggle some LED to indicate error
     }
 }
 
 
-void SerialManager::sendErrorDataMsg(const char *format, ...) // done
+void SerialManager::sendErrorDataMsg(const char *format, ...)
 {
 	char buffer[RESP_SIZE];
 
@@ -92,14 +74,16 @@ void SerialManager::sendErrorDataMsg(const char *format, ...) // done
     va_start(args, format);
     int ret = vsnprintf(buffer, sizeof(buffer), format, args);
 
-    if (ret < 0) {
+    if (ret < 0)
+    {
         // formatting error
-        this->sendErrorMsg("<format error>");
+        this->sendErrorMsg("ERROR: FSW attempted to send message with incorrect format");
         return;
     }
 
     // If truncated, ret >= sizeof(buffer). Buffer is still NUL-terminated.
-    if ((size_t)ret >= sizeof(buffer)) {
+    if ((size_t)ret >= sizeof(buffer))
+    {
         buffer[sizeof(buffer)-1] = '\0';
     }
 
@@ -107,7 +91,7 @@ void SerialManager::sendErrorDataMsg(const char *format, ...) // done
     va_end(args);
 }
 
-void SerialManager::sendInfoDataMsg(const char *format, ...) // done
+void SerialManager::sendInfoDataMsg(const char *format, ...)
 {
 
     char buffer[RESP_SIZE];
@@ -117,14 +101,16 @@ void SerialManager::sendInfoDataMsg(const char *format, ...) // done
 
     int ret = vsnprintf(buffer, sizeof(buffer), format, args);
 
-    if (ret < 0) {
+    if (ret < 0)
+    {
 		// formatting error
-		this->sendErrorMsg("<format error>");
+		this->sendErrorMsg("ERROR: FSW attempted to send message with incorrect format");
 		return;
     }
 
 	// If truncated, ret >= sizeof(buffer). Buffer is still NUL-terminated.
-	if ((size_t)ret >= sizeof(buffer)) {
+	if ((size_t)ret >= sizeof(buffer))
+	{
 		buffer[sizeof(buffer)-1] = '\0';
 	}
 
@@ -138,25 +124,26 @@ void SerialManager::sendTelemetry(char *buff)
 	HAL_UART_Transmit(serialPort, (uint8_t*)buff, strlen(buff), HAL_MAX_DELAY);
 }
 
+/* TODO: Update once EEPROM code is in
 void SerialManager::sendLogFile(FILE* log)
 {
-
 	const char *beginMsg = "$LOGFILE:BEGIN\r\n";
 	const char *endMsg = "$LOGFILE:END\r\n";
 
     HAL_UART_Transmit(serialPort, (uint8_t*)beginMsg, strlen(beginMsg), HAL_MAX_DELAY);
     HAL_Delay(500);
 
-    while (fgets(lineBuff, sizeof(lineBuff), log))
+    while (fgets(line_buff, sizeof(line_buff), log))
     {
-    	size_t len = strlen(lineBuff);
-    	if (len > 0 && (lineBuff[len-1] == '\n' || lineBuff[len-1] == '\r')) {
-    		lineBuff[len-1] = '\0';
+    	size_t len = strlen(line_buff);
+    	if (len > 0 && (line_buff[len-1] == '\n' || line_buff[len-1] == '\r')) {
+    		line_buff[len-1] = '\0';
     	}
-        HAL_UART_Transmit(serialPort, (uint8_t*)lineBuff, strlen(lineBuff), HAL_MAX_DELAY);
+        HAL_UART_Transmit(serialPort, (uint8_t*)line_buff, strlen(line_buff), HAL_MAX_DELAY);
         HAL_UART_Transmit(serialPort, (uint8_t*)"\r\n", 2, HAL_MAX_DELAY); // println
         HAL_Delay(500);
     }
 
     HAL_UART_Transmit(serialPort, (uint8_t*)endMsg, strlen(endMsg), HAL_MAX_DELAY);
 }
+*/
