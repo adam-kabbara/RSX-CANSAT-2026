@@ -233,10 +233,6 @@ class DataProcessor(QObject):
         self._csv_writer.writerow(data_dict)
     
     def extract_data_str(self, msg: str) -> TelemetryData:
-        # EXPECTED FORMAT:
-        # "TEAM_ID, MISSION_TIME, PACKET_COUNT, MODE, STATE, ALTITUDE, TEMPERATURE, PRESSURE, 
-        # VOLTAGE, GYRO_R, GYRO_P, GYRO_Y, ACCEL_R, ACCEL_P, ACCEL_Y, MAG_R, MAG_P, MAG_Y, AUTO_GYRO_ROTATION_RATE, 
-        # GPS_TIME, GPS_ALTITUDE, GPS_LATITUDE, GPS_LONGITUDE, GPS_SATS, CMD_ECHO"
 
         fields = msg.split(',')
 
