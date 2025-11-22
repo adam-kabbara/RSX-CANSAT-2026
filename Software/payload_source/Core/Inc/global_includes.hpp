@@ -74,5 +74,12 @@ struct gps_data {
 	double longitude;
 	int sats;
 };
+struct recoveryData {
+	float launch_altitude;
+	SimModeStatus sim_status;
+	OperatingState state;
+	OperatingMode mode;
+	int packet_count;
+};
 
 #endif /* INC_GLOBAL_INCLUDES_HPP_ */
