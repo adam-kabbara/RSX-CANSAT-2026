@@ -24,18 +24,15 @@
 #define SENTENCE_SIZE 128
 #define DATA_BUFF_SIZE 512
 #define TEAM_ID 3114
-#define XBEE_BAUD_RATE 57600
-#define ALTITUDE_WINDOW_SIZE 40
 #define SENSOR_SAMPLE_RATE_HZ 20
 #define MAX_LOG_FILE_SIZE_BYTES 125000
-#define ADC_LINEAR_REGRESSION 0.119505
-#define HALL_SENSOR_THRESHOLD 2200
 
 enum SimModeStatus {
     SIM_OFF = 0,
     SIM_EN = 1,
     SIM_ON = 2
 };
+
 enum OperatingState {
     LAUNCH_PAD = 0,
     ASCENT = 1,
@@ -46,16 +43,32 @@ enum OperatingState {
     LANDED = 6,
     IDLE = 7
 };
+
 enum OperatingMode {
     OPMODE_FLIGHT = 0,
     OPMODE_SIM = 1
 };
+
 enum cam_status {
 	CAM1_ON_CAM2_ON = 0,
 	CAM1_ON_CAM2_OFF = 1,
 	CAM1_OFF_CAM2_ON = 2,
 	CAM1_OFF_CAM2_OFF = 3
 };
+
+struct mission_struct {
+	OperatingState op_state = IDLE;
+	SimModeStatus sim_status = SIM_OFF;
+	OperatingMode op_mode = OPMODE_FLIGHT;
+	uint8_t ALT_CAL_CHK = 0;
+	int packet_count = 0;
+	float launch_altitude = 0.0;
+	int SIMP_DATA = 0;
+	uint8_t waiting_for_simp = 0;
+	char cmd_buff[CMD_BUFF_SIZE];
+};
+mission_info_struct mission_info;
+
 struct rpy_data {
 	int data_r;
 	int data_p;

@@ -11,12 +11,9 @@ SensorManager::SensorManager()
     /* Initialize sensors */
 }
 
-struct bar_data getBarData()
+float SensorManager::getPressure()
 {
-	struct bar_data data;
-	data.altitude = 0.0;
-	data.pressure = 0.0;
-	return data;
+	return 0.0;
 }
 
 float SensorManager::getTemp()

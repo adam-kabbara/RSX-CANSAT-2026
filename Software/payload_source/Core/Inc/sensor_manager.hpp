@@ -34,7 +34,7 @@ private:
 public:
 	SensorManager();
 
-	struct bar_data getBarData();
+	float getPressure();
 	float getTemp();
 	float getVoltage();
 	float getCurrent();
