@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QFormLayout,
     QSystemTrayIcon,
-    QApplication
+    QApplication, QListWidget, QFrame, QListWidgetItem, QAbstractItemView
 )
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 import webbrowser
@@ -35,6 +35,7 @@ class GraphWindow(QMainWindow):
         self._graph_time_window = 500 # how long data stays on graph
         self._screen_width_cm = 32.1
         self._screen_height_cm = 20
+        self.previous_state = "Unknown"
 
         self.setWindowTitle("Live Data")
         icon_path = os.path.join(os.path.dirname(__file__), '..', 'media', 'icon.png')
@@ -121,7 +122,6 @@ class GraphWindow(QMainWindow):
             ("Calibration", "Unknown"),
             ("Temperature", "0.0 °C"),
             ("Pressure", "0.0 kPa"),
-            ("State", "Unknown"),
             ("Mode", "Unknown"),
             ("Mission Time", "00:00:00"),
             ("Packets", "0/0"),
@@ -133,11 +133,74 @@ class GraphWindow(QMainWindow):
             ("CMD ECHO", "N/A")
         ]
 
+        self.state_label_index = {
+            "IDLE": 0,
+            "LAUNCH_PAD": 1,
+            "ASCENT": 2,
+            "APOGEE": 3,
+            "RELEASE": 4,
+            "DESCENT": 5,
+            "PROBE_RELEASE": 6,
+            "PAYLOAD_RELEASE": 7,
+            "LANDED": 8
+        }
+        self.state_labels = ("IDLE", "LAUNCH_PAD", "ASCENT", "APOGEE", "RELEASE", "DESCENT", "PROBE_RELEASE", "PAYLOAD_RELEASE", "LANDED")
+        self.state_labels_display = ("IDLE", "LAUNCH PAD", "ASCENT", "APOGEE", "RELEASE", "DESCENT", "PROBE REL",
+                             "PAYLD REL", "LANDED")
+
         self.sidebar_data_labels = []
 
         self.sidebar_data_dict = {name: idx for idx, (name, _) in enumerate(self.sidebar_fields_data)}
 
+        # Previous state list
+        self.previous_list = QListWidget()
+        self.previous_list.setStyleSheet("border-radius: 0px;")
+        self.previous_list.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.previous_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.previous_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        self.previous_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.previous_list.setFixedHeight(80)
+        self.previous_list.setStyleSheet("background-color: transparent; color:black; font-size: 10px; font-family: Roboto Mono;")
+
+        # Next state list
+        self.next_list = QListWidget()
+        self.next_list.setStyleSheet("border-radius: 0px;")
+        for item in self.state_labels_display:
+            _pending_item = QListWidgetItem(item)
+            cosmetics.set_next_states(_pending_item)
+            self.next_list.addItem(_pending_item)
+        self.next_list.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.next_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.next_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        self.next_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.next_list.setFixedHeight(80)
+        self.next_list.setStyleSheet("background-color: transparent;")
+
+        # Create state label separately
+        self.state_label = QLabel()
+        self.state_label.setFont(cosmetics.state_label_font())
+        self.state_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.state_label.setFont(cosmetics.state_label_font())
+        self._reset_states()
+
+        # --- Create Title Widgets ---
+        self.previous_label_title = QLabel("Previous")
+        self.previous_label_title.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.previous_label_title.setFont(cosmetics.state_grid_title_font())
+        self.next_label_title = QLabel("Next")
+        self.next_label_title.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.next_label_title.setFont(cosmetics.state_grid_title_font())
+
+        # Current state display
+        self.current_state_display = QLabel("Unknown")
+        self.current_state_display.setFrameShape(QFrame.Shape.Panel)
+        self.current_state_display.setStyleSheet("color: blue; padding: 5px;")
+
         for field_name, field_value in self.sidebar_fields_data:
+            # Handle state separately
+            if field_name == "State":
+                continue
+
             # Create the field label and data label
             field_label = QLabel(f"{field_name}:")
             data_label = QLabel(cosmetics.data_status_init_color(field_value))
@@ -156,7 +219,22 @@ class GraphWindow(QMainWindow):
         form_group = QGroupBox()
         form_group.setLayout(live_graph_values)
 
+        state_visual_box = QGroupBox()
+        state_visual_layout = QVBoxLayout(state_visual_box)
+        state_grid_layout = QGridLayout()
+        state_grid_layout.addWidget(self.state_label, 0, 0, 1, 0, Qt.AlignmentFlag.AlignLeft)
+
+        state_grid_layout.addWidget(self.previous_label_title, 2, 0)
+        state_grid_layout.addWidget(self.next_label_title, 2, 1)
+
+        state_grid_layout.addWidget(self.previous_list, 3, 0)
+        state_grid_layout.addWidget(self.next_list, 3, 1)
+
+        state_grid_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        state_visual_layout.addLayout(state_grid_layout)
+
         sidebar.addWidget(form_group)
+        sidebar.addWidget(state_visual_box)
         sidebar.addStretch()
         sidebar.addWidget(credit_label)
 
@@ -173,11 +251,18 @@ class GraphWindow(QMainWindow):
         self._packets_recv = 0
         self._packets_sent = 0
         self.update_packet_label()
-        for idx, (_, value) in enumerate(self.sidebar_fields_data):
-            self.sidebar_data_labels[idx].setText(value)
+        self.update_state(None, reset=True)
+        self._initiate_data_fields()
         for plotter in self.plotters:
             plotter.reset_plot()
-    
+
+    def _initiate_data_fields(self):
+        self.set_port_text_closed()
+        for name, val in self.sidebar_fields_data:
+            if name == "Port":
+                continue
+            self.sidebar_data_labels[self.sidebar_data_dict.get(name)].setText(cosmetics.data_status_init_color(val))
+
     def update_packet_count(self):
         self._packets_recv += 1
 
@@ -196,9 +281,53 @@ class GraphWindow(QMainWindow):
     def update_pressure(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(cosmetics.data_status_blue(str(val)))
 
-    # TODO: State graph
-    def update_state(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("State")].setText(cosmetics.data_status_blue(str))
+    # Modified state update function
+    def update_state(self, state_str, reset=False):
+        if reset:
+            self._reset_states()
+            return
+        if state_str == "Unknown":
+            self.previous_state = "Unknown"
+            self.state_label.setText("Current " + cosmetics.data_status_init_color(state_str))
+            return
+        elif state_str != self.previous_state:
+            if state_str in self.state_labels:
+                current_state_index = self.state_label_index.get(state_str)
+                previous_state_index = self.state_label_index.get(self.previous_state)
+                if self.previous_state == "Unknown" or current_state_index - previous_state_index == 1:
+                    # Populate a single stage
+                    _pending_item = QListWidgetItem(self.state_labels_display[current_state_index])
+                    cosmetics.set_previous_states(_pending_item)
+                    self.previous_list.addItem(_pending_item)
+                    self.previous_list.scrollToBottom()
+                else:
+                    for state in self.state_labels_display[previous_state_index + 1:current_state_index]:
+                        # Populate skipped stages
+                        _pending_item_skipped = QListWidgetItem(state)
+                        cosmetics.set_skipped_states(_pending_item_skipped)
+                        self.previous_list.addItem(_pending_item_skipped)
+                    _pending_item = QListWidgetItem(self.state_labels_display[current_state_index])
+                    cosmetics.set_previous_states(_pending_item)
+                    self.previous_list.addItem(_pending_item)
+                    self.previous_list.scrollToBottom()
+                self.next_list.clear()
+                for state in self.state_labels_display[current_state_index + 1:]:
+                    _pending_item_next = QListWidgetItem(state)
+                    cosmetics.set_next_states(_pending_item_next)
+                    self.next_list.addItem(_pending_item_next)
+                self.next_list.scrollToTop()
+            self.previous_state = state_str
+            self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
+
+    def _reset_states(self):
+        self.previous_state = "Unknown"
+        self.state_label.setText("Current " + cosmetics.data_status_init_color("Unknown"))
+        self.previous_list.clear()
+        self.next_list.clear()
+        for item in self.state_labels_display:
+            _pending_item = QListWidgetItem(item)
+            cosmetics.set_next_states(_pending_item)
+            self.next_list.addItem(_pending_item)
 
     def update_mode(self, str):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Mode")].setText(cosmetics.data_status_blue(str))
