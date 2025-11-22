@@ -40,29 +40,30 @@ void SerialManager::sendErrorMsg(const char* msg)
 {
     char buffer[RESP_SIZE];
     int len = snprintf(buffer, sizeof(buffer), "$E MSG:%s\r\n", msg);
-    if (len <= 0) return;
+    if (len <= 0)
+    {
+    	char *error_msg = "ERROR: FSW attempted to send message with incorrect format";
+    	len = snprintf(buffer, sizeof(buffer), "$E MSG:%s\r\n", error_msg);
+    }
 
     size_t to_send = (len < (int)sizeof(buffer)) ? (size_t)len : (sizeof(buffer) - 1);
     HAL_UART_Transmit(serialPort, (uint8_t*)buffer, (uint16_t)to_send, HAL_MAX_DELAY);
 }
 
-void SerialManager::sendInfoMsg(const char* msg) // TODO:(need to add error handling)
+void SerialManager::sendInfoMsg(const char* msg)
 {
     char buffer[RESP_SIZE];
     int len = snprintf(buffer, sizeof(buffer), "$I MSG:%s", msg);
     if (len < 0)
     {
-    	// handle formatting error!
+    	this->sendErrorMsg("ERROR: FSW attempted to send message with incorrect format");
     	return;
     }
 
     size_t to_send = (len < (int)sizeof(buffer)) ? (size_t)len : (sizeof(buffer) - 1);
 
     // blocking transmit:
-    if (HAL_UART_Transmit(serialPort, (uint8_t*)buffer, (uint16_t)to_send, HAL_MAX_DELAY) != HAL_OK)
-    {
-    	// toggle some LED to indicate error
-    }
+    HAL_UART_Transmit(serialPort, (uint8_t*)buffer, (uint16_t)to_send, HAL_MAX_DELAY);
 }
 
 
