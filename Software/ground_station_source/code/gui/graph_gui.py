@@ -252,11 +252,17 @@ class GraphWindow(QMainWindow):
         self._packets_sent = 0
         self.update_packet_label()
         self.update_state(None, reset=True)
-        for idx, (_, value) in enumerate(self.sidebar_fields_data):
-            self.sidebar_data_labels[idx].setText(value)
+        self._initiate_data_fields()
         for plotter in self.plotters:
             plotter.reset_plot()
-    
+
+    def _initiate_data_fields(self):
+        self.set_port_text_closed()
+        for name, val in self.sidebar_fields_data:
+            if name == "Port":
+                continue
+            self.sidebar_data_labels[self.sidebar_data_dict.get(name)].setText(cosmetics.data_status_init_color(val))
+
     def update_packet_count(self):
         self._packets_recv += 1
 
