@@ -179,3 +179,4 @@ cython_debug/
 
 # Ground Station Python Environment
 gs_env/
+.ignore
