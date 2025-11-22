@@ -1,0 +1,9 @@
+BMP390 temp sensor -> arduino Uno
+I2C wiring
+
+Vin -> power supply (3/5v)
+GND -> common power/data ground
+SCK/SCL -> SCL
+SDI/SDA -> SDA
+
+
