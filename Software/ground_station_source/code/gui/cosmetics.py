@@ -3,7 +3,7 @@ Manage cosmetic settings for the GUI
 """
 
 from PyQt6.QtGui import QFont, QColor, QPalette
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QListWidgetItem
 
 def set_app_style(app: QApplication):
     app.setStyle('Fusion')
@@ -35,6 +35,24 @@ def data_status_green(text):
 
 def data_status_blue(text):
     return f'<span style="color:BLUE;">{text}'
+
+def state_label_font():
+    return QFont("Roboto Mono", 12)
+
+def state_grid_title_font():
+    return QFont("Roboto Mono", 12)
+
+def set_previous_states(item: QListWidgetItem):
+    item.setFont(QFont("Roboto Mono", 10))
+    item.setForeground(QColor("green"))
+
+def set_skipped_states(item: QListWidgetItem):
+    item.setFont(QFont("Roboto Mono", 10))
+    item.setForeground(QColor("red"))
+
+def set_next_states(item: QListWidgetItem):
+    item.setFont(QFont("Roboto Mono", 10))
+    item.setForeground(QColor("gery"))
 
 def graph_font():
     font = QFont("Roboto Mono")
