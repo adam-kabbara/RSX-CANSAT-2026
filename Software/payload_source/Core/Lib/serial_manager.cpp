@@ -6,9 +6,8 @@
  *      @brief          :
  */
 
-#include "serial_manager.h"
-#include "global_includes.h"
-// #include "main.h"
+#include <global_includes.hpp>
+#include <serial_manager.hpp>
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>

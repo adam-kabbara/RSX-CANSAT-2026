@@ -5,15 +5,16 @@
  *      Author: avaniyadav
  */
 
-#ifndef INC_SERIAL_MANAGER_H_
-#define INC_SERIAL_MANAGER_H_
+#ifndef INC_SERIAL_MANAGER_HPP_
+#define INC_SERIAL_MANAGER_HPP_
+
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "stm32g4xx_hal.h"
-#include <stdio.h>
 
 #ifdef __cplusplus
 }
@@ -48,4 +49,4 @@ public:
 };
 
 
-#endif /* INC_SERIAL_MANAGER_H_ */
+#endif /* INC_SERIAL_MANAGER_HPP_ */

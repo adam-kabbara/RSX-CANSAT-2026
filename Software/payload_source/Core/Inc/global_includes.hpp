@@ -6,8 +6,8 @@
   ******************************************************************************
   */
 
-#ifndef INC_GLOBAL_INCLUDES_H_
-#define INC_GLOBAL_INCLUDES_H_
+#ifndef INC_GLOBAL_INCLUDES_HPP_
+#define INC_GLOBAL_INCLUDES_HPP_
 
 #include <unordered_map>
 #include <functional>
@@ -49,5 +49,29 @@ enum OperatingMode {
     OPMODE_FLIGHT = 0,
     OPMODE_SIM = 1
 };
+enum cam_status {
+	CAM1_ON_CAM2_ON = 0,
+	CAM1_ON_CAM2_OFF = 1,
+	CAM1_OFF_CAM2_ON = 2,
+	CAM1_OFF_CAM2_OFF = 3
+};
+struct rpy_data {
+	int data_r;
+	int data_p;
+	int data_y;
+};
 
-#endif /* INC_GLOBAL_INCLUDES_H_ */
+struct bar_data {
+	float pressure;
+	float altitude;
+};
+
+struct gps_data {
+	char* time;
+	float altitude;
+	double latitude;
+	double longitude;
+	int sats;
+};
+
+#endif /* INC_GLOBAL_INCLUDES_HPP_ */
