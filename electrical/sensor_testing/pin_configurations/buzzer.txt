@@ -1,0 +1,18 @@
+Place the timer across the bridge
+Connect pin 2 to pin 6
+Connect pin 4 to pin 8
+Connect pin 1 to grd
+Connect pin 8 to power (5v)
+Connect pin 3 (output) to positive end of the buzzer
+Place R1 between pins 7 and 8
+Place R2 between pins 6 and 7
+Place the 10µF capacitor between Pin 2 and Pin 1. 
+Place the 10µF capacitor between Pin 5 and ground.
+Connect negative end of the buzzer to ground
+Connect power and ground to the respective rows in the breadboard
+
+
+R1 = 10k ohms between 7 and 8 (used to manipulate frequency)
+R2 = 10k ohms between 7 and 6 (used to manipulate frequency)
+C1 = 10 microfaraday between 2 and 1 [POSITIVE ON PIN 2](no impact on frequency I think) 
+C2 = 10 microfaraday between 5[POSITIVE ON 5] and grd (used to manipulate frequency)
