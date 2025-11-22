@@ -176,3 +176,6 @@ cython_debug/
 
 # Opened KiCad files
 ~*.lck
+
+# Ground Station Python Environment
+gs_env/
