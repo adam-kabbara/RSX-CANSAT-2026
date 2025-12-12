@@ -17,10 +17,13 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QFormLayout,
     QSystemTrayIcon,
-    QApplication, QListWidget, QFrame, QListWidgetItem, QAbstractItemView
+    QApplication, 
+    QListWidget, 
+    QFrame, 
+    QListWidgetItem, 
+    QAbstractItemView
 )
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-import webbrowser
 
 class GraphWindow(QMainWindow):
 
@@ -35,7 +38,7 @@ class GraphWindow(QMainWindow):
         self._graph_time_window = 500 # how long data stays on graph
         self._screen_width_cm = 32.1
         self._screen_height_cm = 20
-        self.previous_state = "Unknown"
+        self._current_state = "Unknown"
 
         self.setWindowTitle("Live Data")
         icon_path = os.path.join(os.path.dirname(__file__), '..', 'media', 'icon.png')
@@ -133,6 +136,9 @@ class GraphWindow(QMainWindow):
             ("CMD ECHO", "N/A")
         ]
 
+        self.sidebar_data_labels = []
+        self.sidebar_data_dict = {name: idx for idx, (name, _) in enumerate(self.sidebar_fields_data)}
+
         self.state_label_index = {
             "IDLE": 0,
             "LAUNCH_PAD": 1,
@@ -147,10 +153,6 @@ class GraphWindow(QMainWindow):
         self.state_labels = ("IDLE", "LAUNCH_PAD", "ASCENT", "APOGEE", "RELEASE", "DESCENT", "PROBE_RELEASE", "PAYLOAD_RELEASE", "LANDED")
         self.state_labels_display = ("IDLE", "LAUNCH PAD", "ASCENT", "APOGEE", "RELEASE", "DESCENT", "PROBE REL",
                              "PAYLD REL", "LANDED")
-
-        self.sidebar_data_labels = []
-
-        self.sidebar_data_dict = {name: idx for idx, (name, _) in enumerate(self.sidebar_fields_data)}
 
         # Previous state list
         self.previous_list = QListWidget()
@@ -287,27 +289,27 @@ class GraphWindow(QMainWindow):
             self._reset_states()
             return
         if state_str == "Unknown":
-            self.previous_state = "Unknown"
+            self._current_state = "Unknown"
             self.state_label.setText("Current " + cosmetics.data_status_init_color(state_str))
             return
-        elif state_str != self.previous_state:
+        elif state_str != self._current_state:
             if state_str in self.state_labels:
                 current_state_index = self.state_label_index.get(state_str)
-                previous_state_index = self.state_label_index.get(self.previous_state)
-                if self.previous_state == "Unknown" or current_state_index - previous_state_index == 1:
+                _current_state_index = self.state_label_index.get(self._current_state)
+                if self._current_state == "Unknown" or current_state_index - _current_state_index == 1:
                     # Populate a single stage
                     _pending_item = QListWidgetItem(self.state_labels_display[current_state_index])
-                    cosmetics.set_previous_states(_pending_item)
+                    cosmetics.set__current_states(_pending_item)
                     self.previous_list.addItem(_pending_item)
                     self.previous_list.scrollToBottom()
                 else:
-                    for state in self.state_labels_display[previous_state_index + 1:current_state_index]:
+                    for state in self.state_labels_display[_current_state_index + 1:current_state_index]:
                         # Populate skipped stages
                         _pending_item_skipped = QListWidgetItem(state)
                         cosmetics.set_skipped_states(_pending_item_skipped)
                         self.previous_list.addItem(_pending_item_skipped)
                     _pending_item = QListWidgetItem(self.state_labels_display[current_state_index])
-                    cosmetics.set_previous_states(_pending_item)
+                    cosmetics.set__current_states(_pending_item)
                     self.previous_list.addItem(_pending_item)
                     self.previous_list.scrollToBottom()
                 self.next_list.clear()
@@ -316,11 +318,11 @@ class GraphWindow(QMainWindow):
                     cosmetics.set_next_states(_pending_item_next)
                     self.next_list.addItem(_pending_item_next)
                 self.next_list.scrollToTop()
-            self.previous_state = state_str
+            self._current_state = state_str
             self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
 
     def _reset_states(self):
-        self.previous_state = "Unknown"
+        self._current_state = "Unknown"
         self.state_label.setText("Current " + cosmetics.data_status_init_color("Unknown"))
         self.previous_list.clear()
         self.next_list.clear()
