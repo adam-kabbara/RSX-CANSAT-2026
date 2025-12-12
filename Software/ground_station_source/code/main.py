@@ -1,5 +1,7 @@
 """
 Package runner
+** Use python main.py -g to only show graphing window
+** Use python main.py -c to only show command window
 """
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWidgets import QMainWindow
@@ -19,7 +21,7 @@ group.add_argument('-c', action='store_true')
 def center_window(window: QMainWindow):
 
     window.adjustSize()
-    
+
     screen = window.screen()
     geo = window.frameGeometry()
 
