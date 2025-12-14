@@ -37,22 +37,19 @@ def data_status_blue(text):
     return f'<span style="color:BLUE;">{text}'
 
 def state_label_font():
-    return QFont("Roboto Mono", 12)
-
-def state_grid_title_font():
-    return QFont("Roboto Mono", 12)
+    return QFont("Roboto Mono", 14)
 
 def set_previous_states(item: QListWidgetItem):
-    item.setFont(QFont("Roboto Mono", 10))
+    item.setFont(QFont("Courier New", 14))
     item.setForeground(QColor("green"))
 
 def set_skipped_states(item: QListWidgetItem):
-    item.setFont(QFont("Roboto Mono", 10))
+    item.setFont(QFont("Courier New", 14))
     item.setForeground(QColor("red"))
 
 def set_next_states(item: QListWidgetItem):
-    item.setFont(QFont("Roboto Mono", 10))
-    item.setForeground(QColor("gery"))
+    item.setFont(QFont("Courier New", 14))
+    item.setForeground(QColor("grey"))
 
 def graph_font():
     font = QFont("Roboto Mono")

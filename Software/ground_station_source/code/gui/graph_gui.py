@@ -7,6 +7,7 @@ from . import cosmetics
 import os
 from PyQt6.QtCore import Qt, QUrl
 from PyQt6.QtGui import QIcon
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -23,7 +24,6 @@ from PyQt6.QtWidgets import (
     QListWidgetItem, 
     QAbstractItemView
 )
-from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 class GraphWindow(QMainWindow):
 
@@ -60,6 +60,11 @@ class GraphWindow(QMainWindow):
         
         grid_container = QWidget()
         graph_grid_layout = QGridLayout(grid_container)
+        graph_grid_layout.setColumnStretch(0, 1)
+        graph_grid_layout.setColumnStretch(1, 1)
+        graph_grid_layout.setRowStretch(0, 1)
+        graph_grid_layout.setRowStretch(1, 1)
+        graph_grid_layout.setRowStretch(2, 1)
 
         graph_info = [
             {"title": "Altitude", "lines": 1, "x_unit": "s", "y_unit": "m"},
@@ -103,17 +108,15 @@ class GraphWindow(QMainWindow):
                 map_widget.setUrl(QUrl("http://127.0.0.1:5000"))
                 # Keep a reference to the widget for later updates (and to avoid GC)
                 self.gps_map_webview = map_widget
-                map_widget.setMinimumSize(480, 320)
                 graph_grid_layout.addWidget(map_widget, i // 2, i % 2)
             
-
-        graph_parent_group.addWidget(grid_container, stretch=8)
+        graph_parent_group.addWidget(grid_container, stretch=75)
         
         # Sidebar to show all current graph values
         sidebar_widget = QWidget()
         sidebar = QVBoxLayout(sidebar_widget)
         
-        credit_label = QLabel("Made by the Engineers of RSX at the University of Toronto")
+        credit_label = QLabel("Made by the Engineers of RSX")
         credit_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         credit_label.setFont(cosmetics.credit_font())
         credit_label.setWordWrap(True)
@@ -187,15 +190,15 @@ class GraphWindow(QMainWindow):
         self.state_label.setFont(cosmetics.state_label_font())
         self.state_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.state_label.setFont(cosmetics.state_label_font())
-        self._reset_states()
+        self.reset_states()
 
         # --- Create Title Widgets ---
         self.previous_label_title = QLabel("Previous")
         self.previous_label_title.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.previous_label_title.setFont(cosmetics.state_grid_title_font())
+        self.previous_label_title.setFont(cosmetics.state_label_font())
         self.next_label_title = QLabel("Next")
         self.next_label_title.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.next_label_title.setFont(cosmetics.state_grid_title_font())
+        self.next_label_title.setFont(cosmetics.state_label_font())
 
         # Current state display
         self.current_state_display = QLabel("Unknown")
@@ -246,8 +249,8 @@ class GraphWindow(QMainWindow):
         sidebar.addStretch()
         sidebar.addWidget(credit_label)
 
-        graph_parent_group.addWidget(sidebar_widget, stretch=2)
-        graph_parent_group.setSpacing(15)
+        graph_parent_group.addWidget(sidebar_widget, stretch=25)
+        graph_parent_group.setSpacing(10)
 
     def set_port_text_closed(self):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Port")].setText(cosmetics.data_status_red("CLOSED"))
@@ -289,14 +292,14 @@ class GraphWindow(QMainWindow):
     def update_pressure(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(cosmetics.data_status_blue(str(val)))
 
-    # Modified state update function
+    # State updates
     def update_state(self, state_str, reset=False):
         if reset:
-            self._reset_states()
+            self.reset_states()
             return
         if state_str == "Unknown":
             self._current_state = "Unknown"
-            self.state_label.setText("Current " + cosmetics.data_status_init_color(state_str))
+            self.state_label.setText("Current:   " + cosmetics.data_status_init_color(state_str))
             return
         elif state_str != self._current_state:
             if state_str in self.state_labels:
@@ -327,9 +330,9 @@ class GraphWindow(QMainWindow):
             self._current_state = state_str
             self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
 
-    def _reset_states(self):
+    def reset_states(self):
         self._current_state = "Unknown"
-        self.state_label.setText("Current " + cosmetics.data_status_init_color("Unknown"))
+        self.state_label.setText("Current: " + cosmetics.data_status_init_color("Unknown"))
         self.previous_list.clear()
         self.next_list.clear()
         for item in self.state_labels_display:
