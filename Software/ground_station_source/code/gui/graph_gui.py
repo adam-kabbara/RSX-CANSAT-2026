@@ -2,7 +2,7 @@
 Front end GUI elements for graph window
 """
 
-from plotter.plotters import DynamicPlotter, DynamicPlotter_MultiLine
+from plotter.plotters import DynamicPlotter, DynamicPlotterMultiLine
 from . import cosmetics
 import os
 from PyQt6.QtCore import Qt, QUrl
@@ -88,7 +88,7 @@ class GraphWindow(QMainWindow):
                                          x_unit=entry["x_unit"],
                                          y_unit=entry["y_unit"])
             elif entry["lines"] != 1:
-                plotter = DynamicPlotter_MultiLine(title=entry["title"], 
+                plotter = DynamicPlotterMultiLine(title=entry["title"], 
                                                    timewindow=self._graph_time_window, 
                                                    num_lines=entry["lines"],
                                                    x_unit=entry["x_unit"],
@@ -153,6 +153,10 @@ class GraphWindow(QMainWindow):
         self.state_labels = ("IDLE", "LAUNCH_PAD", "ASCENT", "APOGEE", "RELEASE", "DESCENT", "PROBE_RELEASE", "PAYLOAD_RELEASE", "LANDED")
         self.state_labels_display = ("IDLE", "LAUNCH PAD", "ASCENT", "APOGEE", "RELEASE", "DESCENT", "PROBE REL",
                              "PAYLD REL", "LANDED")
+        
+        state_title = QLabel("PAYLOAD STATE")
+        state_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        state_title.setFont(cosmetics.state_title_font())
 
         # Previous state list
         self.previous_list = QListWidget()
@@ -236,6 +240,8 @@ class GraphWindow(QMainWindow):
         state_visual_layout.addLayout(state_grid_layout)
 
         sidebar.addWidget(form_group)
+        sidebar.addSpacing(20)
+        sidebar.addWidget(state_title)
         sidebar.addWidget(state_visual_box)
         sidebar.addStretch()
         sidebar.addWidget(credit_label)

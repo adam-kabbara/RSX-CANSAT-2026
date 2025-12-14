@@ -80,6 +80,12 @@ def credit_font():
     credit_font.setPointSize(10)
     return credit_font
 
+def state_title_font():
+    state_title_font = QFont()
+    state_title_font.setPointSize(14)
+    state_title_font.setWeight(QFont.Weight.DemiBold)
+    return state_title_font
+
 def log_font():
     log_font = QFont()
     log_font.setPointSize(14)

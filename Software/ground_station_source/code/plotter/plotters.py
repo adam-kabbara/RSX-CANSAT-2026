@@ -79,7 +79,7 @@ class DynamicPlotter(BaseDynamicPlotter):
         self.last_time = None
 
 # Plotting system for graphs with multiple lines
-class DynamicPlotter_MultiLine(BaseDynamicPlotter):
+class DynamicPlotterMultiLine(BaseDynamicPlotter):
     def __init__(self, title, timewindow, num_lines, x_unit, y_unit):
         super().__init__(title, timewindow, x_unit, y_unit)
         self.num_lines = num_lines
