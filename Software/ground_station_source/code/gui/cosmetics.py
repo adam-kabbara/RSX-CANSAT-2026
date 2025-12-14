@@ -40,15 +40,15 @@ def state_label_font():
     return QFont("Roboto Mono", 14)
 
 def set_previous_states(item: QListWidgetItem):
-    item.setFont(QFont("Courier New", 14))
+    item.setFont(QFont("Consolas", 14))
     item.setForeground(QColor("green"))
 
 def set_skipped_states(item: QListWidgetItem):
-    item.setFont(QFont("Courier New", 14))
+    item.setFont(QFont("Consolas", 14))
     item.setForeground(QColor("red"))
 
 def set_next_states(item: QListWidgetItem):
-    item.setFont(QFont("Courier New", 14))
+    item.setFont(QFont("Consolas", 14))
     item.setForeground(QColor("grey"))
 
 def graph_font():
@@ -90,9 +90,9 @@ def log_font():
     return log_font
 
 def graph_font():
-    graph_font = QFont("Roboto Mono")
+    graph_font = QFont("Consolas")
     graph_font.setPointSize(14)
-    graph_font.setWeight(QFont.Weight.Bold)
+    graph_font.setWeight(QFont.Weight.DemiBold)
     return graph_font
 
 def graph_background():
@@ -101,8 +101,11 @@ def graph_background():
 def graph_title(text):
     return f'<span style="font-family: Monospace; font-size:14pt; font-weight:bold;">{text}</span>'
 
+def graph_axis(text):
+    return f'<span style="font-family: Consolas; font-size:14pt; font-weight:bold;">{text}</span>'
+
 def sidebar_data_font():
-    live_graph_data_font = QFont("Roboto Mono")
+    live_graph_data_font = QFont("Consolas")
     live_graph_data_font.setPointSize(14)
     return live_graph_data_font
 

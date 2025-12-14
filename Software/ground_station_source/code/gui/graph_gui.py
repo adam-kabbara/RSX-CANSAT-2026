@@ -116,7 +116,7 @@ class GraphWindow(QMainWindow):
         sidebar_widget = QWidget()
         sidebar = QVBoxLayout(sidebar_widget)
         
-        credit_label = QLabel("Made by the Engineers of RSX")
+        credit_label = QLabel("Made by the Engineers of RSX Aerial")
         credit_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         credit_label.setFont(cosmetics.credit_font())
         credit_label.setWordWrap(True)

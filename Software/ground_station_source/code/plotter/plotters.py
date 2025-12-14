@@ -27,9 +27,9 @@ class BaseDynamicPlotter:
         self.plt.setTitle(gui.cosmetics.graph_title(title))
         self.plt.showGrid(x=True, y=True)
         self.plt.getAxis('bottom').setStyle(tickFont=font)
-        self.plt.getAxis('bottom').setLabel(gui.cosmetics.graph_title(x_unit))
+        self.plt.getAxis('bottom').setLabel(gui.cosmetics.graph_axis(x_unit))
         self.plt.getAxis('left').setStyle(tickFont=font)
-        self.plt.getAxis('left').setLabel(gui.cosmetics.graph_title(y_unit))
+        self.plt.getAxis('left').setLabel(gui.cosmetics.graph_axis(y_unit))
     
     def get_pen(self, index):
         return mkPen(color=gui.cosmetics.graph_pen_color(index), width=gui.cosmetics.graph_pen_size())
