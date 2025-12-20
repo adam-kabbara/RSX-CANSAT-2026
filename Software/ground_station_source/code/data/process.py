@@ -192,7 +192,7 @@ class DataProcessor(QObject):
             self._graph_ui.update_mission_time(data.MISSION_TIME)
 
         if data.PACKET_COUNT is not None:
-            self._graph_ui.update_packet_count(data.PACKET_COUNT)
+            self._graph_ui.update_packets_sent(data.PACKET_COUNT)
             self._graph_ui.update_packet_label()
 
         if data.MODE is not None:
