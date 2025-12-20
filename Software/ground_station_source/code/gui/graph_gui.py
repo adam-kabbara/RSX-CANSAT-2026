@@ -262,7 +262,7 @@ class GraphWindow(QMainWindow):
         self._packets_recv = 0
         self._packets_sent = 0
         self.update_packet_label()
-        self.update_state(None, reset=True)
+        self.reset_states()
         self._initiate_data_fields()
         for plotter in self.plotters:
             plotter.reset_plot()
@@ -293,15 +293,8 @@ class GraphWindow(QMainWindow):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(cosmetics.data_status_blue(str(val)))
 
     # State updates
-    def update_state(self, state_str, reset=False):
-        if reset:
-            self.reset_states()
-            return
-        if state_str == "Unknown":
-            self._current_state = "Unknown"
-            self.state_label.setText("Current:   " + cosmetics.data_status_init_color(state_str))
-            return
-        elif state_str != self._current_state:
+    def update_state(self, state_str):
+        if state_str != self._current_state:
             if state_str in self.state_labels:
                 current_state_index = self.state_label_index.get(state_str)
                 _current_state_index = self.state_label_index.get(self._current_state)
