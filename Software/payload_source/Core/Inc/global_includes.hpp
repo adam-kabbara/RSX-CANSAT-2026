@@ -15,6 +15,7 @@
 #include <stdarg.h>
 #include <string>
 #include <stdio.h>
+#include <stdbool.h>
 
 #define CMD_BUFF_SIZE 128
 #define RESP_SIZE 128
@@ -23,7 +24,7 @@
 #define DATA_SIZE 32
 #define SENTENCE_SIZE 128
 #define DATA_BUFF_SIZE 512
-#define TEAM_ID 3114
+#define TEAM_ID 1011
 #define SENSOR_SAMPLE_RATE_HZ 20
 #define MAX_LOG_FILE_SIZE_BYTES 125000
 
@@ -56,23 +57,13 @@ enum cam_status {
 	CAM1_OFF_CAM2_OFF = 3
 };
 
-struct mission_struct {
-	OperatingState op_state = IDLE;
-	SimModeStatus sim_status = SIM_OFF;
-	OperatingMode op_mode = OPMODE_FLIGHT;
-	uint8_t ALT_CAL_CHK = 0;
-	int packet_count = 0;
-	float launch_altitude = 0.0;
-	int SIMP_DATA = 0;
-	uint8_t waiting_for_simp = 0;
-	char cmd_buff[CMD_BUFF_SIZE];
-};
-mission_info_struct mission_info;
-
 struct rpy_data {
-	int data_r;
-	int data_p;
-	int data_y;
+	int gyro_r;
+	int gyro_p;
+	int gyro_y;
+	int accel_r;
+	int accel_p;
+	int accel_y;
 };
 
 struct bar_data {
@@ -81,18 +72,60 @@ struct bar_data {
 };
 
 struct gps_data {
-	char* time;
+	char[DATA_SIZE] time;
 	float altitude;
-	double latitude;
-	double longitude;
+	float latitude;
+	float longitude;
 	int sats;
 };
-struct recoveryData {
+
+struct recovery_data {
 	float launch_altitude;
-	SimModeStatus sim_status;
 	OperatingState state;
 	OperatingMode mode;
 	int packet_count;
 };
+
+const char* op_mode_to_string(OperatingMode mode, int full)
+{
+	if(full == 1)
+	{
+		if(mode == OPMODE_FLIGHT)
+		{
+			return "FLIGHT";
+		}
+		else
+		{
+			return "SIM";
+		}
+	}
+	else
+	{
+		if(mode == OPMODE_FLIGHT)
+		{
+			return "F";
+		}
+		else
+		{
+			return "S";
+		}
+	}
+}
+
+const char* op_state_to_string(OperatingState state)
+{
+	static const char* states[] = {
+		"LAUNCH_PAD",
+		"ASCENT",
+		"APOGEE",
+		"DESCENT",
+		"PROBE_RELEASE",
+		"PAYLOAD_RELEASE",
+		"LANDED",
+		"IDLE"
+	};
+
+	return states[state];
+}
 
 #endif /* INC_GLOBAL_INCLUDES_HPP_ */

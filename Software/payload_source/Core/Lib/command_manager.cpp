@@ -112,10 +112,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
             info.clearPacketCount();
             ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");
             info.setOpState(LAUNCH_PAD);
-            info.beginPref("xb-set", false);
-            int state_int = static_cast<int>(LAUNCH_PAD);
-            info.putPrefInt("opstate", state_int);
-            info.endPref();
+            sensors.EEPROM_updateState(static_cast<int>(LAUNCH_PAD));
         }
         else if(info.getOpState() != IDLE)
         {
@@ -131,13 +128,10 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
         if(info.getOpState() != IDLE)
         {
             info.setOpState(IDLE);
-            info.beginPref("xb-set", false);
-            int state_int = static_cast<int>(IDLE);
-            info.putPrefInt("opstate", state_int);
-            info.endPref();
+            sensors.EEPROM_updateState(static_cast<int>(IDLE));
             info.setAltCalOff();
             ser.sendInfoDataMsg("ENDING PAYLOAD TRANSMISSION.{%s|%s}",
-                sensors.op_mode_to_string(info.getOpMode(), 1), sensors.op_state_to_string(info.getOpState()));
+                op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
         }
         else
         {
@@ -184,7 +178,7 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
 void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
   ser.sendInfoDataMsg("CANSAT IS ONLINE.{%s|%s}",
-      sensors.op_mode_to_string(info.getOpMode(), 1), sensors.op_state_to_string(info.getOpState()));
+      op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
 } // END: do_give_status
 
 void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
@@ -208,10 +202,6 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
       case SIM_OFF:
         {
           info.setSimStatus(SIM_EN);
-          info.beginPref("xb-set", false);
-          int sim_status_int = static_cast<int>(info.getSimStatus());
-          info.putPrefInt("simst", sim_status_int);
-          info.endPref();
           ser.sendInfoMsg("SIMULATION MODE ENABLED");
           break;
         }
@@ -236,14 +226,9 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setSimStatus(SIM_ON);
           info.setOpMode(OPMODE_SIM);
           info.waitingForSimp();
-          info.beginPref("xb-set", false);
-          int sim_status_int = static_cast<int>(info.getSimStatus());
-          info.putPrefInt("simst", sim_status_int);
-          int op_mode_int = static_cast<int>(info.getOpMode());
-          info.putPrefInt("opmode", op_mode_int);
-          info.endPref();
+          sensors.EEPROM_updateMode(static_cast<int>(info.getOpMode()));
           ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE{%s|%s}",
-            sensors.op_mode_to_string(info.getOpMode(), 1), sensors.op_state_to_string(info.getOpState()));
+            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
           break;
         }
       case SIM_OFF:
@@ -267,14 +252,9 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
         {
           info.setSimStatus(SIM_OFF);
           info.setOpMode(OPMODE_FLIGHT);
-          info.beginPref("xb-set", false);
-          int sim_status_int = static_cast<int>(info.getSimStatus());
-          info.putPrefInt("simst", sim_status_int);
-          int op_mode_int = static_cast<int>(info.getOpMode());
-          info.putPrefInt("opmode", op_mode_int);
-          info.endPref();
+          sensors.EEPROM_updateMode(static_cast<int>(info.getOpMode()));
           ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.{%s|%s}",
-            sensors.op_mode_to_string(info.getOpMode(), 1), sensors.op_state_to_string(info.getOpState()));
+            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
           break;
         }
       case SIM_OFF:
@@ -321,9 +301,7 @@ void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorMan
 void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
   info.setAltCalibration(sensors.pressure_to_alt(sensors.getPressure()*10));
-  info.beginPref("xb-set", false);
-  info.putPrefFloat("grndalt", info.getLaunchAlt());
-  info.endPref();
+  sensors.EEPROM_updateAltitude(info.getLaunchAlt());
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
 } // END: do_Cal()
 
@@ -379,8 +357,5 @@ void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorMan
     return;
   }
 
-  // TODO: Add once EEPROM is set up
-  ser.sendInfoMsg("GOT TEST LOG COMMAND!");
-
-  log.close();
+  ser.sendLogFile();
 }

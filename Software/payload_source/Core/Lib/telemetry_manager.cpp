@@ -11,6 +11,7 @@ OperatingState telemetryManager::updateState(OperatingState curr_state)
 	switch(curr_state)
 	{
 		case LAUNCH_PAD: {
+
 			break;
 		}
 
@@ -31,10 +32,7 @@ OperatingState telemetryManager::updateState(OperatingState curr_state)
 		}
 
 		case PAYLOAD_RELEASE: {
-			break;
-		}
 
-		case LANDED: {
 			break;
 		}
 
@@ -43,7 +41,8 @@ OperatingState telemetryManager::updateState(OperatingState curr_state)
 	return curr_state;
 }
 
-const char* telemetryManager::sampleSensors(SensorManager &sensors, SerialManager &serial)
+// TODO: Add faster sampling function
+const char* telemetryManager::sampleSensors(SensorManager &sensors, SerialManager &serial, MissionManager &mission_info)
 {
 	struct transmission_packet packet;
 	if(mission_info.op_mode == OPMODE_SIM)
@@ -57,7 +56,8 @@ const char* telemetryManager::sampleSensors(SensorManager &sensors, SerialManage
 
 	packet.ALTITUDE = pressure_to_alt(packet.PRESSURE * 10.0) - mission_info.launch_altitude;
 
-	strcpy(packet.STATE, op_state_to_string(updateState(mission_info.op_state)));
+	OperatingState new_state = op_state_to_string(updateState(mission_info.op_state));
+	strcpy(packet.STATE, new_state);
 
 	packet.TEAM_ID_PCKT = TEAM_ID;
 
@@ -69,7 +69,73 @@ const char* telemetryManager::sampleSensors(SensorManager &sensors, SerialManage
 
 	packet.CURRENT = sensors.getCurrent();
 
+	struct rpy_data gyro_accel_data = sensors.getIMUData();
+	
+	packet.GYRO_R = gyro_accel_data.gyro_r;
+	packet.GYRO_P = gyro_accel_data.gyro_p;
+	packet.GYRO_Y = gyro_accel_data.gyro_y;
 
+	packet.ACCEL_R = gyro_accel_data.accel_r;
+	packet.ACCEL_P = gyro_accel_data.accel_p;
+	packet.ACCEL_Y = gyro_accel_data.accel_y;
+
+	struct gps_data gps_data_vals = sensors.getGPSData();
+
+	packet.GPS_TIME = gps_data_vals.time;
+	packet.GPS_ALTITUDE = gps_data_vals.altitude;
+	packet.GPS_LATITUDE = gps_data_vals.latitude;
+	packet.GPS_LONGITUDE = gps_data_vals.longitude;
+	packet.GPS_SATS = gps_data_vals.sats;
+
+	packet.CMD_ECHO = mission_info.getLastCommand();
+
+	char send_buffer[DATA_BUFF_SIZE];
+	build_data_str(send_buffer, DATA_BUFF_SIZE);
+
+	serial.sendTelemetry(send_buffer);
+
+	if(!disable_logfile && !sensors.EEPROM_addLogLine(send_buffer))
+	{
+		serial.sendErrorMsg("Warning: Unable to add line to logfile!");
+		disable_logfile = True;
+	}
+}
+
+void TelemetryManager::build_data_str(char *buff, size_t size)
+{
+    snprintf(buff, size,
+        "%d,%s,%d,%s,%s,"
+        "%.1f,%.1f,%.1f,%.1f,%d,"
+        "%d,%d,%d,%d,%d,"
+        "%.1f,%.1f,%.1f,%.1f,%s,"
+        "%.1f,%.4f,%.4f,%d,%s,"
+        "%d",
+        send_packet.TEAM_ID_PCKT, 
+        send_packet.MISSION_TIME, 
+        send_packet.PACKET_COUNT, 
+        send_packet.MODE, 
+        send_packet.STATE,
+        send_packet.ALTITUDE, 
+        send_packet.TEMPERATURE, 
+        send_packet.PRESSURE, 
+        send_packet.VOLTAGE, 
+        send_packet.GYRO_R,
+        send_packet.GYRO_P, 
+        send_packet.GYRO_Y, 
+        send_packet.ACCEL_R,
+        send_packet.ACCEL_P, 
+        send_packet.ACCEL_Y, 
+        send_packet.MAG_R, 
+        send_packet.MAG_P, 
+        send_packet.MAG_Y, 
+        send_packet.AUTO_GYRO_ROTATION_RATE, 
+        send_packet.GPS_TIME,
+        send_packet.GPS_ALTITUDE, 
+        send_packet.GPS_LATITUDE, 
+        send_packet.GPS_LONGITUDE, 
+        send_packet.GPS_SATS, 
+        send_packet.CMD_ECHO,
+        send_packet.CAMERA_STATUS); 
 }
 
 const char* telemetryManager::cmd_buff_to_echo()
@@ -96,53 +162,6 @@ const char* telemetryManager::cmd_buff_to_echo()
 
 	buff[echo_indx] = '\0';
 	return buff;
-}
-
-const char* telemetryManager::op_mode_to_string(OperatingMode mode, int full)
-{
-	if (full == 1)
-	{
-		if(mode == OPMODE_FLIGHT)
-		{
-			return "FLIGHT";
-		}
-		else
-		{
-			return "SIM";
-		}
-	}
-	else
-	{
-		if(mode == OPMODE_FLIGHT)
-		{
-			return "F";
-		}
-		else
-		{
-			return "S";
-		}
-	}
-}
-
-const char* telemetryManager::op_state_to_string(OperatingState state)
-{
-	static const char* states[] = {
-		"LAUNCH_PAD",
-		"ASCENT",
-		"APOGEE",
-		"DESCENT",
-		"PROBE_RELEASE",
-		"PAYLOAD_RELEASE",
-		"LANDED",
-		"IDLE"
-	};
-
-	return states[state];
-}
-
-void telemetryManager::resetPacketCount()
-{
-	packet_count = 0;
 }
 
 const float telemetryManager::pressure_to_alt(const float pressure)

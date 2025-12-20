@@ -125,8 +125,7 @@ void SerialManager::sendTelemetry(char *buff)
 	HAL_UART_Transmit(serialPort, (uint8_t*)buff, strlen(buff), HAL_MAX_DELAY);
 }
 
-/* TODO: Update once EEPROM code is in
-void SerialManager::sendLogFile(FILE* log)
+void SerialManager::sendLogFile()
 {
 	const char *beginMsg = "$LOGFILE:BEGIN\r\n";
 	const char *endMsg = "$LOGFILE:END\r\n";
@@ -134,6 +133,7 @@ void SerialManager::sendLogFile(FILE* log)
     HAL_UART_Transmit(serialPort, (uint8_t*)beginMsg, strlen(beginMsg), HAL_MAX_DELAY);
     HAL_Delay(500);
 
+    /* TODO: Update with EEPROM code
     while (fgets(line_buff, sizeof(line_buff), log))
     {
     	size_t len = strlen(line_buff);
@@ -144,7 +144,8 @@ void SerialManager::sendLogFile(FILE* log)
         HAL_UART_Transmit(serialPort, (uint8_t*)"\r\n", 2, HAL_MAX_DELAY); // println
         HAL_Delay(500);
     }
+    */
 
     HAL_UART_Transmit(serialPort, (uint8_t*)endMsg, strlen(endMsg), HAL_MAX_DELAY);
 }
-*/
+
