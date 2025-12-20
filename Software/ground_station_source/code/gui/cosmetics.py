@@ -43,6 +43,10 @@ def set_previous_states(item: QListWidgetItem):
     item.setFont(QFont("Consolas", 14))
     item.setForeground(QColor("green"))
 
+def set_current_states(item: QListWidgetItem):
+    item.setFont(QFont("Consolas", 14))
+    item.setForeground(QColor("blue"))
+
 def set_skipped_states(item: QListWidgetItem):
     item.setFont(QFont("Consolas", 14))
     item.setForeground(QColor("red"))
