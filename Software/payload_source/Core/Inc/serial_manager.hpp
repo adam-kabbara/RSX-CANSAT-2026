@@ -42,7 +42,7 @@ public:
 
     void sendTelemetry(char *buff);
 
-    // void sendLogFile(FILE* log);
+    void sendLogFile();
 
 };
 

@@ -31,21 +31,15 @@ float SensorManager::getCurrent()
 	return 0.0;
 }
 
-struct rpy_data SensorManager::getGyroData()
+struct rpy_data SensorManager::getIMUData()
 {
 	struct rpy_data data;
-	data.data_r = 0.0;
-	data.data_p = 0.0;
-	data.data_y = 0.0;
-	return data;
-}
-
-struct rpy_data SensorManager::getAccelData()
-{
-	struct rpy_data data;
-	data.data_r = 0.0;
-	data.data_p = 0.0;
-	data.data_y = 0.0;
+	data.gyro_r = 0.0;
+	data.gyro_p = 0.0;
+	data.gyro_y = 0.0;
+	data.accel_r = 0.0;
+	data.accel_p = 0.0;
+	data.accel_y = 0.0;
 	return data;
 }
 
@@ -73,6 +67,42 @@ void SensorManager::setRTCTime(char *time)
 char* SensorManager::getRTCTime()
 {
 	return "00:00:00";
+}
+
+void SensorManager::EEPROM_updateAltitude(float alt)
+{
+	return;
+}
+
+void SensorManager::EEPROM_updateState(OperatingState state)
+{
+	return;
+}
+
+void SensorManager::EEPROM_updateMode(OperatingMode mode)
+{
+	return;
+}
+
+void SensorManager::EEPROM_updatePackets(int count)
+{
+	return;
+}
+
+bool SensorManager::EEPROM_addLogLine(char *buffer)
+{
+	return True;
+}
+
+struct recovery_data SensorManager::EEPROM_getRecoveryData()
+{
+	struct recovery_data data;
+	data.launch_altitude = 0.0;
+	data.state = OperatingState::IDLE;
+	data.mode = OperatingMode::OPMODE_FLIGHT;
+	data.packet_count = 0;
+
+	return data;
 }
 
 void SensorManager::startSensors(SerialManager &serial)

@@ -10,6 +10,7 @@
 #include "global_includes.hpp"
 #include "serial_manager.hpp"
 #include "sensor_manager.hpp"
+#include "mission_manager.hpp"
 
 class telemetryManager
 {
@@ -40,15 +41,14 @@ private:
 		int CAMERA_STATUS = 0;
 	};
 
-	int packet_count = 0;
+	bool disable_logfile;
+
 public:
 	OperatingState updateState(OperatingState curr_state);
-	const char* sampleSensors(SensorManager &sensors, SerialManager &serial);
+	const char* sampleSensors(SensorManager &sensors, SerialManager &serial, MissionManager &mission_info);
 	const char* cmd_buff_to_echo();
-	const char* op_mode_to_string(OperatingMode mode, int full);
-	const char* op_state_to_string(OperatingState state);
 	const float pressure_to_alt(const float pressure);
-	void resetPacketCount();
+	void build_data_str(char *buff, size_t size);
 };
 
 #endif /* INC_TELEMETRY_MANAGER_HPP_ */

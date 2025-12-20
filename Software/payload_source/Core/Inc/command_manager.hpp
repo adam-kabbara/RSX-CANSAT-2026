@@ -1,16 +1,16 @@
 /**
   ******************************************************************************
-  * @file           : command_manager.h
+  * @file           : command_manager.hpp
   * @author         : RSX 2025-2026
   * @brief          : Declares CommandManager class for ../Lib/command_manager.cpp
   ******************************************************************************
   */
 
-#ifndef INC_COMMAND_MANAGER_H_
-#define INC_COMMAND_MANAGER_H_
+#ifndef INC_COMMAND_MANAGER_HPP_
+#define INC_COMMAND_MANAGER_HPP_
 
-#include <global_includes.hpp>
-#include <serial_manager.hpp>
+#include "global_includes.hpp"
+#include "serial_manager.hpp"
 #include "missionManager.h"
 #include "sensorManager.h"
 
@@ -37,4 +37,4 @@ public:
 };
 
 
-#endif /* INC_COMMAND_MANAGER_H_ */
+#endif /* INC_COMMAND_MANAGER_HPP_ */

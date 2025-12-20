@@ -38,12 +38,17 @@ public:
 	float getTemp();
 	float getVoltage();
 	float getCurrent();
-	struct rpy_data getGyroData();
-	struct rpy_data getAccelData();
+	struct rpy_data getIMUData();
 	struct gps_data getGPSData();
 	cam_status getCameraStatus();
 	void setRTCTime(char *time);
 	char *getRTCTime();
+	void EEPROM_updateAltitude(float alt);
+	void EEPROM_updateState(OperatingState state);
+	void EEPROM_updateMode(OperatingMode mode);
+	void EEPROM_updatePackets(int count);
+	bool EEPROM_addLogLine(char *buffer);
+	struct recovery_data EEPROM_getRecoveryData();
 	void startSensors(SerialManager &serial);
 };
 

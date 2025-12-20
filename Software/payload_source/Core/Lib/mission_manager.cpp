@@ -1,41 +1,6 @@
 #include "mission_manager.h"
 #include <stm32g4xx_hal.h>
 
-void MissionManager::beginPref(const char *name, bool rw)
-{
-    preferences.begin(name, rw);
-}
-
-void MissionManager::endPref()
-{
-    preferences.end();
-}
-
-void MissionManager::putPrefInt(const char *key, int value)
-{
-    preferences.putInt(key, value);
-}
-
-int MissionManager::getPrefInt(const char *key, int def)
-{
-    return preferences.getInt(key, def);
-}
-
-void MissionManager::putPrefFloat(const char *key, float value)
-{
-    preferences.putFloat(key, value);
-}
-
-float MissionManager::getPrefFloat(const char *key, float def)
-{
-    return preferences.getFloat(key, def);
-}
-
-void MissionManager::clearPref()
-{
-    preferences.clear();
-}
-
 OperatingState MissionManager::getOpState()
 {
     return mission_info.op_state;
@@ -127,6 +92,19 @@ int MissionManager::getSimpData()
     return mission_info.SIMP_DATA;
 }
 
+void MissionManager::setLastCommand(char *cmd)
+{
+    last_command = cmd;
+}
+
+char* MissionManager::getLastCommand()
+{
+    char[CMD_BUFF_SIZE] command_ret;
+    strncpy(last_command, command_ret, sizeof(last_command) - 1);
+    command_ret[sizeof(command_ret) - 1] = '\0';
+    return command_ret;
+}
+
 void MissionManager::resetSeq(SerialManager &serial)
 {
 
@@ -142,9 +120,6 @@ void MissionManager::resetSeq(SerialManager &serial)
 	else if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST)){
 		serial.sendErrorMsg("Reset Reason: software reset");
 	}
-	// else if (__HAL_RCC_GET_FLAG(RCC_FLAG_PWRRST)){
-	// 	serial.sendErrorMsg("Reset Reason: power-on reset");
-	// }
 	else if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST)){
 		serial.sendErrorMsg("Reset Reason: external pin reset (NRST)");
 	}
@@ -156,49 +131,6 @@ void MissionManager::resetSeq(SerialManager &serial)
 	}
 
 	__HAL_RCC_CLEAR_RESET_FLAGS();
-//    esp_reset_reason_t reset_reason = esp_reset_reason();
-//
-//    serial.sendErrorMsg("Processor Restarted!");
-//
-//    switch (reset_reason) {
-//
-//        case ESP_RST_SW:
-//            serial.sendErrorMsg("Reset Reason: Manual software trigger");
-//            break;
-//        case ESP_RST_UNKNOWN:
-//            serial.sendErrorMsg("Reset Reason: Unknown");
-//            break;
-//        case ESP_RST_POWERON:
-//            serial.sendErrorMsg("Reset Reason: Power On Reset");
-//            break;
-//        case ESP_RST_EXT:
-//            serial.sendErrorMsg("Reset Reason: External Reset");
-//            break;
-//        case ESP_RST_PANIC:
-//            serial.sendErrorMsg("Reset Reason: Software Reset due to Panic/Exception");
-//            break;
-//        case ESP_RST_INT_WDT:
-//            serial.sendErrorMsg("Reset Reason: Interrupt Watchdog Reset");
-//            break;
-//        case ESP_RST_TASK_WDT:
-//            serial.sendErrorMsg("Reset Reason: Task Watchdog Reset");
-//            break;
-//        case ESP_RST_WDT:
-//            serial.sendErrorMsg("Reset Reason: General Watchdog Reset");
-//            break;
-//        case ESP_RST_DEEPSLEEP:
-//            serial.sendErrorMsg("Reset Reason: Deep Sleep Wakeup");
-//            break;
-//        case ESP_RST_BROWNOUT:
-//            serial.sendErrorMsg("Reset Reason: Brownout Reset");
-//            break;
-//        case ESP_RST_SDIO:
-//            serial.sendErrorMsg("Reset Reason: SDIO Reset");
-//            break;
-//        default:
-//            serial.sendErrorMsg("Reset Reason: Unknown");
-//            break;
-//    }
 
     beginPref("xb-set", true);
     mission_info.op_state = static_cast<OperatingState>(getPrefInt("opstate", 6));
