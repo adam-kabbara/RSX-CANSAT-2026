@@ -268,7 +268,6 @@ class GraphWindow(QMainWindow):
             plotter.reset_plot()
 
     def _initiate_data_fields(self):
-        self.set_port_text_closed()
         for name, val in self.sidebar_fields_data:
             if name == "Port":
                 continue
@@ -301,7 +300,7 @@ class GraphWindow(QMainWindow):
                 if self._current_state == "Unknown" or current_state_index - _current_state_index == 1:
                     # Populate a single stage
                     _pending_item = QListWidgetItem(self.state_labels_display[current_state_index])
-                    cosmetics.set__current_states(_pending_item)
+                    cosmetics.set_current_states(_pending_item)
                     self.previous_list.addItem(_pending_item)
                     self.previous_list.scrollToBottom()
                 else:
@@ -311,7 +310,7 @@ class GraphWindow(QMainWindow):
                         cosmetics.set_skipped_states(_pending_item_skipped)
                         self.previous_list.addItem(_pending_item_skipped)
                     _pending_item = QListWidgetItem(self.state_labels_display[current_state_index])
-                    cosmetics.set__current_states(_pending_item)
+                    cosmetics.set_current_states(_pending_item)
                     self.previous_list.addItem(_pending_item)
                     self.previous_list.scrollToBottom()
                 self.next_list.clear()

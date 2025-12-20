@@ -7,7 +7,8 @@ import csv
 import os
 import re
 from gui.graph_gui import GraphWindow
-from dataclasses import dataclass, fields 
+from dataclasses import dataclass, fields, asdict
+
 
 # Structure to store packet data
 @dataclass(frozen=True)
@@ -177,7 +178,7 @@ class DataProcessor(QObject):
             new_gyro_data = [data.GYRO_R, data.GYRO_P, data.GYRO_Y]
             self._graph_ui.update_gyro_graph(new_gyro_data)
 
-        if data.ACCEL_R is not None and data.ACCEL_P is not None and data.ACCEL_y is not None:
+        if data.ACCEL_R is not None and data.ACCEL_P is not None and data.ACCEL_Y is not None:
             new_accel_data = [data.ACCEL_R, data.ACCEL_P, data.ACCEL_Y]
             self._graph_ui.update_accel_graph(new_accel_data)
    
@@ -226,7 +227,7 @@ class DataProcessor(QObject):
             else:
                 self._graph_ui.update_camera2_status("OFF")
 
-        data_dict = data.to_dict()
+        data_dict = asdict(data)
         self._csv_writer.writerow(data_dict)
     
     def extract_data_str(self, msg: str) -> TelemetryData:
