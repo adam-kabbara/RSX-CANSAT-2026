@@ -50,7 +50,8 @@ struct gps_data SensorManager::getGPSData()
 	data.latitude = 0.0;
 	data.longitude = 0.0;
 	data.sats = 0;
-	data.time = "00:00:00";
+	char gps_time[DATA_SIZE] = "00:00:00";
+	strcpy(data.time, gps_time);
 	return data;
 }
 
@@ -59,14 +60,19 @@ cam_status SensorManager::getCameraStatus()
 	return cam_status::CAM1_OFF_CAM2_OFF;
 }
 
-void SensorManager::setRTCTime(char *time)
+void SensorManager::setRTCTime(int h, int m, int s)
 {
 	return;
 }
 
-char* SensorManager::getRTCTime()
+void SensorManager::getRTCTime(char time_str[DATA_SIZE])
 {
-	return "00:00:00";
+	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
+}
+
+void SensorManager::getGPSTime(char time_str[DATA_SIZE])
+{
+	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
 }
 
 void SensorManager::EEPROM_updateAltitude(float alt)
@@ -91,7 +97,7 @@ void SensorManager::EEPROM_updatePackets(int count)
 
 bool SensorManager::EEPROM_addLogLine(char *buffer)
 {
-	return True;
+	return true;
 }
 
 struct recovery_data SensorManager::EEPROM_getRecoveryData()

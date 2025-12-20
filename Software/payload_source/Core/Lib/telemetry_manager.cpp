@@ -6,12 +6,11 @@
 
 #include "telemetry_manager.hpp"
 
-OperatingState telemetryManager::updateState(OperatingState curr_state)
+OperatingState TelemetryManager::updateState(OperatingState curr_state)
 {
 	switch(curr_state)
 	{
 		case LAUNCH_PAD: {
-
 			break;
 		}
 
@@ -32,32 +31,33 @@ OperatingState telemetryManager::updateState(OperatingState curr_state)
 		}
 
 		case PAYLOAD_RELEASE: {
-
 			break;
 		}
 
+		default: {
+			break;
+		}
 	}
 
 	return curr_state;
 }
 
 // TODO: Add faster sampling function
-const char* telemetryManager::sampleSensors(SensorManager &sensors, SerialManager &serial, MissionManager &mission_info)
+void TelemetryManager::sampleSensors(SensorManager &sensors, SerialManager &serial, MissionManager &mission_info)
 {
 	struct transmission_packet packet;
 
 	packet.TEAM_ID_PCKT = TEAM_ID;
 
-	strcpy(packet.MISSION_TIME, sensors.getRTCTime());
+	sensors.getRTCTime(packet.MISSION_TIME);
 
 	mission_info.incrPacketCount();
 	sensors.EEPROM_updatePackets(mission_info.getPacketCount());
 	packet.PACKET_COUNT = mission_info.getPacketCount();
 
-	OperatingState new_state = op_state_to_string(updateState(mission_info.getOpState()));
-	strcpy(packet.STATE, new_state);
+	strcpy(packet.STATE, op_state_to_string(updateState(mission_info.getOpState())));
 
-	strcpy(send_packet.MODE, op_mode_to_string(mission_info.getOpMode(), 0));
+	strcpy(packet.MODE, op_mode_to_string(mission_info.getOpMode(), 0));
 
 	if(mission_info.getOpMode() == OPMODE_SIM)
 	{
@@ -88,18 +88,18 @@ const char* telemetryManager::sampleSensors(SensorManager &sensors, SerialManage
 
 	struct gps_data gps_data_vals = sensors.getGPSData();
 
-	packet.GPS_TIME = gps_data_vals.time;
+	strcpy(packet.GPS_TIME, gps_data_vals.time);
 	packet.GPS_ALTITUDE = gps_data_vals.altitude;
 	packet.GPS_LATITUDE = gps_data_vals.latitude;
 	packet.GPS_LONGITUDE = gps_data_vals.longitude;
 	packet.GPS_SATS = gps_data_vals.sats;
 
-	packet.CMD_ECHO = mission_info.getLastCommand();
+	cmd_buff_to_echo(packet.CMD_ECHO, mission_info.getLastCommand());
 
 	packet.CAMERA_STATUS = static_cast<int>(sensors.getCameraStatus());
 
 	char send_buffer[DATA_BUFF_SIZE];
-	build_data_str(send_buffer, DATA_BUFF_SIZE);
+	build_data_str(send_buffer, DATA_BUFF_SIZE, packet);
 
 	serial.sendTelemetry(send_buffer);
 
@@ -110,13 +110,13 @@ const char* telemetryManager::sampleSensors(SensorManager &sensors, SerialManage
 	}
 }
 
-void TelemetryManager::build_data_str(char *buff, size_t size)
+void TelemetryManager::build_data_str(char *buff, size_t size, struct transmission_packet send_packet)
 {
     snprintf(buff, size,
         "%d,%s,%d,%s,%s,"
-        "%.1f,%.1f,%.1f,%.1f,%d,"
+        "%.1f,%.1f,%.1f,%.1f,%.1f,%d,"
         "%d,%d,%d,%d,%d,"
-        "%.1f,%.1f,%.1f,%.1f,%s,"
+        "%s,"
         "%.1f,%.4f,%.4f,%d,%s,"
         "%d",
         send_packet.TEAM_ID_PCKT, 
@@ -128,16 +128,13 @@ void TelemetryManager::build_data_str(char *buff, size_t size)
         send_packet.TEMPERATURE, 
         send_packet.PRESSURE, 
         send_packet.VOLTAGE, 
+		send_packet.CURRENT,
         send_packet.GYRO_R,
         send_packet.GYRO_P, 
         send_packet.GYRO_Y, 
         send_packet.ACCEL_R,
         send_packet.ACCEL_P, 
-        send_packet.ACCEL_Y, 
-        send_packet.MAG_R, 
-        send_packet.MAG_P, 
-        send_packet.MAG_Y, 
-        send_packet.AUTO_GYRO_ROTATION_RATE, 
+        send_packet.ACCEL_Y,
         send_packet.GPS_TIME,
         send_packet.GPS_ALTITUDE, 
         send_packet.GPS_LATITUDE, 
@@ -147,13 +144,10 @@ void TelemetryManager::build_data_str(char *buff, size_t size)
         send_packet.CAMERA_STATUS); 
 }
 
-const char* telemetryManager::cmd_buff_to_echo()
+void TelemetryManager::cmd_buff_to_echo(char buff[CMD_BUFF_SIZE], char *cmd_buff)
 {
 	int comma = 0;
 	int echo_indx = 0;
-
-	char buff[CMD_BUFF_SIZE];
-	char *cmd_buff = mission_info.cmd_buff;
 
 	for (int i = 0; cmd_buff[i] != '\0'; i++)
 	{
@@ -170,10 +164,4 @@ const char* telemetryManager::cmd_buff_to_echo()
 	}
 
 	buff[echo_indx] = '\0';
-	return buff;
-}
-
-const float telemetryManager::pressure_to_alt(const float pressure)
-{
-	return 44330.0 * (1.0 - pow(pressure / SEA_LEVEL_PRESSURE_HPA, 0.1903));
 }

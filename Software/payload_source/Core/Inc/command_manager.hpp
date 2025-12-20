@@ -11,8 +11,8 @@
 
 #include "global_includes.hpp"
 #include "serial_manager.hpp"
-#include "missionManager.h"
-#include "sensorManager.h"
+#include "mission_manager.hpp"
+#include "sensor_manager.hpp"
 
 class CommandManager {
 private:

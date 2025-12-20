@@ -41,8 +41,9 @@ public:
 	struct rpy_data getIMUData();
 	struct gps_data getGPSData();
 	cam_status getCameraStatus();
-	void setRTCTime(char *time);
-	char *getRTCTime();
+	void setRTCTime(int h, int m, int s);
+	void getRTCTime(char time_str[DATA_SIZE]);
+	void getGPSTime(char time_str[DATA_SIZE]);
 	void EEPROM_updateAltitude(float alt);
 	void EEPROM_updateState(OperatingState state);
 	void EEPROM_updateMode(OperatingMode mode);

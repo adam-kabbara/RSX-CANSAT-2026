@@ -16,6 +16,7 @@
 #include <string>
 #include <stdio.h>
 #include <stdbool.h>
+#include <cmath>
 
 #define CMD_BUFF_SIZE 128
 #define RESP_SIZE 128
@@ -72,7 +73,7 @@ struct bar_data {
 };
 
 struct gps_data {
-	char[DATA_SIZE] time;
+	char time[DATA_SIZE];
 	float altitude;
 	float latitude;
 	float longitude;
@@ -86,7 +87,7 @@ struct recovery_data {
 	int packet_count;
 };
 
-const char* op_mode_to_string(OperatingMode mode, int full)
+inline const char* op_mode_to_string(OperatingMode mode, int full)
 {
 	if(full == 1)
 	{
@@ -112,7 +113,7 @@ const char* op_mode_to_string(OperatingMode mode, int full)
 	}
 }
 
-const char* op_state_to_string(OperatingState state)
+inline const char* op_state_to_string(OperatingState state)
 {
 	static const char* states[] = {
 		"LAUNCH_PAD",
@@ -126,6 +127,11 @@ const char* op_state_to_string(OperatingState state)
 	};
 
 	return states[state];
+}
+
+inline const float pressure_to_alt(const float pressure)
+{
+	return 44330.0 * (1.0 - pow(pressure / SEA_LEVEL_PRESSURE_HPA, 0.1903));
 }
 
 #endif /* INC_GLOBAL_INCLUDES_HPP_ */

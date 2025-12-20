@@ -42,7 +42,7 @@ void SerialManager::sendErrorMsg(const char* msg)
     int len = snprintf(buffer, sizeof(buffer), "$E MSG:%s\r\n", msg);
     if (len <= 0)
     {
-    	char *error_msg = "ERROR: FSW attempted to send message with incorrect format";
+    	const char *error_msg = "ERROR: FSW attempted to send message with incorrect format";
     	len = snprintf(buffer, sizeof(buffer), "$E MSG:%s\r\n", error_msg);
     }
 

@@ -15,7 +15,7 @@ extern "C" void main_cpp()
     SerialManager serial(huart1);
 
     MissionManager mission_mgr;
-    CommnadManager cmd_mgr;
+    CommandManager cmd_mgr;
     TelemetryManager telemetry_mgr;
 
     SensorManager sensors;
@@ -99,7 +99,7 @@ extern "C" void main_cpp()
             // Wait until first simulation packet is received
             if(mission_mgr.getOpMode() == OPMODE_SIM && mission_mgr.isWaitingSimp())
             {
-                HAL_Delay(100)
+                HAL_Delay(100);
                 continue;
             }
 

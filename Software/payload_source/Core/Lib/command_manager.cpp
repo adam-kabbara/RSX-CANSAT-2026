@@ -6,7 +6,7 @@
   ******************************************************************************
   */
 
-#include "command_manager.h"
+#include "command_manager.hpp"
 
 CommandManager::CommandManager()
 {
@@ -112,7 +112,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
             info.clearPacketCount();
             ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");
             info.setOpState(LAUNCH_PAD);
-            sensors.EEPROM_updateState(static_cast<int>(LAUNCH_PAD));
+            sensors.EEPROM_updateState(LAUNCH_PAD);
         }
         else if(info.getOpState() != IDLE)
         {
@@ -128,7 +128,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
         if(info.getOpState() != IDLE)
         {
             info.setOpState(IDLE);
-            sensors.EEPROM_updateState(static_cast<int>(IDLE));
+            sensors.EEPROM_updateState(IDLE);
             info.setAltCalOff();
             ser.sendInfoDataMsg("ENDING PAYLOAD TRANSMISSION.{%s|%s}",
                 op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
@@ -150,11 +150,11 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
     if(strcmp(data, "GPS") == 0)
     {
         char time_str[DATA_SIZE];
-        sensors.getGpsTime(time_str);
+        sensors.getGPSTime(time_str);
         if(sscanf(time_str, "%d:%d:%d", &h, &m, &s) == 3)
         {
-          sensors.setRtcTime(s,m,h);
-          sensors.getRtcTime(time_str);
+          sensors.setRTCTime(s,m,h);
+          sensors.getRTCTime(time_str);
           ser.sendInfoDataMsg("Set RTC time to %s", time_str);
         }
         else
@@ -164,9 +164,9 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
     }
     else if(sscanf(data, "%d:%d:%d", &h, &m, &s) == 3)
     {
-        sensors.setRtcTime(s,m,h);
+        sensors.setRTCTime(s,m,h);
         char time_str[DATA_SIZE];
-        sensors.getRtcTime(time_str);
+        sensors.getRTCTime(time_str);
         ser.sendInfoDataMsg("Set RTC time to %s", time_str);
     }
     else
@@ -183,8 +183,8 @@ void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, Se
 
 void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
-  ser.sendInfoMsg("Attempting to restart processor!");
-  ESP.restart();
+  ser.sendInfoMsg("Attempting to restart processor! NOT IMPLEMENTED");
+  // TODO: Add manual restart
 } // END: do_restart
 
 void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
@@ -226,7 +226,7 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setSimStatus(SIM_ON);
           info.setOpMode(OPMODE_SIM);
           info.waitingForSimp();
-          sensors.EEPROM_updateMode(static_cast<int>(info.getOpMode()));
+          sensors.EEPROM_updateMode(info.getOpMode());
           ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE{%s|%s}",
             op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
           break;
@@ -252,7 +252,7 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
         {
           info.setSimStatus(SIM_OFF);
           info.setOpMode(OPMODE_FLIGHT);
-          sensors.EEPROM_updateMode(static_cast<int>(info.getOpMode()));
+          sensors.EEPROM_updateMode(info.getOpMode());
           ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.{%s|%s}",
             op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
           break;
@@ -278,13 +278,12 @@ void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorMan
     int pressure;
     if(sscanf(data, "%d", &pressure) == 1)
     {
-      float alt = sensors.pressure_to_alt(pressure/100.0);
+      float alt = pressure_to_alt(pressure/100.0);
       if(info.isWaitingSimp())
       {
           info.setAltCalibration(alt);
           info.simpRecv();
       }
-      sensors.setAltData(alt-info.getLaunchAlt());
       info.setSimpData(pressure);
     }
     else
@@ -300,7 +299,7 @@ void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorMan
 
 void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
-  info.setAltCalibration(sensors.pressure_to_alt(sensors.getPressure()*10));
+  info.setAltCalibration(pressure_to_alt(sensors.getPressure()*10));
   sensors.EEPROM_updateAltitude(info.getLaunchAlt());
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
 } // END: do_Cal()

@@ -6,10 +6,10 @@
   ******************************************************************************
   */
 
-#ifndef INC_COMMAND_MANAGER_HPP_
-#define INC_COMMAND_MANAGER_HPP_
+#ifndef INC_MISSION_MANAGER_HPP_
+#define INC_MISSION_MANAGER_HPP_
 
-#include "global_includes.h"
+#include "global_includes.hpp"
 
 class MissionManager
 {
@@ -18,13 +18,13 @@ private:
     OperatingState op_state = OperatingState::IDLE;
     SimModeStatus sim_status = SimModeStatus::SIM_OFF;
     OperatingMode op_mode = OperatingMode::OPMODE_FLIGHT;
-    bool ALT_CAL_CHK = False;
+    bool ALT_CAL_CHK = false;
     int packet_count = 0;
     float launch_altitude = 0.0;
     int SIMP_DATA = 0;
-    bool waiting_for_simp = False;
+    bool waiting_for_simp = false;
     char* last_command;
-    bool logfile_chk = True;
+    bool logfile_chk = true;
 
 public:
 
@@ -77,4 +77,4 @@ public:
     void enableLogfile();
 };
 
-#endif /* INC_COMMAND_MANAGER_HPP_ */
+#endif /* INC_MISSION_MANAGER_HPP_ */

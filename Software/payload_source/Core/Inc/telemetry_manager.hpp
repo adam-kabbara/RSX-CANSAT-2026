@@ -12,7 +12,7 @@
 #include "sensor_manager.hpp"
 #include "mission_manager.hpp"
 
-class telemetryManager
+class TelemetryManager
 {
 private:
 	struct transmission_packet {
@@ -43,10 +43,9 @@ private:
 
 public:
 	OperatingState updateState(OperatingState curr_state);
-	const char* sampleSensors(SensorManager &sensors, SerialManager &serial, MissionManager &mission_info);
-	const char* cmd_buff_to_echo();
-	const float pressure_to_alt(const float pressure);
-	void build_data_str(char *buff, size_t size);
+	void sampleSensors(SensorManager &sensors, SerialManager &serial, MissionManager &mission_info);
+	void cmd_buff_to_echo(char buff[CMD_BUFF_SIZE], char *cmd_buff);
+	void build_data_str(char *buff, size_t size, struct transmission_packet send_packet);
 };
 
 #endif /* INC_TELEMETRY_MANAGER_HPP_ */
