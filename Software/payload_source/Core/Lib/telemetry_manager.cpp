@@ -45,23 +45,30 @@ OperatingState telemetryManager::updateState(OperatingState curr_state)
 const char* telemetryManager::sampleSensors(SensorManager &sensors, SerialManager &serial, MissionManager &mission_info)
 {
 	struct transmission_packet packet;
-	if(mission_info.op_mode == OPMODE_SIM)
+
+	packet.TEAM_ID_PCKT = TEAM_ID;
+
+	strcpy(packet.MISSION_TIME, sensors.getRTCTime());
+
+	mission_info.incrPacketCount();
+	sensors.EEPROM_updatePackets(mission_info.getPacketCount());
+	packet.PACKET_COUNT = mission_info.getPacketCount();
+
+	OperatingState new_state = op_state_to_string(updateState(mission_info.getOpState()));
+	strcpy(packet.STATE, new_state);
+
+	strcpy(send_packet.MODE, op_mode_to_string(mission_info.getOpMode(), 0));
+
+	if(mission_info.getOpMode() == OPMODE_SIM)
 	{
-		packet.PRESSURE = mission_info.SIMP_DATA/1000.0;
+		packet.PRESSURE = mission_info.getSimpData()/1000.0;
 	}
 	else
 	{
 		packet.PRESSURE = sensors.getPressure();
 	}
 
-	packet.ALTITUDE = pressure_to_alt(packet.PRESSURE * 10.0) - mission_info.launch_altitude;
-
-	OperatingState new_state = op_state_to_string(updateState(mission_info.op_state));
-	strcpy(packet.STATE, new_state);
-
-	packet.TEAM_ID_PCKT = TEAM_ID;
-
-	strcpy(send_packet.MODE, op_mode_to_string(mission_info.op_mode, 0));
+	packet.ALTITUDE = pressure_to_alt(packet.PRESSURE * 10.0) - mission_info.getLaunchAlt();
 
 	packet.TEMPERATURE = sensors.getTemp();
 
@@ -89,15 +96,17 @@ const char* telemetryManager::sampleSensors(SensorManager &sensors, SerialManage
 
 	packet.CMD_ECHO = mission_info.getLastCommand();
 
+	packet.CAMERA_STATUS = static_cast<int>(sensors.getCameraStatus());
+
 	char send_buffer[DATA_BUFF_SIZE];
 	build_data_str(send_buffer, DATA_BUFF_SIZE);
 
 	serial.sendTelemetry(send_buffer);
 
-	if(!disable_logfile && !sensors.EEPROM_addLogLine(send_buffer))
+	if(mission_info.logfile_ok() && !sensors.EEPROM_addLogLine(send_buffer))
 	{
 		serial.sendErrorMsg("Warning: Unable to add line to logfile!");
-		disable_logfile = True;
+		mission_info.disableLogfile();
 	}
 }
 

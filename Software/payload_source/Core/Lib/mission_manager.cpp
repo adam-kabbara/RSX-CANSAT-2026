@@ -52,6 +52,11 @@ void MissionManager::setAltCalOff()
     mission_info.ALT_CAL_CHK = 0;
 }
 
+void MissionManager::setPacketCount(int count)
+{
+    mission_info.packet_count = count;
+}
+
 int MissionManager::getPacketCount()
 {
     return mission_info.packet_count;
@@ -105,46 +110,17 @@ char* MissionManager::getLastCommand()
     return command_ret;
 }
 
-void MissionManager::resetSeq(SerialManager &serial)
+bool MissionManager::logfile_ok()
 {
+    return logfile_chk;
+}
 
-	if (__HAL_RCC_GET_FLAG(RCC_FLAG_LPWRRST)) {
-		serial.sendErrorMsg("Reset Reason: low power reset");
-	}
-	else if (__HAL_RCC_GET_FLAG(RCC_FLAG_WWDGRST)){
-		serial.sendErrorMsg("Reset Reason: window watchdog reset");
-	}
-	else if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST)){
-		serial.sendErrorMsg("Reset Reason: independent watchdog reset");
-	}
-	else if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST)){
-		serial.sendErrorMsg("Reset Reason: software reset");
-	}
-	else if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST)){
-		serial.sendErrorMsg("Reset Reason: external pin reset (NRST)");
-	}
-	else if (__HAL_RCC_GET_FLAG(RCC_FLAG_BORRST)){
-		serial.sendErrorMsg("Reset Reason: brown-out reset (NRST)");
-	}
-	else {
-		serial.sendErrorMsg("Reset Reason: unknown");
-	}
+void MissionManager::disableLogfile()
+{
+    logfile_chk = False;
+}
 
-	__HAL_RCC_CLEAR_RESET_FLAGS();
-
-    beginPref("xb-set", true);
-    mission_info.op_state = static_cast<OperatingState>(getPrefInt("opstate", 6));
-
-    if(mission_info.op_state != IDLE)
-    {
-        serial.sendErrorMsg("Performing recovery as processor was not in IDLE state! Telemetry should resume!");
-        // Get packet count, launch altitude
-        mission_info.launch_altitude = getPrefFloat("grndalt", 0.0);
-        setAltCalibration(mission_info.launch_altitude);
-        mission_info.sim_status = static_cast<SimModeStatus>(getPrefInt("simst", 0));
-        mission_info.op_mode = static_cast<OperatingMode>(getPrefInt("opmode", 0));
-        mission_info.packet_count = getPrefInt("pckts", 0);
-    }
-
-    endPref();
+void MissionManager::enableLogfile()
+{
+    logfile_chk = True;
 }

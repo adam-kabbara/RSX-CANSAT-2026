@@ -41,8 +41,6 @@ private:
 		int CAMERA_STATUS = 0;
 	};
 
-	bool disable_logfile;
-
 public:
 	OperatingState updateState(OperatingState curr_state);
 	const char* sampleSensors(SensorManager &sensors, SerialManager &serial, MissionManager &mission_info);

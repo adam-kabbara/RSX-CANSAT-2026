@@ -24,6 +24,7 @@ private:
     int SIMP_DATA = 0;
     bool waiting_for_simp = False;
     char* last_command;
+    bool logfile_chk = True;
 
 public:
 
@@ -47,6 +48,8 @@ public:
 
     void setAltCalOff();
 
+    void setPacketCount(int count);
+
     int getPacketCount();
 
     void incrPacketCount();
@@ -66,6 +69,12 @@ public:
     void setLastCommand(char* cmd);
 
     char* getLastCommand();
+
+    bool logfile_ok();
+
+    void disableLogfile();
+
+    void enableLogfile();
 };
 
 #endif /* INC_COMMAND_MANAGER_HPP_ */
