@@ -268,7 +268,6 @@ class GraphWindow(QMainWindow):
             plotter.reset_plot()
 
     def _initiate_data_fields(self):
-        self.set_port_text_closed()
         for name, val in self.sidebar_fields_data:
             if name == "Port":
                 continue
