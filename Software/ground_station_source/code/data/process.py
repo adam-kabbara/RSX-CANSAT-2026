@@ -60,6 +60,7 @@ class DataProcessor(QObject):
         file_path = os.path.join(os.path.dirname(__file__), '..')
         self.output_dir = os.path.join(file_path, 'output')
         os.makedirs(self.output_dir, exist_ok=True)
+        self.open_csv()
     
     def open_logfile(self):
         self._outfile = open(os.path.join(self.output_dir, 'flight_logs.txt'), "wb")
@@ -75,12 +76,8 @@ class DataProcessor(QObject):
         
     def open_csv(self):
         self._csv_file = open(os.path.join(self.output_dir, 'telemetry_data.csv'), "w", newline="")
-        if self._csv_file is None:
-            return False
-        
         self._csv_writer = csv.DictWriter(self._csv_file, fieldnames=self._csv_fields)
         self._csv_writer.writeheader()
-        return True
 
     def close_csv(self):
         if self._csv_file is not None:
@@ -195,7 +192,7 @@ class DataProcessor(QObject):
             self._graph_ui.update_mission_time(data.MISSION_TIME)
 
         if data.PACKET_COUNT is not None:
-            self._graph_ui.update_packet_count(data.PACKET_COUNT)
+            self._graph_ui.update_packets_sent(data.PACKET_COUNT)
             self._graph_ui.update_packet_label()
 
         if data.MODE is not None:
