@@ -220,6 +220,7 @@ def compare_airfoils():
 
     airfoil_params = {}
     for airfoil in airfoils:
+        #if "auto" in airfoil: continue
         parameters, units = run_min_lift_solver(airfoil)
         airfoil_params[airfoil] = parameters
         if parameters["Speed"][0] < lowest_speed:

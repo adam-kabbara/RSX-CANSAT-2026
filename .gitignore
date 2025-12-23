@@ -2,3 +2,4 @@
 .vscode/
 venv/
 wslenv/
+__pycache__/
