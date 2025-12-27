@@ -15,10 +15,12 @@ class Commands(QObject):
 
     def __init__(self, serial: SerialManager, parent=None):
         super().__init__(parent)
-        self._TEAM_ID = 3114
+        self._TEAM_ID = 1011
         self._serial  = serial
 
-    def _cmd(self, op, val="X"):
+    def _cmd(self, op, val=None):
+        if val is None:
+            return f"CMD,{self._TEAM_ID},{op}"
         return f"CMD,{self._TEAM_ID},{op},{val}"
 
     def command__check_connection(self):
@@ -36,7 +38,7 @@ class Commands(QObject):
                 self.print_signal.emit(f"Sent new mission time '{time_str}'")
 
     def command__restart(self):
-        if self._serial.send_data(self._cmd(op="RR")):
+        if self._serial.send_data(self._cmd(op="RST")):
             self.print_signal.emit("Sent restart signal")
                                     
     def command__write_servo(self, servo_id, servo_val):
@@ -86,7 +88,7 @@ class Commands(QObject):
 
         response = msg_box.exec()
         if response == QMessageBox.StandardButton.Yes:
-         if self._serial.send_data(self._cmd(op="GTLOGS")):
+         if self._serial.send_data(self._cmd(op="LOG")):
              self.print_signal.emit("Attempting to retreive log data...")
 
     def command__start_mission(self):

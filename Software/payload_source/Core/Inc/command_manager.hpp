@@ -33,7 +33,7 @@ private:
 public:
     CommandManager();
 
-    int processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors);
+    uint8_t processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors);
 };
 
 

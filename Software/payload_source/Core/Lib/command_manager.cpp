@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file           : command_manager.c
+  * @file           : command_manager.cpp
   * @author         : RSX 2025-2026
   * @brief          : Processes commands received by ground station
   ******************************************************************************
@@ -10,20 +10,20 @@
 
 CommandManager::CommandManager()
 {
-    // Initialize the map with corresponding functions
+    // Initialize function map
     using namespace std::placeholders;
     command_map.emplace("CX", std::bind(&CommandManager::do_cx, this, _1, _2, _3, _4));
     command_map.emplace("ST", std::bind(&CommandManager::do_st, this, _1, _2, _3, _4));
-    command_map.emplace("RR", std::bind(&CommandManager::do_restart, this, _1, _2, _3, _4));
+    command_map.emplace("RST", std::bind(&CommandManager::do_restart, this, _1, _2, _3, _4));
     command_map.emplace("TEST", std::bind(&CommandManager::do_give_status, this, _1, _2, _3, _4));
     command_map.emplace("SIM", std::bind(&CommandManager::do_sim, this, _1, _2, _3, _4));
     command_map.emplace("SIMP", std::bind(&CommandManager::do_simp, this, _1, _2, _3, _4));
     command_map.emplace("CAL", std::bind(&CommandManager::do_cal, this, _1, _2, _3, _4));
     command_map.emplace("MEC", std::bind(&CommandManager::do_mec, this, _1, _2, _3, _4));
-    command_map.emplace("GTLOGS", std::bind(&CommandManager::do_logs, this, _1, _2, _3, _4));
+    command_map.emplace("LOG", std::bind(&CommandManager::do_logs, this, _1, _2, _3, _4));
 }
 
-int CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors)
+uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors)
 {
     // Extract fields from command buffer
 
@@ -72,7 +72,7 @@ int CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, Mis
     }
 
     // Check validity
-    if(!packet.keyword || !packet.team_id || !packet.command || !packet.data)
+    if(!packet.keyword || !packet.team_id || !packet.command)
     {
         ser.sendErrorMsg("COMMAND REJECTED: FORMAT IS INCORRECT.");
         ser.sendErrorDataMsg("RECEIVED: %s\n", cmd_buff);
@@ -93,7 +93,7 @@ int CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, Mis
 
     // Check if the command is in the map and call the corresponding function
     auto iter = command_map.find(packet.command);
-    if (iter == command_map.end())
+    if(iter == command_map.end())
     {
         ser.sendErrorMsg("COMMAND REJECTED: NOT A COMMAND");
         return 0;
@@ -105,6 +105,12 @@ int CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, Mis
 // Toggle mission telemetry
 void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
+    if(!data)
+    {
+        ser.sendErrorMsg("COMMAND 'CX' REJECTED: DID NOT RECEIVE ON/OFF");
+        return;
+    }
+
     if(strcmp(data, "ON") == 0)
     {
         if(info.getOpState() == IDLE && (info.isAltCalibrated() == 1 || info.getOpMode() == OPMODE_SIM))
@@ -140,12 +146,18 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
     }
     else
     {
-        ser.sendErrorMsg("DATA IS NOT VALID; SEND ON/OFF");
+        ser.sendErrorDataMsg("DATA IS NOT VALID: RECEIVED %s INSTEDA OF ON/OFF", data);
     }
 }
 
 void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
+    if(!data)
+    {
+        ser.sendErrorMsg("COMMAND 'ST' REJECTED: DID NOT TIME DATA");
+        return;
+    }
+
     int h,m,s;
     if(strcmp(data, "GPS") == 0)
     {
@@ -183,12 +195,18 @@ void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, Se
 
 void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
-  ser.sendInfoMsg("Attempting to restart processor! NOT IMPLEMENTED");
-  // TODO: Add manual restart
+  ser.sendInfoMsg("Attempting to restart processor! NOT TESTED!!!");
+  HAL_NVIC_SystemReset();
 } // END: do_restart
 
 void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
+  if(!data)
+  {
+      ser.sendErrorMsg("COMMAND 'SIM' REJECTED: DID NOT RECEIVE CONTROL DATA");
+      return;
+  }
+
   if(info.getOpState() != IDLE)
   {
     ser.sendErrorMsg("SIMULATION MODE CANNOT BE CHANGED WHILE TRANSMISSION IS ON");
@@ -272,6 +290,12 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
 
 void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
+  if(!data)
+  {
+      ser.sendErrorMsg("COMMAND 'SIMP' REJECTED: DID NOT RECEIVE DATA");
+      return;
+  }
+
   // Check if we are in simulation mode
   if(info.getOpMode() == OPMODE_SIM)
   {
@@ -299,13 +323,19 @@ void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorMan
 
 void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
-  info.setAltCalibration(pressure_to_alt(sensors.getPressure()*10));
+  info.setAltCalibration(pressure_to_alt(sensors.getPressure()));
   sensors.EEPROM_updateAltitude(info.getLaunchAlt());
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
 } // END: do_Cal()
 
 void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
+  if(!data)
+  {
+      ser.sendErrorMsg("COMMAND 'MEC' REJECTED: DID NOT RECEIVE ANY DATA");
+      return;
+  }
+
   char data_copy[CMD_BUFF_SIZE];
   strcpy(data_copy, data);
 
@@ -337,14 +367,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
     strcpy(val, token);
   }
 
-  if(strcmp(mec, "TEST") == 0)
-  {
-    ser.sendInfoMsg("RECEIVED TEST MEC COMMAND!");
-  }
-  else
-  {
-    ser.sendErrorDataMsg("ERROR: UNRECOGNIZED MEC COMMAND: %s", mec);
-  }
+  ser.sendErrorDataMsg("ERROR: UNRECOGNIZED MEC COMMAND: %s", mec);
 }
 
 void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
