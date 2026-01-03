@@ -151,6 +151,57 @@ void SensorManager::getGPSTime(char time_str[DATA_SIZE])
 	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
 }
 
+
+/* ============================================================================
+ * EEPROM PRIVATE FUNCTIONS
+ * ========================================================================== */
+
+bool SensorManager::readBytes(unsigned long address, unsigned char *buffer, unsigned int size)
+{
+	// checking for valid parameters
+	if(address + size > MEM_SIZE || buffer == nullptr || size == 0)
+	{
+		return false;
+	}
+
+	HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_RESET);
+	
+	unsigned char cmd[4]; // command + 3 byte address
+	cmd[0] = READ_CMD;
+	cmd[1] = (unsigned char)((address >> 16) & 0xFF); // MSB (7 are don't care bits)
+	cmd[2] = (unsigned char)((address >> 8) & 0xFF);
+	cmd[3] = (unsigned char)(address & 0xFF); // LSB
+	
+	// if STM32 malfunctioned errors:
+	if(HAL_SPI_Transmit(&hspi1, cmd, 4, TIMEOUT) != HAL_OK)
+	{
+		HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
+		return false;
+	}
+	
+	if(HAL_SPI_Receive(&hspi1, buffer, size, TIMEOUT) != HAL_OK)
+	{
+		HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
+		return false;
+	}
+	
+	HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
+	return true;
+}
+
+
+bool SensorManager::readString(unsigned long address, unsigned int size, char *buffer)
+{
+	// check for errors and valid parameters while reading the bytes
+	if(!readBytes(address, (unsigned char*)buffer, size))
+	{
+		return false;
+	}
+	
+	buffer[size] = '\0';
+	return true;
+}
+
 void SensorManager::EEPROM_updateAltitude(float alt)
 {
 	return;

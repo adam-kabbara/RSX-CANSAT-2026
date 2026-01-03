@@ -31,6 +31,11 @@ private:
 	/* Note: do not initialize a sensor here. Instead,
 	 * create a pointer and initialize it in the constructor. */
 
+	/* private funcs needed - read (starting addr and size inputs) return c string, write (same stuff as rd)  */
+	bool readBytes(unsigned long address, unsigned char *buffer, unsigned int size);
+	bool readString(unsigned long address, unsigned int size, char *buffer);
+	
+
 public:
 	SensorManager();
 
@@ -50,6 +55,7 @@ public:
 	void EEPROM_updatePackets(int count);
 	bool EEPROM_addLogLine(char *buffer);
 	struct recovery_data EEPROM_getRecoveryData();
+	void EEPROM_dumpLog(SerialManager &serial);
 	void startSensors(SerialManager &serial);
 };
 
