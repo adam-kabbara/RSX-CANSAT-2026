@@ -29,6 +29,8 @@ class SerialManager(QObject):
         self._ports = []
         self._port_name = None
         self._port_desc = None
+
+        self._serial_buffer = b""
     
     # Search for open ports
     def search_ports(self) -> list:
@@ -122,7 +124,9 @@ class SerialManager(QObject):
 
     # Process received data
     def recv_data(self):
-        while self._active_serial.canReadLine():
-            msg = self._active_serial.readLine().data().decode().strip()
+        self._serial_buffer += self._active_serial.readAll().data()
+        while b'\r' in self._serial_buffer:
+            line, self._serial_buffer = self._serial_buffer.split(b'\r', 1)
+            msg = line.decode().strip()
             if msg:
-                self.recv_data_signal.emit(msg)
+                self.recv_data_signal.emit()

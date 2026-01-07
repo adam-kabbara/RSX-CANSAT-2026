@@ -11,11 +11,10 @@ int SerialManager::get_data(char* cmd_buff)
 	memset(cmd_buff, 0, CMD_BUFF_SIZE);
 	uint8_t ch;
 	size_t idx = 0;
-	const uint32_t per_byte_timeout_ms = 100; // edit timeout value (maybe add as macro)
 
 	while (idx < (CMD_BUFF_SIZE - 1))
 	{
-	    if (HAL_UART_Receive(serialPort, &ch, 1, per_byte_timeout_ms) == HAL_OK)
+	    if (HAL_UART_Receive(serialPort, &ch, 1, 100) == HAL_OK)
 	    {
 	        if (ch == '\r') continue; // ignore CR if sender uses CRLF
 	        if (ch == '\n') break;    // end of line
@@ -33,17 +32,18 @@ int SerialManager::get_data(char* cmd_buff)
 	{
 		return 0;
 	}
+
 	return 1;
 }
 
 void SerialManager::sendErrorMsg(const char* msg)
 {
     char buffer[RESP_SIZE];
-    int len = snprintf(buffer, sizeof(buffer), "$E MSG:%s\r\n", msg);
+    int len = snprintf(buffer, sizeof(buffer), "$E:%s\r", msg);
     if (len <= 0)
     {
     	const char *error_msg = "ERROR: FSW attempted to send message with incorrect format";
-    	len = snprintf(buffer, sizeof(buffer), "$E MSG:%s\r\n", error_msg);
+    	len = snprintf(buffer, sizeof(buffer), "$E:%s\r", error_msg);
     }
 
     size_t to_send = (len < (int)sizeof(buffer)) ? (size_t)len : (sizeof(buffer) - 1);
@@ -53,7 +53,7 @@ void SerialManager::sendErrorMsg(const char* msg)
 void SerialManager::sendInfoMsg(const char* msg)
 {
     char buffer[RESP_SIZE];
-    int len = snprintf(buffer, sizeof(buffer), "$I MSG:%s", msg);
+    int len = snprintf(buffer, sizeof(buffer), "$I:%s\r", msg);
     if (len < 0)
     {
     	this->sendErrorMsg("ERROR: FSW attempted to send message with incorrect format");

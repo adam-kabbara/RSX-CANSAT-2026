@@ -131,9 +131,9 @@ class DataProcessor(QObject):
             row["CMD_ECHO"] = msg
             self._csv_writer.writerow(row)
 
-            msg_text = re.search('MSG:(.+)', msg).group(1)
+            msg_text = re.search(':(.+)', msg).group(1)
             if msg_text is None:
-                msg_text = "(UNEXPECTED FORMAT):" + msg
+                msg_text = "UNEXPECTED FORMAT:" + msg
             try:
                 mission_info = re.search('{(.+?)}', msg_text).group(1)
             except AttributeError:
