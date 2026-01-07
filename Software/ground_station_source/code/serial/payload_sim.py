@@ -37,13 +37,11 @@ class PayloadSim(QObject):
     def open(self, mode):
         self._is_open = True
         self.timer.start(1000)  # 1Hz
-        print("PAYLOAD SIM: Connection Opened")
         return True
 
     def close(self):
         self._is_open = False
         self.timer.stop()
-        print("PAYLOAD SIM: Connection Closed")
         return True
 
     def isOpen(self):
@@ -64,7 +62,6 @@ class PayloadSim(QObject):
             return 0
 
         msg = data.decode().strip()
-        print(f"PAYLOAD SIM RECV: {msg}")
         self._handle_command(msg)
         return len(data)
 

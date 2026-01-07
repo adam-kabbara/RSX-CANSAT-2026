@@ -69,12 +69,12 @@ class SerialManager(QObject):
             return False
 
         # Both QSerialPort and PayloadSim accept OpenModeFlag
-        if self._active_serial.open(QIODevice.OpenModeFlag.ReadWrite):
+        if self._port_name is None:
+            self.error_catch.emit("ERROR: No port selected")
+            return False
+        elif self._active_serial.open(QIODevice.OpenModeFlag.ReadWrite):
             self.print_catch.emit(f"Port opened on {self._port_name}")
             return True
-        elif self._port_name is None:
-             self.error_catch.emit("ERROR: No port selected")
-             return False
         else:
             self.error_catch.emit("ERROR: Port could not be opened")
             return False
