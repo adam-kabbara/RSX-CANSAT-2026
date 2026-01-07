@@ -7,4 +7,4 @@ mx.scratch
 Debug/
 Release/
 
-.csv
+*.csv
