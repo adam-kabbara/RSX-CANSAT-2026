@@ -9,6 +9,7 @@ from serial.serial import SerialManager
 from gui.command_gui import CommandWindow
 from gui.graph_gui import GraphWindow
 from data.process import DataProcessor
+from data.simp import SimpManager
 import gui.cosmetics
 import sys
 import argparse
@@ -37,8 +38,9 @@ if __name__ == "__main__":
 
     serial = SerialManager()
     graphing = GraphWindow()
-    processor = DataProcessor(graphing)
-    command = CommandWindow(serial, graphing, processor)
+    simp = SimpManager(serial)
+    processor = DataProcessor(graphing, simp)
+    command = CommandWindow(serial, graphing, processor, simp)
 
     app.lastWindowClosed.connect(app.quit)
 
@@ -56,5 +58,12 @@ if __name__ == "__main__":
     else:
         graphing.show()
         command.show()
+
+    if processor.csv_check() is False:
+        command.update_gui_log_error("ERROR: CSV WAS NOT ABLE TO OPEN. NO DATA WILL BE SAVED IN THIS SESSION!")
+
+    if simp.simp_check() is False:
+        command.update_gui_log_error(f"ERROR: SIM DATA FILE WAS NOT ABLE TO OPEN: {simp.get_error_msg()}")
+        command.update_gui_log_error("SIMULATION MODE CANNOT BE USED IN THIS SESSION!")
 
     app.exec()

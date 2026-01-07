@@ -81,7 +81,7 @@ extern "C" void main_cpp()
 
         if(mission_mgr.getOpMode() == OPMODE_SIM)
         {
-            serial.sendInfoMsg("BEGIN_SIMP");
+            serial.sendInfoMsg("SIM_START");
         }
 
         HAL_TIM_Base_Start_IT(&htim1);
