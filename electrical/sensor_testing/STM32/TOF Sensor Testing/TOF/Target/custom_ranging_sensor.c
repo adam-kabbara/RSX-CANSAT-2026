@@ -18,6 +18,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "custom_ranging_sensor.h"
+#include <stdio.h>
 
 void *CUSTOM_RANGING_CompObj[CUSTOM_RANGING_INSTANCES_NBR] = {0};
 static RANGING_SENSOR_Drv_t *CUSTOM_RANGING_Drv[CUSTOM_RANGING_INSTANCES_NBR];
@@ -433,19 +434,23 @@ static int32_t VL53L3CX_Probe(uint32_t Instance)
   IOCtx.ReadReg     = CUSTOM_VL53L3CX_I2C_READREG;
   IOCtx.GetTick     = BSP_GetTick;
 
+  int32_t read_status;
   if (VL53L3CX_RegisterBusIO(&VL53L3CXObj, &IOCtx) != VL53L3CX_OK)
   {
     ret = BSP_ERROR_COMPONENT_FAILURE;
+    printf("VL53L3CX_RegisterBusIO failed\n");
   }
-  else if (VL53L3CX_ReadID(&VL53L3CXObj, &id) != VL53L3CX_OK)
+  else if ((read_status = VL53L3CX_ReadID(&VL53L3CXObj, &id)) != VL53L3CX_OK)
   {
     ret = BSP_ERROR_COMPONENT_FAILURE;
+    printf("VL53L3CX_ReadID failed with status: %ld\n", (long)read_status);
   }
   else
   {
-    if (id != VL53L3CX_ID)
+    if (id != VL53L3CX_ID && id != 0xEACC)
     {
       ret = BSP_ERROR_UNKNOWN_COMPONENT;
+      printf("VL53L3CX ID mismatch: expected 0x%X, got 0x%lX\n", VL53L3CX_ID, id);
     }
     else
     {
@@ -455,11 +460,13 @@ static int32_t VL53L3CX_Probe(uint32_t Instance)
       if (CUSTOM_RANGING_Drv[Instance]->Init(CUSTOM_RANGING_CompObj[Instance]) != VL53L3CX_OK)
       {
         ret = BSP_ERROR_COMPONENT_FAILURE;
+        printf("VL53L3CX Init failed\n");
       }
       else if (CUSTOM_RANGING_Drv[Instance]->GetCapabilities(CUSTOM_RANGING_CompObj[Instance],
                                                              &RANGING_SENSOR_Cap[Instance]) != VL53L3CX_OK)
       {
         ret = BSP_ERROR_COMPONENT_FAILURE;
+        printf("VL53L3CX GetCapabilities failed\n");
       }
       else
       {
@@ -476,8 +483,8 @@ static void reset_device(void)
 {
 #if (USE_CUSTOM_RANGING_VL53L3CX == 1U)
   HAL_GPIO_WritePin(CUSTOM_VL53L3CX_XSHUT_PORT, CUSTOM_VL53L3CX_XSHUT_PIN, GPIO_PIN_RESET);
-  HAL_Delay(2);
+  HAL_Delay(10); // Increased delay
   HAL_GPIO_WritePin(CUSTOM_VL53L3CX_XSHUT_PORT, CUSTOM_VL53L3CX_XSHUT_PIN, GPIO_PIN_SET);
-  HAL_Delay(2);
+  HAL_Delay(10); // Increased delay
 #endif /* Use custom ranging */
 }

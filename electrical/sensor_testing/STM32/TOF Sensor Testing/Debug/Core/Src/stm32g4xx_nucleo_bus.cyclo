@@ -5,9 +5,9 @@
 ../Core/Src/stm32g4xx_nucleo_bus.c:214:10:BSP_I2C1_ReadReg	3
 ../Core/Src/stm32g4xx_nucleo_bus.c:242:9:BSP_I2C1_WriteReg16	3
 ../Core/Src/stm32g4xx_nucleo_bus.c:267:10:BSP_I2C1_ReadReg16	3
-../Core/Src/stm32g4xx_nucleo_bus.c:292:9:BSP_I2C1_Send	3
-../Core/Src/stm32g4xx_nucleo_bus.c:317:9:BSP_I2C1_Recv	3
-../Core/Src/stm32g4xx_nucleo_bus.c:392:9:BSP_GetTick	1
-../Core/Src/stm32g4xx_nucleo_bus.c:398:26:MX_I2C1_Init	4
-../Core/Src/stm32g4xx_nucleo_bus.c:429:13:I2C1_MspInit	1
-../Core/Src/stm32g4xx_nucleo_bus.c:474:13:I2C1_MspDeInit	1
+../Core/Src/stm32g4xx_nucleo_bus.c:292:9:BSP_I2C1_Send	4
+../Core/Src/stm32g4xx_nucleo_bus.c:325:9:BSP_I2C1_Recv	4
+../Core/Src/stm32g4xx_nucleo_bus.c:408:9:BSP_GetTick	1
+../Core/Src/stm32g4xx_nucleo_bus.c:414:26:MX_I2C1_Init	4
+../Core/Src/stm32g4xx_nucleo_bus.c:445:13:I2C1_MspInit	1
+../Core/Src/stm32g4xx_nucleo_bus.c:490:13:I2C1_MspDeInit	1
