@@ -60,26 +60,26 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define SERVO_OUT2_Pin GPIO_PIN_0
-#define SERVO_OUT2_GPIO_Port GPIOF
-#define SERVO_OUT3_Pin GPIO_PIN_1
-#define SERVO_OUT3_GPIO_Port GPIOF
-#define VOLTAGE_ADC_Pin GPIO_PIN_0
-#define VOLTAGE_ADC_GPIO_Port GPIOA
-#define SERVO_OUT1_Pin GPIO_PIN_1
-#define SERVO_OUT1_GPIO_Port GPIOA
+#define SERVO_NC_REL_Pin GPIO_PIN_0
+#define SERVO_NC_REL_GPIO_Port GPIOF
+#define SERVO_CC_REL_Pin GPIO_PIN_1
+#define SERVO_CC_REL_GPIO_Port GPIOF
+#define SERVO_WING_DIR_Pin GPIO_PIN_0
+#define SERVO_WING_DIR_GPIO_Port GPIOA
+#define SERVO_WING_PWM_Pin GPIO_PIN_1
+#define SERVO_WING_PWM_GPIO_Port GPIOA
 #define SPI_CS_GPIO_OUT_Pin GPIO_PIN_4
 #define SPI_CS_GPIO_OUT_GPIO_Port GPIOA
-#define SERVO_OUT5_Pin GPIO_PIN_0
-#define SERVO_OUT5_GPIO_Port GPIOB
-#define PG_CAM_OUT_Pin GPIO_PIN_8
-#define PG_CAM_OUT_GPIO_Port GPIOA
+#define SERVO_EGG_REL_Pin GPIO_PIN_0
+#define SERVO_EGG_REL_GPIO_Port GPIOB
+#define SERVO_AILERON_Pin GPIO_PIN_8
+#define SERVO_AILERON_GPIO_Port GPIOA
 #define XBEE_TX_Pin GPIO_PIN_9
 #define XBEE_TX_GPIO_Port GPIOA
 #define XBEE_RX_Pin GPIO_PIN_10
 #define XBEE_RX_GPIO_Port GPIOA
-#define SERVO_OUT4_Pin GPIO_PIN_11
-#define SERVO_OUT4_GPIO_Port GPIOA
+#define PG_CAM_OUT_Pin GPIO_PIN_11
+#define PG_CAM_OUT_GPIO_Port GPIOA
 #define G_CAM_OUT_Pin GPIO_PIN_12
 #define G_CAM_OUT_GPIO_Port GPIOA
 #define T_SWDIO_Pin GPIO_PIN_13
@@ -90,8 +90,8 @@ void Error_Handler(void);
 #define I2C_SCL_GPIO_Port GPIOA
 #define T_SWO_Pin GPIO_PIN_3
 #define T_SWO_GPIO_Port GPIOB
-#define SERVO_OUT6_Pin GPIO_PIN_4
-#define SERVO_OUT6_GPIO_Port GPIOB
+#define SERVO_ELEVATOR_Pin GPIO_PIN_4
+#define SERVO_ELEVATOR_GPIO_Port GPIOB
 #define PG_CAM_IN_Pin GPIO_PIN_5
 #define PG_CAM_IN_GPIO_Port GPIOB
 #define G_CAM_IN_Pin GPIO_PIN_6
