@@ -129,4 +129,4 @@ class SerialManager(QObject):
             line, self._serial_buffer = self._serial_buffer.split(b'\r', 1)
             msg = line.decode().strip()
             if msg:
-                self.recv_data_signal.emit()
+                self.recv_data_signal.emit(msg)
