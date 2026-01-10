@@ -65,6 +65,13 @@ class PayloadSim(QObject):
         self._handle_command(msg)
         return len(data)
 
+    def readAll(self):
+        if not self._buffer:
+            return QByteArray()
+        data_str = "\r".join(self._buffer) + "\r"
+        self._buffer.clear()
+        return QByteArray(data_str.encode())
+
     def canReadLine(self):
         return len(self._buffer) > 0
 
@@ -72,7 +79,7 @@ class PayloadSim(QObject):
         """Return the next message from the buffer"""
         if self._buffer:
             # Pop the first message and format as QByteArray
-            msg = self._buffer.pop(0) + "\n"
+            msg = self._buffer.pop(0) + "\r"
             return QByteArray(msg.encode())
         return QByteArray()
 

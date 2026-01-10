@@ -297,21 +297,23 @@ class GraphWindow(QMainWindow):
             if state_str in self.state_labels:
                 current_state_index = self.state_label_index.get(state_str)
                 _current_state_index = self.state_label_index.get(self._current_state)
-                if self._current_state == "Unknown" or current_state_index - _current_state_index == 1:
+                if self._current_state != "Unknown":
                     # Populate a single stage
-                    _pending_item = QListWidgetItem(self.state_labels_display[current_state_index])
-                    cosmetics.set_current_states(_pending_item)
-                    self.previous_list.addItem(_pending_item)
-                    self.previous_list.scrollToBottom()
-                else:
-                    for state in self.state_labels_display[_current_state_index + 1:current_state_index]:
-                        # Populate skipped stages
-                        _pending_item_skipped = QListWidgetItem(state)
-                        cosmetics.set_skipped_states(_pending_item_skipped)
-                        self.previous_list.addItem(_pending_item_skipped)
-                    _pending_item = QListWidgetItem(self.state_labels_display[current_state_index])
-                    cosmetics.set_current_states(_pending_item)
-                    self.previous_list.addItem(_pending_item)
+                    if current_state_index - _current_state_index == 1:
+                        _old_item = QListWidgetItem(self.state_labels_display[_current_state_index])
+                        cosmetics.set_current_states(_old_item)
+                        self.previous_list.addItem(_old_item)
+                    else:
+                        start_idx = _current_state_index if _current_state_index is not None else -1
+                        for i in range(start_idx, current_state_index):
+                            # Populate skipped stages
+                            if i < 0: continue
+                            _skipped_item = QListWidgetItem(self.state_labels_display[i])
+                            if i == _current_state_index:
+                                cosmetics.set_current_states(_skipped_item)
+                            else:
+                                cosmetics.set_skipped_states(_skipped_item)
+                            self.previous_list.addItem(_skipped_item)
                     self.previous_list.scrollToBottom()
                 self.next_list.clear()
                 for state in self.state_labels_display[current_state_index + 1:]:
