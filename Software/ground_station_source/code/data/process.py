@@ -50,12 +50,13 @@ class DataProcessor(QObject):
 
         super().__init__(parent)
         
-        self._outfile      = None
-        self._csv_file     = None
-        self._csv_writer   = None
-        self._write_to_log = False
-        self._graph_ui     = graph_ui
-        self._simp         = simp
+        self._outfile       = None
+        self._csv_file      = None
+        self._csv_writer    = None
+        self._write_to_log  = False
+        self._graph_ui      = graph_ui
+        self._simp          = simp
+        self._csv_error_msg = ""
 
         self._csv_fields = [field.name for field in fields(TelemetryData)]
 
@@ -67,14 +68,18 @@ class DataProcessor(QObject):
             self._csv_file = open(os.path.join(self.output_dir, 'telemetry_data.csv'), "w", newline="")
             self._csv_writer = csv.DictWriter(self._csv_file, fieldnames=self._csv_fields)
             self._csv_writer.writeheader()
-        except:
+        except Exception as e:
             self._csv_file = None
+            self._csv_error_msg = e
 
     def csv_check(self):
         if self._csv_file is None:
             return False
         else:
             return True
+        
+    def get_csv_error_msg(self):
+        return self._csv_error_msg
     
     def open_logfile(self):
         self._outfile = open(os.path.join(self.output_dir, 'flight_logs.txt'), "wb")
