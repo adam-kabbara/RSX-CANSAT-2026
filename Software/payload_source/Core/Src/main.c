@@ -59,6 +59,7 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 volatile uint8_t send_flag = 0;
+volatile uint8_t pvd_flag = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -438,6 +439,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
   {
     send_flag = 1;
   }
+}
+
+void HAL_PWR_PVDCallback(void)
+{
+  pvd_flag = 1;
 }
 /* USER CODE END 4 */
 
