@@ -147,14 +147,13 @@ class GraphWindow(QMainWindow):
             "LAUNCH_PAD": 1,
             "ASCENT": 2,
             "APOGEE": 3,
-            "RELEASE": 4,
-            "DESCENT": 5,
-            "PROBE_RELEASE": 6,
-            "PAYLOAD_RELEASE": 7,
-            "LANDED": 8
+            "DESCENT": 4,
+            "PROBE_RELEASE": 5,
+            "PAYLOAD_RELEASE": 6,
+            "LANDED": 7
         }
-        self.state_labels = ("IDLE", "LAUNCH_PAD", "ASCENT", "APOGEE", "RELEASE", "DESCENT", "PROBE_RELEASE", "PAYLOAD_RELEASE", "LANDED")
-        self.state_labels_display = ("IDLE", "LAUNCH PAD", "ASCENT", "APOGEE", "RELEASE", "DESCENT", "PROBE REL",
+        self.state_labels = ("IDLE", "LAUNCH_PAD", "ASCENT", "APOGEE", "DESCENT", "PROBE_RELEASE", "PAYLOAD_RELEASE", "LANDED")
+        self.state_labels_display = ("IDLE", "LAUNCH PAD", "ASCENT", "APOGEE", "DESCENT", "PROBE REL",
                              "PAYLD REL", "LANDED")
         
         state_title = QLabel("PAYLOAD STATE")
