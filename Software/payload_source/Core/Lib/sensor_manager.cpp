@@ -206,13 +206,13 @@ bool SensorManager::readString(unsigned long address, unsigned int size, char *b
 bool SensorManager::writePage(unsigned long address, const unsigned char *buffer, unsigned int size)
 {
 	// checking for valid parameters
-	if(address + size > EEPROM_SIZE || buffer == nullptr || size == 0 || size > EEPROM_PAGE_SIZE)
+	if(address + size > MEM_SIZE || buffer == nullptr || size == 0 || size > PAGE_SIZE)
 	{
 		return false;
 	}
 	
 	// Check if write crosses page boundary
-	if((address / EEPROM_PAGE_SIZE) != ((address + size - 1) / EEPROM_PAGE_SIZE))
+	if((address / PAGE_SIZE) != ((address + size - 1) / PAGE_SIZE))
 	{
 		return false;
 	}
@@ -243,3 +243,59 @@ bool SensorManager::writePage(unsigned long address, const unsigned char *buffer
 	
 	return waitForWriteComplete();
 }
+
+
+/* Higher level compared to writePage. Can write any number of bytes so can span multiple pgs*/
+bool SensorManager::writeBytes(unsigned long address, const unsigned char *buffer, unsigned int size)
+{
+	// checking for valid parameters
+	if(address + size > MEM_SIZE || buffer == nullptr || size == 0)
+	{
+		// not checking for page size limit here since can span multiple pages
+		return false;
+	}
+
+	int bytes_to_write = size;
+	unsigned long cur_address = address;
+	const unsigned char *cur_buffer = buffer;
+
+	while (bytes_to_write > 0)
+	{
+		// need to calculate how many bytes can be written in current page
+		unsigned int page_offset = cur_address % PAGE_SIZE;
+		unsigned int bytes_in_page = PAGE_SIZE - page_offset;
+		
+		// determine chunk size to write
+		unsigned int chunk_size;
+		if (bytes_to_write < bytes_in_page)
+		{
+			chunk_size = bytes_to_write;
+		}
+		else
+		{
+			chunk_size = bytes_in_page;
+		}
+		
+		if(!writePage(cur_address, cur_buffer, chunk_size))
+		{
+			return false;
+		}
+		
+		bytes_to_write -= chunk_size;
+		cur_address += chunk_size;
+		cur_buffer += chunk_size;
+	}
+
+	return true;
+}
+
+bool SensorManager::writeString(unsigned long address, unsigned int size, const char *buffer)
+{
+	if (buffer == nullptr)
+	{
+		return false;
+	}
+
+	return writeBytes(address, (const unsigned char*)buffer, size);
+}
+

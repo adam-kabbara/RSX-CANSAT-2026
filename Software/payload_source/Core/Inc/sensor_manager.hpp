@@ -35,7 +35,10 @@ private:
 	bool readBytes(unsigned long address, unsigned char *buffer, unsigned int size);
 	bool readString(unsigned long address, unsigned int size, char *buffer);
 	bool writeBytes(unsigned long address, const unsigned char *buffer, unsigned int size);
-
+	bool writeString(unsigned long address, unsigned int size, const char *buffer);
+	bool updateHeader(unsigned int block_index, unsigned int new_size);
+	unsigned int getBlockSize(unsigned int block_index);
+	bool writePage(unsigned long address, const unsigned char *buffer, unsigned int size);
 	
 
 public:
