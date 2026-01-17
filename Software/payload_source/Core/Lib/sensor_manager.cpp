@@ -289,6 +289,7 @@ bool SensorManager::writeBytes(unsigned long address, const unsigned char *buffe
 	return true;
 }
 
+
 bool SensorManager::writeString(unsigned long address, unsigned int size, const char *buffer)
 {
 	if (buffer == nullptr)
@@ -298,6 +299,7 @@ bool SensorManager::writeString(unsigned long address, unsigned int size, const 
 
 	return writeBytes(address, (const unsigned char*)buffer, size);
 }
+
 
 bool SensorManager::updateHeader(unsigned int block_index, unsigned int new_size)
 {
@@ -318,6 +320,7 @@ bool SensorManager::updateHeader(unsigned int block_index, unsigned int new_size
 	
 	return writeBytes(header_offset, size_bytes, 4);
 }
+
 
 unsigned int SensorManager::getBlockSize(unsigned int block_index)
 {
@@ -342,4 +345,89 @@ unsigned int SensorManager::getBlockSize(unsigned int block_index)
 	       ((unsigned int)size_bytes[1] << 16) |
 	       ((unsigned int)size_bytes[2] << 8) |
 	       ((unsigned int)size_bytes[3]);
+}
+
+
+/* ============================================================================
+ * EEPROM PUBLIC FUNCTIONS
+ * ========================================================================== */
+
+void SensorManager::EEPROM_updateAltitude(float alt)
+{
+	char buffer[RECOVERY_BLOCK_SIZE];
+	snprintf(buffer, RECOVERY_BLOCK_SIZE, "%.2f", alt); 
+	
+	// ensure string fits in block
+	unsigned int str_len = strlen(buffer);
+	if(str_len >= RECOVERY_BLOCK_SIZE)
+	{
+		str_len = RECOVERY_BLOCK_SIZE - 1; // for null terminator (kinda not needed lolsies but just in case)
+	}
+	
+	unsigned long addr = RECOVERY_DATA_START + (BLOCK_ALTITUDE * RECOVERY_BLOCK_SIZE);
+	
+	if(writeString(addr, str_len, buffer))
+	{
+		updateHeader(BLOCK_ALTITUDE, str_len);
+	}
+}
+
+
+void SensorManager::EEPROM_updateState(OperatingState state)
+{
+	char buffer[RECOVERY_BLOCK_SIZE];
+	snprintf(buffer, RECOVERY_BLOCK_SIZE, "%d", (int)state);
+	
+	unsigned int str_len = strlen(buffer);
+	if(str_len >= RECOVERY_BLOCK_SIZE)
+	{
+		str_len = RECOVERY_BLOCK_SIZE - 1;
+	}
+	
+	unsigned long addr = RECOVERY_DATA_START + (BLOCK_STATE * RECOVERY_BLOCK_SIZE);
+	
+	if(writeString(addr, str_len, buffer))
+	{
+		updateHeader(BLOCK_STATE, str_len);
+	}
+}
+
+
+void SensorManager::EEPROM_updateMode(OperatingMode mode)
+{
+	char buffer[RECOVERY_BLOCK_SIZE];
+	snprintf(buffer, RECOVERY_BLOCK_SIZE, "%d", (int)mode);
+	
+	unsigned int str_len = strlen(buffer);
+	if(str_len >= RECOVERY_BLOCK_SIZE)
+	{
+		str_len = RECOVERY_BLOCK_SIZE - 1;
+	}
+	
+	unsigned long addr = RECOVERY_DATA_START + (BLOCK_MODE * RECOVERY_BLOCK_SIZE);
+	
+	if(EEPROM_writeString(addr, str_len, buffer))
+	{
+		EEPROM_updateHeader(BLOCK_MODE, str_len);
+	}
+}
+
+
+void SensorManager::EEPROM_updatePackets(int count)
+{
+	char buffer[RECOVERY_BLOCK_SIZE];
+	snprintf(buffer, RECOVERY_BLOCK_SIZE, "%d", count);
+	
+	unsigned int str_len = strlen(buffer);
+	if(str_len >= RECOVERY_BLOCK_SIZE)
+	{
+		str_len = RECOVERY_BLOCK_SIZE - 1;
+	}
+	
+	unsigned long addr = RECOVERY_DATA_START + (BLOCK_PACKET * RECOVERY_BLOCK_SIZE);
+	
+	if(EEPROM_writeString(addr, str_len, buffer))
+	{
+		EEPROM_updateHeader(BLOCK_PACKET, str_len);
+	}
 }
