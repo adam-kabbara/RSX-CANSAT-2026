@@ -406,9 +406,9 @@ void SensorManager::EEPROM_updateMode(OperatingMode mode)
 	
 	unsigned long addr = RECOVERY_DATA_START + (BLOCK_MODE * RECOVERY_BLOCK_SIZE);
 	
-	if(EEPROM_writeString(addr, str_len, buffer))
+	if(writeString(addr, str_len, buffer))
 	{
-		EEPROM_updateHeader(BLOCK_MODE, str_len);
+		updateHeader(BLOCK_MODE, str_len);
 	}
 }
 
@@ -426,9 +426,9 @@ void SensorManager::EEPROM_updatePackets(int count)
 	
 	unsigned long addr = RECOVERY_DATA_START + (BLOCK_PACKET * RECOVERY_BLOCK_SIZE);
 	
-	if(EEPROM_writeString(addr, str_len, buffer))
+	if(writeString(addr, str_len, buffer))
 	{
-		EEPROM_updateHeader(BLOCK_PACKET, str_len);
+		updateHeader(BLOCK_PACKET, str_len);
 	}
 }
 
@@ -441,11 +441,11 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 	unsigned long addr;
 	
 	// Read altitude
-	size = EEPROM_getBlockSize(BLOCK_ALTITUDE);
+	size = getBlockSize(BLOCK_ALTITUDE);
 	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
 	{
 		addr = RECOVERY_DATA_START + (BLOCK_ALTITUDE * RECOVERY_BLOCK_SIZE);
-		if(EEPROM_readString(addr, size, buffer))
+		if(readString(addr, size, buffer))
 		{
 			data.launch_altitude = atof(buffer); // convert to float
 		}
@@ -460,11 +460,11 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 	}
 	
 	// Read state
-	size = EEPROM_getBlockSize(BLOCK_STATE);
+	size = getBlockSize(BLOCK_STATE);
 	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
 	{
 		addr = RECOVERY_DATA_START + (BLOCK_STATE * RECOVERY_BLOCK_SIZE);
-		if(EEPROM_readString(addr, size, buffer))
+		if(readString(addr, size, buffer))
 		{
 			data.state = (OperatingState)atoi(buffer); // convert to OperatingState
 		}
@@ -479,11 +479,11 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 	}
 	
 	// Read mode
-	size = EEPROM_getBlockSize(BLOCK_MODE);
+	size = getBlockSize(BLOCK_MODE);
 	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
 	{
 		addr = RECOVERY_DATA_START + (BLOCK_MODE * RECOVERY_BLOCK_SIZE);
-		if(EEPROM_readString(addr, size, buffer))
+		if(readString(addr, size, buffer))
 		{
 			data.mode = (OperatingMode)atoi(buffer); // convert to OperatingMode
 		}
@@ -498,11 +498,11 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 	}
 	
 	// Read packet count
-	size = EEPROM_getBlockSize(BLOCK_PACKET);
+	size = getBlockSize(BLOCK_PACKET);
 	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
 	{
 		addr = RECOVERY_DATA_START + (BLOCK_PACKET * RECOVERY_BLOCK_SIZE);
-		if(EEPROM_readString(addr, size, buffer))
+		if(readString(addr, size, buffer))
 		{
 			data.packet_count = atoi(buffer); // convert to int
 		}
@@ -519,3 +519,45 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 	return data;
 }
 
+
+bool SensorManager::EEPROM_addLogLine(char *buffer)
+{
+	if(buffer == nullptr)
+	{
+		return false;
+	}
+	
+	unsigned int log_size = getBlockSize(BLOCK_LOG);
+	unsigned int line_len = strlen(buffer);
+	
+	// Check if there's enough space (line + terminator)
+	if(log_size + line_len + 1 > LOG_DATA_SIZE)
+	{
+		// EEPROM is full
+		return false;
+	}
+	
+	unsigned long write_addr = LOG_DATA_START + log_size;
+	
+	// Write the line
+	if(!writeString(write_addr, line_len, buffer))
+	{
+		// EEPROM malfunction
+		return false;
+	}
+	
+	// Write the terminator
+	char terminator = LOG_LINE_TERMINATOR;
+	if(!writeBytes(write_addr + line_len, (unsigned char*)&terminator, 1))
+	{
+		return false;
+	}
+	
+	// Update header with new size
+	if(!updateHeader(BLOCK_LOG, log_size + line_len + 1))
+	{
+		return false;
+	}
+	
+	return true;
+}
