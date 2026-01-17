@@ -214,7 +214,9 @@ class PayloadSim(QObject):
         telemetry = (
             f"{self._team_id},{self.mission_time_utc},{self.packet_count},{self.mode},{self.state},"
             f"{self.altitude:.1f},{self.temperature:.1f},{self.pressure:.2f},12.5,0.5,"
-            f"0,0,0,0,0,1,{current_time},100.0,43.66,-79.40,8,"
+            f"1,2,3,4,5,1,"
+            f"{current_time}," # GPS Time
+            f"{self.altitude:.1f},{43.664781+(43.662994-43.664781)/(self.packet_count/45)}, {-79.398232-(79.398232-79.391861)/(self.packet_count/45)},8," # GPS_ALTITUDE, GPS_LATITUDE, GPS_LONGITUDE, GPS_SATS
             f"{self.cmd_echo}"
         )
 
