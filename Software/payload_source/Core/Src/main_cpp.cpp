@@ -7,6 +7,7 @@
 #include "command_manager.hpp"
 
 extern "C" volatile uint8_t send_flag;
+extern "C" volatile uint8_t pvd_flag;
 extern "C" UART_HandleTypeDef huart1;
 extern "C" TIM_HandleTypeDef htim1;
 
@@ -73,6 +74,12 @@ extern "C" void main_cpp()
                     mission_mgr.setLastCommand(cmd_buff);
                 }
             }
+
+            if(pvd_flag == 1)
+            {
+                serial.sendErrorMsg("WARNING: POWER VOLTAGE DETECTOR TRIGGERED");
+                pvd_flag = 0;
+            }
             
             HAL_Delay(100);
         }
@@ -81,7 +88,13 @@ extern "C" void main_cpp()
 
         if(mission_mgr.getOpMode() == OPMODE_SIM)
         {
-            serial.sendInfoMsg("BEGIN_SIMP");
+            serial.sendInfoMsg("SIM_START");
+
+            // Wait until first simulation packet is received
+            while(mission_mgr.getOpMode() == OPMODE_SIM && mission_mgr.isWaitingSimp())
+            {
+                HAL_Delay(100);
+            }
         }
 
         HAL_TIM_Base_Start_IT(&htim1);
@@ -96,16 +109,16 @@ extern "C" void main_cpp()
                 }
             }
 
-            // Wait until first simulation packet is received
-            if(mission_mgr.getOpMode() == OPMODE_SIM && mission_mgr.isWaitingSimp())
+            if(pvd_flag == 1)
             {
-                HAL_Delay(100);
-                continue;
+                serial.sendErrorMsg("WARNING: POWER VOLTAGE DETECTOR TRIGGERED");
+                pvd_flag = 0;
             }
 
-            while(send_flag == 0)
+            if(send_flag == 0)
             {
                 HAL_Delay(25);
+                continue;
             }
 
             telemetry_mgr.sampleSensors(sensors, serial, mission_mgr);

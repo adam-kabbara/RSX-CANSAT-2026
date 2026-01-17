@@ -13,9 +13,6 @@ def gui_log_normal_color():
     return "black"
 
 def gui_log_error_color():
-    return "blue"
-
-def gui_log_fatal_color():
     return "red"
 
 def sat_log_normal_color():

@@ -1296,7 +1296,7 @@ class GroundStationApp(QMainWindow):
                 self.__serial.close()
                 self.set_port_text_closed()
         else:
-            self.update_gui_log_error("ERROR: Open port before sending dataaaaaaaaaaaaaaaaaaa sdaiofa uifah wehuifh ewfhu eafh heuif heuisafh eshuf hesaiufh eishf uieshiofh oiuhf esh fesahfaiuf!")
+            self.update_gui_log_error("ERROR: Open port before sending data!")
             return 0
     
     def send_simp_data(self):

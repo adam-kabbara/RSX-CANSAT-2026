@@ -8,6 +8,7 @@ from . import cosmetics
 from serial.serial import SerialManager
 from .graph_gui import GraphWindow
 from data.process import DataProcessor
+from data.simp import SimpManager
 from command.commands import Commands
 from PyQt6.QtGui import QColor, QIcon, QIntValidator, QTextCursor
 from PyQt6.QtCore import Qt, QTime
@@ -37,7 +38,7 @@ class CommandButtonGroup(Enum):
 
 class CommandWindow(QMainWindow):
 
-    def __init__(self, serial: SerialManager, graph_ui: GraphWindow, processor: DataProcessor, parent=None):
+    def __init__(self, serial: SerialManager, graph_ui: GraphWindow, processor: DataProcessor, simp: SimpManager, parent=None):
 
         super().__init__(parent)
 
@@ -53,6 +54,7 @@ class CommandWindow(QMainWindow):
         self._serial              = serial
         self._graph_ui            = graph_ui
         self._processor           = processor
+        self._simp                = simp
         self.command_manager      = Commands(self._serial)
 
         self._serial.error_catch.connect(self.update_gui_log_error)
@@ -124,7 +126,7 @@ class CommandWindow(QMainWindow):
         # TODO: close csv file and any other clean up on receiving confirmation of mission end
         self.button_transmit_off = QPushButton("END MISSION")
         self.button_transmit_off.setFont(button_font)
-        self.button_transmit_off.clicked.connect(self.command_manager.command__end_mission)
+        self.button_transmit_off.clicked.connect(self.end_transmission)
         self.button_transmit_off.hide()
 
         self.button_advanced = QPushButton("ADVANCED")
@@ -447,7 +449,7 @@ class CommandWindow(QMainWindow):
         self.get_log_overlay.setGeometry(self.rect())
 
     def serial_fatal(self, msg):
-        self.update_logs(msg, sat_msg=False, color=cosmetics.gui_log_fatal_color())
+        self.update_logs(msg, sat_msg=False, color=cosmetics.gui_log_error_color())
         self._graph_ui.set_port_text_closed()
 
     def update_gui_log(self, msg):
@@ -580,6 +582,11 @@ class CommandWindow(QMainWindow):
     def start_transmission(self):
         if self.command_manager.command__start_mission():
             self._graph_ui.reset_data()
+    
+    def end_transmission(self):
+        if self._simp.simp_check():
+            self._simp.simp_disable()
+        self.command_manager.command__end_mission()
 
     def team_id_edited(self):
         self.team_id_field.clearFocus()

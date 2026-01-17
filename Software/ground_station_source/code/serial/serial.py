@@ -29,6 +29,8 @@ class SerialManager(QObject):
         self._ports = []
         self._port_name = None
         self._port_desc = None
+
+        self._serial_buffer = b""
     
     # Search for open ports
     def search_ports(self) -> list:
@@ -69,12 +71,12 @@ class SerialManager(QObject):
             return False
 
         # Both QSerialPort and PayloadSim accept OpenModeFlag
-        if self._active_serial.open(QIODevice.OpenModeFlag.ReadWrite):
+        if self._port_name is None:
+            self.error_catch.emit("ERROR: No port selected")
+            return False
+        elif self._active_serial.open(QIODevice.OpenModeFlag.ReadWrite):
             self.print_catch.emit(f"Port opened on {self._port_name}")
             return True
-        elif self._port_name is None:
-             self.error_catch.emit("ERROR: No port selected")
-             return False
         else:
             self.error_catch.emit("ERROR: Port could not be opened")
             return False
@@ -122,7 +124,9 @@ class SerialManager(QObject):
 
     # Process received data
     def recv_data(self):
-        while self._active_serial.canReadLine():
-            msg = self._active_serial.readLine().data().decode().strip()
+        self._serial_buffer += self._active_serial.readAll().data()
+        while b'\r' in self._serial_buffer:
+            line, self._serial_buffer = self._serial_buffer.split(b'\r', 1)
+            msg = line.decode().strip()
             if msg:
                 self.recv_data_signal.emit(msg)

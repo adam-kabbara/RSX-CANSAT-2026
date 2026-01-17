@@ -7,8 +7,8 @@ import csv
 import os
 import re
 from gui.graph_gui import GraphWindow
+from .simp import SimpManager
 from dataclasses import dataclass, fields, asdict
-
 
 # Structure to store packet data
 @dataclass(frozen=True)
@@ -46,22 +46,40 @@ class DataProcessor(QObject):
     sat_error_signal = pyqtSignal(str)
     sat_resp_signal = pyqtSignal(str)
 
-    def __init__(self, graph_ui: GraphWindow, parent=None):
+    def __init__(self, graph_ui: GraphWindow, simp: SimpManager, parent=None):
 
         super().__init__(parent)
         
-        self._outfile      = None
-        self._csv_file     = None
-        self._csv_writer   = None
-        self._write_to_log = False
-        self._graph_ui     = graph_ui
+        self._outfile       = None
+        self._csv_file      = None
+        self._csv_writer    = None
+        self._write_to_log  = False
+        self._graph_ui      = graph_ui
+        self._simp          = simp
+        self._csv_error_msg = ""
 
         self._csv_fields = [field.name for field in fields(TelemetryData)]
 
-        file_path = os.path.join(os.path.dirname(__file__), '..')
-        self.output_dir = os.path.join(file_path, 'output')
-        os.makedirs(self.output_dir, exist_ok=True)
-        self.open_csv()
+        try:
+            file_path = os.path.join(os.path.dirname(__file__), '..')
+            self.output_dir = os.path.join(file_path, 'output')
+            os.makedirs(self.output_dir, exist_ok=True)
+
+            self._csv_file = open(os.path.join(self.output_dir, 'telemetry_data.csv'), "w", newline="")
+            self._csv_writer = csv.DictWriter(self._csv_file, fieldnames=self._csv_fields)
+            self._csv_writer.writeheader()
+        except Exception as e:
+            self._csv_file = None
+            self._csv_error_msg = e
+
+    def csv_check(self):
+        if self._csv_file is None:
+            return False
+        else:
+            return True
+        
+    def get_csv_error_msg(self):
+        return self._csv_error_msg
     
     def open_logfile(self):
         self._outfile = open(os.path.join(self.output_dir, 'flight_logs.txt'), "wb")
@@ -74,11 +92,6 @@ class DataProcessor(QObject):
         if self._outfile is not None:
             if not self._outfile.closed:
                 self._outfile.close()
-        
-    def open_csv(self):
-        self._csv_file = open(os.path.join(self.output_dir, 'telemetry_data.csv'), "w", newline="")
-        self._csv_writer = csv.DictWriter(self._csv_file, fieldnames=self._csv_fields)
-        self._csv_writer.writeheader()
 
     def close_csv(self):
         if self._csv_file is not None:
@@ -104,6 +117,11 @@ class DataProcessor(QObject):
         
         # Message is a response
         if(msg.startswith('$')):
+
+            # Start sending SIMP commands
+            if "SIM_START" in msg:
+                self._simp.simp_enable()
+                return
 
             # Get logfile
             if "$LOGFILE:BEGIN" in msg:
@@ -131,9 +149,9 @@ class DataProcessor(QObject):
             row["CMD_ECHO"] = msg
             self._csv_writer.writerow(row)
 
-            msg_text = re.search('MSG:(.+)', msg).group(1)
+            msg_text = re.search(':(.+)', msg).group(1)
             if msg_text is None:
-                msg_text = "(UNEXPECTED FORMAT):" + msg
+                msg_text = "UNEXPECTED FORMAT:" + msg
             try:
                 mission_info = re.search('{(.+?)}', msg_text).group(1)
             except AttributeError:
