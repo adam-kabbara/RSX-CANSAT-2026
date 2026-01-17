@@ -431,3 +431,91 @@ void SensorManager::EEPROM_updatePackets(int count)
 		EEPROM_updateHeader(BLOCK_PACKET, str_len);
 	}
 }
+
+
+struct recovery_data SensorManager::EEPROM_getRecoveryData()
+{
+	struct recovery_data data;
+	char buffer[RECOVERY_BLOCK_SIZE + 1];
+	unsigned int size;
+	unsigned long addr;
+	
+	// Read altitude
+	size = EEPROM_getBlockSize(BLOCK_ALTITUDE);
+	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
+	{
+		addr = RECOVERY_DATA_START + (BLOCK_ALTITUDE * RECOVERY_BLOCK_SIZE);
+		if(EEPROM_readString(addr, size, buffer))
+		{
+			data.launch_altitude = atof(buffer); // convert to float
+		}
+		else
+		{
+			data.launch_altitude = 0.0; // what to do on error?
+		}
+	}
+	else
+	{
+		data.launch_altitude = 0.0; // default if no data (?)
+	}
+	
+	// Read state
+	size = EEPROM_getBlockSize(BLOCK_STATE);
+	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
+	{
+		addr = RECOVERY_DATA_START + (BLOCK_STATE * RECOVERY_BLOCK_SIZE);
+		if(EEPROM_readString(addr, size, buffer))
+		{
+			data.state = (OperatingState)atoi(buffer); // convert to OperatingState
+		}
+		else
+		{
+			data.state = OperatingState::IDLE; // default if no data (?)
+		}
+	}
+	else
+	{
+		data.state = OperatingState::IDLE; // default if no data (?)
+	}
+	
+	// Read mode
+	size = EEPROM_getBlockSize(BLOCK_MODE);
+	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
+	{
+		addr = RECOVERY_DATA_START + (BLOCK_MODE * RECOVERY_BLOCK_SIZE);
+		if(EEPROM_readString(addr, size, buffer))
+		{
+			data.mode = (OperatingMode)atoi(buffer); // convert to OperatingMode
+		}
+		else
+		{
+			data.mode = OperatingMode::OPMODE_FLIGHT; // default if no data (?)
+		}
+	}
+	else
+	{
+		data.mode = OperatingMode::OPMODE_FLIGHT; // default if no data (?)
+	}
+	
+	// Read packet count
+	size = EEPROM_getBlockSize(BLOCK_PACKET);
+	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
+	{
+		addr = RECOVERY_DATA_START + (BLOCK_PACKET * RECOVERY_BLOCK_SIZE);
+		if(EEPROM_readString(addr, size, buffer))
+		{
+			data.packet_count = atoi(buffer); // convert to int
+		}
+		else
+		{
+			data.packet_count = 0; // default if no data (?)
+		}
+	}
+	else
+	{
+		data.packet_count = 0; // default if no data (?)
+	}
+	
+	return data;
+}
+
