@@ -34,6 +34,8 @@ private:
 	/* private funcs needed - read (starting addr and size inputs) return c string, write (same stuff as rd)  */
 	bool readBytes(unsigned long address, unsigned char *buffer, unsigned int size);
 	bool readString(unsigned long address, unsigned int size, char *buffer);
+	bool writeBytes(unsigned long address, const unsigned char *buffer, unsigned int size);
+
 	
 
 public:

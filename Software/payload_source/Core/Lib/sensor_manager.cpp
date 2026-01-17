@@ -43,7 +43,7 @@
 #define BLOCK_PACKET 3
 #define BLOCK_LOG 4
 
-SPI_HandleTypeDef hspi1; // is this correct way to access hspi1 from main.c?
+extern SPI_HandleTypeDef hspi1; // is this correct way to access hspi1 from main.c?
 
 
 void writeEnable()
@@ -202,47 +202,44 @@ bool SensorManager::readString(unsigned long address, unsigned int size, char *b
 	return true;
 }
 
-void SensorManager::EEPROM_updateAltitude(float alt)
+/* This is the lower-level function compared to writeByte. Can write up to 256 bytes, within page boundary*/
+bool SensorManager::writePage(unsigned long address, const unsigned char *buffer, unsigned int size)
 {
-	return;
-}
+	// checking for valid parameters
+	if(address + size > EEPROM_SIZE || buffer == nullptr || size == 0 || size > EEPROM_PAGE_SIZE)
+	{
+		return false;
+	}
+	
+	// Check if write crosses page boundary
+	if((address / EEPROM_PAGE_SIZE) != ((address + size - 1) / EEPROM_PAGE_SIZE))
+	{
+		return false;
+	}
+	
+	writeEnable();
 
-void SensorManager::EEPROM_updateState(OperatingState state)
-{
-	return;
-}
-
-void SensorManager::EEPROM_updateMode(OperatingMode mode)
-{
-	return;
-}
-
-void SensorManager::EEPROM_updatePackets(int count)
-{
-	return;
-}
-
-bool SensorManager::EEPROM_addLogLine(char *buffer)
-{
-	return true;
-}
-
-struct recovery_data SensorManager::EEPROM_getRecoveryData()
-{
-	struct recovery_data data;
-	data.launch_altitude = 0.0;
-	data.state = OperatingState::IDLE;
-	data.mode = OperatingMode::OPMODE_FLIGHT;
-	data.packet_count = 0;
-
-	return data;
-}
-
-void SensorManager::startSensors(SerialManager &serial)
-{
-	/* Start all sensors that need to be started
-	 * Add a delay between each start and send an
-	 * info message */
-	HAL_Delay(1);
-	serial.sendInfoMsg("Sensor initialization complete.");
+	HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_RESET);
+	
+	unsigned char cmd[4];
+	cmd[0] = WRITE_CMD;
+	cmd[1] = (unsigned char)((address >> 16) & 0xFF);
+	cmd[2] = (unsigned char)((address >> 8) & 0xFF);
+	cmd[3] = (unsigned char)(address & 0xFF);
+		
+	if(HAL_SPI_Transmit(&hspi1, cmd, 4, TIMEOUT) != HAL_OK)
+	{
+		HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
+		return false;
+	}
+	
+	if(HAL_SPI_Transmit(&hspi1, (unsigned char*)buffer, size, TIMEOUT) != HAL_OK)
+	{
+		HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
+		return false;
+	}
+	
+	HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
+	
+	return waitForWriteComplete();
 }
