@@ -6,5 +6,6 @@ build
 mx.scratch
 Debug/
 Release/
+*.launch
 
 *.csv

@@ -60,10 +60,13 @@ if __name__ == "__main__":
         command.show()
 
     if processor.csv_check() is False:
-        command.update_gui_log_error("ERROR: CSV WAS NOT ABLE TO OPEN. NO DATA WILL BE SAVED IN THIS SESSION!")
+        command.update_gui_log_error("ERROR: CSV WAS NOT ABLE TO OPEN! DETAILS:")
+        command.update_gui_log_error(processor.get_csv_error_msg())
+        command.update_gui_log_error("NO DATA WILL BE SAVED IN THIS SESSION!")
 
     if simp.simp_check() is False:
-        command.update_gui_log_error(f"ERROR: SIM DATA FILE WAS NOT ABLE TO OPEN: {simp.get_error_msg()}")
+        command.update_gui_log_error(f"ERROR: SIM DATA FILE WAS NOT ABLE TO OPEN! DETAILS:")
+        command.update_gui_log_error(simp.get_error_msg())
         command.update_gui_log_error("SIMULATION MODE CANNOT BE USED IN THIS SESSION!")
 
     app.exec()
