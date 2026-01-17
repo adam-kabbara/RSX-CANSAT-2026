@@ -299,3 +299,47 @@ bool SensorManager::writeString(unsigned long address, unsigned int size, const 
 	return writeBytes(address, (const unsigned char*)buffer, size);
 }
 
+bool SensorManager::updateHeader(unsigned int block_index, unsigned int new_size)
+{
+	if(block_index > BLOCK_LOG)
+	{
+		return false;
+	}
+	
+	// Header structure: [start_addr0][size0][start_addr1][size1]...
+	// Each entry is 8 bytes: 4 for address, 4 for size
+	unsigned long header_offset = block_index * 8 + 4;
+	unsigned char size_bytes[4];
+	
+	size_bytes[0] = (unsigned char)((new_size >> 24) & 0xFF);
+	size_bytes[1] = (unsigned char)((new_size >> 16) & 0xFF);
+	size_bytes[2] = (unsigned char)((new_size >> 8) & 0xFF);
+	size_bytes[3] = (unsigned char)(new_size & 0xFF);
+	
+	return writeBytes(header_offset, size_bytes, 4);
+}
+
+unsigned int SensorManager::getBlockSize(unsigned int block_index)
+{
+	// reads the size of a block from the header
+
+	if(block_index > BLOCK_LOG)
+	{
+		return 0;
+	}
+	
+	// header structure: [start_addr0][size0][start_addr1][size1]...
+	// each entry is 8 bytes: 4 for address, 4 for size
+	unsigned long header_offset = block_index * 8 + 4;
+	unsigned char size_bytes[4];
+	
+	if(!readBytes(header_offset, size_bytes, 4))
+	{
+		return 0;
+	}
+	
+	return ((unsigned int)size_bytes[0] << 24) |
+	       ((unsigned int)size_bytes[1] << 16) |
+	       ((unsigned int)size_bytes[2] << 8) |
+	       ((unsigned int)size_bytes[3]);
+}
