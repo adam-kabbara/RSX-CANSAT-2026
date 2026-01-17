@@ -295,33 +295,45 @@ class GraphWindow(QMainWindow):
         if state_str != self._current_state:
             if state_str in self.state_labels:
                 current_state_index = self.state_label_index.get(state_str)
-                _current_state_index = self.state_label_index.get(self._current_state)
+                _last_state_index = self.state_label_index.get(self._current_state)
+
                 if self._current_state != "Unknown":
                     # Populate a single stage
-                    if current_state_index - _current_state_index == 1:
-                        _old_item = QListWidgetItem(self.state_labels_display[_current_state_index])
-                        cosmetics.set_current_states(_old_item)
-                        self.previous_list.addItem(_old_item)
-                    else:
-                        start_idx = _current_state_index if _current_state_index is not None else -1
-                        for i in range(start_idx, current_state_index):
-                            # Populate skipped stages
-                            if i < 0: continue
-                            _skipped_item = QListWidgetItem(self.state_labels_display[i])
-                            if i == _current_state_index:
-                                cosmetics.set_current_states(_skipped_item)
-                            else:
-                                cosmetics.set_skipped_states(_skipped_item)
-                            self.previous_list.addItem(_skipped_item)
+                    if current_state_index > _last_state_index:
+                        for i in range(_last_state_index, current_state_index):
+                            _old_item = QListWidgetItem(self.state_labels_display[i])
+                            cosmetics.set_current_states(_old_item)
+                            self.previous_list.addItem(_old_item)
+                    
+                    # Special Case: Returning to DESCENT from a RELEASE state
+                    elif state_str == "DESCENT" and ("RELEASE" in self._current_state):
+                        _release_item = QListWidgetItem(self.state_labels_display[_last_state_index])
+                        cosmetics.set_current_states(_release_item)
+                        self.previous_list.addItem(_release_item)
+
                     self.previous_list.scrollToBottom()
-                self.next_list.clear()
-                for state in self.state_labels_display[current_state_index + 1:]:
-                    _pending_item_next = QListWidgetItem(state)
-                    cosmetics.set_next_states(_pending_item_next)
-                    self.next_list.addItem(_pending_item_next)
-                self.next_list.scrollToTop()
-            self._current_state = state_str
-            self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
+                    
+                    # Update Next list
+                    self.next_list.clear()
+                    # Only show states after the current index
+                    for i in range(current_state_index + 1, len(self.state_labels_display)):
+                        state_display_name = self.state_labels_display[i]
+                        # Check if this state is already in our history
+                        is_in_history = False
+                        for row in range(self.previous_list.count()):
+                            if self.previous_list.item(row).text() == state_display_name:
+                                is_in_history = True
+                                break
+                        
+                        if not is_in_history:
+                            _pending_item_next = QListWidgetItem(state_display_name)
+                            cosmetics.set_next_states(_pending_item_next)
+                            self.next_list.addItem(_pending_item_next)
+                    
+                    self.next_list.scrollToTop()
+
+                self._current_state = state_str
+                self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
 
     def reset_states(self):
         self._current_state = "Unknown"
