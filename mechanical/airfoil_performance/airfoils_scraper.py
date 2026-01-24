@@ -74,8 +74,8 @@ def get_bat_files(airfoil_links):
         page_soup = soup(page_content, 'html.parser')
         bat_file_link = None
         for a_tag in page_soup.find_all('a'):
-            if 'Source dat file' in a_tag.text:
-                bat_file_link = a_tag['href']
+            if 'Selig format dat file' in a_tag.text:
+                bat_file_link = "http://airfoiltools.com/" + a_tag['href']
                 break
         if bat_file_link:
             bat_file_links.append(bat_file_link)
@@ -105,8 +105,8 @@ if __name__ == "__main__":
         if bat_content is None:
             print(f"Skipping download for {bf} due to fetch error.")
             continue
-        file_name = bf.split('/')[-1]
-        with open(f"mechanical/airfoil_performance/scraped_dat/{file_name}", 'w') as f:
+        file_name = bf.split('=')[-1]
+        with open(f"mechanical/airfoil_performance/scraped_dat/{file_name}.dat", 'w') as f:
             f.write(bat_content)
         print(f"Saved .bat file as: mechanical/airfoil_performance/scraped_dat/{file_name}")
 
