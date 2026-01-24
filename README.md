@@ -24,7 +24,7 @@ This repository contains all files created by the Aerial Team of Robotics for Sp
 - 🧑‍🚀 [American Astronautical Society (AAS)](https://cansatcompetition.com/winners.html)
 - 📃 [Mission Document](CanSat_Mission_Guide_2026e.pdf)
 
-**RSX CanSat 2T4-2T5**
+**RSX CanSat 2T4-2T5:**
 - 🏆 2025 Competiton Results: [5th Place Internationally](https://cansatcompetition.com/winners.html)
 - 💻 GitHub Repo: [RSX-CANSAT-2025](https://github.com/adam-kabbara/RSX-CANSAT-2025)
 
