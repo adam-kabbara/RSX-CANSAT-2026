@@ -1,7 +1,7 @@
 """
 Front end GUI elements for graph window
 """
-
+import folium
 from plotter.plotters import DynamicPlotter, DynamicPlotterMultiLine
 from . import cosmetics
 import os
@@ -48,6 +48,14 @@ class GraphWindow(QMainWindow):
         tray.setVisible(True)
         tray.show()
 
+        self.gps_map = folium.Map(
+            location=(43.664781, -79.398232),
+            control_scale=True,
+            zoom_start=18
+        )
+        self.gps_map_webview = self.gps_map.get_root().render()
+        self.map_widget = QWebEngineView()
+
         # CENTRAL WIDGET
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
@@ -73,43 +81,39 @@ class GraphWindow(QMainWindow):
             {"title": "Gyro RPY", "lines": 3, "x_unit": "s", "y_unit": "deg/s"},
             {"title": "Accel RPY ", "lines": 3, "x_unit": "s", "y_unit": "deg/s^2"},
             {"title": "GPS Map", "lines": 0, "x_unit": "s", "y_unit": "m"}
-        ]   
-        
+        ]
+
         self.graph_title_to_index = {
-            "Altitude" : 0,
-            "Voltage" : 1,
+            "Altitude": 0,
+            "Voltage": 1,
             "Current": 2,
-            "Gyro" : 3,
-            "Accel" : 4,
-            "GPS" : 5
+            "Gyro": 3,
+            "Accel": 4,
+            "GPS": 5
         }
 
         # Loop through each graph and create a plot using the plot classes
         for i, entry in enumerate(graph_info):
 
             if entry["lines"] == 1:
-                plotter = DynamicPlotter(title=entry["title"], 
+                plotter = DynamicPlotter(title=entry["title"],
                                          timewindow=self._graph_time_window,
                                          x_unit=entry["x_unit"],
                                          y_unit=entry["y_unit"])
             elif entry["lines"] != 1:
-                plotter = DynamicPlotterMultiLine(title=entry["title"], 
-                                                   timewindow=self._graph_time_window, 
-                                                   num_lines=entry["lines"],
-                                                   x_unit=entry["x_unit"],
-                                                   y_unit=entry["y_unit"])
-            if entry["lines"] != 0: 
+                plotter = DynamicPlotterMultiLine(title=entry["title"],
+                                                  timewindow=self._graph_time_window,
+                                                  num_lines=entry["lines"],
+                                                  x_unit=entry["x_unit"],
+                                                  y_unit=entry["y_unit"])
+            if entry["lines"] != 0:
                 self.plotters.append(plotter)
                 graph_grid_layout.addWidget(plotter.get_graph_object(), i // 2, i % 2)
-        
+
             if entry["title"] == "GPS Map":
-                map_widget = QWebEngineView()
-                # For an HTTP address use a plain QUrl (fromLocalFile is for filesystem paths)
-                map_widget.setUrl(QUrl("http://127.0.0.1:5000"))
-                # Keep a reference to the widget for later updates (and to avoid GC)
-                self.gps_map_webview = map_widget
-                graph_grid_layout.addWidget(map_widget, i // 2, i % 2)
-            
+                self.map_widget.setHtml(self.gps_map_webview)
+                graph_grid_layout.addWidget(self.map_widget, i // 2, i % 2)
+
         graph_parent_group.addWidget(grid_container, stretch=75)
         
         # Sidebar to show all current graph values
@@ -147,14 +151,13 @@ class GraphWindow(QMainWindow):
             "LAUNCH_PAD": 1,
             "ASCENT": 2,
             "APOGEE": 3,
-            "RELEASE": 4,
-            "DESCENT": 5,
-            "PROBE_RELEASE": 6,
-            "PAYLOAD_RELEASE": 7,
-            "LANDED": 8
+            "DESCENT": 4,
+            "PROBE_RELEASE": 5,
+            "PAYLOAD_RELEASE": 6,
+            "LANDED": 7
         }
-        self.state_labels = ("IDLE", "LAUNCH_PAD", "ASCENT", "APOGEE", "RELEASE", "DESCENT", "PROBE_RELEASE", "PAYLOAD_RELEASE", "LANDED")
-        self.state_labels_display = ("IDLE", "LAUNCH PAD", "ASCENT", "APOGEE", "RELEASE", "DESCENT", "PROBE REL",
+        self.state_labels = ("IDLE", "LAUNCH_PAD", "ASCENT", "APOGEE", "DESCENT", "PROBE_RELEASE", "PAYLOAD_RELEASE", "LANDED")
+        self.state_labels_display = ("IDLE", "LAUNCH PAD", "ASCENT", "APOGEE", "DESCENT", "PROBE REL",
                              "PAYLD REL", "LANDED")
         
         state_title = QLabel("PAYLOAD STATE")
@@ -224,7 +227,7 @@ class GraphWindow(QMainWindow):
             live_graph_values.addRow(field_label, data_label)
 
         self.set_port_text_closed()
-        
+
         form_group = QGroupBox()
         form_group.setLayout(live_graph_values)
 
@@ -254,7 +257,7 @@ class GraphWindow(QMainWindow):
 
     def set_port_text_closed(self):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Port")].setText(cosmetics.data_status_red("CLOSED"))
-        
+
     def set_port_text_open(self):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Port")].setText(cosmetics.data_status_green("OPEN"))
 
@@ -284,9 +287,10 @@ class GraphWindow(QMainWindow):
 
     def update_cal_status(self, str):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Calibration")].setText(cosmetics.data_status_blue(str))
-    
+
     def update_temp(self, val):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Temperature")].setText(cosmetics.data_status_blue(str(val)))
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Temperature")].setText(
+            cosmetics.data_status_blue(str(val)))
 
     def update_pressure(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(cosmetics.data_status_blue(str(val)))
@@ -296,33 +300,45 @@ class GraphWindow(QMainWindow):
         if state_str != self._current_state:
             if state_str in self.state_labels:
                 current_state_index = self.state_label_index.get(state_str)
-                _current_state_index = self.state_label_index.get(self._current_state)
+                _last_state_index = self.state_label_index.get(self._current_state)
+
                 if self._current_state != "Unknown":
                     # Populate a single stage
-                    if current_state_index - _current_state_index == 1:
-                        _old_item = QListWidgetItem(self.state_labels_display[_current_state_index])
-                        cosmetics.set_current_states(_old_item)
-                        self.previous_list.addItem(_old_item)
-                    else:
-                        start_idx = _current_state_index if _current_state_index is not None else -1
-                        for i in range(start_idx, current_state_index):
-                            # Populate skipped stages
-                            if i < 0: continue
-                            _skipped_item = QListWidgetItem(self.state_labels_display[i])
-                            if i == _current_state_index:
-                                cosmetics.set_current_states(_skipped_item)
-                            else:
-                                cosmetics.set_skipped_states(_skipped_item)
-                            self.previous_list.addItem(_skipped_item)
+                    if current_state_index > _last_state_index:
+                        for i in range(_last_state_index, current_state_index):
+                            _old_item = QListWidgetItem(self.state_labels_display[i])
+                            cosmetics.set_current_states(_old_item)
+                            self.previous_list.addItem(_old_item)
+
+                    # Special Case: Returning to DESCENT from a RELEASE state
+                    elif state_str == "DESCENT" and ("RELEASE" in self._current_state):
+                        _release_item = QListWidgetItem(self.state_labels_display[_last_state_index])
+                        cosmetics.set_current_states(_release_item)
+                        self.previous_list.addItem(_release_item)
+
                     self.previous_list.scrollToBottom()
-                self.next_list.clear()
-                for state in self.state_labels_display[current_state_index + 1:]:
-                    _pending_item_next = QListWidgetItem(state)
-                    cosmetics.set_next_states(_pending_item_next)
-                    self.next_list.addItem(_pending_item_next)
-                self.next_list.scrollToTop()
-            self._current_state = state_str
-            self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
+
+                    # Update Next list
+                    self.next_list.clear()
+                    # Only show states after the current index
+                    for i in range(current_state_index + 1, len(self.state_labels_display)):
+                        state_display_name = self.state_labels_display[i]
+                        # Check if this state is already in our history
+                        is_in_history = False
+                        for row in range(self.previous_list.count()):
+                            if self.previous_list.item(row).text() == state_display_name:
+                                is_in_history = True
+                                break
+
+                        if not is_in_history:
+                            _pending_item_next = QListWidgetItem(state_display_name)
+                            cosmetics.set_next_states(_pending_item_next)
+                            self.next_list.addItem(_pending_item_next)
+
+                    self.next_list.scrollToTop()
+
+                self._current_state = state_str
+                self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
 
     def reset_states(self):
         self._current_state = "Unknown"
@@ -346,7 +362,7 @@ class GraphWindow(QMainWindow):
 
     def update_sats(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Satellites")].setText(cosmetics.data_status_blue(str(val)))
-    
+
     def update_camera1_status(self, str):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Camera 1")].setText(cosmetics.data_status_blue(str))
 
@@ -354,17 +370,18 @@ class GraphWindow(QMainWindow):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Camera 2")].setText(cosmetics.data_status_blue(str))
 
     def update_gps_alt(self, val):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Altitude")].setText(cosmetics.data_status_blue(str(val)))
+        self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Altitude")].setText(
+            cosmetics.data_status_blue(str(val)))
 
     def update_gps_time(self, str):
         self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Time")].setText(cosmetics.data_status_blue(str))
-    
+
     def update_cmd_echo(self, str):
         self.sidebar_data_labels[self.sidebar_data_dict.get("CMD ECHO")].setText(cosmetics.data_status_blue(str))
 
     def update_alt_graph(self, data):
         self.plotters[self.graph_title_to_index.get("Altitude")].update_plot(data)
-    
+
     def update_volt_graph(self, data):
         self.plotters[self.graph_title_to_index.get("Voltage")].update_plot(data)
 
@@ -376,10 +393,21 @@ class GraphWindow(QMainWindow):
 
     def update_accel_graph(self, data):
         self.plotters[self.graph_title_to_index.get("Accel")].update_plot(data)
-    
-    def update_map_view(self, data):
-        self.plotters[self.graph_title_to_index.get("GPS")].update_plot(data)
 
+    def update_map_view(self):
+        """Re-renders the folium map and updates the webview."""
+        if hasattr(self, 'map_widget'):
+            new_html = self.gps_map._repr_html_()
+            self.map_widget.setHtml(new_html)
+
+    def add_map_element(self, element, refresh=True):
+        """
+        Allows other functions to add folium elements (Markers, PolyLines, etc.)
+        Example: window.add_map_element(folium.Marker([lat, lon]))
+        """
+        element.add_to(self.gps_map)
+        if refresh:
+            self.update_map_view()
 
     def closeEvent(self, event):
         app = QApplication.instance()

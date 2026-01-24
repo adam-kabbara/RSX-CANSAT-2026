@@ -15,6 +15,7 @@ class PayloadSim(QObject):
 
         # Simulation State
         self.mission_time = 0
+        self.launch_time = 0
         self.packet_count = 0
         self.mode = "F"  # F=Flight, S=Sim
         self.state = "IDLE"
@@ -34,9 +35,21 @@ class PayloadSim(QObject):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._generate_telemetry)
 
+        # milestones
+        self.milestones = {
+            "LAUNCH_PAD": None,
+            "ASCENT": None,
+            "APOGEE_TIME": None,
+            "APOGEE_ALTITUDE": 0.00,
+            "PROBE_RELEASE_TIME": None,
+            "PROBE_RELEASE_ALTITUDE": 0.00,
+            "PAYLOAD_RELEASE_TIME": None,
+            "DESCENT": None,
+            "LANDED": None,
+        }
     def open(self, mode):
         self._is_open = True
-        self.timer.start(1000)  # 1Hz
+        self.timer.start(500)  # 2Hz
         return True
 
     def close(self):
@@ -101,6 +114,7 @@ class PayloadSim(QObject):
             if val == "ON":
                 if self.calibrated or self.mode == "S":
                     self.transmitting = True
+                    self.launch_time = time.time()
                     self.state = "LAUNCH_PAD"
                     response = "$ MSG:STARTING TELEMETRY TRANSMISSION."
                 else:
@@ -146,6 +160,43 @@ class PayloadSim(QObject):
             self._buffer.append(response)
             self.readyRead.emit()
 
+    def _generate_state_update(self):
+        if self.state == "ASCENT":
+            self.altitude += 5.5
+            if self.altitude > 150: self.state = "APOGEE"
+            return
+        elif self.state == "APOGEE":
+            self.altitude -= 2.0
+            if self.altitude <= 150: self.state = "DESCENT"
+            self.milestones["APOGEE_TIME"] = self.mission_time
+            self.milestones["APOGEE_ALTITUDE"] = self.altitude
+            return
+        elif self.state == "DESCENT":
+            self.altitude -= 2.0
+            if self.altitude <= 0:
+                self.altitude = 0
+                self.state = "LANDED"
+                return
+            
+            # Check for Probe Release
+            if self.milestones["PROBE_RELEASE_TIME"] is None and time.time() - self.milestones["APOGEE_TIME"] > 2:
+                self.state = "PROBE_RELEASE"
+                self.milestones["PROBE_RELEASE_TIME"] = self.mission_time
+                self.milestones["PROBE_RELEASE_ALTITUDE"] = self.altitude
+            # Check for Payload Release
+            elif self.milestones["PAYLOAD_RELEASE_TIME"] is None and self.altitude <= self.milestones["APOGEE_ALTITUDE"] * 0.8:
+                self.state = "PAYLOAD_RELEASE"
+                self.milestones["PAYLOAD_RELEASE_TIME"] = self.mission_time
+            return
+        elif self.state == "PROBE_RELEASE" or self.state == "PAYLOAD_RELEASE":
+            # After one tick in release state, go back to DESCENT
+            self.state = "DESCENT"
+            self.altitude -= 2.0
+            return
+        elif self.state == "LAUNCH_PAD" and self.packet_count > 5:
+            self.state = "ASCENT"
+            return
+
     def _generate_telemetry(self):
         """Generates fake flight data"""
         if not self.transmitting:
@@ -154,24 +205,18 @@ class PayloadSim(QObject):
         self.packet_count += 1
         current_time = time.strftime("%H:%M:%S", time.gmtime())
 
-        # Simple Physics Simulation
-        if self.state == "ASCENT":
-            self.altitude += 5.5
-            if self.altitude > 150: self.state = "DESCENT"
-        elif self.state == "DESCENT":
-            self.altitude -= 2.0
-            if self.altitude <= 0:
-                self.altitude = 0
-                self.state = "LANDED"
-        elif self.state == "LAUNCH_PAD" and self.packet_count > 5:
-            self.state = "ASCENT"
+        self._generate_state_update()
 
+        self.mission_time = time.time() - self.launch_time
+        self.mission_time_utc = time.strftime("%H:%M:%S", time.gmtime(self.mission_time))
         # Format: TEAM_ID,TIME,PKT,MODE,STATE,ALT,TEMP,PRESS,VOLT,CURR,GYRO,ACCEL,GPS...
         # cam_int Removed
         telemetry = (
-            f"{self._team_id},{current_time},{self.packet_count},{self.mode},{self.state},"
+            f"{self._team_id},{self.mission_time_utc},{self.packet_count},{self.mode},{self.state},"
             f"{self.altitude:.1f},{self.temperature:.1f},{self.pressure:.2f},12.5,0.5,"
-            f"0,0,0,0,0,1,{current_time},100.0,43.66,-79.40,8,"
+            f"1,2,3,4,5,1,"
+            f"{current_time}," # GPS Time
+            f"{self.altitude:.1f},{43.664781+(43.662994-43.664781)/(self.packet_count/45)}, {-79.398232-(79.398232-79.391861)/(self.packet_count/45)},8," # GPS_ALTITUDE, GPS_LATITUDE, GPS_LONGITUDE, GPS_SATS
             f"{self.cmd_echo}"
         )
 

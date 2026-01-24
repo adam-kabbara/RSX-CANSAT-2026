@@ -112,7 +112,9 @@ class SerialManager(QObject):
     def send_data(self, msg):
         if self._active_serial.isOpen():
             try:
-                msg = msg + "\n"
+                msg = msg + "\r"
+                if self._active_serial is self._sim_driver:
+                    self.print_catch.emit(f"DEBUG: {msg}")
                 self._active_serial.write(msg.encode())
                 return 1
             except Exception as e:
