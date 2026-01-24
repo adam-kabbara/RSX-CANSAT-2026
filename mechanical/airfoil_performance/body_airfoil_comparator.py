@@ -79,7 +79,7 @@ def parse_xflr5_polar(filename):
 
 
 if __name__ == "__main__":
-    reynolds_numbers = [275000, 300000, 325000, 350000, 375000, 400000, 450000, 475000, 500000, 525000]
+    reynolds_numbers = [275000, 375000, 475000, 550000]
     for re in reynolds_numbers:
         speed = re * MU_AIR / CHAR_LEN
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
             ld_integrals[airfoil_name] = 0
             for cl, cd in zip(cl_values, cd_values):
                 ld_values.append(cl/cd if cd != 0 else float('inf'))
-                ld_integrals[airfoil_name] += (cl/cd if cd != 0 else 0)
+                ld_integrals[airfoil_name] += cl
 
         top_10_airfoils = sorted(ld_integrals.items(), key=lambda x: x[1], reverse=True)[:10]
         for airfoil_name, _ in top_10_airfoils:
@@ -116,9 +116,9 @@ if __name__ == "__main__":
 
             #plt.plot(data["columns"]["alpha"], ld_values, label=f"{airfoil_name}")
             plt.plot(data["columns"]["alpha"], lift_values, label=f"{airfoil_name}")
-        plt.title(f"Lift (N) vs AoA at Re {re}")
+        plt.title(f"L/D (N/N) vs AoA at Re {re} (Speed {round(speed, 2)} m/s)")
         plt.xlabel("Angle of Attack (degrees)")
-        plt.ylabel("Lift (N)")
+        plt.ylabel("Lift (N/N)")
         plt.legend([airfoil_name for airfoil_name, _ in top_10_airfoils])
         plt.show()
             

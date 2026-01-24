@@ -142,5 +142,7 @@ if __name__ == "__main__":
     dat_files = os.listdir("./scraped_dat")
     for dat_file in dat_files:
     #dat_file = "naca644421-il.dat"
+        if "griffith30symsuction" in dat_file:
+            continue
         print(f"Running XFOIL for {dat_file}")
         run_xfoil(dat_file, re_min=275000, re_max=575000, re_step=25000, aoa_min=0, aoa_max=20, aoa_step=1)
