@@ -561,3 +561,61 @@ bool SensorManager::EEPROM_addLogLine(char *buffer)
 	
 	return true;
 }
+
+
+void SensorManager::EEPROM_dumpLog(SerialManager &serial)
+{
+	unsigned int log_size = getBlockSize(BLOCK_LOG);
+	
+	if(log_size == 0)
+	{
+		serial.sendInfoMsg("No log data in EEPROM.");
+		return;
+	}
+	
+	char line_buffer[DATA_BUFF_SIZE];
+	unsigned int pos = 0;
+	unsigned int line_pos = 0;
+	unsigned char byte_read;
+	
+	
+	while(pos < log_size)
+	{
+		// Read one byte at a time
+		if(!readBytes(LOG_DATA_START + pos, &byte_read, 1))
+		{
+			serial.sendErrorMsg("EEPROM read error during dump.");
+			return;
+		}
+		
+		if(byte_read == LOG_LINE_TERMINATOR)
+		{
+			// we need to discard the log line terminator
+
+			// End of line, send it
+			line_buffer[line_pos] = '\0';
+			serial.sendTelemetry(line_buffer);
+			
+			line_pos = 0;
+			HAL_Delay(10);  // delay of 10 ms between lines
+		}
+		else
+		{
+			// Add to line buffer
+			line_buffer[line_pos++] = byte_read;
+			
+			// If buffer is full, send it as a chunk and continue
+			if(line_pos >= DATA_BUFF_SIZE - 1)
+			{
+				line_buffer[line_pos] = '\0';
+				serial.sendTelemetry(line_buffer);
+				line_pos = 0;
+				// do we want delay here? reading same line
+			}
+		}
+		
+		pos++;
+	}
+	
+	serial.sendInfoMsg("EEPROM dump complete.");
+}
