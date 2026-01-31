@@ -1,6 +1,6 @@
 import dash
 from dash import dcc, html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
 import logging
 import math
@@ -9,6 +9,11 @@ import math
 gps_latitudes = []
 gps_longitudes = []
 web_port = 18050
+
+# Track the current view mode: 'ALL' or 'TAIL'
+# Default to 'ALL' (Show entire mission)
+current_view_mode = 'ALL'
+
 
 def add_new_point(lat, lng):
     """Called by process.py to push new data."""
@@ -32,17 +37,12 @@ def calculate_zoom(lats, lons):
     center = (center_lat, center_lon)
 
     # Calculate Zoom
-    # Get the larger span (lat or lon)
-    lat_diff = max(abs(max_lat - min_lat), 0.0001)  # Avoid 0 division
+    lat_diff = max(abs(max_lat - min_lat), 0.0001)
     lon_diff = max(abs(max_lon - min_lon), 0.0001)
     max_diff = max(lat_diff, lon_diff)
 
-    # Mapbox Zoom Formula: zoom = log2(360 / diff) - padding
-    # 360 degrees is zoom 0.
-    # We subtract 1.5 for padding so points aren't on the very edge.
+    # Mapbox Zoom Formula
     zoom = math.log2(360 / max_diff) - 1.5
-
-    # Clamp zoom to reasonable limits (CanSat missions usually need 12-19)
     zoom = max(2, min(zoom, 18))
 
     return zoom, center
@@ -51,12 +51,39 @@ def calculate_zoom(lats, lons):
 # --- Dash App Setup ---
 app = dash.Dash(__name__)
 
-# 1. Silence the 'werkzeug' logger to hide request logs (e.g., "GET / ... 200")
+# Silence 'werkzeug' logger
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
+# Define shared button style for consistency
+BUTTON_STYLE = {
+    'padding': '4px 8px',  # Smaller padding
+    'fontSize': '12px',  # Smaller font
+    'fontWeight': 'bold',
+    'backgroundColor': 'white',
+    'border': '1px solid #ccc',
+    'cursor': 'pointer'
+}
+
 app.layout = html.Div([
-    dcc.Graph(id='live-map', style={'height': '100vh', 'width': '100%'}),
+    dcc.Graph(
+        id='live-map',
+        style={'height': '100vh', 'width': '100%'},
+        # config scrollZoom allows user interaction, but our callback will snap it back
+        config={'scrollZoom': True}
+    ),
+
+    # Control Buttons Container
+    html.Div([
+        html.Button('Show All', id='btn-show-all', n_clicks=0, style={
+            **BUTTON_STYLE,
+            'marginRight': '5px'
+        }),
+        html.Button('Trace Last 3', id='btn-follow-tail', n_clicks=0, style={
+            **BUTTON_STYLE
+        }),
+    ], style={'position': 'absolute', 'top': '10px', 'left': '10px', 'zIndex': '1000'}),
+
     dcc.Interval(
         id='interval-component',
         interval=1000,  # Update every 1000ms (1 second)
@@ -65,19 +92,60 @@ app.layout = html.Div([
 ])
 
 
-@app.callback(Output('live-map', 'figure'),
-              [Input('interval-component', 'n_intervals')])
-def update_graph_live(n):
-    # 1. Calculate dynamic zoom and center based on ALL points
-    zoom_level, center_coords = calculate_zoom(gps_latitudes, gps_longitudes)
+@app.callback(
+    [Output('live-map', 'figure'),
+     Output('btn-show-all', 'style'),
+     Output('btn-follow-tail', 'style')],
+    [Input('interval-component', 'n_intervals'),
+     Input('btn-show-all', 'n_clicks'),
+     Input('btn-follow-tail', 'n_clicks')],
+    [State('btn-show-all', 'style'),
+     State('btn-follow-tail', 'style')]
+)
+def update_graph_live(n, btn_all_clicks, btn_tail_clicks, style_all, style_tail):
+    global current_view_mode
 
-    # 2. Create the Map Figure
+    # 1. Determine Trigger & Update Mode
+    ctx = dash.callback_context
+    if ctx.triggered:
+        prop_id = ctx.triggered[0]['prop_id']
+
+        if 'btn-show-all' in prop_id:
+            current_view_mode = 'ALL'
+        elif 'btn-follow-tail' in prop_id:
+            current_view_mode = 'TAIL'
+
+    # 2. Prepare Data for Zoom Calculation
+    target_lats = []
+    target_lons = []
+
+    if current_view_mode == 'TAIL':
+        # Slice the last 3 points
+        if len(gps_latitudes) > 0:
+            target_lats = gps_latitudes[-3:]
+            target_lons = gps_longitudes[-3:]
+    else:
+        # Default/ALL uses all points
+        target_lats = gps_latitudes
+        target_lons = gps_longitudes
+
+    # 3. Calculate View (Zoom & Center)
+    zoom_level, center_coords = calculate_zoom(target_lats, target_lons)
+
+    # 4. Build Mapbox Config
+    mapbox_config = dict(
+        style="open-street-map",
+        center=dict(lat=center_coords[0], lon=center_coords[1]),
+        zoom=zoom_level
+    )
+
+    # 5. Create Figure
     fig = go.Figure(go.Scattermapbox(
         lat=gps_latitudes,
         lon=gps_longitudes,
-        mode='markers+lines',  # Lines connect the points
+        mode='markers+lines',  # <--- ENSURES POINTS ARE CONNECTED
         marker=go.scattermapbox.Marker(
-            size=10,
+            size=6,  # <--- SMALLER POINT SIZE (was 10)
             color='red',
             opacity=0.8
         ),
@@ -85,27 +153,31 @@ def update_graph_live(n):
         text=[f"Pt {i}" for i in range(len(gps_latitudes))],
     ))
 
-    # 3. Apply the calculated View
     fig.update_layout(
         margin={'l': 0, 't': 0, 'b': 0, 'r': 0},
-        mapbox=dict(
-            style="open-street-map",
-            center=dict(lat=center_coords[0], lon=center_coords[1]),
-            zoom=zoom_level  # Apply the calculated zoom
-        ),
+        mapbox=mapbox_config,
         showlegend=False,
-        # Setting uirevision to 'n' ensures the zoom updates automatically
-        # when n_intervals ticks up.
-        uirevision=n
+        uirevision=n  # Force update every tick
     )
 
-    return fig
+    # 6. Update Button Styles
+    base_style_all = BUTTON_STYLE.copy()
+    base_style_all['marginRight'] = '5px'
+
+    base_style_tail = BUTTON_STYLE.copy()
+
+    active_style = {'backgroundColor': '#90EE90', 'border': '2px solid green'}
+
+    if current_view_mode == 'ALL':
+        base_style_all.update(active_style)
+    elif current_view_mode == 'TAIL':
+        base_style_tail.update(active_style)
+
+    return fig, base_style_all, base_style_tail
 
 
 def run_dash_server():
     try:
-        # 2. Pass log_startup=False to hide the "Dash is running on..." banner
-        # Note: This requires Werkzeug 2.1+ (standard in modern installs)
         app.run(
             debug=False,
             use_reloader=False,
@@ -113,7 +185,6 @@ def run_dash_server():
             log_startup=False
         )
     except TypeError:
-        # Fallback for older versions that don't support log_startup
         app.run(debug=False, use_reloader=False, port=web_port)
     except Exception as e:
         print(f"Dash Server Error: {e}")
