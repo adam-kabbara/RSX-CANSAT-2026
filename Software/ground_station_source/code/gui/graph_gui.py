@@ -287,10 +287,11 @@ class GraphWindow(QMainWindow):
 
     def update_temp(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Temperature")].setText(
-            cosmetics.data_status_blue(str(val)))
+            cosmetics.data_status_blue(str(val)) + " °C")
 
     def update_pressure(self, val):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(cosmetics.data_status_blue(str(val)))
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(
+            cosmetics.data_status_blue(str(val)) + " kPa")
 
     # State updates
     def update_state(self, state_str):
@@ -368,7 +369,7 @@ class GraphWindow(QMainWindow):
 
     def update_gps_alt(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Altitude")].setText(
-            cosmetics.data_status_blue(str(val)))
+            cosmetics.data_status_blue(str(val)) + " m")
 
     def update_gps_time(self, str):
         self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Time")].setText(cosmetics.data_status_blue(str))
