@@ -1,9 +1,9 @@
 """
 Front end GUI elements for graph window
 """
-import folium
+import threading
 from plotter.plotters import DynamicPlotter, DynamicPlotterMultiLine
-from . import cosmetics
+from . import cosmetics, dash_map
 import os
 from PyQt6.QtCore import Qt, QUrl
 from PyQt6.QtGui import QIcon
@@ -48,13 +48,11 @@ class GraphWindow(QMainWindow):
         tray.setVisible(True)
         tray.show()
 
-        self.gps_map = folium.Map(
-            location=(43.664781, -79.398232),
-            control_scale=True,
-            zoom_start=18
-        )
-        self.gps_map_webview = self.gps_map.get_root().render()
+        self.dash_thread = threading.Thread(target=dash_map.run_dash_server, daemon=True)
+        self.dash_thread.start()
+
         self.map_widget = QWebEngineView()
+        self.map_widget.setUrl(QUrl(f"http://127.0.0.1:{dash_map.web_port}"))
 
         # CENTRAL WIDGET
         self.central_widget = QWidget(self)
@@ -111,7 +109,6 @@ class GraphWindow(QMainWindow):
                 graph_grid_layout.addWidget(plotter.get_graph_object(), i // 2, i % 2)
 
             if entry["title"] == "GPS Map":
-                self.map_widget.setHtml(self.gps_map_webview)
                 graph_grid_layout.addWidget(self.map_widget, i // 2, i % 2)
 
         graph_parent_group.addWidget(grid_container, stretch=75)
@@ -394,20 +391,6 @@ class GraphWindow(QMainWindow):
     def update_accel_graph(self, data):
         self.plotters[self.graph_title_to_index.get("Accel")].update_plot(data)
 
-    def update_map_view(self):
-        """Re-renders the folium map and updates the webview."""
-        if hasattr(self, 'map_widget'):
-            new_html = self.gps_map._repr_html_()
-            self.map_widget.setHtml(new_html)
-
-    def add_map_element(self, element, refresh=True):
-        """
-        Allows other functions to add folium elements (Markers, PolyLines, etc.)
-        Example: window.add_map_element(folium.Marker([lat, lon]))
-        """
-        element.add_to(self.gps_map)
-        if refresh:
-            self.update_map_view()
 
     def closeEvent(self, event):
         app = QApplication.instance()
