@@ -60,6 +60,10 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 volatile uint8_t send_flag = 0;
 volatile uint8_t pvd_flag = 0;
+uint8_t rx_byte;
+volatile char rx_buff[128];
+volatile uint8_t rx_idx = 0;
+volatile uint8_t cmd_ready = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -112,6 +116,8 @@ int main(void)
   MX_TIM1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
 
   /* USER CODE END 2 */
 
@@ -255,7 +261,7 @@ static void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
@@ -265,7 +271,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   hspi1.Init.CRCPolynomial = 7;
   hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+  hspi1.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
   {
     Error_Handler();
@@ -444,6 +450,29 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 void HAL_PWR_PVDCallback(void)
 {
   pvd_flag = 1;
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
+{
+	if(huart->Instance == USART1 && !cmd_ready)
+	{
+		if(rx_byte == '\r')
+		{
+			rx_buff[rx_idx] = '\0';
+			cmd_ready = 1;
+			rx_idx = 0;
+		}
+		else
+		{
+			rx_buff[rx_idx++] = rx_byte;
+			if(rx_idx > sizeof(rx_buff))
+			{
+				rx_idx = 0;
+			}
+		}
+
+		HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
+	}
 }
 /* USER CODE END 4 */
 

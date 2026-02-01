@@ -38,7 +38,7 @@ bool MissionManager::isAltCalibrated()
 
 void MissionManager::setAltCalibration(float alt)
 {
-    ALT_CAL_CHK = 1;
+    ALT_CAL_CHK = true;
     launch_altitude = alt;
 }
 
@@ -49,7 +49,7 @@ float MissionManager::getLaunchAlt()
 
 void MissionManager::setAltCalOff()
 {
-    ALT_CAL_CHK = 0;
+    ALT_CAL_CHK = false;
 }
 
 void MissionManager::setPacketCount(int count)
@@ -99,7 +99,7 @@ int MissionManager::getSimpData()
 
 void MissionManager::setLastCommand(char *cmd)
 {
-    last_command = cmd;
+	memcpy(last_command, (const char*)cmd, CMD_BUFF_SIZE);
 }
 
 char* MissionManager::getLastCommand()

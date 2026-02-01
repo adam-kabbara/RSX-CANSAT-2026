@@ -10,9 +10,13 @@ extern "C" volatile uint8_t send_flag;
 extern "C" volatile uint8_t pvd_flag;
 extern "C" UART_HandleTypeDef huart1;
 extern "C" TIM_HandleTypeDef htim1;
+extern "C" SPI_HandleTypeDef hspi1;
+extern "C" volatile char rx_buff[128];
+extern "C" volatile uint8_t cmd_ready;
 
 extern "C" void main_cpp()
 {
+
     SerialManager serial(huart1);
 
     MissionManager mission_mgr;
@@ -67,24 +71,28 @@ extern "C" void main_cpp()
     {
         while(mission_mgr.getOpState() == IDLE)
         {
-            if(serial.get_data(cmd_buff))
+            if(cmd_ready)
             {
+            	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
+            	cmd_ready = 0;
+
                 if(cmd_mgr.processCommand(cmd_buff, serial, mission_mgr, sensors))
                 {
                     mission_mgr.setLastCommand(cmd_buff);
                 }
+
             }
 
+            /*
             if(pvd_flag == 1)
             {
                 serial.sendErrorMsg("WARNING: POWER VOLTAGE DETECTOR TRIGGERED");
                 pvd_flag = 0;
             }
+            */
             
             HAL_Delay(100);
         }
-
-        serial.sendInfoMsg("MISSION STARTING!");
 
         if(mission_mgr.getOpMode() == OPMODE_SIM)
         {
@@ -97,23 +105,31 @@ extern "C" void main_cpp()
             }
         }
 
+        serial.sendInfoMsg("MISSION STARTING!");
+
         HAL_TIM_Base_Start_IT(&htim1);
 
         while(mission_mgr.getOpState() != IDLE)
         {
-            if(serial.get_data(cmd_buff))
+            if(cmd_ready)
             {
+            	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
+            					cmd_ready = 0;
+
                 if(cmd_mgr.processCommand(cmd_buff, serial, mission_mgr, sensors))
                 {
                     mission_mgr.setLastCommand(cmd_buff);
                 }
             }
 
+            // Nice to have, but the overhead might be not worth it.
+            /*
             if(pvd_flag == 1)
             {
                 serial.sendErrorMsg("WARNING: POWER VOLTAGE DETECTOR TRIGGERED");
                 pvd_flag = 0;
             }
+            */
 
             if(send_flag == 0)
             {
