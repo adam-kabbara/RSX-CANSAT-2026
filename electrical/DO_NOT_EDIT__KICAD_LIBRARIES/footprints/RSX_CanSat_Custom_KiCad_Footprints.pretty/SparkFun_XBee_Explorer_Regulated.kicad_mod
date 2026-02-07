@@ -1,7 +1,7 @@
 (footprint "SparkFun_XBee_Explorer_Regulated"
-	(version 20240108)
+	(version 20241229)
 	(generator "pcbnew")
-	(generator_version "8.0")
+	(generator_version "9.0")
 	(layer "F.Cu")
 	(property "Reference" "REF**"
 		(at 0 -0.5 0)
@@ -20,19 +20,6 @@
 		(unlocked yes)
 		(layer "F.Fab")
 		(uuid "31fec6ce-0a6a-4aaf-a01c-319cd7096bb3")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
-	(property "Footprint" ""
-		(at 0 0 0)
-		(unlocked yes)
-		(layer "F.Fab")
-		(hide yes)
-		(uuid "77f901f4-c520-4931-a592-5eb7718d505b")
 		(effects
 			(font
 				(size 1 1)
@@ -67,6 +54,17 @@
 		)
 	)
 	(attr through_hole)
+	(fp_rect
+		(start 0 0)
+		(end 28.4 34.7)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "f03b5b57-fbe5-4bb1-9d55-5c77de2f6f96")
+	)
 	(fp_circle
 		(center 3 3)
 		(end 5.1 3)
@@ -74,7 +72,7 @@
 			(width 0.75)
 			(type default)
 		)
-		(fill none)
+		(fill no)
 		(layer "F.Paste")
 		(uuid "e59be310-58d5-49c9-a1d7-6a0b58dd69e0")
 	)
@@ -85,7 +83,7 @@
 			(width 0.75)
 			(type default)
 		)
-		(fill none)
+		(fill no)
 		(layer "F.Paste")
 		(uuid "1dd95da4-b8a0-432b-a545-f3184ace58ce")
 	)
@@ -96,7 +94,7 @@
 			(width 0.75)
 			(type default)
 		)
-		(fill none)
+		(fill no)
 		(layer "F.Paste")
 		(uuid "a94491ff-0cbe-4ece-a170-709e0a3dc80f")
 	)
@@ -107,20 +105,9 @@
 			(width 0.75)
 			(type default)
 		)
-		(fill none)
+		(fill no)
 		(layer "F.Paste")
 		(uuid "c63248ad-61fb-416f-a8be-9cb83e2d32ab")
-	)
-	(fp_rect
-		(start 0 0)
-		(end 28.4 34.7)
-		(stroke
-			(width 0.1)
-			(type default)
-		)
-		(fill none)
-		(layer "F.SilkS")
-		(uuid "f03b5b57-fbe5-4bb1-9d55-5c77de2f6f96")
 	)
 	(fp_rect
 		(start -0.25 -0.25)
@@ -129,7 +116,7 @@
 			(width 0.05)
 			(type default)
 		)
-		(fill none)
+		(fill no)
 		(layer "F.CrtYd")
 		(uuid "d53ac193-9ae7-4047-9751-7dd739152937")
 	)
@@ -348,5 +335,160 @@
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
 		(uuid "f4f57bf3-2904-4e53-ad44-7fb288526a41")
+	)
+	(embedded_fonts no)
+	(model "${CUSTOM_3D_MODELS}/SparkFun_XBee_Explorer_Regulated.step"
+		(offset
+			(xyz 14.2 -17.35 3)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${KICAD8_3DMODEL_DIR}/Connector_PinSocket_2.00mm.3dshapes/PinSocket_1x10_P2.00mm_Vertical.wrl"
+		(offset
+			(xyz 3.2 -7.5 4.54)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${KICAD8_3DMODEL_DIR}/Connector_PinSocket_2.00mm.3dshapes/PinSocket_1x10_P2.00mm_Vertical.wrl"
+		(offset
+			(xyz 25.2 -7.5 4.54)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/XBPro-whip.STEP"
+		(offset
+			(xyz 52.5 -11.2 50.39)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 90 -0 -0)
+		)
+	)
+	(model "${KICAD8_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x11_P2.54mm_Vertical.step"
+		(offset
+			(xyz 20.55 -4.2 2.99)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 180 -0)
+		)
+	)
+	(model "${KICAD8_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x11_P2.54mm_Vertical.step"
+		(offset
+			(xyz 7.85 -4.2 2.99)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 180 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+		(offset
+			(xyz 3 -3 -1.4)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+		(offset
+			(xyz 3 -30.8 -1.4)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+		(offset
+			(xyz 25.4 -3 -1.4)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+		(offset
+			(xyz 25.4 -30.8 -1.4)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/92000A013_Passivated 18-8 Stainless Steel Pan Head Phillips Screws.STEP"
+		(offset
+			(xyz 3 -3 2.35)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/92000A013_Passivated 18-8 Stainless Steel Pan Head Phillips Screws.STEP"
+		(offset
+			(xyz 3 -30.8 2.35)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/92000A013_Passivated 18-8 Stainless Steel Pan Head Phillips Screws.STEP"
+		(offset
+			(xyz 25.4 -3 2.35)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/92000A013_Passivated 18-8 Stainless Steel Pan Head Phillips Screws.STEP"
+		(offset
+			(xyz 25.4 -30.8 2.35)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
 	)
 )
