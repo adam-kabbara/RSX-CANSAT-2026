@@ -22,7 +22,7 @@ This repository contains all files created by the Aerial Team of Robotics for Sp
 - 📅 June 4-7, 2026
 - 📍 Monterey, Virginia, United States
 - 🧑‍🚀 [American Astronautical Society (AAS)](https://cansatcompetition.com/winners.html)
-- 📃 [Mission Document](CanSat_Mission_Guide_2026e.pdf)
+- 📃 [Mission Document](CanSat_Mission_Guide_2026g.pdf)
 
 **RSX CanSat 2T4-2T5:**
 - 🏆 2025 Competiton Results: [5th Place Internationally](https://cansatcompetition.com/winners.html)

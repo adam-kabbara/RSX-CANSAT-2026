@@ -1,6 +1,6 @@
-../TOF/App/app_tof.c:52:6:MX_TOF_Init	8	static
-../TOF/App/app_tof.c:74:6:MX_TOF_Process	8	static
-../TOF/App/app_tof.c:87:13:MX_VL53L3CX_SimpleRanging_Init	24	static
-../TOF/App/app_tof.c:113:13:MX_VL53L3CX_SimpleRanging_Process	16	static
-../TOF/App/app_tof.c:145:13:print_result	40	static
-../TOF/App/app_tof.c:176:16:decimal_part	24	static
+../TOF/App/app_tof.c:53:6:MX_TOF_Init	8	static
+../TOF/App/app_tof.c:75:6:MX_TOF_Process	8	static
+../TOF/App/app_tof.c:88:13:MX_VL53L3CX_SimpleRanging_Init	32	static
+../TOF/App/app_tof.c:131:13:MX_VL53L3CX_SimpleRanging_Process	16	static
+../TOF/App/app_tof.c:163:13:print_result	40	static
+../TOF/App/app_tof.c:194:16:decimal_part	24	static

@@ -1,0 +1,16 @@
+../TOF/Target/custom_ranging_sensor.c:38:9:CUSTOM_RANGING_SENSOR_Init	4
+../TOF/Target/custom_ranging_sensor.c:78:9:CUSTOM_RANGING_SENSOR_DeInit	3
+../TOF/Target/custom_ranging_sensor.c:104:9:CUSTOM_RANGING_SENSOR_ReadID	3
+../TOF/Target/custom_ranging_sensor.c:131:9:CUSTOM_RANGING_SENSOR_GetCapabilities	3
+../TOF/Target/custom_ranging_sensor.c:157:9:CUSTOM_RANGING_SENSOR_ConfigProfile	3
+../TOF/Target/custom_ranging_sensor.c:184:9:CUSTOM_RANGING_SENSOR_ConfigROI	4
+../TOF/Target/custom_ranging_sensor.c:215:9:CUSTOM_RANGING_SENSOR_ConfigIT	3
+../TOF/Target/custom_ranging_sensor.c:241:9:CUSTOM_RANGING_SENSOR_GetDistance	3
+../TOF/Target/custom_ranging_sensor.c:267:9:CUSTOM_RANGING_SENSOR_Start	3
+../TOF/Target/custom_ranging_sensor.c:292:9:CUSTOM_RANGING_SENSOR_Stop	3
+../TOF/Target/custom_ranging_sensor.c:318:9:CUSTOM_RANGING_SENSOR_SetAddress	3
+../TOF/Target/custom_ranging_sensor.c:344:9:CUSTOM_RANGING_SENSOR_GetAddress	3
+../TOF/Target/custom_ranging_sensor.c:370:9:CUSTOM_RANGING_SENSOR_SetPowerMode	3
+../TOF/Target/custom_ranging_sensor.c:396:9:CUSTOM_RANGING_SENSOR_GetPowerMode	3
+../TOF/Target/custom_ranging_sensor.c:422:16:VL53L3CX_Probe	7
+../TOF/Target/custom_ranging_sensor.c:482:13:reset_device	1

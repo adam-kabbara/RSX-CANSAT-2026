@@ -1,3 +1,13 @@
+BMP390 temp sensor -> arduino Uno
+I2C wiring
+
+Vin -> power supply (3/5v)
+GND -> common power/data ground
+SCK/SCL -> SCL
+SDI/SDA -> SDA
+
+---------------------------------------------------
+
 Connect Vin to the power supply, 3-5V is fine. (Red
 wire on STEMMA QT version.) Use the same
 voltage that the microcontroller logic is based off

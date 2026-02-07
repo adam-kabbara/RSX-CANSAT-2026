@@ -291,17 +291,25 @@ int32_t  BSP_I2C1_ReadReg16(uint16_t DevAddr, uint16_t Reg, uint8_t *pData, uint
   */
 int32_t BSP_I2C1_Send(uint16_t DevAddr, uint8_t *pData, uint16_t Length) {
   int32_t ret = BSP_ERROR_NONE;
+  uint8_t i = 0;
 
-  if (HAL_I2C_Master_Transmit(&hi2c1, DevAddr, pData, Length, BUS_I2C1_POLL_TIMEOUT) != HAL_OK)
+  // Retry up to 3 times
+  for (i = 0; i < 3; i++)
   {
-    if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF)
+    if (HAL_I2C_Master_Transmit(&hi2c1, DevAddr, pData, Length, BUS_I2C1_POLL_TIMEOUT) == HAL_OK)
     {
-      ret = BSP_ERROR_BUS_ACKNOWLEDGE_FAILURE;
+      return BSP_ERROR_NONE;
     }
-    else
-    {
-      ret =  BSP_ERROR_PERIPH_FAILURE;
-    }
+    HAL_Delay(1);
+  }
+
+  if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF)
+  {
+    ret = BSP_ERROR_BUS_ACKNOWLEDGE_FAILURE;
+  }
+  else
+  {
+    ret =  BSP_ERROR_PERIPH_FAILURE;
   }
 
   return ret;
@@ -316,17 +324,25 @@ int32_t BSP_I2C1_Send(uint16_t DevAddr, uint8_t *pData, uint16_t Length) {
   */
 int32_t BSP_I2C1_Recv(uint16_t DevAddr, uint8_t *pData, uint16_t Length) {
   int32_t ret = BSP_ERROR_NONE;
+  uint8_t i = 0;
 
-  if (HAL_I2C_Master_Receive(&hi2c1, DevAddr, pData, Length, BUS_I2C1_POLL_TIMEOUT) != HAL_OK)
+  // Retry up to 3 times
+  for (i = 0; i < 3; i++)
   {
-    if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF)
+    if (HAL_I2C_Master_Receive(&hi2c1, DevAddr, pData, Length, BUS_I2C1_POLL_TIMEOUT) == HAL_OK)
     {
-      ret = BSP_ERROR_BUS_ACKNOWLEDGE_FAILURE;
+      return BSP_ERROR_NONE;
     }
-    else
-    {
-      ret =  BSP_ERROR_PERIPH_FAILURE;
-    }
+    HAL_Delay(1);
+  }
+
+  if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF)
+  {
+    ret = BSP_ERROR_BUS_ACKNOWLEDGE_FAILURE;
+  }
+  else
+  {
+    ret =  BSP_ERROR_PERIPH_FAILURE;
   }
   return ret;
 }
@@ -400,7 +416,7 @@ __weak HAL_StatusTypeDef MX_I2C1_Init(I2C_HandleTypeDef* hi2c)
   HAL_StatusTypeDef ret = HAL_OK;
 
   hi2c->Instance = I2C1;
-  hi2c->Init.Timing = 0x40621236;
+  hi2c->Init.Timing = 0x10802D9B; // 100kHz at 170MHz PCLK (Fast Mode Plus capable I2C kernel clock)
   hi2c->Init.OwnAddress1 = 0;
   hi2c->Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c->Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -449,14 +465,14 @@ static void I2C1_MspInit(I2C_HandleTypeDef* i2cHandle)
     GPIO_InitStruct.Pin = BUS_I2C1_SCL_GPIO_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH; // Increased speed
     GPIO_InitStruct.Alternate = BUS_I2C1_SCL_GPIO_AF;
     HAL_GPIO_Init(BUS_I2C1_SCL_GPIO_PORT, &GPIO_InitStruct);
 
     GPIO_InitStruct.Pin = BUS_I2C1_SDA_GPIO_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH; // Increased speed
     GPIO_InitStruct.Alternate = BUS_I2C1_SDA_GPIO_AF;
     HAL_GPIO_Init(BUS_I2C1_SDA_GPIO_PORT, &GPIO_InitStruct);
 
