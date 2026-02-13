@@ -15,8 +15,13 @@ This repository contains all files created by the Aerial Team of Robotics for Sp
     <tr><td align="center">Arthur Goetzke-Coburn</td><td align="center">Mechanical Team Lead</td></tr>
     <tr><td align="center">Daniel Yu</td><td align="center">Electrical Team Lead</td></tr>
     <tr><td align="center">Luke Watson</td><td align="center">Software Team Lead</td></tr>
+    <tr><td align="center">Angelique Liao</td><td align="center">Mechanical Team Member</td></tr>
+    <tr><td align="center">Yulin Lin</td><td align="center">Electrical Team Member</td></tr>
+    <tr><td align="center">Jingshu Zhu</td><td align="center">Software Team Member</td></tr>
+    <tr><td align="center">Vincent Jia</td><td align="center">Mechanical Team Member</td></tr>
+    <tr><td align="center">Wareesha Qureshi</td><td align="center">Electrical Team Member</td></tr>
 </table>
-<br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 **CanSat Competition:**
 - 📅 June 4-7, 2026
