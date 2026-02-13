@@ -4268,7 +4268,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Footprint" "LT8610ABEMSE-5_TRPBF:MSOP-16_MSE"
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:MSOP-16_MSE"
 			(at 0 0 0)
 			(effects
 				(font
@@ -4699,7 +4699,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Footprint" "LTC3114IFE-1_TRPBF:SOP65P640X110-17N"
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:SOP65P640X110-17N"
 			(at 0 0 0)
 			(effects
 				(font

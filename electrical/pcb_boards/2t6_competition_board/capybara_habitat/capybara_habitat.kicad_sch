@@ -823,7 +823,7 @@
 	)
 	(symbol
 		(lib_id "RSX_CanSat_Custom_KiCad_Symbols:LT8610ABEMSE-5_TRPBF")
-		(at 68.58 74.93 0)
+		(at 96.52 88.9 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -832,7 +832,7 @@
 		(fields_autoplaced yes)
 		(uuid "63acaf3d-f689-4b11-8ff9-ed286f8d7f4c")
 		(property "Reference" "U1"
-			(at 101.6 64.77 0)
+			(at 129.54 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -840,7 +840,7 @@
 			)
 		)
 		(property "Value" "LT8610ABEMSE-5_TRPBF"
-			(at 101.6 67.31 0)
+			(at 129.54 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -848,7 +848,7 @@
 			)
 		)
 		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:MSOP-16_MSE"
-			(at 68.58 74.93 0)
+			(at 96.52 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -858,7 +858,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 68.58 74.93 0)
+			(at 96.52 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -867,7 +867,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 68.58 74.93 0)
+			(at 96.52 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -876,7 +876,7 @@
 			)
 		)
 		(property "VENDOR" "Linear Technology"
-			(at 68.58 74.93 0)
+			(at 96.52 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -886,7 +886,7 @@
 			)
 		)
 		(property "MANUFACTURER_PART_NUMBER" "lt8610emse#pbf"
-			(at 68.58 74.93 0)
+			(at 96.52 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -947,7 +947,7 @@
 			(uuid "0a398269-bfd1-496e-8bd4-cc2616750561")
 		)
 		(instances
-			(project ""
+			(project "capybara_habitat"
 				(path "/dd199192-57fc-46f0-a768-68f911eefb82"
 					(reference "U1")
 					(unit 1)
@@ -957,7 +957,7 @@
 	)
 	(symbol
 		(lib_id "RSX_CanSat_Custom_KiCad_Symbols:LTC3114IFE-1_TRPBF")
-		(at 165.1 109.22 0)
+		(at 181.61 97.79 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -966,7 +966,7 @@
 		(fields_autoplaced yes)
 		(uuid "8ee4ec45-2fa1-4a43-b126-d28da8601722")
 		(property "Reference" "U2"
-			(at 165.1 88.9 0)
+			(at 181.61 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -974,7 +974,7 @@
 			)
 		)
 		(property "Value" "LTC3114IFE-1_TRPBF"
-			(at 165.1 91.44 0)
+			(at 181.61 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -982,7 +982,7 @@
 			)
 		)
 		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:SOP65P640X110-17N"
-			(at 165.1 109.22 0)
+			(at 181.61 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -992,7 +992,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 165.1 109.22 0)
+			(at 181.61 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1001,7 +1001,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 165.1 109.22 0)
+			(at 181.61 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1010,7 +1010,7 @@
 			)
 		)
 		(property "MANUFACTURER" "LINEAR TECHNOLOGY"
-			(at 165.1 109.22 0)
+			(at 181.61 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1071,7 +1071,7 @@
 			(uuid "1363da84-8717-482e-9d12-57d7969874fa")
 		)
 		(instances
-			(project ""
+			(project "capybara_habitat"
 				(path "/dd199192-57fc-46f0-a768-68f911eefb82"
 					(reference "U2")
 					(unit 1)
