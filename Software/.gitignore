@@ -9,3 +9,5 @@ Release/
 *.launch
 
 *.csv
+
+output/
