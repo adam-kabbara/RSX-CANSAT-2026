@@ -64,6 +64,7 @@ uint8_t rx_byte;
 volatile char rx_buff[128];
 volatile uint8_t rx_idx = 0;
 volatile uint8_t cmd_ready = 0;
+volatile uint8_t discard_flag = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -454,21 +455,38 @@ void HAL_PWR_PVDCallback(void)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 {
-	if(huart->Instance == USART1 && !cmd_ready)
+	if(huart->Instance == USART1)
 	{
-		if(rx_byte == '\r')
+		if(!cmd_ready)
 		{
-			rx_buff[rx_idx] = '\0';
-			cmd_ready = 1;
-			rx_idx = 0;
+			if(discard_flag)
+			{
+				if(rx_byte == '\r' || rx_idx == sizeof(rx_buff))
+				{
+					discard_flag = 0;
+				}
+			}
+			else
+			{
+				if(rx_byte == '\r')
+				{
+					rx_buff[rx_idx] = '\0';
+					cmd_ready = 1;
+					rx_idx = 0;
+				}
+				else
+				{
+					rx_buff[rx_idx++] = rx_byte;
+					if(rx_idx > sizeof(rx_buff))
+					{
+						rx_idx = 0;
+					}
+				}
+			}
 		}
 		else
 		{
-			rx_buff[rx_idx++] = rx_byte;
-			if(rx_idx > sizeof(rx_buff))
-			{
-				rx_idx = 0;
-			}
+			discard_flag = 1;
 		}
 
 		HAL_UART_Receive_IT(&huart1, &rx_byte, 1);

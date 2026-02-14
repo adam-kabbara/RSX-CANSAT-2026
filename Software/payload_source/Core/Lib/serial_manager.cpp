@@ -32,7 +32,7 @@ void SerialManager::sendErrorDataMsg(const char *format, ...)
 
     va_list args;
     va_start(args, format);
-    int ret = vsnprintf(buffer, sizeof(buffer), format, args);
+    vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
 
     this->sendErrorMsg(buffer);
@@ -45,7 +45,7 @@ void SerialManager::sendInfoDataMsg(const char *format, ...)
     va_list args;
     va_start(args, format);
 
-    int ret = vsnprintf(buffer, sizeof(buffer), format, args);
+    vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
 
     this->sendInfoMsg(buffer);

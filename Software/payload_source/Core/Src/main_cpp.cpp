@@ -91,7 +91,7 @@ extern "C" void main_cpp()
             }
             */
             
-            HAL_Delay(100);
+            HAL_Delay(10);
         }
 
         if(mission_mgr.getOpMode() == OPMODE_SIM)
@@ -114,7 +114,7 @@ extern "C" void main_cpp()
             if(cmd_ready)
             {
             	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
-            					cmd_ready = 0;
+            	cmd_ready = 0;
 
                 if(cmd_mgr.processCommand(cmd_buff, serial, mission_mgr, sensors))
                 {
