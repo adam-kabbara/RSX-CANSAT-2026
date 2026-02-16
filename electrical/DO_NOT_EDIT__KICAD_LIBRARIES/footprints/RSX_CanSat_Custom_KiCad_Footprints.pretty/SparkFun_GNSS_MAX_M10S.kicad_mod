@@ -176,7 +176,7 @@
 	)
 	(fp_rect
 		(start 38.1 10.49)
-		(end 44.196 19.99)
+		(end 47.1 19.99)
 		(stroke
 			(width 0.1)
 			(type solid)
@@ -242,7 +242,7 @@
 	)
 	(fp_rect
 		(start 38.35 10.24)
-		(end 44.446 20.24)
+		(end 47.35 20.24)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -264,6 +264,62 @@
 		)
 	)
 	(pad "" np_thru_hole circle
+		(at 1.27 6.35)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "51317277-c49f-4142-b4a8-18748d543993")
+	)
+	(pad "" np_thru_hole circle
+		(at 1.27 8.89)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "5610e006-71b5-42f5-9310-7c439aedbf8d")
+	)
+	(pad "" np_thru_hole circle
+		(at 1.27 11.43)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "bfdc839c-8864-4f20-9ebf-3119dbcce8f0")
+	)
+	(pad "" np_thru_hole circle
+		(at 1.27 13.97)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "28c77232-88b9-426f-aa93-49f5faf173a4")
+	)
+	(pad "" np_thru_hole circle
+		(at 1.27 16.51)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "0966972a-04df-4b3f-95c9-450dcff8d136")
+	)
+	(pad "" np_thru_hole circle
+		(at 1.27 19.05)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "0fc93332-f16a-43d1-8efa-62f1570d23a7")
+	)
+	(pad "" np_thru_hole circle
+		(at 1.27 21.59)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "087a8f03-3437-4b22-98ac-e2f5f5961c31")
+	)
+	(pad "" np_thru_hole circle
+		(at 1.27 24.13)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "634be099-4387-48f3-a6a9-790707363cbc")
+	)
+	(pad "" np_thru_hole circle
 		(at 2.54 2.54)
 		(size 5.3 5.3)
 		(drill 3)
@@ -276,6 +332,48 @@
 		(drill 3)
 		(layers "F.Cu" "F.Mask")
 		(uuid "4b1d77ac-6ba7-4b89-8076-7e682fc91836")
+	)
+	(pad "" np_thru_hole circle
+		(at 16.51 29.21)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "b6dc3ea0-90d5-4c40-956f-3dc217b08265")
+	)
+	(pad "" np_thru_hole circle
+		(at 19.05 29.21)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "470b3403-967a-4f52-a5f0-d9498e9eb618")
+	)
+	(pad "" np_thru_hole circle
+		(at 21.59 29.21)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "ec63fe67-31ea-454d-bcba-67dd09233558")
+	)
+	(pad "" np_thru_hole circle
+		(at 24.13 29.21)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "4a2d898c-31f5-47e9-9a40-087f767edc95")
+	)
+	(pad "" np_thru_hole circle
+		(at 26.67 29.21)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "7d85fe5d-865e-4855-96c9-dfca9f511119")
+	)
+	(pad "" np_thru_hole circle
+		(at 29.21 29.21)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "eda98004-e7be-4a96-acf6-d196eeceb1ba")
 	)
 	(pad "" np_thru_hole circle
 		(at 35.56 2.54)
@@ -291,5 +389,136 @@
 		(layers "F.Cu" "F.Mask")
 		(uuid "b710ef26-9dcb-43a5-8279-eb78ee49a46c")
 	)
+	(pad "1_SCL" thru_hole circle
+		(at 15.24 1.27)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "2c586b0b-7d84-4060-8ada-d79ffa8bfa1b")
+	)
+	(pad "2_SDA" thru_hole circle
+		(at 17.78 1.27)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "d35ab93d-a121-4701-896d-1dbc5401b094")
+	)
+	(pad "3_3V3" thru_hole circle
+		(at 20.32 1.27)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "4a4fa459-20b7-4a24-8a9f-d16a2062fef1")
+	)
+	(pad "4_GND" thru_hole circle
+		(at 22.86 1.27)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "f89cf9ca-6d54-43f4-8492-e1a04f8dba49")
+	)
 	(embedded_fonts no)
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+		(offset
+			(xyz 2.54 -2.54 -1.4)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+		(offset
+			(xyz 2.54 -27.94 -1.4)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+		(offset
+			(xyz 35.56 -27.94 -1.4)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+		(offset
+			(xyz 35.56 -2.54 -1.4)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/92000A013_Passivated 18-8 Stainless Steel Pan Head Phillips Screws.STEP"
+		(offset
+			(xyz 2.54 -2.54 2.35)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/92000A013_Passivated 18-8 Stainless Steel Pan Head Phillips Screws.STEP"
+		(offset
+			(xyz 2.54 -27.94 2.35)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/92000A013_Passivated 18-8 Stainless Steel Pan Head Phillips Screws.STEP"
+		(offset
+			(xyz 35.56 -27.94 2.35)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/92000A013_Passivated 18-8 Stainless Steel Pan Head Phillips Screws.STEP"
+		(offset
+			(xyz 35.56 -2.54 2.35)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/SparkFun_GNSS_MAX_M10S.step"
+		(offset
+			(xyz 0 0 3)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -90 -0 -0)
+		)
+	)
 )
