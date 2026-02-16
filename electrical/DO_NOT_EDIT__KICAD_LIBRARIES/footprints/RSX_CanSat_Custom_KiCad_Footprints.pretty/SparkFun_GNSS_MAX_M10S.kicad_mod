@@ -146,13 +146,23 @@
 	)
 	(fp_line
 		(start 38.1 4.08)
-		(end 38.1 26.4)
+		(end 38.1 10.99)
 		(stroke
 			(width 0.1)
 			(type solid)
 		)
 		(layer "F.SilkS")
 		(uuid "84cba05b-fb65-4643-a3d6-3f4b6c63dec4")
+	)
+	(fp_line
+		(start 38.1 26.4)
+		(end 38.1 19.49)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "0abca1d0-cecd-453e-8822-c67d9cc2d146")
 	)
 	(fp_line
 		(start 38.1 30.48)
@@ -175,15 +185,37 @@
 		(uuid "8a306199-1445-4912-a7b8-cecce61cf9a6")
 	)
 	(fp_rect
-		(start 38.1 10.49)
-		(end 47.1 19.99)
+		(start 13.97 0)
+		(end 24.13 2.54)
 		(stroke
 			(width 0.1)
 			(type solid)
 		)
 		(fill no)
 		(layer "F.SilkS")
-		(uuid "64f4124f-9a99-4d9d-8c2d-bda205dbe0f4")
+		(uuid "d96c4e2e-62f1-487b-bfa7-e28034cd0e8b")
+	)
+	(fp_rect
+		(start 15.24 27.94)
+		(end 30.48 30.48)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "a81c9ee4-ed7b-4fd3-bc62-45c1600c1f70")
+	)
+	(fp_rect
+		(start 36.6 10.99)
+		(end 46.35 19.49)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "b37ca39a-33e7-463d-99c1-30b8c48c1db4")
 	)
 	(fp_circle
 		(center 2.54 2.54)
@@ -241,8 +273,8 @@
 		(uuid "e4218d5e-c6a7-4cfd-aa5e-a66e2853b503")
 	)
 	(fp_rect
-		(start 38.35 10.24)
-		(end 47.35 20.24)
+		(start 38.35 10.74)
+		(end 46.6 19.74)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -250,6 +282,18 @@
 		(fill no)
 		(layer "F.CrtYd")
 		(uuid "a7546bd6-711c-4cb8-a2a4-216b1919e9d3")
+	)
+	(fp_text user "SMA"
+		(at 42.975 15.24 90)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "4428c4bb-f954-498f-9e56-f92633d1e4e2")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
 	)
 	(fp_text user "${REFERENCE}"
 		(at 0 2.5 0)
@@ -360,6 +404,20 @@
 		(drill 1)
 		(layers "*.Cu" "*.Mask")
 		(uuid "4a2d898c-31f5-47e9-9a40-087f767edc95")
+	)
+	(pad "" np_thru_hole circle
+		(at 26.67 24.13)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "b50f96da-bcf4-48e9-8353-21faebbcbba0")
+	)
+	(pad "" np_thru_hole circle
+		(at 26.67 26.67)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(uuid "32c1b98a-70ea-4e9a-b44a-ed9d8d7bd536")
 	)
 	(pad "" np_thru_hole circle
 		(at 26.67 29.21)
@@ -519,6 +577,17 @@
 		)
 		(rotate
 			(xyz -90 -0 -0)
+		)
+	)
+	(model "${KICAD8_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x04_P2.54mm_Vertical.step"
+		(offset
+			(xyz 15.24 -1.27 2.99)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 180 -90)
 		)
 	)
 )
