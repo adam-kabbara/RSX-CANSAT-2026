@@ -11,17 +11,29 @@ This repository contains all files created by the Aerial Team of Robotics for Sp
 **Competition Team Members:**
 <table align="left">
     <tr><td align="center">Adam Kabbara</td><td align="center">Team Lead</td></tr>
-    <tr><td align="center">Alexey Albert</td><td align="center">Jr. Team Lead</td></tr>
     <tr><td align="center">Arthur Goetzke-Coburn</td><td align="center">Mechanical Team Lead</td></tr>
     <tr><td align="center">Daniel Yu</td><td align="center">Electrical Team Lead</td></tr>
     <tr><td align="center">Luke Watson</td><td align="center">Software Team Lead</td></tr>
     <tr><td align="center">Angelique Liao</td><td align="center">Mechanical Team Member</td></tr>
+    <tr><td align="center">Ada Selcuk</td><td align="center">Software Team Member</td></tr>
     <tr><td align="center">Yulin Lin</td><td align="center">Electrical Team Member</td></tr>
-    <tr><td align="center">Jingshu Zhu</td><td align="center">Software Team Member</td></tr>
+    <tr><td align="center">Jingshu Zhu</td><td align="center">Mechanical Team Member</td></tr>
     <tr><td align="center">Vincent Jia</td><td align="center">Mechanical Team Member</td></tr>
     <tr><td align="center">Wareesha Qureshi</td><td align="center">Electrical Team Member</td></tr>
 </table>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+**Honorary Team Members:**
+<table align="left">
+    <tr><td align="center">Parth Bhasin</td><td align="center">Electrical Team Member</td></tr>
+    <tr><td align="center">John Yfantis</td><td align="center">Electrical Team Lead</td></tr>
+    <tr><td align="center">Nathan Xia</td><td align="center">Mechanical Team Lead</td></tr>
+    <tr><td align="center">Gianluca Ceccacci</td><td align="center">Mechanical Team Lead</td></tr>
+    <tr><td align="center">Berk Yilmaz</td><td align="center">Software Team Member</td></tr>
+    <tr><td align="center">Remi Zhang</td><td align="center">Software Team Member</td></tr>
+</table>
+<br><br><br><br><br><br><br><br><br><br><br>
+
 
 **CanSat Competition:**
 - 📅 June 4-7, 2026
