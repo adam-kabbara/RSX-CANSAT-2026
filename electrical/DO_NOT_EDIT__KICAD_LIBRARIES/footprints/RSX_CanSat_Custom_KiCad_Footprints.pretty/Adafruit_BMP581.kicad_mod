@@ -258,7 +258,7 @@
 		(uuid "c1035890-ab4e-4238-9209-33434472cf38")
 	)
 	(embedded_fonts no)
-	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_L3_Standoff.step"
 		(offset
 			(xyz 2.54 -2.54 -1.4)
 		)
@@ -269,7 +269,7 @@
 			(xyz -0 -0 -0)
 		)
 	)
-	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_L3_Standoff.step"
 		(offset
 			(xyz 22.86 -2.54 -1.4)
 		)
