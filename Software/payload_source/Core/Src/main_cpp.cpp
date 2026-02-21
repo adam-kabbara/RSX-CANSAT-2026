@@ -151,7 +151,6 @@ extern "C" void main_cpp()
             	send_flag = 0;
             }
 
-            HAL_Delay(10);
         }
 
         HAL_TIM_Base_Stop_IT(&htim1);
