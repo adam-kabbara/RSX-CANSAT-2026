@@ -4,8 +4,10 @@ Front end GUI elements for graph window
 import threading
 from plotter.plotters import DynamicPlotter, DynamicPlotterMultiLine
 from . import cosmetics, dash_map
+from . import cosmetics
+from .gps_map import GPSMapWidget
 import os
-from PyQt6.QtCore import Qt, QUrl
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import (
@@ -266,6 +268,7 @@ class GraphWindow(QMainWindow):
         self._initiate_data_fields()
         for plotter in self.plotters:
             plotter.reset_plot()
+        self.map_widget.reset()
 
     def _initiate_data_fields(self):
         for name, val in self.sidebar_fields_data:
@@ -392,6 +395,8 @@ class GraphWindow(QMainWindow):
     def update_accel_graph(self, data):
         self.plotters[self.graph_title_to_index.get("Accel")].update_plot(data)
 
+    def update_gps_map(self, lat, lon):
+        self.map_widget.add_point(lat, lon)
 
     def closeEvent(self, event):
         app = QApplication.instance()
