@@ -195,7 +195,7 @@ void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, Se
 
 void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
-  ser.sendInfoMsg("Attempting to restart processor! NOT TESTED!!!");
+  ser.sendInfoMsg("Attempting to restart processor!");
   HAL_NVIC_SystemReset();
 } // END: do_restart
 
