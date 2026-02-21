@@ -1,8 +1,6 @@
 """
 Process telemetry data
 """
-
-from PyQt6.QtCore import QObject, pyqtSignal
 import csv
 import os
 import re
@@ -10,8 +8,8 @@ from dataclasses import dataclass, fields, asdict
 from PyQt6.QtCore import QObject, pyqtSignal
 from gui.graph_gui import GraphWindow
 from .simp import SimpManager
-from dataclasses import dataclass, fields, asdict
-from gui import dash_map
+
+current_telemetry_state = ""
 
 # Structure to store packet data
 @dataclass(frozen=True)
@@ -204,7 +202,6 @@ class DataProcessor(QObject):
             self._graph_ui.update_accel_graph(new_accel_data)
    
         if data.GPS_LATITUDE is not None and data.GPS_LONGITUDE is not None:
-            dash_map.add_new_point(data.GPS_LATITUDE, data.GPS_LONGITUDE)
             self._graph_ui.update_gps_map(data.GPS_LATITUDE, data.GPS_LONGITUDE)
 
         if data.GPS_ALTITUDE is not None:

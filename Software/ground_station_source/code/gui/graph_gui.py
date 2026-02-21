@@ -1,15 +1,12 @@
 """
 Front end GUI elements for graph window
 """
-import threading
 from plotter.plotters import DynamicPlotter, DynamicPlotterMultiLine
-from . import cosmetics, dash_map
 from . import cosmetics
 from .gps_map import GPSMapWidget
 import os
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
-from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -50,11 +47,7 @@ class GraphWindow(QMainWindow):
         tray.setVisible(True)
         tray.show()
 
-        self.dash_thread = threading.Thread(target=dash_map.run_dash_server, daemon=True)
-        self.dash_thread.start()
-
-        self.map_widget = QWebEngineView()
-        self.map_widget.setUrl(QUrl(f"http://127.0.0.1:{dash_map.web_port}"))
+        self.map_widget = GPSMapWidget()
 
         # CENTRAL WIDGET
         self.central_widget = QWidget(self)
