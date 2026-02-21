@@ -104,7 +104,7 @@ void TelemetryManager::build_data_str(char *buff, size_t size)
         "%d,%d,%d,%d,%d,"
         "%s,"
         "%.1f,%.4f,%.4f,%d,%s,"
-        "%d",
+        "%d\r",
 		packet.TEAM_ID_PCKT,
 		packet.MISSION_TIME,
 		packet.PACKET_COUNT,

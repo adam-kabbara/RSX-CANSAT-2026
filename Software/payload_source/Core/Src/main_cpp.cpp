@@ -69,6 +69,7 @@ extern "C" void main_cpp()
     }
 
     char cmd_buff[CMD_BUFF_SIZE];
+    char send_buff[DATA_BUFF_SIZE];
 
     while(1)
     {
@@ -137,13 +138,11 @@ extern "C" void main_cpp()
             if(send_flag)
             {
             	telemetry_mgr.sampleSensors(sensors, mission_mgr);
+            	telemetry_mgr.build_data_str(send_buff, sizeof(send_buff));
 
-            	char send_buffer[DATA_BUFF_SIZE];
-            	telemetry_mgr.build_data_str(send_buffer, sizeof(send_buffer));
+            	serial.sendTelemetry(send_buff);
 
-            	serial.sendTelemetry(send_buffer);
-
-            	if(mission_mgr.logfile_ok() && !sensors.EEPROM_addLogLine(send_buffer))
+            	if(mission_mgr.logfile_ok() && !sensors.EEPROM_addLogLine(send_buff))
 				{
 					serial.sendErrorMsg("Warning: Unable to add line to logfile!");
 					mission_mgr.disableLogfile();
@@ -160,5 +159,7 @@ extern "C" void main_cpp()
         mission_mgr.setAltCalOff();
         mission_mgr.waitingForSimp();
         mission_mgr.enableLogfile();
+
+        serial.sendInfoMsg("Transitioning back to IDLE mode...");
     }
 }

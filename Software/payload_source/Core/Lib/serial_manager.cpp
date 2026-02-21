@@ -58,8 +58,8 @@ void SerialManager::sendTelemetry(char *buff)
 
 void SerialManager::sendLogFile()
 {
-	const char *beginMsg = "$LOGFILE:BEGIN\r\n";
-	const char *endMsg = "$LOGFILE:END\r\n";
+	const char *beginMsg = "$LOGFILE:BEGIN\r";
+	const char *endMsg = "$LOGFILE:END\r";
 
     HAL_UART_Transmit(serialPort, (uint8_t*)beginMsg, strlen(beginMsg), HAL_MAX_DELAY);
     HAL_Delay(500);
