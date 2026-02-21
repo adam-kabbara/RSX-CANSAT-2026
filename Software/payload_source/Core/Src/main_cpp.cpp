@@ -24,9 +24,8 @@ extern "C" void main_cpp()
     TelemetryManager telemetry_mgr;
 
     SensorManager sensors;
-    sensors.startSensors(serial);
 
-	if (__HAL_RCC_GET_FLAG(RCC_FLAG_LPWRRST)) {
+	if (__HAL_RCC_GET_FLAG(RCC_FLAG_LPWRRST)){
 		serial.sendErrorMsg("Reset Reason: low power reset");
 	}
 	else if (__HAL_RCC_GET_FLAG(RCC_FLAG_WWDGRST)){
@@ -39,16 +38,18 @@ extern "C" void main_cpp()
 		serial.sendErrorMsg("Reset Reason: software reset");
 	}
 	else if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST)){
-		serial.sendErrorMsg("Reset Reason: external pin reset (NRST)");
+		serial.sendErrorMsg("Reset Reason: external pin reset");
 	}
 	else if (__HAL_RCC_GET_FLAG(RCC_FLAG_BORRST)){
-		serial.sendErrorMsg("Reset Reason: brown-out reset (NRST)");
+		serial.sendErrorMsg("Reset Reason: brown-out reset");
 	}
 	else {
 		serial.sendErrorMsg("Reset Reason: unknown");
 	}
 
 	__HAL_RCC_CLEAR_RESET_FLAGS();
+
+	sensors.startSensors(serial);
 
     struct recovery_data recovery = sensors.EEPROM_getRecoveryData();
 
@@ -62,10 +63,13 @@ extern "C" void main_cpp()
         mission_mgr.setOpMode(recovery.mode);
         mission_mgr.setPacketCount(recovery.packet_count);
     }
-
-    serial.sendInfoMsg("Setup Completed.");
+    else
+    {
+    	serial.sendInfoMsg("Setup completed, entering IDLE mode");
+    }
 
     char cmd_buff[CMD_BUFF_SIZE];
+    char send_buff[DATA_BUFF_SIZE];
 
     while(1)
     {
@@ -131,14 +135,22 @@ extern "C" void main_cpp()
             }
             */
 
-            if(send_flag == 0)
+            if(send_flag)
             {
-                HAL_Delay(25);
-                continue;
+            	telemetry_mgr.sampleSensors(sensors, mission_mgr);
+            	telemetry_mgr.build_data_str(send_buff, sizeof(send_buff));
+
+            	serial.sendTelemetry(send_buff);
+
+            	if(mission_mgr.logfile_ok() && !sensors.EEPROM_addLogLine(send_buff))
+				{
+					serial.sendErrorMsg("Warning: Unable to add line to logfile!");
+					mission_mgr.disableLogfile();
+				}
+
+            	send_flag = 0;
             }
 
-            telemetry_mgr.sampleSensors(sensors, serial, mission_mgr);
-            send_flag = 0;
         }
 
         HAL_TIM_Base_Stop_IT(&htim1);
@@ -146,5 +158,7 @@ extern "C" void main_cpp()
         mission_mgr.setAltCalOff();
         mission_mgr.waitingForSimp();
         mission_mgr.enableLogfile();
+
+        serial.sendInfoMsg("Transitioning back to IDLE mode...");
     }
 }

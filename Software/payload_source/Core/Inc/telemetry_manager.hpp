@@ -41,11 +41,13 @@ private:
 		int CAMERA_STATUS = 0;
 	};
 
+	struct transmission_packet packet;
+
 public:
 	OperatingState updateState(OperatingState curr_state);
-	void sampleSensors(SensorManager &sensors, SerialManager &serial, MissionManager &mission_info);
+	void sampleSensors(SensorManager &sensors, MissionManager &mission_info);
 	void cmd_buff_to_echo(char buff[CMD_BUFF_SIZE], char *cmd_buff);
-	void build_data_str(char *buff, size_t size, struct transmission_packet send_packet);
+	void build_data_str(char *buff, size_t size);
 };
 
 #endif /* INC_TELEMETRY_MANAGER_HPP_ */

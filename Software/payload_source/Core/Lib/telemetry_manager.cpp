@@ -42,11 +42,8 @@ OperatingState TelemetryManager::updateState(OperatingState curr_state)
 	return curr_state;
 }
 
-// TODO: Add faster sampling function
-void TelemetryManager::sampleSensors(SensorManager &sensors, SerialManager &serial, MissionManager &mission_info)
+void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mission_info)
 {
-	struct transmission_packet packet;
-
 	packet.TEAM_ID_PCKT = TEAM_ID;
 
 	sensors.getRTCTime(packet.MISSION_TIME);
@@ -97,20 +94,9 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, SerialManager &seri
 	cmd_buff_to_echo(packet.CMD_ECHO, mission_info.getLastCommand());
 
 	packet.CAMERA_STATUS = static_cast<int>(sensors.getCameraStatus());
-
-	char send_buffer[DATA_BUFF_SIZE];
-	build_data_str(send_buffer, DATA_BUFF_SIZE, packet);
-
-	serial.sendTelemetry(send_buffer);
-
-	if(mission_info.logfile_ok() && !sensors.EEPROM_addLogLine(send_buffer))
-	{
-		serial.sendErrorMsg("Warning: Unable to add line to logfile!");
-		mission_info.disableLogfile();
-	}
 }
 
-void TelemetryManager::build_data_str(char *buff, size_t size, struct transmission_packet send_packet)
+void TelemetryManager::build_data_str(char *buff, size_t size)
 {
     snprintf(buff, size,
         "%d,%s,%d,%s,%s,"
@@ -118,30 +104,30 @@ void TelemetryManager::build_data_str(char *buff, size_t size, struct transmissi
         "%d,%d,%d,%d,%d,"
         "%s,"
         "%.1f,%.4f,%.4f,%d,%s,"
-        "%d",
-        send_packet.TEAM_ID_PCKT, 
-        send_packet.MISSION_TIME, 
-        send_packet.PACKET_COUNT, 
-        send_packet.MODE, 
-        send_packet.STATE,
-        send_packet.ALTITUDE, 
-        send_packet.TEMPERATURE, 
-        send_packet.PRESSURE, 
-        send_packet.VOLTAGE, 
-		send_packet.CURRENT,
-        send_packet.GYRO_R,
-        send_packet.GYRO_P, 
-        send_packet.GYRO_Y, 
-        send_packet.ACCEL_R,
-        send_packet.ACCEL_P, 
-        send_packet.ACCEL_Y,
-        send_packet.GPS_TIME,
-        send_packet.GPS_ALTITUDE, 
-        send_packet.GPS_LATITUDE, 
-        send_packet.GPS_LONGITUDE, 
-        send_packet.GPS_SATS, 
-        send_packet.CMD_ECHO,
-        send_packet.CAMERA_STATUS); 
+        "%d\r",
+		packet.TEAM_ID_PCKT,
+		packet.MISSION_TIME,
+		packet.PACKET_COUNT,
+        packet.MODE,
+		packet.STATE,
+		packet.ALTITUDE,
+		packet.TEMPERATURE,
+		packet.PRESSURE,
+		packet.VOLTAGE,
+		packet.CURRENT,
+		packet.GYRO_R,
+		packet.GYRO_P,
+		packet.GYRO_Y,
+		packet.ACCEL_R,
+		packet.ACCEL_P,
+		packet.ACCEL_Y,
+		packet.GPS_TIME,
+		packet.GPS_ALTITUDE,
+		packet.GPS_LATITUDE,
+		packet.GPS_LONGITUDE,
+		packet.GPS_SATS,
+		packet.CMD_ECHO,
+		packet.CAMERA_STATUS);
 }
 
 void TelemetryManager::cmd_buff_to_echo(char buff[CMD_BUFF_SIZE], char *cmd_buff)
