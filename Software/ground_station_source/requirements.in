@@ -2,4 +2,5 @@
 numpy
 pyqtgraph
 PyQt6
+Pyqt6-WebEngine
 cx_Freeze
