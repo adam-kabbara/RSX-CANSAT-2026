@@ -64,11 +64,8 @@ class Commands(QObject):
                 self.print_signal.emit(f"Sent force probe release command")
 
     def command__cam_status(self):
-        if self._serial.send_data(self._cmd(op="MEC", val="CAMERA1_STAT:X")):
-            self.print_signal.emit("Requesting CAMERA1 status")
-        time.sleep(1)
-        if self._serial.send_data(self._cmd(op="MEC", val="CAMERA2_STAT:X")):
-            self.print_signal.emit("Requesting CAMERA2 status")
+        if self._serial.send_data(self._cmd(op="MEC", val="CAMERA_STAT:X")):
+            self.print_signal.emit("Requesting CAMERA status")
     
     def command__sim_mode(self, mode: str):
         if self._serial.send_data(self._cmd(op="SIM", val=mode)):

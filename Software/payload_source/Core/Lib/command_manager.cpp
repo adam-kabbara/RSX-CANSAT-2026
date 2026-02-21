@@ -113,7 +113,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
 
     if(strcmp(data, "ON") == 0)
     {
-        if(info.getOpState() == IDLE && (info.isAltCalibrated() == 1 || info.getOpMode() == OPMODE_SIM))
+        if(info.getOpState() == IDLE && (info.isAltCalibrated() == true || info.getOpMode() == OPMODE_SIM))
         {
             info.clearPacketCount();
             ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");

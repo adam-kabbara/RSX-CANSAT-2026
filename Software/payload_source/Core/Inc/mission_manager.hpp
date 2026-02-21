@@ -23,7 +23,7 @@ private:
     float launch_altitude = 0.0;
     int SIMP_DATA = 0;
     bool waiting_for_simp = false;
-    char* last_command;
+    char last_command[CMD_BUFF_SIZE];
     bool logfile_chk = true;
 
 public:
