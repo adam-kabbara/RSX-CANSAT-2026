@@ -10,7 +10,11 @@ extern "C" volatile uint8_t send_flag;
 extern "C" volatile uint8_t pvd_flag;
 extern "C" UART_HandleTypeDef huart1;
 extern "C" TIM_HandleTypeDef htim1;
+extern "C" TIM_HandleTypeDef htim2;
+extern "C" TIM_HandleTypeDef htim3;
+extern "C" TIM_HandleTypeDef htim4;
 extern "C" SPI_HandleTypeDef hspi1;
+extern "C" I2C_HandleTypeDef hi2c1;
 extern "C" volatile char rx_buff[128];
 extern "C" volatile uint8_t cmd_ready;
 
@@ -49,7 +53,7 @@ extern "C" void main_cpp()
 
 	__HAL_RCC_CLEAR_RESET_FLAGS();
 
-	sensors.startSensors(serial);
+	sensors.startSensors(serial, &hi2c1, &htim2, &htim3, &htim4);
 
     struct recovery_data recovery = sensors.EEPROM_getRecoveryData();
 

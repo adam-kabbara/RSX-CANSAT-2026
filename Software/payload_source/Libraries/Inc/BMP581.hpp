@@ -5,10 +5,18 @@
  *
  */
 
-#ifndef INC_BMP581_H_
-#define INC_BMP581_H_
+#ifndef INC_BMP581_HPP_
+#define INC_BMP581_HPP_
 
-#include <stm32G4xx_hal.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "stm32g4xx_hal.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 // Register addresses
 #define BMP5_REG_CHIP_ID			0x01

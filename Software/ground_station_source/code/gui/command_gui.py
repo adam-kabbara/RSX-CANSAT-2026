@@ -215,10 +215,13 @@ class CommandWindow(QMainWindow):
 
         self.servo_id_field = QComboBox()
         self.servo_id_field.setPlaceholderText("SELECT SERVO")
-        self.servo_id_field.addItem("Servo 1", 0)
-        self.servo_id_field.addItem("Servo 2", 1)
-        self.servo_id_field.addItem("Servo 3", 2)
-        self.servo_id_field.addItem("Servo 4", 3)
+        self.servo_id_field.addItem("Nosecone Release", 0)
+        self.servo_id_field.addItem("Container Release", 1)
+        self.servo_id_field.addItem("Wing Direction", 2)
+        self.servo_id_field.addItem("Wing PWM", 3)
+        self.servo_id_field.addItem("Elevator", 4)
+        self.servo_id_field.addItem("Aileron", 5)
+        self.servo_id_field.addItem("Egg Release", 6)
         self.servo_id_field.setFont(button_font)
         self.servo_id_field.activated.connect(self.servo_id_edited)
 

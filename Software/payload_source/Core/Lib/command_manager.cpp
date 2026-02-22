@@ -367,6 +367,63 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
     strcpy(val, token);
   }
 
+  if(strcmp(mec, "SERVO") == 0)
+  {
+	  const char *sep = strchr(val, '|');
+	  if(sep != NULL)
+	  {
+		  char left[8], right[8];
+		  size_t len_left = sep - val;
+
+		  strncpy(left, val, len_left);
+		  left[len_left] = '\0';
+
+		  strcpy(right, sep + 1);
+
+		  int servo_num = atoi(left);
+		  float servo_val = atoi(right);
+
+		  switch(servo_num)
+		  {
+		  	  case 0:
+		  		  sensors.writeNoseconeServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to nosecone servo.", servo_val);
+		  		  break;
+		  	  case 1:
+		  		  sensors.writeContainerServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to container servo.", servo_val);
+		  		  break;
+		  	  case 2:
+		  		  sensors.writeWingDirServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to wing direction servo.", servo_val);
+		  		  break;
+		  	  case 3:
+		  		  sensors.writeWingPWMServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to wing PWM servo.", servo_val);
+		  		  break;
+		  	  case 4:
+		  		  sensors.writeElevatorServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to elevator servo.", servo_val);
+		  		  break;
+		  	  case 5:
+		  		  sensors.writeAileronServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to aileron servo.", servo_val);
+		  		  break;
+		  	  case 6:
+		  		  sensors.writeEggServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to egg servo.", servo_val);
+		  		  break;
+		  	  default:
+		  		  ser.sendErrorMsg("ERROR: SERVO ID DOES NOT MATCH 0-6");
+		  		  break;
+		  }
+	  }
+	  else
+	  {
+		  ser.sendErrorMsg("ERROR: SERVO COMMAND FORMAT INCORRECT, DID NOT RECEIVE '#|VAL'");
+	  }
+  }
+
   ser.sendErrorDataMsg("ERROR: UNRECOGNIZED MEC COMMAND: %s", mec);
 }
 
