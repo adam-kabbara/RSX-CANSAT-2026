@@ -17,10 +17,15 @@ This folder contains datasheets of electronic components used in the project. Th
 ## INA219
 - Datasheet: [ina219.pdf](ina219.pdf)
 - Environment: Ground station and CPL
-- Package D ; using smd on cpl and adafruit on gnd station
+- Package: D ; using smd on cpl and adafruit on gnd station
 
 ## LT8610AB
 - Datasheet: [LT8610AB.pdf](LT8610AB.pdf)
 - Environment: Ground station
 - Details: 5v buck converter from 4s2p (16.8 to 12v) battery to 5v for the ground station. 5 volts used to power the raspberry pi and LED lights. Estimated current consumption to handel is 2.5A.
 
+## LTC3114
+- Datasheet: [LTC3114.pdf](LTC3114.pdf)
+- Environment: Ground station
+- Details: 12v buckboost from 4s2p (16.8 to 12v) battery to 12v for the ground station. 12 volts used to power the monitor and speakers.
+- Package: FE
