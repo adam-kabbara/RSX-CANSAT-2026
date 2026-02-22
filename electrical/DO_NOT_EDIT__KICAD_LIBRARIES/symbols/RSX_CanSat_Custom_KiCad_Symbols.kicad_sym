@@ -6232,8 +6232,8 @@
 		)
 		(symbol "NUCLEO-G431KB_0_0"
 			(rectangle
-				(start -20.32 -27.94)
-				(end 20.32 25.4)
+				(start -20.32 25.4)
+				(end 20.32 -27.94)
 				(stroke
 					(width 0.254)
 					(type default)
@@ -6244,7 +6244,7 @@
 			)
 			(polyline
 				(pts
-					(xy -7.62 11.43) (xy -6.35 11.43)
+					(xy -1.27 11.43) (xy 0 11.43)
 				)
 				(stroke
 					(width 0.254)
@@ -6256,7 +6256,7 @@
 			)
 			(polyline
 				(pts
-					(xy -6.35 11.43) (xy -6.35 -26.67)
+					(xy 0 11.43) (xy 0 -26.67)
 				)
 				(stroke
 					(width 0.254)
@@ -6268,7 +6268,43 @@
 			)
 			(polyline
 				(pts
-					(xy -6.35 -26.67) (xy -7.62 -26.67)
+					(xy 0 11.43) (xy 0 -26.67)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -26.67) (xy -1.27 -26.67)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -26.67) (xy 1.27 -26.67)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 11.43) (xy 0 11.43)
 				)
 				(stroke
 					(width 0.254)
@@ -6304,30 +6340,6 @@
 			)
 			(polyline
 				(pts
-					(xy 2.54 11.43) (xy 2.54 -26.67)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 2.54 -26.67) (xy 3.81 -26.67)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
 					(xy 3.81 13.97) (xy 2.54 13.97)
 				)
 				(stroke
@@ -6338,20 +6350,8 @@
 					(type none)
 				)
 			)
-			(polyline
-				(pts
-					(xy 3.81 11.43) (xy 2.54 11.43)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
 			(text "CN4"
-				(at -3.81 -8.89 900)
+				(at -1.27 -17.78 900)
 				(effects
 					(font
 						(size 1.778 1.778)
@@ -6369,48 +6369,12 @@
 				)
 			)
 			(text "CN3"
-				(at 1.27 -8.89 900)
+				(at 3.81 1.27 900)
 				(effects
 					(font
 						(size 1.778 1.778)
 					)
 					(justify left bottom)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 10.16 0)
-				(length 5.08)
-				(name "PA9(D1)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_1"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 7.62 0)
-				(length 5.08)
-				(name "PA10(D0)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_2"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
 				)
 			)
 			(pin input line
@@ -6442,204 +6406,6 @@
 					)
 				)
 				(number "CN4_4"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 0 0)
-				(length 5.08)
-				(name "PA12(D2)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_5"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -2.54 0)
-				(length 5.08)
-				(name "PB0(D3)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_6"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -5.08 0)
-				(length 5.08)
-				(name "PB7(D4)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_7"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -7.62 0)
-				(length 5.08)
-				(name "PA15(D5)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_8"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -10.16 0)
-				(length 5.08)
-				(name "PB6(D6)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_9"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -12.7 0)
-				(length 5.08)
-				(name "PF0(D7)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_10"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -15.24 0)
-				(length 5.08)
-				(name "PF1(D8)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_11"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -17.78 0)
-				(length 5.08)
-				(name "PA8(D9)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_12"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -20.32 0)
-				(length 5.08)
-				(name "PA11(D10)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_13"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -22.86 0)
-				(length 5.08)
-				(name "PB5(D11)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_14"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -25.4 0)
-				(length 5.08)
-				(name "PB4(D12)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_15"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -6810,78 +6576,6 @@
 				)
 			)
 			(pin bidirectional line
-				(at 25.4 -2.54 180)
-				(length 5.08)
-				(name "PA7(A6)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_6"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 25.4 -5.08 180)
-				(length 5.08)
-				(name "PA6/PA15(A5)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_7"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 25.4 -7.62 180)
-				(length 5.08)
-				(name "PA5/PB7(A4)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_8"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 25.4 -10.16 180)
-				(length 5.08)
-				(name "PA4(A3)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_9"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
 				(at 25.4 -12.7 180)
 				(length 5.08)
 				(name "PA3(A2)"
@@ -6892,42 +6586,6 @@
 					)
 				)
 				(number "CN3_10"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 25.4 -15.24 180)
-				(length 5.08)
-				(name "PA1(A1)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_11"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 25.4 -17.78 180)
-				(length 5.08)
-				(name "PA0(A0)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_12"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -6971,10 +6629,354 @@
 					)
 				)
 			)
+		)
+		(symbol "NUCLEO-G431KB_1_0"
+			(pin bidirectional line
+				(at -25.4 10.16 0)
+				(length 5.08)
+				(name "XBEE_TX(PA9(D1))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_1"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 7.62 0)
+				(length 5.08)
+				(name "XBEE_RX(PA10(D0))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_2"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 0 0)
+				(length 5.08)
+				(name "G_CAM_OUT(PA12(D2))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_5"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -2.54 0)
+				(length 5.08)
+				(name "EGG_REL(PB0(D3))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_6"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -5.08 0)
+				(length 5.08)
+				(name "I2C_SDA(PB7(D4))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_7"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -7.62 0)
+				(length 5.08)
+				(name "I2C_SCL(PA15(D5))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_8"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -10.16 0)
+				(length 5.08)
+				(name "G_CAM_IN(PB6(D6))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_9"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -12.7 0)
+				(length 5.08)
+				(name "NC_REL(PF0(D7))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_10"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -15.24 0)
+				(length 5.08)
+				(name "CC_REL(PF1(D8))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_11"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -17.78 0)
+				(length 5.08)
+				(name "AILERON(PA8(D9))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_12"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -20.32 0)
+				(length 5.08)
+				(name "PG_CAM_OUT(PA11(D10))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_13"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -22.86 0)
+				(length 5.08)
+				(name "PG_CAM_IN(PB5(D11))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_14"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -25.4 0)
+				(length 5.08)
+				(name "ELEVATOR(PB4(D12))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_15"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -2.54 180)
+				(length 5.08)
+				(name "SPI_MOSI(PA7(A6))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_6"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -5.08 180)
+				(length 5.08)
+				(name "SPI_MISO(PA6/PA15(A5))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_7"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -7.62 180)
+				(length 5.08)
+				(name "SPI_SCK(PA5/PB7(A4))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_8"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -10.16 180)
+				(length 5.08)
+				(name "SPI_CS(PA4(A3))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_9"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -15.24 180)
+				(length 5.08)
+				(name "WING_PWM(PA1(A1))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_11"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -17.78 180)
+				(length 5.08)
+				(name "WING_DIR(PA0(A0))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_12"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
 			(pin bidirectional line
 				(at 25.4 -25.4 180)
 				(length 5.08)
-				(name "PB3/PB8(D13)"
+				(name "T_SWO(PB3/PB8(D13))"
 					(effects
 						(font
 							(size 1.016 1.016)
