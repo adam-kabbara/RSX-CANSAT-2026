@@ -648,7 +648,7 @@ class CommandWindow(QMainWindow):
 
     def _debug_calibrate(self):
         self.command_manager.command__alt_cal()
-        QTimer.singleShot(0.5, self._debug_start_mission)
+        QTimer.singleShot(500, self._debug_start_mission)
 
     def _debug_start_mission(self):
         self.start_transmission()
