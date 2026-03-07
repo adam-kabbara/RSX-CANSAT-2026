@@ -19,6 +19,9 @@ class BaseDynamicPlotter:
         self.last_time = None
         self.base_line_color_idx = 0
 
+        # List of the added markers
+        self.markers = []
+
         font = gui.cosmetics.graph_font()
 
         self.plt = pg.PlotWidget()
@@ -30,6 +33,7 @@ class BaseDynamicPlotter:
         self.plt.getAxis('bottom').setLabel(gui.cosmetics.graph_axis(x_unit))
         self.plt.getAxis('left').setStyle(tickFont=font)
         self.plt.getAxis('left').setLabel(gui.cosmetics.graph_axis(y_unit))
+        # self.plt.setRange(xRange=[0, 20], yRange=[0, 100]) # TODO: Refine zoom-level
     
     def get_pen(self, index):
         return mkPen(color=gui.cosmetics.graph_pen_color(index), width=gui.cosmetics.graph_pen_size())
@@ -42,6 +46,11 @@ class BaseDynamicPlotter:
 
     def get_graph_object(self):
         return self.plt
+
+    def clear_markers(self):
+        for marker in self.markers:
+            self.plt.removeItem(marker)
+        self.markers.clear()
 
 # Plotting system for regular graphs with 1 line
 class DynamicPlotter(BaseDynamicPlotter):
@@ -70,13 +79,45 @@ class DynamicPlotter(BaseDynamicPlotter):
 
         self.curve.setData(self.x, self.y)
         self.plt.setXRange(self.x[-1] - 50, self.x[-1])
-    
+
+    def add_state_marker(self, state_name):
+        if len(self.x) == 0: return
+
+        latest_x = self.x[-1]
+        latest_y = self.y[-1]
+
+        # Create dashed vertical line
+        vline = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen(style=Qt.PenStyle.DashLine,
+                                                                      width=2,
+                                                                      color= '#0000FF',
+                                                                      cosmetic=True))
+        vline.setPos(latest_x)
+
+        # Create text label with state name and value
+        label = pg.TextItem(
+            html=f"""<div style="text-align: center;">
+                        <span style="color: yellow; font-weight: bold; font-size: 12px; font-family: 'Consolas';">{state_name}</span><br>
+                        <span style="color: white; font-size: 10px;">{latest_y:.2f}</span>
+                    </div>""",
+            anchor=(1, 1),
+            fill=pg.mkBrush(0, 0, 0, 180),   # Semi-transparent black background
+            border=pg.mkPen('y', width=1))
+
+        label.setPos(latest_x, latest_y)
+
+        # Add to plot and store in markers list
+        self.plt.addItem(vline)
+        self.plt.addItem(label)
+        self.markers.extend([vline, label])
+
+
     def reset_plot(self):
         self.databuffer = deque([0.0] * self.timewindow, maxlen=self.timewindow)
         self.x = np.linspace(-self.timewindow, 0, self.timewindow)
         self.y[:] = 0
         self.curve.setData(self.x, self.y)
         self.last_time = None
+        self.clear_markers()
 
 # Plotting system for graphs with multiple lines
 class DynamicPlotterMultiLine(BaseDynamicPlotter):
