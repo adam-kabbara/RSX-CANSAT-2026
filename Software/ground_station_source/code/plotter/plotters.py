@@ -58,11 +58,11 @@ class DynamicPlotter(BaseDynamicPlotter):
     def __init__(self, title, timewindow, x_unit, y_unit):
         super().__init__(title, timewindow, x_unit, y_unit)
         self.databuffer = deque([0.0] * timewindow, maxlen=timewindow)
-        self.x = np.linspace(-timewindow, 0, timewindow)
+        self.x = np.linspace(0, 0, timewindow)
         self.y = np.zeros(self.databuffer.maxlen, dtype=float)
         self.curve = self.plt.plot(self.x, self.y, pen=self.get_pen(0))
         #self.plt.getViewBox().setLimits(xMin=-5, xMax=5000, minXRange=5, yMin=-10000, yMax=10000, minYRange=2)
-        self.plt.setXRange(-20, 0)
+        self.plt.setXRange(0, 50)
     def update_plot(self, new_val):
 
         current_time = time.time()
@@ -78,7 +78,7 @@ class DynamicPlotter(BaseDynamicPlotter):
         self.x[-1] = self.x[-2] + time_diff
 
         self.curve.setData(self.x, self.y)
-        self.plt.setXRange(self.x[-1] - 50, self.x[-1])
+        self.plt.setXRange(max(0, self.x[-1] - 50), max(50, self.x[-1]))
 
     def add_state_marker(self, state_name):
         if len(self.x) == 0: return
@@ -113,7 +113,7 @@ class DynamicPlotter(BaseDynamicPlotter):
 
     def reset_plot(self):
         self.databuffer = deque([0.0] * self.timewindow, maxlen=self.timewindow)
-        self.x = np.linspace(-self.timewindow, 0, self.timewindow)
+        self.x = np.linspace(0, 0, self.timewindow)
         self.y[:] = 0
         self.curve.setData(self.x, self.y)
         self.last_time = None
@@ -125,9 +125,9 @@ class DynamicPlotterMultiLine(BaseDynamicPlotter):
         super().__init__(title, timewindow, x_unit, y_unit)
         self.num_lines = num_lines
         self.databuffer = [deque([0.0] * timewindow, maxlen=timewindow) for _ in range(num_lines)]
-        self.x = np.linspace(-timewindow, 0, timewindow)
+        self.x = np.linspace(0, 0, timewindow)
         self.y = np.zeros(shape=(self.num_lines, timewindow), dtype=float)
-        self.plt.getViewBox().setLimits(xMin=-5, xMax=5000, minXRange=5, yMin=-10000, yMax=10000, minYRange=2)
+        self.plt.getViewBox().setLimits(xMin=0, xMax=5000, minXRange=5, yMin=-10000, yMax=10000, minYRange=2)
         self.curve = [
             self.plt.plot(self.x, self.y[i], pen=self.get_pen(self.base_line_color_idx + i))
             for i in range(self.num_lines)
@@ -170,7 +170,7 @@ class DynamicPlotterMultiLine(BaseDynamicPlotter):
     
     def reset_plot(self):
         self.databuffer = [deque([0.0] * self.timewindow, maxlen=self.timewindow) for _ in range(self.num_lines)]
-        self.x = np.linspace(-self.timewindow, 0, self.timewindow)
+        self.x = np.linspace(0, 0, self.timewindow)
         self.y[:] = 0
         for i in range(self.num_lines):
             self.curve[i].setData(self.x, self.y[i])
