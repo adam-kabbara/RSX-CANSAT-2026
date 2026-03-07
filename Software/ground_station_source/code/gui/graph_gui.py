@@ -389,7 +389,10 @@ class GraphWindow(QMainWindow):
         self.plotters[self.graph_title_to_index.get("Accel")].update_plot(data)
 
     def update_gps_map(self, lat, lon):
-        self.map_widget.add_point(lat, lon)
+        if self._current_state == "LANDED":
+            return
+        else:
+            self.map_widget.add_point(lat, lon)
 
     def closeEvent(self, event):
         app = QApplication.instance()
