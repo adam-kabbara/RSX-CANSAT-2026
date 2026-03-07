@@ -55,13 +55,25 @@ class Commands(QObject):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Icon.Warning)
         msg_box.setWindowTitle("CONFIRM")
-        msg_box.setText("CONFIRM: SEND PROBE RELEASE COMMAND")
+        msg_box.setText("CONFIRM: SEND FORCE PROBE RELEASE COMMAND")
         msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         msg_box.setDefaultButton(QMessageBox.StandardButton.No)
         response = msg_box.exec()
         if response == QMessageBox.StandardButton.Yes:
-            if self._serial.send_data(self._cmd(op="MEC", val="RELEASE:X")):
+            if self._serial.send_data(self._cmd(op="MEC", val="PROBE:X")):
                 self.print_signal.emit(f"Sent force probe release command")
+
+    def command__payload_release(self):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Icon.Warning)
+        msg_box.setWindowTitle("CONFIRM")
+        msg_box.setText("CONFIRM: SEND FORCE PAYLOAD RELEASE COMMAND")
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
+        response = msg_box.exec()
+        if response == QMessageBox.StandardButton.Yes:
+            if self._serial.send_data(self._cmd(op="MEC", val="PAYLOAD:X")):
+                self.print_signal.emit(f"Sent force payload release command")
 
     def command__cam_status(self):
         if self._serial.send_data(self._cmd(op="MEC", val="CAMERA_STAT:X")):
