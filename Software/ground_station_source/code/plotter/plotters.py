@@ -55,11 +55,11 @@ class BaseDynamicPlotter:
 # Plotting system for regular graphs with 1 line
 class DynamicPlotter(BaseDynamicPlotter):
 
-    def __init__(self, title, timewindow, x_unit, y_unit):
-        super().__init__(title, timewindow, x_unit, y_unit)
-        self.databuffer = deque([0.0] * timewindow, maxlen=timewindow)
-        self.x = np.linspace(0, 0, timewindow)
-        self.y = np.zeros(self.databuffer.maxlen, dtype=float)
+    def __init__(self, title, time_window, x_unit, y_unit):
+        super().__init__(title, time_window, x_unit, y_unit)
+        self.data_buffer = deque([0.0] * time_window, maxlen=time_window)
+        self.x = np.linspace(0, 0, time_window)
+        self.y = np.zeros(self.data_buffer.maxlen, dtype=float)
         self.curve = self.plt.plot(self.x, self.y, pen=self.get_pen(0))
         #self.plt.getViewBox().setLimits(xMin=-5, xMax=5000, minXRange=5, yMin=-10000, yMax=10000, minYRange=2)
         self.plt.setXRange(0, 50)
@@ -71,8 +71,8 @@ class DynamicPlotter(BaseDynamicPlotter):
             
         self.last_time = current_time
 
-        self.databuffer.append(new_val)
-        self.y[:] = self.databuffer
+        self.data_buffer.append(new_val)
+        self.y[:] = self.data_buffer
 
         self.x = np.roll(self.x, -1)
         self.x[-1] = self.x[-2] + time_diff
@@ -112,7 +112,7 @@ class DynamicPlotter(BaseDynamicPlotter):
 
 
     def reset_plot(self):
-        self.databuffer = deque([0.0] * self.timewindow, maxlen=self.timewindow)
+        self.data_buffer = deque([0.0] * self.timewindow, maxlen=self.timewindow)
         self.x = np.linspace(0, 0, self.timewindow)
         self.y[:] = 0
         self.curve.setData(self.x, self.y)
