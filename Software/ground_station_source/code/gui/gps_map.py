@@ -20,7 +20,17 @@ class GPSMapWidget(QWidget):
 
         # --- WebEngine View ---
         self._view = QWebEngineView()
-        
+
+        self._view.page().profile().setHttpAcceptLanguage("en-US,en;q=0.5")
+        self._view.page().profile().setHttpUserAgent(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"
+        )
+
+        # Enable local content access for loading CSS/JS/tiles
+        settings = self._view.settings()
+        settings.setAttribute(settings.WebAttribute.LocalContentCanAccessFileUrls, True)
+        settings.setAttribute(settings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
+
         # Connect console messages to Python terminal for debugging
         # self._view.page().consoleMessage.connect(self._handle_console_message)
         
