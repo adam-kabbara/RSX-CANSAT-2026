@@ -331,8 +331,8 @@ class GraphWindow(QMainWindow):
 
                     self.next_list.scrollToTop()
 
-                    # Add markers to altitude graph plots
-                    self.plotters[self.graph_title_to_index.get("Altitude")].add_state_marker(state_str)
+                    # Add markers to altitude graph plots TODO: Reformat markers
+                    # self.plotters[self.graph_title_to_index.get("Altitude")].add_state_marker(state_str)
 
                 self._current_state = state_str
                 self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
