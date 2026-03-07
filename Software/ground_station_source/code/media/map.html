@@ -41,7 +41,7 @@
 
         window.onload = function() {
             console.log("Map page loaded, initializing default view...");
-            initMap(43.65247,-79.39770, 16);
+            initMap(38.3760167,-79.6078722, 16);
         };
 
         function initMap(lat, lon, zoom) {
@@ -53,15 +53,16 @@
 
             // 1. Local tiles fallback (for offline use)
             L.tileLayer('tiles/{z}/{x}/{y}.png', {
-                maxZoom: 16, // Todo: Will need better tile dataset :(
-                minZoom: 14
+                maxZoom: 19, // Todo: Will need better tile dataset :(
+                minZoom: 12,
+                tms: false
             }).addTo(map);
 
             // 2. OpenStreetMap online fallback
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
+            // L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            //     maxZoom: 19,
+            //     attribution: '&copy; OpenStreetMap contributors'
+            // }).addTo(map);
 
             trace.addTo(map);
             L.Icon.Default.imagePath = 'images/';
