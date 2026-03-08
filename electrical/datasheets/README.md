@@ -5,10 +5,10 @@ This folder contains datasheets of electronic components used in the project. Th
 
 ## I2C Adress Book
 - INA219 (A0, A1 are gnd on CPL): 0x40
-- BMP581: 
-- BNO085:
-- MAXM10S: 
-- VL53L1-SATEL​:
+- BMP581: 0x47 (can be changed to 0x46)
+- BNO085: 0x4A (can be changed to 0x4B)
+- MAXM10S: 0x42 
+- VL53L1-SATEL​: 0x29
 
 ## EEPROM
 - Datasheet: [EEPROM.pdf](EEPROM.pdf)
