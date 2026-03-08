@@ -73,48 +73,11 @@
 			)
 		)
 		(symbol "25LC1024-E_P_0_1"
-			(polyline
-				(pts
-					(xy 7.62 5.08) (xy 7.62 -12.7)
-				)
+			(rectangle
+				(start 7.62 5.08)
+				(end 7.62 5.08)
 				(stroke
-					(width 0.127)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 7.62 -12.7) (xy 53.34 -12.7)
-				)
-				(stroke
-					(width 0.127)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 53.34 5.08) (xy 7.62 5.08)
-				)
-				(stroke
-					(width 0.127)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 53.34 -12.7) (xy 53.34 5.08)
-				)
-				(stroke
-					(width 0.127)
+					(width 0)
 					(type default)
 				)
 				(fill
@@ -263,6 +226,19 @@
 							(size 1.27 1.27)
 						)
 					)
+				)
+			)
+		)
+		(symbol "25LC1024-E_P_1_1"
+			(rectangle
+				(start 7.62 5.08)
+				(end 53.34 -12.7)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
 				)
 			)
 		)
@@ -2220,18 +2196,6 @@
 			)
 			(polyline
 				(pts
-					(xy 7.62 -10.16) (xy 33.02 -10.16)
-				)
-				(stroke
-					(width 0.127)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
 					(xy 33.02 5.08) (xy 7.62 5.08)
 				)
 				(stroke
@@ -2360,6 +2324,19 @@
 							(size 1.27 1.27)
 						)
 					)
+				)
+			)
+		)
+		(symbol "DRV8212DRLR_1_0"
+			(rectangle
+				(start 7.62 5.08)
+				(end 33.02 -10.16)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
 				)
 			)
 		)
@@ -4085,17 +4062,6 @@
 			)
 		)
 		(symbol "INA219BIDR_0_0"
-			(rectangle
-				(start -12.7 15.24)
-				(end 12.7 -15.24)
-				(stroke
-					(width 0.41)
-					(type default)
-				)
-				(fill
-					(type background)
-				)
-			)
 			(pin input line
 				(at -17.78 7.62 0)
 				(length 5.08)
@@ -4238,6 +4204,19 @@
 							(size 1.016 1.016)
 						)
 					)
+				)
+			)
+		)
+		(symbol "INA219BIDR_1_0"
+			(rectangle
+				(start -12.7 15.24)
+				(end 12.7 -15.24)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
 				)
 			)
 		)
@@ -5146,18 +5125,6 @@
 			)
 			(polyline
 				(pts
-					(xy 7.62 -20.32) (xy 63.5 -20.32)
-				)
-				(stroke
-					(width 0.1524)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
 					(xy 63.5 5.08) (xy 7.62 5.08)
 				)
 				(stroke
@@ -5415,6 +5382,19 @@
 				)
 			)
 		)
+		(symbol "LTC3536EMSE_PBF_1_0"
+			(rectangle
+				(start 7.62 5.08)
+				(end 63.5 -20.32)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
 		(embedded_fonts no)
 	)
 	(symbol "MAX756CPA"
@@ -5515,18 +5495,6 @@
 			(polyline
 				(pts
 					(xy 27.94 2.54) (xy 7.62 2.54)
-				)
-				(stroke
-					(width 0.127)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 27.94 -10.16) (xy 27.94 2.54)
 				)
 				(stroke
 					(width 0.127)
@@ -5681,6 +5649,19 @@
 				)
 			)
 		)
+		(symbol "MAX756CPA_1_1"
+			(rectangle
+				(start 7.62 2.54)
+				(end 27.94 -10.16)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
 		(embedded_fonts no)
 	)
 	(symbol "MAX756CPA_"
@@ -5737,17 +5718,6 @@
 			)
 		)
 		(symbol "MAX756CPA__0_0"
-			(rectangle
-				(start -12.7 -15.24)
-				(end 12.7 15.24)
-				(stroke
-					(width 0.41)
-					(type default)
-				)
-				(fill
-					(type background)
-				)
-			)
 			(pin input line
 				(at -17.78 12.7 0)
 				(length 5.08)
@@ -5890,6 +5860,19 @@
 							(size 1.016 1.016)
 						)
 					)
+				)
+			)
+		)
+		(symbol "MAX756CPA__1_0"
+			(rectangle
+				(start -12.7 15.24)
+				(end 12.7 -15.24)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
 				)
 			)
 		)
@@ -6244,7 +6227,7 @@
 			)
 			(polyline
 				(pts
-					(xy -1.27 11.43) (xy 0 11.43)
+					(xy -1.905 11.43) (xy -0.635 11.43)
 				)
 				(stroke
 					(width 0.254)
@@ -6256,7 +6239,7 @@
 			)
 			(polyline
 				(pts
-					(xy 0 11.43) (xy 0 -26.67)
+					(xy -1.905 -26.67) (xy -0.635 -26.67)
 				)
 				(stroke
 					(width 0.254)
@@ -6268,7 +6251,7 @@
 			)
 			(polyline
 				(pts
-					(xy 0 11.43) (xy 0 -26.67)
+					(xy -1.27 11.43) (xy -1.27 -26.67)
 				)
 				(stroke
 					(width 0.254)
@@ -6280,7 +6263,7 @@
 			)
 			(polyline
 				(pts
-					(xy 0 -26.67) (xy -1.27 -26.67)
+					(xy -1.27 11.43) (xy -1.27 -26.67)
 				)
 				(stroke
 					(width 0.254)
@@ -6292,7 +6275,7 @@
 			)
 			(polyline
 				(pts
-					(xy 0 -26.67) (xy 1.27 -26.67)
+					(xy -0.635 11.43) (xy -1.905 11.43)
 				)
 				(stroke
 					(width 0.254)
@@ -6304,7 +6287,7 @@
 			)
 			(polyline
 				(pts
-					(xy 1.27 11.43) (xy 0 11.43)
+					(xy -0.635 -26.67) (xy -1.905 -26.67)
 				)
 				(stroke
 					(width 0.254)
@@ -6351,7 +6334,7 @@
 				)
 			)
 			(text "CN4"
-				(at -1.27 -17.78 900)
+				(at -2.54 0 900)
 				(effects
 					(font
 						(size 1.778 1.778)
@@ -6369,7 +6352,7 @@
 				)
 			)
 			(text "CN3"
-				(at 3.81 1.27 900)
+				(at 2.54 -17.78 900)
 				(effects
 					(font
 						(size 1.778 1.778)
@@ -6670,7 +6653,7 @@
 			(pin bidirectional line
 				(at -25.4 0 0)
 				(length 5.08)
-				(name "G_CAM_OUT(PA12(D2))"
+				(name "NC_REL(PA12(D2))"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -6760,7 +6743,7 @@
 			(pin bidirectional line
 				(at -25.4 -12.7 0)
 				(length 5.08)
-				(name "NC_REL(PF0(D7))"
+				(name "G_CAM_OUT(PF0(D7))"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -6778,7 +6761,7 @@
 			(pin bidirectional line
 				(at -25.4 -15.24 0)
 				(length 5.08)
-				(name "CC_REL(PF1(D8))"
+				(name "PG_CAM_OUT(PF1(D8))"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -6796,7 +6779,7 @@
 			(pin bidirectional line
 				(at -25.4 -17.78 0)
 				(length 5.08)
-				(name "AILERON(PA8(D9))"
+				(name "PG_CAM_IN(PA8(D9))"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -6814,7 +6797,7 @@
 			(pin bidirectional line
 				(at -25.4 -20.32 0)
 				(length 5.08)
-				(name "PG_CAM_OUT(PA11(D10))"
+				(name "CC_REL(PA11(D10))"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -6832,7 +6815,7 @@
 			(pin bidirectional line
 				(at -25.4 -22.86 0)
 				(length 5.08)
-				(name "PG_CAM_IN(PB5(D11))"
+				(name "AILERON(PB5(D11))"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -6984,6 +6967,207 @@
 					)
 				)
 				(number "CN3_15"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "PT2512FK-070R1L"
+		(pin_names
+			(offset 1.016)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "R"
+			(at -3.81 1.4986 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Value" "PT2512FK-070R1L"
+			(at -3.81 -3.302 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Footprint" "PT2512FK-070R1L:RESC6331X65N"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "PT2512FK-070R1L_0_0"
+			(polyline
+				(pts
+					(xy -2.54 0) (xy -2.159 1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -2.159 1.016) (xy -1.524 -1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.524 -1.016) (xy -0.889 1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -0.889 1.016) (xy -0.254 -1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -0.254 -1.016) (xy 0.381 1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.381 1.016) (xy 1.016 -1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.016 -1.016) (xy 1.651 1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.651 1.016) (xy 2.286 -1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 2.286 -1.016) (xy 2.54 0)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(pin passive line
+				(at -7.62 0 0)
+				(length 5.08)
+				(name "~"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 7.62 0 180)
+				(length 5.08)
+				(name "~"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "2"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -9758,6 +9942,17 @@
 			)
 		)
 		(symbol "Wurth_M2_62000211622_1_1"
+			(rectangle
+				(start -2.54 1.27)
+				(end 2.54 -1.27)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
+				)
+			)
 			(circle
 				(center -1.27 0)
 				(radius 0.508)
@@ -9796,17 +9991,6 @@
 				(pts
 					(xy 1.27 -0.508) (xy 1.27 -1.27)
 				)
-				(stroke
-					(width 0.254)
-					(type solid)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(rectangle
-				(start 2.54 1.27)
-				(end -2.54 -1.27)
 				(stroke
 					(width 0.254)
 					(type solid)
@@ -10058,7 +10242,7 @@
 					(type solid)
 				)
 				(fill
-					(type none)
+					(type background)
 				)
 			)
 			(circle
@@ -10391,7 +10575,7 @@
 					(type solid)
 				)
 				(fill
-					(type none)
+					(type background)
 				)
 			)
 			(circle
