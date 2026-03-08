@@ -26,9 +26,9 @@ This repository contains all files created by the Aerial Team of Robotics for Sp
 **Honorary Team Members:**
 <table align="left">
     <tr><td align="center">Parth Bhasin</td><td align="center">Electrical Team Member</td></tr>
-    <tr><td align="center">John Yfantis</td><td align="center">Electrical Team Lead</td></tr>
-    <tr><td align="center">Nathan Xia</td><td align="center">Mechanical Team Lead</td></tr>
-    <tr><td align="center">Gianluca Ceccacci</td><td align="center">Mechanical Team Lead</td></tr>
+    <tr><td align="center">John Yfantis</td><td align="center">Electrical Team Member</td></tr>
+    <tr><td align="center">Nathan Xia</td><td align="center">Mechanical Team Member</td></tr>
+    <tr><td align="center">Gianluca Ceccacci</td><td align="center">Mechanical Team Member</td></tr>
     <tr><td align="center">Berk Yilmaz</td><td align="center">Software Team Member</td></tr>
     <tr><td align="center">Remi Zhang</td><td align="center">Software Team Member</td></tr>
 </table>
