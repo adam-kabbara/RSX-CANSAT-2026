@@ -4,8 +4,8 @@
 This folder contains datasheets of electronic components used in the project. This readme provides notes and highlights of the datasheets for quick reference.
 
 ## I2C Adress Book
-- INA219:
-- BMP581:
+- INA219 (A0, A1 are gnd on CPL): 0x40
+- BMP581: 
 - BNO085:
 - MAXM10S: 
 - VL53L1-SATEL​:
