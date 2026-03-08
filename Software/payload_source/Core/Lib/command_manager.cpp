@@ -323,6 +323,13 @@ void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorMan
 
 void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
+  int ret = sensors.updateBMP();
+  if(ret != 0)
+  {
+	  ser.sendErrorDataMsg("BMP ERROR %d", ret);
+	  return;
+  }
+  ser.sendInfoDataMsg("Getting pressure value: %f", sensors.getPressure());
   info.setAltCalibration(pressure_to_alt(sensors.getPressure()));
   sensors.EEPROM_updateAltitude(info.getLaunchAlt());
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());

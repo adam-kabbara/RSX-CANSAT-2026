@@ -11,14 +11,19 @@ SensorManager::SensorManager()
     /* Declare sensors */
 }
 
+int SensorManager::updateBMP()
+{
+	return BMP5_SaveConvData(&bmp_dev);
+}
+
 float SensorManager::getPressure()
 {
-	return 0.0;
+	return bmp_dev.pressure;
 }
 
 float SensorManager::getTemp()
 {
-	return 0.0;
+	return bmp_dev.temperature;
 }
 
 float SensorManager::getVoltage()
@@ -153,18 +158,18 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	 * Add a delay between each start and send an
 	 * info message */
 
-	/*
-	if(!BMP5_Init(bmp_dev, hi2c1, BMP5_I2C_ADDR_FIRST))
+	if(BMP5_Init(&bmp_dev, hi2c1, BMP5_I2C_ADDR_FIRST))
 	{
-		serial.sendInfoMsg("BMP initialized successfully.");
+		serial.sendErrorMsg("BMP Init failed");
 	}
-	else
+
+	if(BMP5_Start_Mode(&bmp_dev, 1, BMP5_ODR_120HZ, BMP5_OSR_X4, BMP5_OSR_X1))
 	{
-		serial.sendErrorMsg("BMP initialization failed.");
+		serial.sendErrorMsg("BMP Start Mode Init Failed");
 	}
 
 	HAL_Delay(100);
-	*/
+
 
 	servo_nosecone.Init(htim4, TIM_CHANNEL_2, 1000, 2000, 180);
 	servo_container.Init(htim4, TIM_CHANNEL_1, 1000, 2000, 180);

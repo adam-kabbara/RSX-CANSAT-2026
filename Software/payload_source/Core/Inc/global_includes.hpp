@@ -21,6 +21,7 @@
 #define CMD_BUFF_SIZE 128
 #define RESP_SIZE 128
 #define SEA_LEVEL_PRESSURE_HPA 1013.25
+#define SEA_LEVEL_PRESSURE_PA 101325.0
 #define WORD_SIZE 64
 #define DATA_SIZE 32
 #define SENTENCE_SIZE 128
@@ -131,7 +132,7 @@ inline const char* op_state_to_string(OperatingState state)
 
 inline const float pressure_to_alt(const float pressure)
 {
-	return 44330.0 * (1.0 - pow(pressure / SEA_LEVEL_PRESSURE_HPA, 0.1903));
+	return 44330.0 * (1.0 - pow(pressure / SEA_LEVEL_PRESSURE_PA, 0.1903));
 }
 
 #endif /* INC_GLOBAL_INCLUDES_HPP_ */

@@ -41,6 +41,7 @@ private:
 public:
 	SensorManager();
 
+	int updateBMP();
 	float getPressure();
 	float getTemp();
 	float getVoltage();
