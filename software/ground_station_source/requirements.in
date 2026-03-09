@@ -1,5 +1,0 @@
-# requirements.in
-numpy
-pyqtgraph
-PyQt6
-cx_Freeze
