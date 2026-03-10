@@ -1,0 +1,26 @@
+# Default line ending to LF
+
+* text=auto eol=lf
+
+# Override for binary files and Windows scripts
+*.bat	text eol=crlf
+*.ps1   text eol=crlf
+
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.bmp   binary
+*.ico   binary
+*.pdf   binary
+*.zip   binary
+*.tar   binary
+*.gz    binary
+*.7z    binary
+*.elf   binary
+*.bin   binary
+*.hex   binary
+*.a     binary
+*.o     binary
+*.exe   binary
+*.dll   binary
