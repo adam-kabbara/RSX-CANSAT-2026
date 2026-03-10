@@ -73,48 +73,11 @@
 			)
 		)
 		(symbol "25LC1024-E_P_0_1"
-			(polyline
-				(pts
-					(xy 7.62 5.08) (xy 7.62 -12.7)
-				)
+			(rectangle
+				(start 7.62 5.08)
+				(end 7.62 5.08)
 				(stroke
-					(width 0.127)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 7.62 -12.7) (xy 53.34 -12.7)
-				)
-				(stroke
-					(width 0.127)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 53.34 5.08) (xy 7.62 5.08)
-				)
-				(stroke
-					(width 0.127)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 53.34 -12.7) (xy 53.34 5.08)
-				)
-				(stroke
-					(width 0.127)
+					(width 0)
 					(type default)
 				)
 				(fill
@@ -263,6 +226,19 @@
 							(size 1.27 1.27)
 						)
 					)
+				)
+			)
+		)
+		(symbol "25LC1024-E_P_1_1"
+			(rectangle
+				(start 7.62 5.08)
+				(end 53.34 -12.7)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
 				)
 			)
 		)
@@ -1747,6 +1723,212 @@
 		(embedded_fonts no)
 	)
 	(symbol "Adafruit_BMP581"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 1.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Adafruit_BMP581"
+			(at 0 -1.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:Adafruit_BMP581"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "Adafruit_BMP581_1_1"
+			(rectangle
+				(start -10.16 -2.54)
+				(end 10.16 -19.05)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
+				)
+			)
+			(pin input line
+				(at -12.7 -5.08 0)
+				(length 2.54)
+				(name "VIN"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at -12.7 -8.89 0)
+				(length 2.54)
+				(name "3Vo"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -12.7 -12.7 0)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -12.7 -16.51 0)
+				(length 2.54)
+				(name "SCL"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 12.7 -5.08 180)
+				(length 2.54)
+				(name "INT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at 12.7 -8.89 180)
+				(length 2.54)
+				(name "CS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 12.7 -12.7 180)
+				(length 2.54)
+				(name "SDA"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 12.7 -16.51 180)
+				(length 2.54)
+				(name "SDO"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "Adafruit_INA219"
 		(pin_names
 			(offset 1.016)
 		)
@@ -1762,7 +1944,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Value" "Adafruit_BMP581"
+		(property "Value" "Adafruit_INA219"
 			(at -10.16 -12.7 0)
 			(effects
 				(font
@@ -1899,7 +2081,7 @@
 				(hide yes)
 			)
 		)
-		(symbol "Adafruit_BMP581_0_0"
+		(symbol "Adafruit_INA219_0_0"
 			(rectangle
 				(start -10.16 -10.16)
 				(end 10.16 10.16)
@@ -2220,18 +2402,6 @@
 			)
 			(polyline
 				(pts
-					(xy 7.62 -10.16) (xy 33.02 -10.16)
-				)
-				(stroke
-					(width 0.127)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
 					(xy 33.02 5.08) (xy 7.62 5.08)
 				)
 				(stroke
@@ -2360,6 +2530,19 @@
 							(size 1.27 1.27)
 						)
 					)
+				)
+			)
+		)
+		(symbol "DRV8212DRLR_1_0"
+			(rectangle
+				(start 7.62 5.08)
+				(end 33.02 -10.16)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
 				)
 			)
 		)
@@ -4085,17 +4268,6 @@
 			)
 		)
 		(symbol "INA219BIDR_0_0"
-			(rectangle
-				(start -12.7 15.24)
-				(end 12.7 -15.24)
-				(stroke
-					(width 0.41)
-					(type default)
-				)
-				(fill
-					(type background)
-				)
-			)
 			(pin input line
 				(at -17.78 7.62 0)
 				(length 5.08)
@@ -4238,6 +4410,19 @@
 							(size 1.016 1.016)
 						)
 					)
+				)
+			)
+		)
+		(symbol "INA219BIDR_1_0"
+			(rectangle
+				(start -12.7 15.24)
+				(end 12.7 -15.24)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
 				)
 			)
 		)
@@ -5146,18 +5331,6 @@
 			)
 			(polyline
 				(pts
-					(xy 7.62 -20.32) (xy 63.5 -20.32)
-				)
-				(stroke
-					(width 0.1524)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
 					(xy 63.5 5.08) (xy 7.62 5.08)
 				)
 				(stroke
@@ -5415,6 +5588,19 @@
 				)
 			)
 		)
+		(symbol "LTC3536EMSE_PBF_1_0"
+			(rectangle
+				(start 7.62 5.08)
+				(end 63.5 -20.32)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
 		(embedded_fonts no)
 	)
 	(symbol "MAX756CPA"
@@ -5515,18 +5701,6 @@
 			(polyline
 				(pts
 					(xy 27.94 2.54) (xy 7.62 2.54)
-				)
-				(stroke
-					(width 0.127)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 27.94 -10.16) (xy 27.94 2.54)
 				)
 				(stroke
 					(width 0.127)
@@ -5681,6 +5855,19 @@
 				)
 			)
 		)
+		(symbol "MAX756CPA_1_1"
+			(rectangle
+				(start 7.62 2.54)
+				(end 27.94 -10.16)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
 		(embedded_fonts no)
 	)
 	(symbol "MAX756CPA_"
@@ -5737,17 +5924,6 @@
 			)
 		)
 		(symbol "MAX756CPA__0_0"
-			(rectangle
-				(start -12.7 -15.24)
-				(end 12.7 15.24)
-				(stroke
-					(width 0.41)
-					(type default)
-				)
-				(fill
-					(type background)
-				)
-			)
 			(pin input line
 				(at -17.78 12.7 0)
 				(length 5.08)
@@ -5890,6 +6066,19 @@
 							(size 1.016 1.016)
 						)
 					)
+				)
+			)
+		)
+		(symbol "MAX756CPA__1_0"
+			(rectangle
+				(start -12.7 15.24)
+				(end 12.7 -15.24)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
 				)
 			)
 		)
@@ -6232,8 +6421,8 @@
 		)
 		(symbol "NUCLEO-G431KB_0_0"
 			(rectangle
-				(start -20.32 -27.94)
-				(end 20.32 25.4)
+				(start -20.32 25.4)
+				(end 20.32 -27.94)
 				(stroke
 					(width 0.254)
 					(type default)
@@ -6244,7 +6433,7 @@
 			)
 			(polyline
 				(pts
-					(xy -7.62 11.43) (xy -6.35 11.43)
+					(xy -1.905 11.43) (xy -0.635 11.43)
 				)
 				(stroke
 					(width 0.254)
@@ -6256,7 +6445,7 @@
 			)
 			(polyline
 				(pts
-					(xy -6.35 11.43) (xy -6.35 -26.67)
+					(xy -1.905 -26.67) (xy -0.635 -26.67)
 				)
 				(stroke
 					(width 0.254)
@@ -6268,7 +6457,43 @@
 			)
 			(polyline
 				(pts
-					(xy -6.35 -26.67) (xy -7.62 -26.67)
+					(xy -1.27 11.43) (xy -1.27 -26.67)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.27 11.43) (xy -1.27 -26.67)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -0.635 11.43) (xy -1.905 11.43)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -0.635 -26.67) (xy -1.905 -26.67)
 				)
 				(stroke
 					(width 0.254)
@@ -6304,30 +6529,6 @@
 			)
 			(polyline
 				(pts
-					(xy 2.54 11.43) (xy 2.54 -26.67)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 2.54 -26.67) (xy 3.81 -26.67)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
 					(xy 3.81 13.97) (xy 2.54 13.97)
 				)
 				(stroke
@@ -6338,20 +6539,8 @@
 					(type none)
 				)
 			)
-			(polyline
-				(pts
-					(xy 3.81 11.43) (xy 2.54 11.43)
-				)
-				(stroke
-					(width 0.254)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
 			(text "CN4"
-				(at -3.81 -8.89 900)
+				(at -2.54 0 900)
 				(effects
 					(font
 						(size 1.778 1.778)
@@ -6369,48 +6558,12 @@
 				)
 			)
 			(text "CN3"
-				(at 1.27 -8.89 900)
+				(at 2.54 -17.78 900)
 				(effects
 					(font
 						(size 1.778 1.778)
 					)
 					(justify left bottom)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 10.16 0)
-				(length 5.08)
-				(name "PA9(D1)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_1"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 7.62 0)
-				(length 5.08)
-				(name "PA10(D0)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_2"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
 				)
 			)
 			(pin input line
@@ -6442,204 +6595,6 @@
 					)
 				)
 				(number "CN4_4"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 0 0)
-				(length 5.08)
-				(name "PA12(D2)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_5"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -2.54 0)
-				(length 5.08)
-				(name "PB0(D3)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_6"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -5.08 0)
-				(length 5.08)
-				(name "PB7(D4)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_7"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -7.62 0)
-				(length 5.08)
-				(name "PA15(D5)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_8"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -10.16 0)
-				(length 5.08)
-				(name "PB6(D6)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_9"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -12.7 0)
-				(length 5.08)
-				(name "PF0(D7)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_10"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -15.24 0)
-				(length 5.08)
-				(name "PF1(D8)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_11"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -17.78 0)
-				(length 5.08)
-				(name "PA8(D9)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_12"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -20.32 0)
-				(length 5.08)
-				(name "PA11(D10)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_13"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -22.86 0)
-				(length 5.08)
-				(name "PB5(D11)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_14"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at -25.4 -25.4 0)
-				(length 5.08)
-				(name "PB4(D12)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN4_15"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -6810,78 +6765,6 @@
 				)
 			)
 			(pin bidirectional line
-				(at 25.4 -2.54 180)
-				(length 5.08)
-				(name "PA7(A6)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_6"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 25.4 -5.08 180)
-				(length 5.08)
-				(name "PA6/PA15(A5)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_7"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 25.4 -7.62 180)
-				(length 5.08)
-				(name "PA5/PB7(A4)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_8"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 25.4 -10.16 180)
-				(length 5.08)
-				(name "PA4(A3)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_9"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
 				(at 25.4 -12.7 180)
 				(length 5.08)
 				(name "PA3(A2)"
@@ -6892,42 +6775,6 @@
 					)
 				)
 				(number "CN3_10"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 25.4 -15.24 180)
-				(length 5.08)
-				(name "PA1(A1)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_11"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
-				(at 25.4 -17.78 180)
-				(length 5.08)
-				(name "PA0(A0)"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "CN3_12"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -6971,10 +6818,354 @@
 					)
 				)
 			)
+		)
+		(symbol "NUCLEO-G431KB_1_0"
+			(pin bidirectional line
+				(at -25.4 10.16 0)
+				(length 5.08)
+				(name "XBEE_TX(PA9(D1))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_1"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 7.62 0)
+				(length 5.08)
+				(name "XBEE_RX(PA10(D0))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_2"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 0 0)
+				(length 5.08)
+				(name "NC_REL(PA12(D2))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_5"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -2.54 0)
+				(length 5.08)
+				(name "EGG_REL(PB0(D3))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_6"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -5.08 0)
+				(length 5.08)
+				(name "I2C_SDA(PB7(D4))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_7"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -7.62 0)
+				(length 5.08)
+				(name "I2C_SCL(PA15(D5))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_8"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -10.16 0)
+				(length 5.08)
+				(name "G_CAM_IN(PB6(D6))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_9"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -12.7 0)
+				(length 5.08)
+				(name "G_CAM_OUT(PF0(D7))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_10"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -15.24 0)
+				(length 5.08)
+				(name "PG_CAM_OUT(PF1(D8))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_11"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -17.78 0)
+				(length 5.08)
+				(name "PG_CAM_IN(PA8(D9))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_12"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -20.32 0)
+				(length 5.08)
+				(name "CC_REL(PA11(D10))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_13"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -22.86 0)
+				(length 5.08)
+				(name "AILERON(PB5(D11))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_14"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at -25.4 -25.4 0)
+				(length 5.08)
+				(name "ELEVATOR(PB4(D12))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN4_15"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -2.54 180)
+				(length 5.08)
+				(name "SPI_MOSI(PA7(A6))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_6"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -5.08 180)
+				(length 5.08)
+				(name "SPI_MISO(PA6/PA15(A5))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_7"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -7.62 180)
+				(length 5.08)
+				(name "SPI_SCK(PA5/PB7(A4))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_8"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -10.16 180)
+				(length 5.08)
+				(name "SPI_CS(PA4(A3))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_9"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -15.24 180)
+				(length 5.08)
+				(name "WING_PWM(PA1(A1))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_11"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
+				(at 25.4 -17.78 180)
+				(length 5.08)
+				(name "WING_DIR(PA0(A0))"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "CN3_12"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
 			(pin bidirectional line
 				(at 25.4 -25.4 180)
 				(length 5.08)
-				(name "PB3/PB8(D13)"
+				(name "T_SWO(PB3/PB8(D13))"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -6982,6 +7173,207 @@
 					)
 				)
 				(number "CN3_15"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "PT2512FK-070R1L"
+		(pin_names
+			(offset 1.016)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "R"
+			(at -3.81 1.4986 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Value" "PT2512FK-070R1L"
+			(at -3.81 -3.302 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Footprint" "PT2512FK-070R1L:RESC6331X65N"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "PT2512FK-070R1L_0_0"
+			(polyline
+				(pts
+					(xy -2.54 0) (xy -2.159 1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -2.159 1.016) (xy -1.524 -1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.524 -1.016) (xy -0.889 1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -0.889 1.016) (xy -0.254 -1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -0.254 -1.016) (xy 0.381 1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.381 1.016) (xy 1.016 -1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.016 -1.016) (xy 1.651 1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.651 1.016) (xy 2.286 -1.016)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 2.286 -1.016) (xy 2.54 0)
+				)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(pin passive line
+				(at -7.62 0 0)
+				(length 5.08)
+				(name "~"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 7.62 0 180)
+				(length 5.08)
+				(name "~"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "2"
 					(effects
 						(font
 							(size 1.016 1.016)
@@ -9756,6 +10148,17 @@
 			)
 		)
 		(symbol "Wurth_M2_62000211622_1_1"
+			(rectangle
+				(start -2.54 1.27)
+				(end 2.54 -1.27)
+				(stroke
+					(width 0.254)
+					(type solid)
+				)
+				(fill
+					(type background)
+				)
+			)
 			(circle
 				(center -1.27 0)
 				(radius 0.508)
@@ -9794,17 +10197,6 @@
 				(pts
 					(xy 1.27 -0.508) (xy 1.27 -1.27)
 				)
-				(stroke
-					(width 0.254)
-					(type solid)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(rectangle
-				(start 2.54 1.27)
-				(end -2.54 -1.27)
 				(stroke
 					(width 0.254)
 					(type solid)
@@ -10056,7 +10448,7 @@
 					(type solid)
 				)
 				(fill
-					(type none)
+					(type background)
 				)
 			)
 			(circle
@@ -10389,7 +10781,7 @@
 					(type solid)
 				)
 				(fill
-					(type none)
+					(type background)
 				)
 			)
 			(circle

@@ -440,7 +440,7 @@
 			(xyz 180 -0 90)
 		)
 	)
-	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_L3_Standoff.step"
 		(offset
 			(xyz 2.54 -20.32 -1.4)
 		)
@@ -451,7 +451,7 @@
 			(xyz -0 -0 -0)
 		)
 	)
-	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_L3_Standoff.step"
 		(offset
 			(xyz 2.54 -2.54 -1.4)
 		)
@@ -462,7 +462,7 @@
 			(xyz -0 -0 -0)
 		)
 	)
-	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_L3_Standoff.step"
 		(offset
 			(xyz 22.86 -2.54 -1.4)
 		)
@@ -473,7 +473,7 @@
 			(xyz -0 -0 -0)
 		)
 	)
-	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_Standoff.step"
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_L3_Standoff.step"
 		(offset
 			(xyz 22.86 -20.32 -1.4)
 		)
