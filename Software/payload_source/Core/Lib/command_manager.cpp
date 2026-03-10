@@ -1,0 +1,459 @@
+/**
+  ******************************************************************************
+  * @file           : command_manager.cpp
+  * @author         : RSX 2025-2026
+  * @brief          : Processes commands received by ground station
+  ******************************************************************************
+  */
+
+#include "command_manager.hpp"
+
+CommandManager::CommandManager()
+{
+    // Initialize function map
+    using namespace std::placeholders;
+    command_map.emplace("CX", std::bind(&CommandManager::do_cx, this, _1, _2, _3, _4));
+    command_map.emplace("ST", std::bind(&CommandManager::do_st, this, _1, _2, _3, _4));
+    command_map.emplace("RST", std::bind(&CommandManager::do_restart, this, _1, _2, _3, _4));
+    command_map.emplace("TEST", std::bind(&CommandManager::do_give_status, this, _1, _2, _3, _4));
+    command_map.emplace("SIM", std::bind(&CommandManager::do_sim, this, _1, _2, _3, _4));
+    command_map.emplace("SIMP", std::bind(&CommandManager::do_simp, this, _1, _2, _3, _4));
+    command_map.emplace("CAL", std::bind(&CommandManager::do_cal, this, _1, _2, _3, _4));
+    command_map.emplace("MEC", std::bind(&CommandManager::do_mec, this, _1, _2, _3, _4));
+    command_map.emplace("LOG", std::bind(&CommandManager::do_logs, this, _1, _2, _3, _4));
+}
+
+uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors)
+{
+    // Extract fields from command buffer
+
+    struct command_packet
+    {
+        char *keyword = nullptr;
+        char *team_id = nullptr;
+        char *command = nullptr;
+        char *data = nullptr;
+    };
+
+    command_packet packet;
+
+    char cmd_buff_copy[CMD_BUFF_SIZE];
+    strncpy(cmd_buff_copy, cmd_buff, CMD_BUFF_SIZE);
+    cmd_buff_copy[CMD_BUFF_SIZE - 1] = '\0';
+
+    char *token = strtok(cmd_buff_copy, ",");
+    int token_cnt = 0;
+
+    while(token != NULL)
+    {
+        switch(token_cnt)
+        {
+            case 0:
+                packet.keyword = token;
+                break;
+            case 1:
+                packet.team_id = token;
+                break;
+            case 2:
+                packet.command = token;
+                break;
+        }
+        token_cnt++;
+
+        if(token_cnt == 3)
+        {
+          token = strtok(NULL, "");
+          packet.data = token;
+        }
+        else
+        {
+          token = strtok(NULL, ",");
+        }
+    }
+
+    // Check validity
+    if(!packet.keyword || !packet.team_id || !packet.command)
+    {
+        ser.sendErrorMsg("COMMAND REJECTED: FORMAT IS INCORRECT.");
+        ser.sendErrorDataMsg("RECEIVED: %s\n", cmd_buff);
+        return 0;
+    }
+
+    if(strcmp(packet.keyword, "CMD") != 0)
+    {
+        ser.sendErrorMsg("COMMAND REJECTED: FIRST FIELD MUST BE 'CMD'.");
+        return 0;
+    }
+
+    if(atoi(packet.team_id) != TEAM_ID)
+    {
+        ser.sendErrorDataMsg("COMMAND REJECTED: TEAM ID DOES NOT MATCH EXPECTED VALUE OF %d", TEAM_ID);
+        return 0;
+    }
+
+    // Check if the command is in the map and call the corresponding function
+    auto iter = command_map.find(packet.command);
+    if(iter == command_map.end())
+    {
+        ser.sendErrorMsg("COMMAND REJECTED: NOT A COMMAND");
+        return 0;
+    }
+    iter->second(ser, info, sensors, packet.data);
+    return 1;
+}
+
+// Toggle mission telemetry
+void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+    if(!data)
+    {
+        ser.sendErrorMsg("COMMAND 'CX' REJECTED: DID NOT RECEIVE ON/OFF");
+        return;
+    }
+
+    if(strcmp(data, "ON") == 0)
+    {
+        if(info.getOpState() == IDLE && (info.isAltCalibrated() == true || info.getOpMode() == OPMODE_SIM))
+        {
+            info.clearPacketCount();
+            ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");
+            info.setOpState(LAUNCH_PAD);
+            sensors.EEPROM_updateState(LAUNCH_PAD);
+        }
+        else if(info.getOpState() != IDLE)
+        {
+            ser.sendErrorMsg("TRANSMISSION IS ALREADY ON.");
+        }
+        else
+        {
+            ser.sendErrorMsg("CANNOT START TELEMETRY BEFORE CALIBRATING ALTITUDE!");
+        }
+    }
+    else if(strcmp(data, "OFF") == 0)
+    {
+        if(info.getOpState() != IDLE)
+        {
+            info.setOpState(IDLE);
+            sensors.EEPROM_updateState(IDLE);
+            info.setAltCalOff();
+            ser.sendInfoDataMsg("ENDING PAYLOAD TRANSMISSION.{%s|%s}",
+                op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+        }
+        else
+        {
+            ser.sendErrorMsg("TRANSMISSION IS ALREADY OFF!");
+        }
+    }
+    else
+    {
+        ser.sendErrorDataMsg("DATA IS NOT VALID: RECEIVED %s INSTEDA OF ON/OFF", data);
+    }
+}
+
+void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+    if(!data)
+    {
+        ser.sendErrorMsg("COMMAND 'ST' REJECTED: DID NOT TIME DATA");
+        return;
+    }
+
+    int h,m,s;
+    if(strcmp(data, "GPS") == 0)
+    {
+        char time_str[DATA_SIZE];
+        sensors.getGPSTime(time_str);
+        if(sscanf(time_str, "%d:%d:%d", &h, &m, &s) == 3)
+        {
+          sensors.setRTCTime(s,m,h);
+          sensors.getRTCTime(time_str);
+          ser.sendInfoDataMsg("Set RTC time to %s", time_str);
+        }
+        else
+        {
+          ser.sendErrorMsg("Could not get GPS time in format HH:MM:SS!");
+        }
+    }
+    else if(sscanf(data, "%d:%d:%d", &h, &m, &s) == 3)
+    {
+        sensors.setRTCTime(s,m,h);
+        char time_str[DATA_SIZE];
+        sensors.getRTCTime(time_str);
+        ser.sendInfoDataMsg("Set RTC time to %s", time_str);
+    }
+    else
+    {
+        ser.sendErrorMsg("DATA IS NOT VALID; SEND 'GPS' OR UTC TIME");
+    }
+}
+
+void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+  ser.sendInfoDataMsg("CANSAT IS ONLINE.{%s|%s}",
+      op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+} // END: do_give_status
+
+void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+  ser.sendInfoMsg("Attempting to restart processor!");
+  HAL_NVIC_SystemReset();
+} // END: do_restart
+
+void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+  if(!data)
+  {
+      ser.sendErrorMsg("COMMAND 'SIM' REJECTED: DID NOT RECEIVE CONTROL DATA");
+      return;
+  }
+
+  if(info.getOpState() != IDLE)
+  {
+    ser.sendErrorMsg("SIMULATION MODE CANNOT BE CHANGED WHILE TRANSMISSION IS ON");
+    return;
+  }
+
+  if(strcmp(data, "ENABLE") == 0)
+  {
+    switch(info.getSimStatus())
+    {
+      case SIM_OFF:
+        {
+          info.setSimStatus(SIM_EN);
+          ser.sendInfoMsg("SIMULATION MODE ENABLED");
+          break;
+        }
+      case SIM_EN:
+        {
+          ser.sendErrorMsg("SIMULATION MODE IS ALREADY ENABLED");
+          break;
+        }
+      case SIM_ON:
+        {
+          ser.sendErrorMsg("SIMULATION MODE IS ALREADY ACTIVATED");
+          break;
+        }
+    }
+  }
+  else if(strcmp(data, "ACTIVATE") == 0)
+  {
+    switch(info.getSimStatus())
+    {
+      case SIM_EN:
+        {
+          info.setSimStatus(SIM_ON);
+          info.setOpMode(OPMODE_SIM);
+          info.waitingForSimp();
+          sensors.EEPROM_updateMode(info.getOpMode());
+          ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE{%s|%s}",
+            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+          break;
+        }
+      case SIM_OFF:
+        {
+          ser.sendErrorMsg("SIMULATION MODE IS NOT ENABLED");
+          break;
+        }
+      case SIM_ON:
+        {
+          ser.sendErrorMsg("SIMULATION MODE IS ALREADY ACTIVATED");
+          break;
+        }
+    }
+  }
+  else if(strcmp(data, "DISABLE") == 0)
+  {
+    switch(info.getSimStatus())
+    {
+      case SIM_ON:
+      case SIM_EN:
+        {
+          info.setSimStatus(SIM_OFF);
+          info.setOpMode(OPMODE_FLIGHT);
+          sensors.EEPROM_updateMode(info.getOpMode());
+          ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.{%s|%s}",
+            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+          break;
+        }
+      case SIM_OFF:
+        {
+          ser.sendErrorMsg("SIMULATION MODE ALREADY DISABLED.");
+          break;
+        }
+    }
+  }
+  else
+  {
+    ser.sendErrorDataMsg("UNRECOGNIZED SIM COMMAND: '%s'", data);
+  }
+} // END: do_sim()
+
+void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+  if(!data)
+  {
+      ser.sendErrorMsg("COMMAND 'SIMP' REJECTED: DID NOT RECEIVE DATA");
+      return;
+  }
+
+  // Check if we are in simulation mode
+  if(info.getOpMode() == OPMODE_SIM)
+  {
+    int pressure;
+    if(sscanf(data, "%d", &pressure) == 1)
+    {
+      float alt = pressure_to_alt(pressure/100.0);
+      if(info.isWaitingSimp())
+      {
+          info.setAltCalibration(alt);
+          info.simpRecv();
+      }
+      info.setSimpData(pressure);
+    }
+    else
+    {
+      ser.sendErrorDataMsg("ERROR: SIMP DATA FORMAT IS INCORRECT: %s", data);
+    }
+  }
+  else
+  {
+    ser.sendErrorMsg("CANNOT RECEIVE SIMP CMD, CANSAT IS IN FLIGHT MODE");
+  }
+} // END: do_simp()
+
+void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+  int ret = sensors.updateBMP();
+  if(ret != 0)
+  {
+	  ser.sendErrorDataMsg("BMP ERROR %d", ret);
+	  return;
+  }
+  ser.sendInfoDataMsg("Getting pressure value: %f", sensors.getPressure());
+  info.setAltCalibration(pressure_to_alt(sensors.getPressure()));
+  sensors.EEPROM_updateAltitude(info.getLaunchAlt());
+  ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
+} // END: do_Cal()
+
+void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+  if(!data)
+  {
+      ser.sendErrorMsg("COMMAND 'MEC' REJECTED: DID NOT RECEIVE ANY DATA");
+      return;
+  }
+
+  char data_copy[CMD_BUFF_SIZE];
+  strcpy(data_copy, data);
+
+  const char *delim = ":";
+  char *token;
+
+  char mec[16];
+  char val[16];
+
+  token = strtok(data_copy, delim);
+  if(token == NULL)
+  {
+    ser.sendErrorMsg("MEC FORMAT IS INCORRECT, DATA SHOULD CONTAIN 'MEC:VAL'");
+    return;
+  }
+  else
+  {
+    strcpy(mec, token);
+  }
+
+  token = strtok(NULL, delim);
+  if(token == NULL)
+  {
+    ser.sendErrorMsg("MEC FORMAT IS INCORRECT, DATA SHOULD CONTAIN 'MEC:VAL'");
+    return;
+  }
+  else
+  {
+    strcpy(val, token);
+  }
+
+  if(strcmp(mec, "PAYLOAD") == 0)
+  {
+	  sensors.writeEggServo(0);
+	  ser.sendInfoMsg("I don't have a value to write yet!");
+  }
+  else if(strcmp(mec, "PROBE") == 0)
+  {
+	  sensors.writeContainerServo(0);
+	  ser.sendInfoMsg("I don't have a value to write yet!");
+  }
+  else if(strcmp(mec, "SERVO") == 0)
+  {
+	  const char *sep = strchr(val, '|');
+	  if(sep != NULL)
+	  {
+		  char left[8], right[8];
+		  size_t len_left = sep - val;
+
+		  strncpy(left, val, len_left);
+		  left[len_left] = '\0';
+
+		  strcpy(right, sep + 1);
+
+		  int servo_num = atoi(left);
+		  float servo_val = atoi(right);
+
+		  switch(servo_num)
+		  {
+		  	  case 0:
+		  		  sensors.writeNoseconeServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to nosecone servo.", servo_val);
+		  		  break;
+		  	  case 1:
+		  		  sensors.writeContainerServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to container servo.", servo_val);
+		  		  break;
+		  	  case 2:
+		  		  sensors.writeWingDirServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to wing direction servo.", servo_val);
+		  		  break;
+		  	  case 3:
+		  		  sensors.writeWingPWMServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to wing PWM servo.", servo_val);
+		  		  break;
+		  	  case 4:
+		  		  sensors.writeElevatorServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to elevator servo.", servo_val);
+		  		  break;
+		  	  case 5:
+		  		  sensors.writeAileronServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to aileron servo.", servo_val);
+		  		  break;
+		  	  case 6:
+		  		  sensors.writeEggServo(servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %d to egg servo.", servo_val);
+		  		  break;
+		  	  default:
+		  		  ser.sendErrorMsg("ERROR: SERVO ID DOES NOT MATCH 0-6");
+		  		  break;
+		  }
+	  }
+	  else
+	  {
+		  ser.sendErrorMsg("ERROR: SERVO COMMAND FORMAT INCORRECT, DID NOT RECEIVE '#|VAL'");
+	  }
+  }
+  else
+  {
+	  ser.sendErrorDataMsg("ERROR: UNRECOGNIZED MEC COMMAND: %s", mec);
+  }
+}
+
+void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+  // Only do this if IDLE
+  if(info.getOpState() != IDLE)
+  {
+    ser.sendErrorMsg("CANNOT SEND LOG DATA WHILE CANSAT IS NOT IDLE!");
+    return;
+  }
+
+  ser.sendLogFile();
+}

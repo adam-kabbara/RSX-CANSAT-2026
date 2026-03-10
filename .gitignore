@@ -21,3 +21,5 @@ __pycache__/
 ~*.lck
 electrical/pcb_boards/2t6_competition_board/capybara_rocket/capybara_rocket-backups/
 electrical/pcb_boards/2t6_competition_board/capybara_rocket/fp-info-cache
+electrical/pcb_boards/2t6_competition_board/capybara_habitat/capybara_habitat-backups/
+electrical/pcb_boards/2t6_competition_board/capybara_habitat/fp-info-cache
