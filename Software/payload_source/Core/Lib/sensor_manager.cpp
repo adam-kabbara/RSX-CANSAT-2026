@@ -170,7 +170,6 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 
 	HAL_Delay(100);
 
-
 	servo_nosecone.Init(htim4, TIM_CHANNEL_2, 1000, 2000, 180);
 	servo_container.Init(htim4, TIM_CHANNEL_1, 1000, 2000, 180);
 	servo_wing_dir.Init(htim2, TIM_CHANNEL_1, 1000, 2000, 180);
