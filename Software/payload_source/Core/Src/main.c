@@ -69,6 +69,7 @@ volatile char rx_buff[128];
 volatile uint8_t rx_idx = 0;
 volatile uint8_t cmd_ready = 0;
 volatile uint8_t discard_flag = 0;
+volatile uint8_t update_flag = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -684,6 +685,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
   if(htim == &htim1) 
   {
     send_flag = 1;
+  }
+  else if(htim == &htim8)
+  {
+	update_flag = 1;
   }
 }
 
