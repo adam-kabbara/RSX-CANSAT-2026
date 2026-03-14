@@ -7,9 +7,10 @@
 #ifndef INC_SENSOR_MANAGER_HPP_
 #define INC_SENSOR_MANAGER_HPP_
 
-#include "BMP581.hpp"
 #include "global_includes.hpp"
 #include "serial_manager.hpp"
+#include "BMP581.hpp"
+#include "BNO085.hpp"
 #include "servo.hpp"
 
 #ifdef __cplusplus
@@ -30,6 +31,11 @@ private:
 	/* Note: do not initialize a sensor here. Instead,
 	 * create a pointer and initialize it in the constructor. */
 	BMP5 bmp_dev;
+	BNO085_t bno_dev;
+	uint32_t bno_last_t = 0.0;
+	float prev_gyro_r;
+	float prev_gyro_p;
+	float prev_gyro_y;
 	Servo servo_nosecone;
 	Servo servo_container;
 	Servo servo_wing_dir;
@@ -46,6 +52,11 @@ public:
 	float getTemp();
 	float getVoltage();
 	float getCurrent();
+	void BNO_enableGyro(int microsec, SerialManager &serial);
+	void BNO_enableAccel(int microsec, SerialManager &serial);
+	void BNO_enableMag(int microsec, SerialManager &serial);
+	void BNO_enableRotationVector(int microsec, SerialManager &serial);
+	void updateBNO();
 	struct rpy_data getIMUData();
 	struct gps_data getGPSData();
 	cam_status getCameraStatus();

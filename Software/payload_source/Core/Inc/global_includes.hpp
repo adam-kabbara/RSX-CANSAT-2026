@@ -60,12 +60,12 @@ enum cam_status {
 };
 
 struct rpy_data {
-	int gyro_r;
-	int gyro_p;
-	int gyro_y;
-	int accel_r;
-	int accel_p;
-	int accel_y;
+	float gyro_r;
+	float gyro_p;
+	float gyro_y;
+	float accel_r;
+	float accel_p;
+	float accel_y;
 };
 
 struct bar_data {

@@ -101,6 +101,9 @@ extern "C" void main_cpp()
             }
             */
             
+            // Need to read packets faster than updated to ensure queue is clear
+            sensors.updateBNO();
+
             HAL_Delay(10);
         }
 
@@ -147,7 +150,7 @@ extern "C" void main_cpp()
 
             	send_flag = 0;
             }
-
+            sensors.updateBNO();
         }
 
         HAL_TIM_Base_Stop_IT(&htim1);

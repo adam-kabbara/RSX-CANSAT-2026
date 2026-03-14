@@ -77,13 +77,13 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mis
 
 	struct rpy_data gyro_accel_data = sensors.getIMUData();
 	
-	packet.GYRO_R = gyro_accel_data.gyro_r;
-	packet.GYRO_P = gyro_accel_data.gyro_p;
-	packet.GYRO_Y = gyro_accel_data.gyro_y;
+	packet.GYRO_R = (int)lroundf(gyro_accel_data.gyro_r);
+	packet.GYRO_P = (int)lroundf(gyro_accel_data.gyro_p);
+	packet.GYRO_Y = (int)lroundf(gyro_accel_data.gyro_y);
 
-	packet.ACCEL_R = gyro_accel_data.accel_r;
-	packet.ACCEL_P = gyro_accel_data.accel_p;
-	packet.ACCEL_Y = gyro_accel_data.accel_y;
+	packet.ACCEL_R = (int)lroundf(gyro_accel_data.accel_r);
+	packet.ACCEL_P = (int)lroundf(gyro_accel_data.accel_p);
+	packet.ACCEL_Y = (int)lroundf(gyro_accel_data.accel_y);
 
 	struct gps_data gps_data_vals = sensors.getGPSData();
 
