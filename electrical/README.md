@@ -37,6 +37,7 @@ This folder contains datasheets of electronic components used in the project. Th
 - Digikey: [LTC3536](https://www.digikey.com/en/products/detail/analog-devices-inc/LTC3536EMSE-PBF/2720693?s=N4IgTCBcDaIDIBUDCBmArCgbAUQLIGVsBiABQCEAxAWgDkAREAXQF8g)
 - Environment: CPL
 - Details: 3.3v buckboost from 1s (3.7v) battery to 3.3v for the sensors on the CPL. 
+- Package: MSE
 
 ### MP3424
 - Datasheet: [MP3424A.pdf](MP3424A.pdf)
@@ -48,7 +49,10 @@ This folder contains datasheets of electronic components used in the project. Th
 ### MAX756CPA+
 - Datasheet: [max756.pdf](max756.pdf)
 - Environment: CPL
-- Details: 5v boost from 1s (1.2v) ni-mh battery to 5v for the buzzer circuit on the CPL.
+- Details: Two exist
+    - One is for 5v boost from 1s (1.2v) ni-mh battery to 5v for the buzzer circuit on the CPL.
+    - Another will be used for 5v boost from 1s (3.7v) battery to 5v for the STM on the CPL. This is to allow for power isolation between the STM and the sensors, so we can power the STM without powering the sensors for debugging.
+
 
 ---
 
