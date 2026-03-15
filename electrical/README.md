@@ -37,6 +37,7 @@ This folder contains datasheets of electronic components used in the project. Th
 - Digikey: [LTC3536](https://www.digikey.com/en/products/detail/analog-devices-inc/LTC3536EMSE-PBF/2720693?s=N4IgTCBcDaIDIBUDCBmArCgbAUQLIGVsBiABQCEAxAWgDkAREAXQF8g)
 - Environment: CPL
 - Details: 3.3v buckboost from 1s (3.7v) battery to 3.3v for the sensors on the CPL. 
+- Package: MSE
 
 ### MP3424
 - Datasheet: [MP3424A.pdf](MP3424A.pdf)
