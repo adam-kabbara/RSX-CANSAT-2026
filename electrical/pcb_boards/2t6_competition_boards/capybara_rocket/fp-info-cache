@@ -1,4 +1,4 @@
-27705852581284168
+27709433641593583
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -97951,6 +97951,13 @@ IND_ASPI-4030S-470M-T
 2
 2
 RSX_CanSat_Custom_KiCad_Footprints
+IND_BOURNS_SRN6045
+
+SRN6045-2R2Y 
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
 J_Wurth_WR-WTB_62000211622
 2.00 mm Male Vertical Shrouded Header, body 6x4.7x9.5mm, https://www.we-online.com/en/components/products/datasheet/62000211622?ki
 THT
@@ -98197,6 +98204,13 @@ WA-SMSI_9774030360
 1
 RSX_CanSat_Custom_KiCad_Footprints
 WE-LQS_4025
+
+
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
+WE-TPC_4828
 
 
 0
