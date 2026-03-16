@@ -1,0 +1,44 @@
+LTspice 24.1.10 for Windows
+Circuit: C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\li-ion_lvc_sim.net
+Start Time: Wed Mar 11 17:32:15 2026
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74LVC1G04.cir(141): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-VT)/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH,VEE)}
+                                      ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74LVC1G04.cir(143): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-VT)/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH,VEE)}
+                                      ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74LVC1G04.cir(145): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-(V(VCC,VEE)-VT))/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH1,VEE)}
+                                                   ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74LVC1G04.cir(147): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-(V(VCC,VEE)-VT))/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH1,VEE)}
+                                                   ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74LVC1G04.cir(141): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-VT)/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH,VEE)}
+                                      ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74LVC1G04.cir(143): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-VT)/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH,VEE)}
+                                      ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74LVC1G04.cir(145): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-(V(VCC,VEE)-VT))/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH1,VEE)}
+                                                   ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74LVC1G04.cir(147): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-(V(VCC,VEE)-VT))/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH1,VEE)}
+                                                   ^
+solver = Normal
+Maximum thread count: 20
+tnom = 27
+temp = 27
+method = trap
+Instance "u2:M1": Length shorter than recommended for a level 3 MOSFET.
+Instance "u2:M2": Length shorter than recommended for a level 3 MOSFET.
+.step 
+Total elapsed time: 0.242 seconds.
+
+Files loaded:
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\li-ion_lvc_sim.net
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\Si4435DDY_model.lib
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839K33_TRANS.LIB
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\Si4435DDY_PS.lib
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74LVC1G04.cir
+
