@@ -54,14 +54,14 @@ This folder contains datasheets of electronic components used in the project. Th
     - ~~Another will be used for 5v boost from 1s (3.7v) battery to 5v for the STM on the CPL. This is to allow for power isolation between the STM and the sensors, so we can power the STM without powering the sensors for debugging.~~
 
 ### Low Voltage Cutoff (LVC) Circuit
-The CPL has two low voltage cutoff circuits to ensure the batteries do not over discharge. The two circuits are very similar, just differentiated by the voltage supervisor chip (which is essentially a comparator with a reference voltage).
+The CPL has two low voltage cutoff circuits to ensure the batteries do not over discharge. The two circuits are very similar, but they use slightly different components.
 
 Spice models have been created to simulate these LVCs and can be found in the [Spice folder](Spice/). R1 is just there to model our load. In the actual circuit, we will have that node connected to the Vin of our voltage converters.
 
 1. Main battery ([21700 Li-ion](https://rotorgeeks.com/samsung-50e-5000mah-98a-21700-cell)) LVC:
-- Supervisor: [TPS3839K33](https://www.digikey.ca/en/products/detail/texas-instruments/TPS3839K33DBZR/3748986)
-- Inverter: [SN74LVC1G04](https://www.digikey.ca/en/products/detail/umw/SN74LVC1G04DCKR/16842106)
-- PMOSFET: [SI4435DDY](https://www.digikey.ca/en/products/detail/vishay-siliconix/SI4435DDY-T1-E3/2622193)
+    - Supervisor: [TPS3839K33](https://www.digikey.ca/en/products/detail/texas-instruments/TPS3839K33DBZR/3748986)
+    - Inverter: [SN74LVC1G04](https://www.digikey.ca/en/products/detail/umw/SN74LVC1G04DCKR/16842106)
+    - PMOSFET: [SI4435DDY](https://www.digikey.ca/en/products/detail/vishay-siliconix/SI4435DDY-T1-E3/2622193)
 ![alt text](image.png)
 
 2. Buzzer battery ([Ni-MH](https://www.digikey.ca/en/products/detail/panasonic-energy/HHR-70AAAE4/597940)) LVC:

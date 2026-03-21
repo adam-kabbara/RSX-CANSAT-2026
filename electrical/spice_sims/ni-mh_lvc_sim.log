@@ -1,6 +1,6 @@
 LTspice 24.1.10 for Windows
 Circuit: C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\ni-mh_lvc_sim.net
-Start Time: Wed Mar 11 18:00:56 2026
+Start Time: Mon Mar 16 01:35:16 2026
 C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74AUP1G04.cir(144): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
 + 2*MAXICC*((V(IN,VEE)-VT)/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH,VEE)}
                                       ^
@@ -33,7 +33,7 @@ method = trap
 Instance "u2:M1": Length shorter than recommended for a level 3 MOSFET.
 Instance "u2:M2": Length shorter than recommended for a level 3 MOSFET.
 .step 
-Total elapsed time: 0.249 seconds.
+Total elapsed time: 0.207 seconds.
 
 Files loaded:
 C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\ni-mh_lvc_sim.net
