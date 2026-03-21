@@ -8,7 +8,9 @@ struct IMUData {
 	float acc[3];
 	float gyro[3];
 	float mag[3];
-	bool valid;
+	bool acc_valid;
+	bool gyro_valid;
+	bool mag_valid;
 };
 
 struct BaroData {
@@ -20,6 +22,12 @@ struct GPSData {
 	float pos[3];
 	float vel[3];
 	bool valid;
+};
+
+struct MagCallibration {
+	float W[3][3];	// Soft-iron correction
+	float H[3];		// HArd-iron correction
+	bool callibrated;
 };
 
 struct KF_Noise {
@@ -46,7 +54,6 @@ struct KF_State {
 	float x[NUM_STATE];				// State vector
 	float S[NUM_STATE][NUM_STATE];	// Covariance matrix
 	float dt;
-	bool initialized;
 };
 
 
@@ -55,9 +62,46 @@ struct KF_State {
 // =============================
 class KalmanFilter {
 	private:
+		KF_Statae state_;
+		KF_Noise noise_;
+		bool isInitialized_;
 
 	public:
+		// ====== Constructors ======
+		KalmanFilter() : state_{0}, noise_{0}, isInitialized_{false} {}
+
+		// ====== Public Functions ======
+		// ---- Start/Stop -----
+		bool init();
+		void reset();
+
+		void enableIMU(bool enable);
+		void enableAcc(bool enable);
+		void enableGyro(bool enable);
+		void enableMag(bool enable);
+		void enableBaro(bool enable);
+		void enableGPS(bool enable);
+
+		// ---- Process -----
+		void update();		// idk if sensor data should be captured in KF or in main loop
+		void updateIMU();
+		void updateGPS();
+		void updateBaro();
+
+		// ----- Getters -----
+		KF_State getState();
+		KF_Noise getNoise();
+		MagCallibration  getMagCallibration();
+
+		// ----- Setters -----
+		void setMagCallibration(float *W, float *H);
 };
 
 
 #endif
+
+
+
+
+
+
