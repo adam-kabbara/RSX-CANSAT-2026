@@ -8,11 +8,13 @@
 
 extern "C" volatile uint8_t send_flag;
 extern "C" volatile uint8_t pvd_flag;
+extern "C" volatile uint8_t update_flag;
 extern "C" UART_HandleTypeDef huart1;
 extern "C" TIM_HandleTypeDef htim1;
 extern "C" TIM_HandleTypeDef htim2;
 extern "C" TIM_HandleTypeDef htim3;
 extern "C" TIM_HandleTypeDef htim4;
+extern "C" TIM_HandleTypeDef htim8;
 extern "C" SPI_HandleTypeDef hspi1;
 extern "C" I2C_HandleTypeDef hi2c1;
 extern "C" volatile char rx_buff[128];
@@ -99,6 +101,9 @@ extern "C" void main_cpp()
             }
             */
             
+            // Need to read packets faster than updated to ensure queue is clear
+            sensors.updateBNO();
+
             HAL_Delay(10);
         }
 
@@ -130,15 +135,6 @@ extern "C" void main_cpp()
                 }
             }
 
-            // Nice to have, but the overhead might be not worth it.
-            /*
-            if(pvd_flag == 1)
-            {
-                serial.sendErrorMsg("WARNING: POWER VOLTAGE DETECTOR TRIGGERED");
-                pvd_flag = 0;
-            }
-            */
-
             if(send_flag)
             {
             	telemetry_mgr.sampleSensors(sensors, mission_mgr);
@@ -154,7 +150,7 @@ extern "C" void main_cpp()
 
             	send_flag = 0;
             }
-
+            sensors.updateBNO();
         }
 
         HAL_TIM_Base_Stop_IT(&htim1);

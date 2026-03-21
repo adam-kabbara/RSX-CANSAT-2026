@@ -56,16 +56,18 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mis
 
 	strcpy(packet.MODE, op_mode_to_string(mission_info.getOpMode(), 0));
 
+	sensors.updateBMP();
+
 	if(mission_info.getOpMode() == OPMODE_SIM)
 	{
 		packet.PRESSURE = mission_info.getSimpData()/1000.0;
 	}
 	else
 	{
-		packet.PRESSURE = sensors.getPressure();
+		packet.PRESSURE = sensors.getPressure()/1000.0;
 	}
 
-	packet.ALTITUDE = pressure_to_alt(packet.PRESSURE * 10.0) - mission_info.getLaunchAlt();
+	packet.ALTITUDE = pressure_to_alt(sensors.getPressure()) - mission_info.getLaunchAlt();
 
 	packet.TEMPERATURE = sensors.getTemp();
 
@@ -75,13 +77,13 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mis
 
 	struct rpy_data gyro_accel_data = sensors.getIMUData();
 	
-	packet.GYRO_R = gyro_accel_data.gyro_r;
-	packet.GYRO_P = gyro_accel_data.gyro_p;
-	packet.GYRO_Y = gyro_accel_data.gyro_y;
+	packet.GYRO_R = (int)lroundf(gyro_accel_data.gyro_r);
+	packet.GYRO_P = (int)lroundf(gyro_accel_data.gyro_p);
+	packet.GYRO_Y = (int)lroundf(gyro_accel_data.gyro_y);
 
-	packet.ACCEL_R = gyro_accel_data.accel_r;
-	packet.ACCEL_P = gyro_accel_data.accel_p;
-	packet.ACCEL_Y = gyro_accel_data.accel_y;
+	packet.ACCEL_R = (int)lroundf(gyro_accel_data.accel_r);
+	packet.ACCEL_P = (int)lroundf(gyro_accel_data.accel_p);
+	packet.ACCEL_Y = (int)lroundf(gyro_accel_data.accel_y);
 
 	struct gps_data gps_data_vals = sensors.getGPSData();
 
