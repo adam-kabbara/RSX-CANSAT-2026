@@ -90,7 +90,7 @@ class GraphWindow(QMainWindow):
 
             if entry["lines"] == 1:
                 plotter = DynamicPlotter(title=entry["title"],
-                                         timewindow=self._graph_time_window,
+                                         time_window=self._graph_time_window,
                                          x_unit=entry["x_unit"],
                                          y_unit=entry["y_unit"])
             elif entry["lines"] != 1:
@@ -331,6 +331,9 @@ class GraphWindow(QMainWindow):
 
                     self.next_list.scrollToTop()
 
+                    # Add markers to altitude graph plots TODO: Reformat markers
+                    # self.plotters[self.graph_title_to_index.get("Altitude")].add_state_marker(state_str)
+
                 self._current_state = state_str
                 self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
 
@@ -374,6 +377,8 @@ class GraphWindow(QMainWindow):
         self.sidebar_data_labels[self.sidebar_data_dict.get("CMD ECHO")].setText(cosmetics.data_status_blue(str))
 
     def update_alt_graph(self, data):
+        if self._current_state == "LANDED":
+            return
         self.plotters[self.graph_title_to_index.get("Altitude")].update_plot(data)
 
     def update_volt_graph(self, data):
@@ -389,7 +394,10 @@ class GraphWindow(QMainWindow):
         self.plotters[self.graph_title_to_index.get("Accel")].update_plot(data)
 
     def update_gps_map(self, lat, lon):
-        self.map_widget.add_point(lat, lon)
+        if self._current_state == "LANDED":
+            return
+        else:
+            self.map_widget.add_point(lat, lon)
 
     def closeEvent(self, event):
         app = QApplication.instance()
