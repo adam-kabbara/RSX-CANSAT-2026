@@ -268,10 +268,19 @@ class CommandWindow(QMainWindow):
         self.program_camera_button.hide()
         ### end program camera
 
-        self.probe_release_force = QPushButton("FORCE PROBE RELEASE")
+        force_release_box = QHBoxLayout()
+        self.probe_release_force = QPushButton("RELEASE PROBE")
         self.probe_release_force.setFont(button_font)
         self.probe_release_force.clicked.connect(self.command_manager.command__probe_release)
         self.probe_release_force.hide()
+
+        self.payload_release_force = QPushButton("RELEASE PAYLOAD")
+        self.payload_release_force.setFont(button_font)
+        self.payload_release_force.clicked.connect(self.command_manager.command__payload_release)
+        self.payload_release_force.hide()
+
+        force_release_box.addWidget(self.probe_release_force)
+        force_release_box.addWidget(self.payload_release_force)
 
         self.camera_status_button = QPushButton("GET CAMERA STATUS")
         self.camera_status_button.setFont(button_font)
@@ -316,7 +325,7 @@ class CommandWindow(QMainWindow):
         commands_layout.addWidget(self.button_sim_mode_activate)
         commands_layout.addWidget(self.button_sim_mode_disable)
         commands_layout.addWidget(self.button_get_log_data)
-        commands_layout.addWidget(self.probe_release_force)
+        commands_layout.addLayout(force_release_box)
         commands_layout.addLayout(team_id_editing_box)
         commands_layout.addWidget(self.button_back)
 
@@ -366,7 +375,8 @@ class CommandWindow(QMainWindow):
             self.program_camera_button,
             self.camera_id_field,
             self.camera_status_button,
-            self.probe_release_force
+            self.probe_release_force,
+            self.payload_release_force
         ]
 
         self.buttons_connection = [

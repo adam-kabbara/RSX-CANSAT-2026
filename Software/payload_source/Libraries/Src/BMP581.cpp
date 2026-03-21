@@ -31,8 +31,11 @@ uint8_t BMP5_Init(BMP5 *dev, I2C_HandleTypeDef *i2cHandle, uint8_t addr) {
 
 	dev->dataReady = 0;
 
+	dev->pressure = 0.0;
+	dev->temperature = 0.0;
+
 	//wait for sensor to startup (2 ms min)
-	while (HAL_GetTick() < 3) {}
+	while (HAL_GetTick() < 100) {}
 
 	// reset ADC
 	if (BMP5_SOFT_Reset(dev) == 1) {
@@ -99,8 +102,9 @@ uint8_t BMP5_SaveConvData(BMP5 *dev) {
 	if (dev->dataReady == 1 || 1) {
 		// read 3(temperature) + 3(pressure) bytes
 		uint8_t dataReg[6];
-		if (BMP5_ReadReg(dev, 0x1D, 6, dataReg) == 1) {
-			return 1;
+		int ret = BMP5_ReadReg(dev, 0x1D, 6, dataReg);
+		if(ret != 0) {
+			return ret;
 		}
 		dev->temperature = (float) ((dataReg[2] << 16) + (dataReg[1] << 8) + dataReg[0]) / (1 << 16);
 		dev->pressure = (float) ((dataReg[5] << 16) + (dataReg[4] << 8) + dataReg[3]) / (1 << 6);

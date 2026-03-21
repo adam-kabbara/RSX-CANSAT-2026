@@ -323,6 +323,13 @@ void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorMan
 
 void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
+  int ret = sensors.updateBMP();
+  if(ret != 0)
+  {
+	  ser.sendErrorDataMsg("BMP ERROR %d", ret);
+	  return;
+  }
+  ser.sendInfoDataMsg("Getting pressure value: %f", sensors.getPressure());
   info.setAltCalibration(pressure_to_alt(sensors.getPressure()));
   sensors.EEPROM_updateAltitude(info.getLaunchAlt());
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
@@ -367,7 +374,17 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
     strcpy(val, token);
   }
 
-  if(strcmp(mec, "SERVO") == 0)
+  if(strcmp(mec, "PAYLOAD") == 0)
+  {
+	  sensors.writeEggServo(0);
+	  ser.sendInfoMsg("I don't have a value to write yet!");
+  }
+  else if(strcmp(mec, "PROBE") == 0)
+  {
+	  sensors.writeContainerServo(0);
+	  ser.sendInfoMsg("I don't have a value to write yet!");
+  }
+  else if(strcmp(mec, "SERVO") == 0)
   {
 	  const char *sep = strchr(val, '|');
 	  if(sep != NULL)
@@ -423,8 +440,10 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  ser.sendErrorMsg("ERROR: SERVO COMMAND FORMAT INCORRECT, DID NOT RECEIVE '#|VAL'");
 	  }
   }
-
-  ser.sendErrorDataMsg("ERROR: UNRECOGNIZED MEC COMMAND: %s", mec);
+  else
+  {
+	  ser.sendErrorDataMsg("ERROR: UNRECOGNIZED MEC COMMAND: %s", mec);
+  }
 }
 
 void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
