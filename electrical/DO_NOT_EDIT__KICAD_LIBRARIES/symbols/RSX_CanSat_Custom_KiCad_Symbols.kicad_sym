@@ -550,7 +550,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:MODULE_4754"
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:Adafruit_BNO085"
 			(at 0 0 0)
 			(effects
 				(font
