@@ -12,46 +12,54 @@ This folder contains datasheets of electronic components used in the project. Th
 
 ## I/O
 ### EEPROM
-- Datasheet: [EEPROM.pdf](EEPROM.pdf)
+- Datasheet: [EEPROM.pdf](datasheets/EEPROM.pdf)
 - Environment: CPL
 
 ### INA219
-- Datasheet: [ina219.pdf](ina219.pdf)
+- Datasheet: [ina219.pdf](datasheets/ina219.pdf)
 - Environment: Ground station and CPL
 - Package: D ; using smd on cpl and adafruit on gnd station
 
 ## Power Electronics
 ### LT8610AB
-- Datasheet: [LT8610AB.pdf](LT8610AB.pdf)
+- Datasheet: [LT8610AB.pdf](datasheets/LT8610AB.pdf)
 - Environment: Ground station
 - Details: 5v buck converter from 4s2p (16.8 to 12v) battery to 5v for the ground station. 5 volts used to power the raspberry pi and LED lights. Estimated current consumption to handel is 2.5A.
 
 ### LTC3114
-- Datasheet: [LTC3114.pdf](LTC3114.pdf)
+- Datasheet: [LTC3114.pdf](datasheets/LTC3114.pdf)
 - Environment: Ground station
 - Details: 12v buckboost from 4s2p (16.8 to 12v) battery to 12v for the ground station. 12 volts used to power the monitor and speakers.
 - Package: FE
 
 ### LTC3536
-- Datasheet: [LTC3536.pdf](LTC3536.pdf)
+- Datasheet: [LTC3536.pdf](datasheets/LTC3536.pdf)
 - Digikey: [LTC3536](https://www.digikey.com/en/products/detail/analog-devices-inc/LTC3536EMSE-PBF/2720693?s=N4IgTCBcDaIDIBUDCBmArCgbAUQLIGVsBiABQCEAxAWgDkAREAXQF8g)
 - Environment: CPL
 - Details: 3.3v buckboost from 1s (3.7v) battery to 3.3v for the sensors on the CPL. 
 - Package: MSE
 
 ### MP3424
-- Datasheet: [MP3424A.pdf](MP3424A.pdf)
+- Datasheet: [MP3424A.pdf](datasheets/MP3424A.pdf)
 - Digikey: [MP3424A](https://www.digikey.com/en/products/detail/monolithic-power-systems-inc/MP3414AGJ-Z/7361472?s=N4IgTCBcDaIIwFYAcBOAtHAbAZgOwbQDkAREAXQF8g)
 - Environment: CPL
 - Details: 5.5v boost from 1s (3.7v) battery to 5.5v for the cameras, rtc clock and motors on the CPL.
 - Node: To make use of the True Output Disconnect feature, the EN pin must be driven low. So **EN should be connected to Vin**. When battery connected, EN is high and the converter operates. When battery disconnected, EN is low and the converter is disabled and blocks current flow from the output to the input. 
 
 ### ~~MAX756CPA+~~
-- ~~Datasheet: [max756.pdf](max756.pdf)~~
+- ~~Datasheet: [max756.pdf](datasheets/max756.pdf)~~
 - ~~Environment: CPL~~
 - ~~Details: Two exist~~
     - ~~One is for 5v boost from 1s (1.2v) ni-mh battery to 5v for the buzzer circuit on the CPL.~~
     - ~~Another will be used for 5v boost from 1s (3.7v) battery to 5v for the STM on the CPL. This is to allow for power isolation between the STM and the sensors, so we can power the STM without powering the sensors for debugging.~~
+
+- The max startup voltage too low for a NiMh. It does operate down to low voltages, but the startup voltage is higher than what would be reliable for a NiMh battery. Use a MCP1640 for buzzer instead. Can boost to either 5.0V (use NE555) or 3.3v (use TLC555)
+
+### MCP1640
+- Datasheet: [MCP1640.pdf](datasheets/MCP1640.pdf)
+- Environment: CPL
+- Details: 
+
 
 ### Low Voltage Cutoff (LVC) Circuit
 The CPL has two low voltage cutoff circuits to ensure the batteries do not over discharge. The two circuits are very similar, but they use slightly different components.
@@ -62,7 +70,7 @@ Spice models have been created to simulate these LVCs and can be found in the [S
     - Supervisor: [TPS3839K33](https://www.digikey.ca/en/products/detail/texas-instruments/TPS3839K33DBZR/3748986)
     - Inverter: [SN74LVC1G04](https://www.digikey.ca/en/products/detail/umw/SN74LVC1G04DCKR/16842106)
     - PMOSFET: [SI4435DDY](https://www.digikey.ca/en/products/detail/vishay-siliconix/SI4435DDY-T1-E3/2622193)
-![alt text](image.png)
+![alt text](imgs/image.png)
 
 2. Buzzer battery ([Ni-MH](https://www.digikey.ca/en/products/detail/panasonic-energy/HHR-70AAAE4/597940)) LVC:
 
@@ -70,14 +78,14 @@ Spice models have been created to simulate these LVCs and can be found in the [S
 ### Battery Info
 As mentioned in the section above, we have two rechargable batteries on the CPL, a [samsung 50e 21700 li-ion](https://rotorgeeks.com/samsung-50e-5000mah-98a-21700-cell) as the main battery, and a [panasonic HHR-70AAAE4 ni-mh](https://www.digikey.ca/en/products/detail/panasonic-energy/HHR-70AAAE4/597940) as the buzzer battery. Below are some important notes about these batteries.
 #### Samsung 50e 21700 Li-ion
-- Datasheet: [samsung_50e.pdf](samsung_50e.pdf)
+- Datasheet: [samsung_50e.pdf](datasheets/samsung_50e.pdf)
 - **Charge at 2450mA (~0.5C) at 4.2v**
 - Nominal voltage: 3.63v
 - Max voltage: 4.2v
 - Min voltage: 3.0 (defined by us - technically can go down to 2.5v)
 - Capacity: 5000mAh
 #### Panasonic HHR-70AAAE4 Ni-MH
-- Datasheet: [panasonic_hhr.pdf](panasonic_hhr.pdf)
+- Datasheet: [panasonic_hhr.pdf](datasheets/panasonic_hhr.pdf)
 - **Standard charge at 70mA at 1.4v**
 - **Rapid charge at 650mA at 1.4v**
 - Nominal voltage: 1.2v
