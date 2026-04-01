@@ -1,5 +1,3 @@
-@adamlkabbara to fix this 
-
 # Datasheets of electronic components
 This folder contains datasheets of electronic components used in the project. This readme provides notes and highlights of the datasheets for quick reference.
 
@@ -39,9 +37,9 @@ This folder contains datasheets of electronic components used in the project. Th
 - Details: 3.3v buckboost from 1s (3.7v) battery to 3.3v for the sensors on the CPL. 
 - Package: MSE
 
-### MP3424
-- Datasheet: [MP3424A.pdf](datasheets/MP3424A.pdf)
-- Digikey: [MP3424A](https://www.digikey.com/en/products/detail/monolithic-power-systems-inc/MP3414AGJ-Z/7361472?s=N4IgTCBcDaIIwFYAcBOAtHAbAZgOwbQDkAREAXQF8g)
+### MP3414
+- Datasheet: [MP3414A.pdf](datasheets/MP3414A.pdf)
+- Digikey: [MP3414A](https://www.digikey.com/en/products/detail/monolithic-power-systems-inc/MP3414AGJ-Z/7361472?s=N4IgTCBcDaIIwFYAcBOAtHAbAZgOwbQDkAREAXQF8g)
 - Environment: CPL
 - Details: 5.5v boost from 1s (3.7v) battery to 5.5v for the cameras, rtc clock and motors on the CPL.
 - Node: To make use of the True Output Disconnect feature, the EN pin must be driven low. So **EN should be connected to Vin**. When battery connected, EN is high and the converter operates. When battery disconnected, EN is low and the converter is disabled and blocks current flow from the output to the input. 
@@ -57,8 +55,11 @@ This folder contains datasheets of electronic components used in the project. Th
 
 ### MCP1640
 - Datasheet: [MCP1640.pdf](datasheets/MCP1640.pdf)
-- Environment: CPL
-- Details: 
+- Digikey: [MCP1640](https://www.digikey.ca/en/products/detail/microchip-technology/MCP1640T-I-CHY/2258569)
+- Environment: CPL buzzer circuit
+- Details: replace max756 for 5v boost from 1s (1.2v) ni-mh battery to 5v for the buzzer circuit on the CPL. The MCP1640 has a low startup voltage of 0.65v, which is suitable for a NiMh battery. We will use TLC555 for the oscillator in the buzzer circuit, which can operate at 3.3v instead of NE555.
+
+# TODO LTSPICE BUZZER CICUIT 
 
 
 ### Low Voltage Cutoff (LVC) Circuit
@@ -68,7 +69,7 @@ Spice models have been created to simulate these LVCs and can be found in the [S
 
 1. Main battery ([21700 Li-ion](https://rotorgeeks.com/samsung-50e-5000mah-98a-21700-cell)) LVC:
     - Supervisor: [TPS3839K33](https://www.digikey.ca/en/products/detail/texas-instruments/TPS3839K33DBZR/3748986)
-    - Inverter: [SN74LVC1G04](https://www.digikey.ca/en/products/detail/umw/SN74LVC1G04DCKR/16842106)
+    - Inverter: [SN74LVC1G04](https://www.digikey.ca/en/products/detail/umw/SN74LVC1G04DBVR/16842214)
     - PMOSFET: [SI4435DDY](https://www.digikey.ca/en/products/detail/vishay-siliconix/SI4435DDY-T1-E3/2622193)
 ![alt text](imgs/image.png)
 
@@ -104,7 +105,7 @@ No voltage should be present at the Vin terminals of the converters this **WILL*
 
 Below is the thought process for the power isolation design.
 
-**MP3424A**:
+**MP3414A**:
 - Synchronous boost with true output disconnect via internal PMOS. Actively blocks body diode conduction in shutdown according to datasheet.
 - For this to work **EN must be tied to Vin**, that way when Vin is disconnected from the battery, EN is low and the converter is disabled and blocks current flow from the output to the input. When battery is connected, EN is high and the converter operates as normal.
 
