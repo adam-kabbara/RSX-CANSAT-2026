@@ -60,7 +60,7 @@ This folder contains datasheets of electronic components used in the project. Th
 - Details: replace max756 for 5v boost from 1s (1.2v) ni-mh battery to 5v for the buzzer circuit on the CPL. The MCP1640 has a low startup voltage of 0.65v, which is suitable for a NiMh battery. We will use TLC555 for the oscillator in the buzzer circuit, which can operate at 3.3v instead of NE555.
 
 # TODO LTSPICE BUZZER CICUIT 
-
+![alt text](imgs/buzzer.png)
 
 ### Low Voltage Cutoff (LVC) Circuit
 The CPL has two low voltage cutoff circuits to ensure the batteries do not over discharge. The two circuits are very similar, but they use slightly different components.
@@ -74,7 +74,9 @@ Spice models have been created to simulate these LVCs and can be found in the [S
 ![alt text](imgs/image.png)
 
 2. Buzzer battery ([Ni-MH](https://www.digikey.ca/en/products/detail/panasonic-energy/HHR-70AAAE4/597940)) LVC:
-
+    - Supervisor: [TPS3839A09DBZR](https://www.digikey.ca/en/products/detail/texas-instruments/TPS3839A09DBZR/3900178)
+    - Inverter: [SN74AUP1G04](https://www.digikey.ca/en/products/detail/texas-instruments/SN74AUP1G04DBVR/864075)
+    - PMOSFET: [SI4435DDY](https://www.digikey.ca/en/products/detail/vishay-siliconix/SI4435DDY-T1-E3/2622193)
 
 ### Battery Info
 As mentioned in the section above, we have two rechargable batteries on the CPL, a [samsung 50e 21700 li-ion](https://rotorgeeks.com/samsung-50e-5000mah-98a-21700-cell) as the main battery, and a [panasonic HHR-70AAAE4 ni-mh](https://www.digikey.ca/en/products/detail/panasonic-energy/HHR-70AAAE4/597940) as the buzzer battery. Below are some important notes about these batteries.
