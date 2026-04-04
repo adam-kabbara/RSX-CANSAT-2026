@@ -1,4 +1,4 @@
-27734271868312526
+27744925801080876
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -63637,6 +63637,13 @@ One digit LED 7 segment SA39-11 SC39-11 SA39-12 SC39-12
 10
 10
 ECE499_Thesis
+SOT65P210X110-5N
+
+
+0
+5
+5
+ECE499_Thesis
 SOT65P280X145-8N
 
 
@@ -98042,6 +98049,13 @@ IND_ASPI-4030S-470M-T
 2
 2
 RSX_CanSat_Custom_KiCad_Footprints
+IND_B82462G4472M000
+
+
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
 IND_BOURNS_SRN6045
 
 SRN6045-2R2Y 
@@ -98189,6 +98203,13 @@ RESC6331X65N
 2
 2
 RSX_CanSat_Custom_KiCad_Footprints
+SO-8
+
+
+0
+8
+8
+RSX_CanSat_Custom_KiCad_Footprints
 SOIC127P599X175-8N
 
 
@@ -98223,6 +98244,27 @@ TPS610333DRLR
 0
 8
 8
+RSX_CanSat_Custom_KiCad_Footprints
+SOT-23-6_MC_MCH
+
+MCP1640T-I/CHY 
+0
+6
+6
+RSX_CanSat_Custom_KiCad_Footprints
+SOT-23-6_MC_MCH-L
+
+MCP1640T-I/CHY 
+0
+6
+6
+RSX_CanSat_Custom_KiCad_Footprints
+SOT-23-6_MC_MCH-M
+
+MCP1640T-I/CHY 
+0
+6
+6
 RSX_CanSat_Custom_KiCad_Footprints
 SOT6_DRV8212_TEX
 
