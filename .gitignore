@@ -23,3 +23,4 @@ electrical/pcb_boards/**/*-backups/
 electrical/pcb_boards/**/fp-info-cache
 electrical/pcb_boards/**/#auto_saved_files#
 electrical/pcb_boards/**/*.lck
+electrical/pcb_boards/**/*bak
