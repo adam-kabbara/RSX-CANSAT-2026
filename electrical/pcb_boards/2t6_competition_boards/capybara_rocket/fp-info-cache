@@ -1,4 +1,4 @@
-27744925801080876
+27750252195339104
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -97999,6 +97999,27 @@ CAP_YX_8X11P5_RUB
 0
 2
 2
+RSX_CanSat_Custom_KiCad_Footprints
+DBV5
+
+SN74AUP1G04DBVR 
+0
+5
+5
+RSX_CanSat_Custom_KiCad_Footprints
+DBV5-L
+
+SN74AUP1G04DBVR 
+0
+5
+5
+RSX_CanSat_Custom_KiCad_Footprints
+DBV5-M
+
+SN74AUP1G04DBVR 
+0
+5
+5
 RSX_CanSat_Custom_KiCad_Footprints
 DIP794W47P254L991H457Q8
 
