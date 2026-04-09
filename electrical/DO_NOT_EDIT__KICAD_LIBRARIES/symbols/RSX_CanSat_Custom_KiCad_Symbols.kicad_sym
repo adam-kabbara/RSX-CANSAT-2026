@@ -2962,7 +2962,7 @@
 		)
 		(symbol "DRV8212DRLR_0_1"
 			(pin input line
-				(at 5.08 0 0)
+				(at 2.54 0 0)
 				(length 7.62)
 				(name "IN1"
 					(effects
@@ -2980,7 +2980,7 @@
 				)
 			)
 			(pin input line
-				(at 5.08 -2.54 0)
+				(at 2.54 -2.54 0)
 				(length 7.62)
 				(name "IN2"
 					(effects
@@ -2998,7 +2998,7 @@
 				)
 			)
 			(pin power_out line
-				(at 5.08 -5.08 0)
+				(at 2.54 -5.08 0)
 				(length 7.62)
 				(name "GND"
 					(effects
@@ -3016,7 +3016,7 @@
 				)
 			)
 			(pin output line
-				(at 35.56 0 180)
+				(at 38.1 0 180)
 				(length 7.62)
 				(name "OUT1"
 					(effects
@@ -3034,7 +3034,7 @@
 				)
 			)
 			(pin power_in line
-				(at 35.56 -2.54 180)
+				(at 38.1 -2.54 180)
 				(length 7.62)
 				(name "VM"
 					(effects
@@ -3052,7 +3052,7 @@
 				)
 			)
 			(pin output line
-				(at 35.56 -5.08 180)
+				(at 38.1 -5.08 180)
 				(length 7.62)
 				(name "OUT2"
 					(effects
@@ -3072,8 +3072,8 @@
 		)
 		(symbol "DRV8212DRLR_1_0"
 			(rectangle
-				(start 12.7 5.08)
-				(end 27.94 -10.16)
+				(start 10.16 5.08)
+				(end 30.48 -10.16)
 				(stroke
 					(width 0.254)
 					(type solid)
