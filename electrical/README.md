@@ -130,10 +130,10 @@ To ensure Vin is truely discharged while debugging, we will add a solder bridge 
 ---
 
 #### Board debugging procedure
-Debugging is defined as powering the STM32 with an external power supply while the battery is disconnected, to allow for debugging without powering the sensors. You can perfrom debugging with either the stm_3.3v being supplied alone (just programming the stm32) or with all stm_3.3v, 3.3v, and 5.5v being supplied (programming while also having sensors, motors and cameras running).
+Debugging is defined as powering the STM32 with an external power supply while the battery is disconnected, to allow for debugging without powering the sensors. ~~You can perfrom debugging with either the stm_3.3v being supplied alone (just programming the stm32) or with all stm_3.3v, 3.3v, and 5.5v being supplied (programming while also having sensors, motors and cameras running).~~
 
-Follow the steps below **in order** to ensure the power isolation features work as intended and nothing gets damaged. If you just want to program the STM without powering the other components skip steps 4-5.
-
+~~Follow the steps below **in order** to ensure the power isolation features work as intended and nothing gets damaged. If you just want to program the STM without powering the other components skip steps 4-5.~~
+<del>
     1. Disconnect battery ensuring Vin is pulled to ground (both battery terminals are grounded)
     2. Using a multimeter, verify that there is no voltage at the Vin terminals of the converters.
     3. Ensure the solder bridge sb15 is disconnected
@@ -142,6 +142,15 @@ Follow the steps below **in order** to ensure the power isolation features work 
     6. Provide power to the STM via external power supply connected to the stm_3.3v and GND test point on the PCB.
     7. Ensure all grounds are common
     8. Now you can move to STM debugging setup sequence (step 4 below)
+</del>
+
+The above proceedure is outdated. It was for when stm and sensors were on the same power rail. And then was slightly modified for when they were on different rails. 
+
+But apon reflection, the power isolation features should be robust enough to allow for the following simplified debugging proceedure.
+1. Ensure the solder bridge sb15 is disconnected
+2. Connect battery or power supply (3.6v) to the battery terminals.
+3. All power rails should be on, and all systems should be active.
+4. You can now debug the STM32 by simply plugging in the USB into the nucleo board.
 
 The STM must follow this specific power up sequence. This proceedure was develpoed with the help of the STM32 docs below.
 ![alt text](imgs/stm_deb.png)
