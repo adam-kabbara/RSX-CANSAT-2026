@@ -1,0 +1,13 @@
+.vscode/
+venv/
+
+# STM32
+build
+mx.scratch
+Debug/
+Release/
+*.launch
+
+*.csv
+
+output/

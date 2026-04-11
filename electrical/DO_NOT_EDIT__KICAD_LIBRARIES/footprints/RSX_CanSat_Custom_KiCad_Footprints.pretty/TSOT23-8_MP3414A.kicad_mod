@@ -565,7 +565,7 @@
 		(uuid "6f78cbfd-0d45-4889-bbf5-70c0a6649408")
 	)
 	(fp_text user "*"
-		(at -1.60655 -2.5752 0)
+		(at -1.63 -1.65 0)
 		(layer "F.SilkS")
 		(uuid "22341ef5-404a-4523-995d-0d7553d6f77d")
 		(effects
@@ -576,7 +576,7 @@
 		)
 	)
 	(fp_text user "*"
-		(at -1.60655 -2.5752 0)
+		(at -1.63 -1.65 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "a3dcbba6-213c-4866-bd87-20f788a67dc8")
