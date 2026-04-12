@@ -1,0 +1,17 @@
+Version 4
+SymbolType BLOCK
+RECTANGLE Normal -96 -40 96 40
+WINDOW 0 0 -40 Bottom 2
+SYMATTR Prefix X
+SYMATTR Value TPS3839A09_TRANS
+SYMATTR ModelFile C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839A09_TRANS.LIB
+WINDOW 3 0 40 Top 2
+PIN -96 0 LEFT 8
+PINATTR PinName GND
+PINATTR SpiceOrder 1
+PIN 96 -16 RIGHT 8
+PINATTR PinName RESET_B
+PINATTR SpiceOrder 2
+PIN 96 16 RIGHT 8
+PINATTR PinName VDD
+PINATTR SpiceOrder 3

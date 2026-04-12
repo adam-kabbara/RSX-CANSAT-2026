@@ -19,7 +19,8 @@ __pycache__/
 
 # KiCad files
 ~*.lck
-electrical/pcb_boards/2t6_competition_board/capybara_rocket/capybara_rocket-backups/
-electrical/pcb_boards/2t6_competition_board/capybara_rocket/fp-info-cache
-electrical/pcb_boards/2t6_competition_board/capybara_habitat/capybara_habitat-backups/
-electrical/pcb_boards/2t6_competition_board/capybara_habitat/fp-info-cache
+electrical/pcb_boards/**/*-backups/
+electrical/pcb_boards/**/fp-info-cache
+electrical/pcb_boards/**/#auto_saved_files#
+electrical/pcb_boards/**/*.lck
+electrical/pcb_boards/**/*bak
