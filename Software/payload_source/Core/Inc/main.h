@@ -90,8 +90,8 @@ void Error_Handler(void);
 #define T_SWCLK_GPIO_Port GPIOA
 #define I2C_SCL_Pin GPIO_PIN_15
 #define I2C_SCL_GPIO_Port GPIOA
-#define T_SWO_Pin GPIO_PIN_3
-#define T_SWO_GPIO_Port GPIOB
+#define IMU_INT_Pin GPIO_PIN_3
+#define IMU_INT_GPIO_Port GPIOB
 #define SERVO_ELEVATOR_Pin GPIO_PIN_4
 #define SERVO_ELEVATOR_GPIO_Port GPIOB
 #define SERVO_AILERON_Pin GPIO_PIN_5
