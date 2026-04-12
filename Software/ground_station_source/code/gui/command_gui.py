@@ -11,7 +11,7 @@ from data.process import DataProcessor
 from data.simp import SimpManager
 from command.commands import Commands
 from PyQt6.QtGui import QColor, QIcon, QIntValidator, QTextCursor
-from PyQt6.QtCore import Qt, QTime
+from PyQt6.QtCore import Qt, QTime, QTimer
 from PyQt6.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -636,6 +636,32 @@ class CommandWindow(QMainWindow):
             self.__last_msg = None
             self.__last_msg_sat = False
             self.__log_repeat_count = 0
+
+    def run_payload_sim(self):
+        self.refresh_ports(False)
+        
+        # Find SIM port index
+        sim_index = -1
+        for i in range(self.combo_select_port.count()):
+            if "SIM" in self.combo_select_port.itemText(i):
+                sim_index = i
+                break
+        
+        if sim_index != -1:
+            self.combo_select_port.setCurrentIndex(sim_index)
+            self.port_selected()
+            self.open_port()
+
+            QTimer.singleShot(500, self._debug_calibrate)
+        else:
+            self.update_gui_log_error("DEBUG: SIM port not found")
+
+    def _debug_calibrate(self):
+        self.command_manager.command__alt_cal()
+        QTimer.singleShot(500, self._debug_start_mission)
+
+    def _debug_start_mission(self):
+        self.start_transmission()
 
     def closeEvent(self, event):
         self._processor.close_csv()

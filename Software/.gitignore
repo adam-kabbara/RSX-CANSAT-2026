@@ -11,3 +11,5 @@ Release/
 *.csv
 
 output/
+
+tiles/
