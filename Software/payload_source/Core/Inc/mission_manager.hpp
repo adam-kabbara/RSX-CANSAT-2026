@@ -6,8 +6,8 @@
   ******************************************************************************
   */
 
-#ifndef INC_MISSION_MANAGER_HPP_
-#define INC_MISSION_MANAGER_HPP_
+#ifndef INC_MISSION_MANAGER_HPP
+#define INC_MISSION_MANAGER_HPP
 
 #include "global_includes.hpp"
 
@@ -77,4 +77,4 @@ public:
     void enableLogfile();
 };
 
-#endif /* INC_MISSION_MANAGER_HPP_ */
+#endif /* INC_MISSION_MANAGER_HPP */

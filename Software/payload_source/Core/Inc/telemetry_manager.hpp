@@ -4,8 +4,8 @@
  *  Header for telemetry manager
  */
 
-#ifndef INC_TELEMETRY_MANAGER_HPP_
-#define INC_TELEMETRY_MANAGER_HPP_
+#ifndef INC_TELEMETRY_MANAGER_HPP
+#define INC_TELEMETRY_MANAGER_HPP
 
 #include "global_includes.hpp"
 #include "serial_manager.hpp"
@@ -50,4 +50,4 @@ public:
 	void build_data_str(char *buff, size_t size);
 };
 
-#endif /* INC_TELEMETRY_MANAGER_HPP_ */
+#endif /* INC_TELEMETRY_MANAGER_HPP */

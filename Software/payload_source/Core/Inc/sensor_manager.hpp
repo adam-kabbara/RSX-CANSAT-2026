@@ -4,8 +4,8 @@
  *  Header for sensor manager
  */
 
-#ifndef INC_SENSOR_MANAGER_HPP_
-#define INC_SENSOR_MANAGER_HPP_
+#ifndef INC_SENSOR_MANAGER_HPP
+#define INC_SENSOR_MANAGER_HPP
 
 #include "global_includes.hpp"
 #include "serial_manager.hpp"
@@ -80,4 +80,4 @@ public:
 			TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4);
 };
 
-#endif /* INC_SENSOR_MANAGER_HPP_ */
+#endif /* INC_SENSOR_MANAGER_HPP */
