@@ -22,13 +22,15 @@ The main MCU used in the project is the Nucleo-32 board with the STM32G4 microco
 - Package: D ; using smd on cpl and adafruit on gnd station
 
 ## Power Electronics
-### LT8610AB
-- Datasheet: [LT8610AB.pdf](datasheets/LT8610AB.pdf)
+### LT8610AB-5
+- Datasheet: [LT8610AB-5.pdf](datasheets/LT8610AB.pdf)
+- Digikey: [LT8610AB-5](https://www.digikey.com/en/products/detail/analog-devices-inc/LT8610ABEMSE-5-TRPBF/5233264)
 - Environment: Ground station
 - Details: 5v buck converter from 4s2p (16.8 to 12v) battery to 5v for the ground station. 5 volts used to power the raspberry pi and LED lights. Estimated current consumption to handel is 2.5A.
 
 ### LTC3114
 - Datasheet: [LTC3114.pdf](datasheets/LTC3114.pdf)
+- Digikey: [LTC3114](https://www.digikey.ca/en/products/detail/analog-devices-inc/LTC3114IFE-1-TRPBF/4840586)
 - Environment: Ground station
 - Details: 12v buckboost from 4s2p (16.8 to 12v) battery to 12v for the ground station. 12 volts used to power the monitor and speakers.
 - Package: FE
