@@ -4974,436 +4974,130 @@
 		)
 		(embedded_fonts no)
 	)
-	(symbol "LT8610ABEMSE-5_TRPBF"
-		(pin_names
-			(offset 1.016)
+	(symbol "LT8610ABEMSE-5-TRPBF" (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+		(property "Reference" "U" (id 0) (at 22.86 10.16 0)
+		(effects (font (size 1.524 1.524)))
 		)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(property "Reference" "U"
-			(at 28.3054 9.1218 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
+		(property "Value" "LT8610ABEMSE-5-TRPBF" (id 1) (at 22.86 7.62 0)
+		(effects (font (size 1.524 1.524)))
 		)
-		(property "Value" "LT8610ABEMSE-5_TRPBF"
-			(at 27.6633 6.5793 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
+		(property "Footprint" "MSOP-16_MSE_LTI" (id 2) (at 0 0 0)
+		(effects (font (size 1.27 1.27) italic) hide)
 		)
-		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:MSOP-16_MSE"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
+		(property "Datasheet" "LT8610ABEMSE-5-TRPBF" (id 3) (at 0 0 0)
+		(effects (font (size 1.27 1.27) italic) hide)
 		)
-		(property "Datasheet" ""
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
+		(property "ki_keywords" "LT8610ABEMSE-5#TRPBF" (id 4) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) hide)
 		)
-		(property "Description" ""
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
+		(property "ki_locked" "" (id 5) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) hide)
 		)
-		(property "VENDOR" "Linear Technology"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
+		(property "ki_fp_filters" "MSOP-16_MSE_LTI MSOP-16_MSE_LTI-M MSOP-16_MSE_LTI-L" (id 6) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) hide)
 		)
-		(property "MANUFACTURER_PART_NUMBER" "lt8610emse#pbf"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
+		(symbol "LT8610ABEMSE-5-TRPBF_0_1"
+		(polyline
+			(pts
+			(xy 7.62 5.08)
+			(xy 7.62 -45.72)
 			)
+			(stroke (width 0.127) (type default) (color 0 0 0 0))
+			(fill (type none))
 		)
-		(symbol "LT8610ABEMSE-5_TRPBF_0_0"
-			(polyline
-				(pts
-					(xy 7.62 5.08) (xy 7.62 -25.4)
-				)
-				(stroke
-					(width 0.1524)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
+		(polyline
+			(pts
+			(xy 7.62 -45.72)
+			(xy 38.1 -45.72)
 			)
-			(polyline
-				(pts
-					(xy 7.62 -25.4) (xy 58.42 -25.4)
-				)
-				(stroke
-					(width 0.1524)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 58.42 5.08) (xy 7.62 5.08)
-				)
-				(stroke
-					(width 0.1524)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 58.42 -25.4) (xy 58.42 5.08)
-				)
-				(stroke
-					(width 0.1524)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(pin input line
-				(at 0 0 0)
-				(length 7.62)
-				(name "SYNC"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "1"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 0 -2.54 0)
-				(length 7.62)
-				(name "TR/SS"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "2"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 0 -5.08 0)
-				(length 7.62)
-				(name "RT"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "3"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 0 -7.62 0)
-				(length 7.62)
-				(name "EN/UV"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "4"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 0 -10.16 0)
-				(length 7.62)
-				(name "VIN_2"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "5"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 0 -12.7 0)
-				(length 7.62)
-				(name "VIN"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "6"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 0 -15.24 0)
-				(length 7.62)
-				(name "PGND_2"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "7"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 0 -17.78 0)
-				(length 7.62)
-				(name "PGND_3"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "8"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 66.04 0 180)
-				(length 7.62)
-				(name "GND"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "17"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 66.04 -2.54 180)
-				(length 7.62)
-				(name "FB"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "16"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 66.04 -5.08 180)
-				(length 7.62)
-				(name "PGND"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "15"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 66.04 -7.62 180)
-				(length 7.62)
-				(name "BIAS"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "14"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 66.04 -10.16 180)
-				(length 7.62)
-				(name "INTVCC"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "13"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 66.04 -12.7 180)
-				(length 7.62)
-				(name "BST"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "12"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 66.04 -15.24 180)
-				(length 7.62)
-				(name "SW"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "11"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 66.04 -17.78 180)
-				(length 7.62)
-				(name "SW_3"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "10"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 66.04 -20.32 180)
-				(length 7.62)
-				(name "SW_2"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "9"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
+			(stroke (width 0.127) (type default) (color 0 0 0 0))
+			(fill (type none))
 		)
-		(embedded_fonts no)
+		(polyline
+			(pts
+			(xy 38.1 -45.72)
+			(xy 38.1 5.08)
+			)
+			(stroke (width 0.127) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 38.1 5.08)
+			(xy 7.62 5.08)
+			)
+			(stroke (width 0.127) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(pin input line (at 0 -2.54 0) (length 7.62)
+			(name "SYNC" (effects (font (size 1.27 1.27))))
+			(number "1" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 -12.7 180) (length 7.62)
+			(name "TR/SS" (effects (font (size 1.27 1.27))))
+			(number "2" (effects (font (size 1.27 1.27))))
+		)
+		(pin unspecified line (at 0 -22.86 0) (length 7.62)
+			(name "RT" (effects (font (size 1.27 1.27))))
+			(number "3" (effects (font (size 1.27 1.27))))
+		)
+		(pin unspecified line (at 0 -20.32 0) (length 7.62)
+			(name "EN/UV" (effects (font (size 1.27 1.27))))
+			(number "4" (effects (font (size 1.27 1.27))))
+		)
+		(pin input line (at 0 -7.62 0) (length 7.62)
+			(name "VIN" (effects (font (size 1.27 1.27))))
+			(number "5" (effects (font (size 1.27 1.27))))
+		)
+		(pin input line (at 0 -10.16 0) (length 7.62)
+			(name "VIN" (effects (font (size 1.27 1.27))))
+			(number "6" (effects (font (size 1.27 1.27))))
+		)
+		(pin no_connect line (at 0 -27.94 0) (length 7.62)
+			(name "NC" (effects (font (size 1.27 1.27))))
+			(number "7" (effects (font (size 1.27 1.27))))
+		)
+		(pin power_in line (at 0 -38.1 0) (length 7.62)
+			(name "GND" (effects (font (size 1.27 1.27))))
+			(number "8" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 -2.54 180) (length 7.62)
+			(name "SW" (effects (font (size 1.27 1.27))))
+			(number "9" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 -5.08 180) (length 7.62)
+			(name "SW" (effects (font (size 1.27 1.27))))
+			(number "10" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 -7.62 180) (length 7.62)
+			(name "SW" (effects (font (size 1.27 1.27))))
+			(number "11" (effects (font (size 1.27 1.27))))
+		)
+		(pin unspecified line (at 0 -17.78 0) (length 7.62)
+			(name "BST" (effects (font (size 1.27 1.27))))
+			(number "12" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 0 0 0) (length 7.62)
+			(name "INTVCC" (effects (font (size 1.27 1.27))))
+			(number "13" (effects (font (size 1.27 1.27))))
+		)
+		(pin unspecified line (at 0 -15.24 0) (length 7.62)
+			(name "BIAS" (effects (font (size 1.27 1.27))))
+			(number "14" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 0 180) (length 7.62)
+			(name "PG" (effects (font (size 1.27 1.27))))
+			(number "15" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 -15.24 180) (length 7.62)
+			(name "VOUT" (effects (font (size 1.27 1.27))))
+			(number "16" (effects (font (size 1.27 1.27))))
+		)
+		(pin power_in line (at 0 -40.64 0) (length 7.62)
+			(name "GND" (effects (font (size 1.27 1.27))))
+			(number "EPAD" (effects (font (size 1.27 1.27))))
+		)
+		)
 	)
 	(symbol "LTC3114IFE-1_TRPBF"
 		(pin_names
