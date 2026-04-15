@@ -4974,436 +4974,130 @@
 		)
 		(embedded_fonts no)
 	)
-	(symbol "LT8610ABEMSE-5_TRPBF"
-		(pin_names
-			(offset 1.016)
+	(symbol "LT8610ABEMSE-5-TRPBF" (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+		(property "Reference" "U" (id 0) (at 22.86 10.16 0)
+		(effects (font (size 1.524 1.524)))
 		)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(property "Reference" "U"
-			(at 28.3054 9.1218 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
+		(property "Value" "LT8610ABEMSE-5-TRPBF" (id 1) (at 22.86 7.62 0)
+		(effects (font (size 1.524 1.524)))
 		)
-		(property "Value" "LT8610ABEMSE-5_TRPBF"
-			(at 27.6633 6.5793 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
+		(property "Footprint" "MSOP-16_MSE_LTI" (id 2) (at 0 0 0)
+		(effects (font (size 1.27 1.27) italic) hide)
 		)
-		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:MSOP-16_MSE"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
+		(property "Datasheet" "LT8610ABEMSE-5-TRPBF" (id 3) (at 0 0 0)
+		(effects (font (size 1.27 1.27) italic) hide)
 		)
-		(property "Datasheet" ""
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
+		(property "ki_keywords" "LT8610ABEMSE-5#TRPBF" (id 4) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) hide)
 		)
-		(property "Description" ""
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
+		(property "ki_locked" "" (id 5) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) hide)
 		)
-		(property "VENDOR" "Linear Technology"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
+		(property "ki_fp_filters" "MSOP-16_MSE_LTI MSOP-16_MSE_LTI-M MSOP-16_MSE_LTI-L" (id 6) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) hide)
 		)
-		(property "MANUFACTURER_PART_NUMBER" "lt8610emse#pbf"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
+		(symbol "LT8610ABEMSE-5-TRPBF_0_1"
+		(polyline
+			(pts
+			(xy 7.62 5.08)
+			(xy 7.62 -45.72)
 			)
+			(stroke (width 0.127) (type default) (color 0 0 0 0))
+			(fill (type none))
 		)
-		(symbol "LT8610ABEMSE-5_TRPBF_0_0"
-			(polyline
-				(pts
-					(xy 7.62 5.08) (xy 7.62 -25.4)
-				)
-				(stroke
-					(width 0.1524)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
+		(polyline
+			(pts
+			(xy 7.62 -45.72)
+			(xy 38.1 -45.72)
 			)
-			(polyline
-				(pts
-					(xy 7.62 -25.4) (xy 58.42 -25.4)
-				)
-				(stroke
-					(width 0.1524)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 58.42 5.08) (xy 7.62 5.08)
-				)
-				(stroke
-					(width 0.1524)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(polyline
-				(pts
-					(xy 58.42 -25.4) (xy 58.42 5.08)
-				)
-				(stroke
-					(width 0.1524)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-			(pin input line
-				(at 0 0 0)
-				(length 7.62)
-				(name "SYNC"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "1"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 0 -2.54 0)
-				(length 7.62)
-				(name "TR/SS"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "2"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 0 -5.08 0)
-				(length 7.62)
-				(name "RT"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "3"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 0 -7.62 0)
-				(length 7.62)
-				(name "EN/UV"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "4"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 0 -10.16 0)
-				(length 7.62)
-				(name "VIN_2"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "5"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 0 -12.7 0)
-				(length 7.62)
-				(name "VIN"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "6"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 0 -15.24 0)
-				(length 7.62)
-				(name "PGND_2"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "7"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 0 -17.78 0)
-				(length 7.62)
-				(name "PGND_3"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "8"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 66.04 0 180)
-				(length 7.62)
-				(name "GND"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "17"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 66.04 -2.54 180)
-				(length 7.62)
-				(name "FB"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "16"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at 66.04 -5.08 180)
-				(length 7.62)
-				(name "PGND"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "15"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 66.04 -7.62 180)
-				(length 7.62)
-				(name "BIAS"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "14"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 66.04 -10.16 180)
-				(length 7.62)
-				(name "INTVCC"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "13"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 66.04 -12.7 180)
-				(length 7.62)
-				(name "BST"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "12"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 66.04 -15.24 180)
-				(length 7.62)
-				(name "SW"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "11"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 66.04 -17.78 180)
-				(length 7.62)
-				(name "SW_3"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "10"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 66.04 -20.32 180)
-				(length 7.62)
-				(name "SW_2"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "9"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
+			(stroke (width 0.127) (type default) (color 0 0 0 0))
+			(fill (type none))
 		)
-		(embedded_fonts no)
+		(polyline
+			(pts
+			(xy 38.1 -45.72)
+			(xy 38.1 5.08)
+			)
+			(stroke (width 0.127) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 38.1 5.08)
+			(xy 7.62 5.08)
+			)
+			(stroke (width 0.127) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(pin input line (at 0 -2.54 0) (length 7.62)
+			(name "SYNC" (effects (font (size 1.27 1.27))))
+			(number "1" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 -12.7 180) (length 7.62)
+			(name "TR/SS" (effects (font (size 1.27 1.27))))
+			(number "2" (effects (font (size 1.27 1.27))))
+		)
+		(pin unspecified line (at 0 -22.86 0) (length 7.62)
+			(name "RT" (effects (font (size 1.27 1.27))))
+			(number "3" (effects (font (size 1.27 1.27))))
+		)
+		(pin unspecified line (at 0 -20.32 0) (length 7.62)
+			(name "EN/UV" (effects (font (size 1.27 1.27))))
+			(number "4" (effects (font (size 1.27 1.27))))
+		)
+		(pin input line (at 0 -7.62 0) (length 7.62)
+			(name "VIN" (effects (font (size 1.27 1.27))))
+			(number "5" (effects (font (size 1.27 1.27))))
+		)
+		(pin input line (at 0 -10.16 0) (length 7.62)
+			(name "VIN" (effects (font (size 1.27 1.27))))
+			(number "6" (effects (font (size 1.27 1.27))))
+		)
+		(pin no_connect line (at 0 -27.94 0) (length 7.62)
+			(name "NC" (effects (font (size 1.27 1.27))))
+			(number "7" (effects (font (size 1.27 1.27))))
+		)
+		(pin power_in line (at 0 -38.1 0) (length 7.62)
+			(name "GND" (effects (font (size 1.27 1.27))))
+			(number "8" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 -2.54 180) (length 7.62)
+			(name "SW" (effects (font (size 1.27 1.27))))
+			(number "9" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 -5.08 180) (length 7.62)
+			(name "SW" (effects (font (size 1.27 1.27))))
+			(number "10" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 -7.62 180) (length 7.62)
+			(name "SW" (effects (font (size 1.27 1.27))))
+			(number "11" (effects (font (size 1.27 1.27))))
+		)
+		(pin unspecified line (at 0 -17.78 0) (length 7.62)
+			(name "BST" (effects (font (size 1.27 1.27))))
+			(number "12" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 0 0 0) (length 7.62)
+			(name "INTVCC" (effects (font (size 1.27 1.27))))
+			(number "13" (effects (font (size 1.27 1.27))))
+		)
+		(pin unspecified line (at 0 -15.24 0) (length 7.62)
+			(name "BIAS" (effects (font (size 1.27 1.27))))
+			(number "14" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 0 180) (length 7.62)
+			(name "PG" (effects (font (size 1.27 1.27))))
+			(number "15" (effects (font (size 1.27 1.27))))
+		)
+		(pin output line (at 45.72 -15.24 180) (length 7.62)
+			(name "VOUT" (effects (font (size 1.27 1.27))))
+			(number "16" (effects (font (size 1.27 1.27))))
+		)
+		(pin power_in line (at 0 -40.64 0) (length 7.62)
+			(name "GND" (effects (font (size 1.27 1.27))))
+			(number "EPAD" (effects (font (size 1.27 1.27))))
+		)
+		)
 	)
 	(symbol "LTC3114IFE-1_TRPBF"
 		(pin_names
@@ -12968,4 +12662,370 @@
 			)
 		)
 	)
+	(symbol "744066100" (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+		(property "Reference" "L" (id 0) (at 6.985 5.08 0)
+		(effects (font (size 1.524 1.524)))
+		)
+		(property "Value" "744066100" (id 1) (at 6.985 -2.54 0)
+		(effects (font (size 1.524 1.524)))
+		)
+		(property "Footprint" "IND_1038-WE-TPC_WRE" (id 2) (at 0 0 0)
+		(effects (font (size 1.27 1.27) italic) hide)
+		)
+		(property "Datasheet" "https://www.we-online.com/catalog/datasheet/744066100.pdf" (id 3) (at 0 0 0)
+		(effects (font (size 1.27 1.27) italic) hide)
+		)
+		(property "ki_keywords" "744066100" (id 4) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) hide)
+		)
+		(property "ki_locked" "" (id 5) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) hide)
+		)
+		(property "ki_fp_filters" "IND_1038-WE-TPC_WRE" (id 6) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) hide)
+		)
+		(symbol "744066100_1_1"
+		(arc (start 7.62 1.27) (mid 6.35 2.54) (end 5.08 1.27)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 5.08 0)
+			(xy 5.08 1.27)
+			)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 7.62 0)
+			(xy 7.62 1.27)
+			)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 12.7 0)
+			(xy 12.7 1.27)
+			)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(arc (start 5.08 1.27) (mid 3.81 2.54) (end 2.54 1.27)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(arc (start 10.16 1.27) (mid 8.89 2.54) (end 7.62 1.27)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(arc (start 12.7 1.27) (mid 11.43 2.54) (end 10.16 1.27)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 2.54 0)
+			(xy 2.54 1.27)
+			)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 10.16 0)
+			(xy 10.16 1.27)
+			)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(pin unspecified line (at 0 0 0) (length 2.54)
+			(name "2" (effects (font (size 1.27 1.27))))
+			(number "2" (effects (font (size 1.27 1.27))))
+		)
+		(pin unspecified line (at 15.24 0 180) (length 2.54)
+			(name "1" (effects (font (size 1.27 1.27))))
+			(number "1" (effects (font (size 1.27 1.27))))
+		)
+		)
+		(symbol "744066100_1_2"
+		(arc (start -1.27 7.62) (mid -2.54 6.35) (end -1.27 5.08)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(arc (start -1.27 5.08) (mid -2.54 3.81) (end -1.27 2.54)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(arc (start -1.27 12.7) (mid -2.54 11.43) (end -1.27 10.16)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(arc (start -1.27 10.16) (mid -2.54 8.89) (end -1.27 7.62)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 0 7.62)
+			(xy -1.27 7.62)
+			)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 0 5.08)
+			(xy -1.27 5.08)
+			)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 0 12.7)
+			(xy -1.27 12.7)
+			)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 0 2.54)
+			(xy -1.27 2.54)
+			)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(polyline
+			(pts
+			(xy 0 10.16)
+			(xy -1.27 10.16)
+			)
+			(stroke (width 0.2032) (type default) (color 0 0 0 0))
+			(fill (type none))
+		)
+		(pin unspecified line (at 0 0 90) (length 2.54)
+			(name "2" (effects (font (size 1.27 1.27))))
+			(number "2" (effects (font (size 1.27 1.27))))
+		)
+		(pin unspecified line (at 0 15.24 270) (length 2.54)
+			(name "1" (effects (font (size 1.27 1.27))))
+			(number "1" (effects (font (size 1.27 1.27))))
+		)
+		)
+	)
+	(symbol "GRMJN7R61C206ME05D" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+		(property "Reference" "C" (id 0) (at 0.0 3.81093125 0)
+		(effects (font (size 1.27 1.27)) (justify bottom left))
+		)
+		(property "Value" "GRMJN7R61C206ME05D" (id 1) (at 0.0 -5.08848125 0)
+		(effects (font (size 1.27 1.27)) (justify bottom left))
+		)
+		(property "Footprint" "GRMJN7R61C206ME05D:CAPC1810X80N" (id 2) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) (justify bottom) hide)
+		)
+		(property "DigiKey_Part_Number" "490-GRMJN7R61C206ME05DCT-ND" (id 4) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) (justify bottom) hide)
+		)
+		(property "SnapEDA_Link" "https://www.snapeda.com/parts/GRMJN7R61C206ME05D/Murata/view-part/?ref=snap" (id 5) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) (justify bottom) hide)
+		)
+		(property "Description" "\n                        \n                            SMD capacitor X5R(EIA) with capacitance 20uF Tol.20%. Rated voltage 16Vdc 85C\n                        \n" (id 6) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) (justify bottom) hide)
+		)
+		(property "MF" "Murata Electronics" (id 7) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) (justify bottom) hide)
+		)
+		(property "Package" "1810 Murata" (id 8) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) (justify bottom) hide)
+		)
+		(property "Check_prices" "https://www.snapeda.com/parts/GRMJN7R61C206ME05D/Murata/view-part/?ref=eda" (id 9) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) (justify bottom) hide)
+		)
+		(property "MP" "GRMJN7R61C206ME05D" (id 10) (at 0 0 0)
+		(effects (font (size 1.27 1.27)) (justify bottom) hide)
+	)
+    (symbol "GRMJN7R61C206ME05D_0_0"
+      (rectangle (start 0.0 -1.906859375) (end 0.635 1.905)
+        (stroke (width 0.1)) (fill (type outline))
+      )
+      (rectangle (start 1.90685 -1.90685) (end 2.54 1.905)
+        (stroke (width 0.1)) (fill (type outline))
+      )
+      (pin passive line (at 5.08 0.0 180.0) (length 2.54)
+        (name "~"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "2"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+      (pin passive line (at -2.54 0.0 0) (length 2.54)
+        (name "~"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "1"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+    )
+  )
+   (symbol "BLM41PG181SN1L" (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
+    (property "Reference" "L" (id 0) (at 6.985 5.08 0)
+      (effects (font (size 1.524 1.524)))
+    )
+    (property "Value" "BLM41PG181SN1L" (id 1) (at 6.985 -2.54 0)
+      (effects (font (size 1.524 1.524)))
+    )
+    (property "Footprint" "IND_BLM41_1806_MUR" (id 2) (at 0 0 0)
+      (effects (font (size 1.27 1.27) italic) hide)
+    )
+    (property "Datasheet" "BLM41PG181SN1L" (id 3) (at 0 0 0)
+      (effects (font (size 1.27 1.27) italic) hide)
+    )
+    (property "ki_keywords" "BLM41PG181SN1L" (id 4) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "ki_locked" "" (id 5) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "ki_fp_filters" "IND_BLM41_1806_MUR IND_BLM41_1806_MUR-M IND_BLM41_1806_MUR-L" (id 6) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (symbol "BLM41PG181SN1L_1_1"
+      (arc (start 7.62 1.27) (mid 6.35 2.54) (end 5.08 1.27)
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 5.08 0)
+          (xy 5.08 1.27)
+        )
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 7.62 0)
+          (xy 7.62 1.27)
+        )
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 12.7 0)
+          (xy 12.7 1.27)
+        )
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 5.08 1.27) (mid 3.81 2.54) (end 2.54 1.27)
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 10.16 1.27) (mid 8.89 2.54) (end 7.62 1.27)
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start 12.7 1.27) (mid 11.43 2.54) (end 10.16 1.27)
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 2.54 0)
+          (xy 2.54 1.27)
+        )
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 10.16 0)
+          (xy 10.16 1.27)
+        )
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (pin unspecified line (at 0 0 0) (length 2.54)
+        (name "2" (effects (font (size 1.27 1.27))))
+        (number "2" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line (at 15.24 0 180) (length 2.54)
+        (name "1" (effects (font (size 1.27 1.27))))
+        (number "1" (effects (font (size 1.27 1.27))))
+      )
+    )
+    (symbol "BLM41PG181SN1L_1_2"
+      (arc (start -1.27 7.62) (mid -2.54 6.35) (end -1.27 5.08)
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start -1.27 5.08) (mid -2.54 3.81) (end -1.27 2.54)
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start -1.27 12.7) (mid -2.54 11.43) (end -1.27 10.16)
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (arc (start -1.27 10.16) (mid -2.54 8.89) (end -1.27 7.62)
+        (stroke (width 0.254) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 0 7.62)
+          (xy -1.27 7.62)
+        )
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 0 5.08)
+          (xy -1.27 5.08)
+        )
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 0 12.7)
+          (xy -1.27 12.7)
+        )
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 0 2.54)
+          (xy -1.27 2.54)
+        )
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 0 10.16)
+          (xy -1.27 10.16)
+        )
+        (stroke (width 0.2032) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (pin unspecified line (at 0 0 90) (length 2.54)
+        (name "2" (effects (font (size 1.27 1.27))))
+        (number "2" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line (at 0 15.24 270) (length 2.54)
+        (name "1" (effects (font (size 1.27 1.27))))
+        (number "1" (effects (font (size 1.27 1.27))))
+      )
+    )
+  )
 )
