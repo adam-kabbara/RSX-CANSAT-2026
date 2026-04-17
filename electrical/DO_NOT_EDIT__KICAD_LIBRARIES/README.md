@@ -37,3 +37,5 @@
 
 ### 3D Models:
 - TBA
+- Preferences>Configure Paths
+- Click plus btn, add "CUSTOM_3D_MODELS" as a name and /{USER_PATH}/RSX-CANSAT-2026/electrical/DO_NOT_EDIT__KICAD_LIBRARIES/Custom_3D_Models.3dshapes as the path
