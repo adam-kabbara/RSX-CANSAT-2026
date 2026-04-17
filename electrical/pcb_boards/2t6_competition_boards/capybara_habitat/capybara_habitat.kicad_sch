@@ -5,6 +5,370 @@
 	(uuid "e906f51b-c3d1-42dd-85c1-45fc9b7b20d8")
 	(paper "A4")
 	(lib_symbols
+		(symbol "744066100_1"
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "L"
+				(at 6.985 5.08 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Value" "744066100"
+				(at 6.985 -2.54 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:IND_1038-WE-TPC_WRE"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://www.we-online.com/catalog/datasheet/744066100.pdf"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "744066100"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "IND_1038-WE-TPC_WRE"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "744066100_1_1_1"
+				(polyline
+					(pts
+						(xy 2.54 0) (xy 2.54 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 2.54 1.27)
+					(mid 3.81 2.54)
+					(end 5.08 1.27)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 5.08 0) (xy 5.08 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 5.08 1.27)
+					(mid 6.35 2.54)
+					(end 7.62 1.27)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 7.62 0) (xy 7.62 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 7.62 1.27)
+					(mid 8.89 2.54)
+					(end 10.16 1.27)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 10.16 0) (xy 10.16 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 10.16 1.27)
+					(mid 11.43 2.54)
+					(end 12.7 1.27)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 12.7 0) (xy 12.7 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin unspecified line
+					(at 0 0 0)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 15.24 0 180)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "744066100_1_1_2"
+				(arc
+					(start -1.27 10.16)
+					(mid -2.54 11.43)
+					(end -1.27 12.7)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 7.62)
+					(mid -2.54 8.89)
+					(end -1.27 10.16)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 5.08)
+					(mid -2.54 6.35)
+					(end -1.27 7.62)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 2.54)
+					(mid -2.54 3.81)
+					(end -1.27 5.08)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 12.7) (xy -1.27 12.7)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 10.16) (xy -1.27 10.16)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 7.62) (xy -1.27 7.62)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 5.08) (xy -1.27 5.08)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy -1.27 2.54)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin unspecified line
+					(at 0 15.24 270)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 0 0 90)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Amplifier_Audio:PAM8406D"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -365,6 +729,1098 @@
 						)
 					)
 					(number "16"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "BLM41PG181SN1L_1"
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "L"
+				(at 6.985 5.08 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Value" "BLM41PG181SN1L"
+				(at 6.985 -2.54 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:IND_BLM41_1806_MUR-L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "BLM41PG181SN1L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "BLM41PG181SN1L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "IND_BLM41_1806_MUR IND_BLM41_1806_MUR-M IND_BLM41_1806_MUR-L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "BLM41PG181SN1L_1_1_1"
+				(polyline
+					(pts
+						(xy 2.54 0) (xy 2.54 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 2.54 1.27)
+					(mid 3.81 2.54)
+					(end 5.08 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 5.08 0) (xy 5.08 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 5.08 1.27)
+					(mid 6.35 2.54)
+					(end 7.62 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 7.62 0) (xy 7.62 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 7.62 1.27)
+					(mid 8.89 2.54)
+					(end 10.16 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 10.16 0) (xy 10.16 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 10.16 1.27)
+					(mid 11.43 2.54)
+					(end 12.7 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 12.7 0) (xy 12.7 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin unspecified line
+					(at 0 0 0)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 15.24 0 180)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "BLM41PG181SN1L_1_1_2"
+				(arc
+					(start -1.27 10.16)
+					(mid -2.54 11.43)
+					(end -1.27 12.7)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 7.62)
+					(mid -2.54 8.89)
+					(end -1.27 10.16)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 5.08)
+					(mid -2.54 6.35)
+					(end -1.27 7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 2.54)
+					(mid -2.54 3.81)
+					(end -1.27 5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 12.7) (xy -1.27 12.7)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 10.16) (xy -1.27 10.16)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 7.62) (xy -1.27 7.62)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 5.08) (xy -1.27 5.08)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy -1.27 2.54)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin unspecified line
+					(at 0 15.24 270)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 0 0 90)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "BLM41PG181SN1L_2"
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "L"
+				(at 6.985 5.08 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Value" "BLM41PG181SN1L"
+				(at 6.985 -2.54 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:IND_BLM41_1806_MUR-L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "BLM41PG181SN1L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "BLM41PG181SN1L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "IND_BLM41_1806_MUR IND_BLM41_1806_MUR-M IND_BLM41_1806_MUR-L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "BLM41PG181SN1L_2_1_1"
+				(polyline
+					(pts
+						(xy 2.54 0) (xy 2.54 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 2.54 1.27)
+					(mid 3.81 2.54)
+					(end 5.08 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 5.08 0) (xy 5.08 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 5.08 1.27)
+					(mid 6.35 2.54)
+					(end 7.62 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 7.62 0) (xy 7.62 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 7.62 1.27)
+					(mid 8.89 2.54)
+					(end 10.16 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 10.16 0) (xy 10.16 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 10.16 1.27)
+					(mid 11.43 2.54)
+					(end 12.7 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 12.7 0) (xy 12.7 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin unspecified line
+					(at 0 0 0)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 15.24 0 180)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "BLM41PG181SN1L_2_1_2"
+				(arc
+					(start -1.27 10.16)
+					(mid -2.54 11.43)
+					(end -1.27 12.7)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 7.62)
+					(mid -2.54 8.89)
+					(end -1.27 10.16)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 5.08)
+					(mid -2.54 6.35)
+					(end -1.27 7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 2.54)
+					(mid -2.54 3.81)
+					(end -1.27 5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 12.7) (xy -1.27 12.7)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 10.16) (xy -1.27 10.16)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 7.62) (xy -1.27 7.62)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 5.08) (xy -1.27 5.08)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy -1.27 2.54)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin unspecified line
+					(at 0 15.24 270)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 0 0 90)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "BLM41PG181SN1L_3"
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "L"
+				(at 6.985 5.08 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Value" "BLM41PG181SN1L"
+				(at 6.985 -2.54 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:IND_BLM41_1806_MUR-L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "BLM41PG181SN1L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "BLM41PG181SN1L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "IND_BLM41_1806_MUR IND_BLM41_1806_MUR-M IND_BLM41_1806_MUR-L"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "BLM41PG181SN1L_3_1_1"
+				(polyline
+					(pts
+						(xy 2.54 0) (xy 2.54 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 2.54 1.27)
+					(mid 3.81 2.54)
+					(end 5.08 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 5.08 0) (xy 5.08 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 5.08 1.27)
+					(mid 6.35 2.54)
+					(end 7.62 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 7.62 0) (xy 7.62 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 7.62 1.27)
+					(mid 8.89 2.54)
+					(end 10.16 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 10.16 0) (xy 10.16 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 10.16 1.27)
+					(mid 11.43 2.54)
+					(end 12.7 1.27)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 12.7 0) (xy 12.7 1.27)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin unspecified line
+					(at 0 0 0)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 15.24 0 180)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "BLM41PG181SN1L_3_1_2"
+				(arc
+					(start -1.27 10.16)
+					(mid -2.54 11.43)
+					(end -1.27 12.7)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 7.62)
+					(mid -2.54 8.89)
+					(end -1.27 10.16)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 5.08)
+					(mid -2.54 6.35)
+					(end -1.27 7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -1.27 2.54)
+					(mid -2.54 3.81)
+					(end -1.27 5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 12.7) (xy -1.27 12.7)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 10.16) (xy -1.27 10.16)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 7.62) (xy -1.27 7.62)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 5.08) (xy -1.27 5.08)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy -1.27 2.54)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin unspecified line
+					(at 0 15.24 270)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 0 0 90)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2135,7 +3591,7 @@
 					)
 				)
 			)
-			(property "Footprint" "IND_1038-WE-TPC_WRE"
+			(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:IND_1038-WE-TPC_WRE"
 				(at 0 0 0)
 				(effects
 					(font
@@ -2162,14 +3618,6 @@
 						(size 1.27 1.27)
 					)
 					(hide yes)
-				)
-			)
-			(property "ki_locked" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
 				)
 			)
 			(property "ki_keywords" "744066100"
@@ -3453,7 +4901,7 @@
 					)
 				)
 			)
-			(property "Footprint" "MSOP-16_MSE_LTI"
+			(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:MSOP-16_MSE_LTI-M"
 				(at 0 0 0)
 				(effects
 					(font
@@ -3482,14 +4930,6 @@
 					(hide yes)
 				)
 			)
-			(property "ki_locked" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
 			(property "ki_keywords" "LT8610ABEMSE-5#TRPBF"
 				(at 0 0 0)
 				(effects
@@ -3509,54 +4949,6 @@
 				)
 			)
 			(symbol "LT8610ABEMSE-5-TRPBF_0_1"
-				(polyline
-					(pts
-						(xy 7.62 5.08) (xy 7.62 -45.72)
-					)
-					(stroke
-						(width 0.127)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 7.62 -45.72) (xy 38.1 -45.72)
-					)
-					(stroke
-						(width 0.127)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 38.1 5.08) (xy 7.62 5.08)
-					)
-					(stroke
-						(width 0.127)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 38.1 -45.72) (xy 38.1 5.08)
-					)
-					(stroke
-						(width 0.127)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
 				(pin output line
 					(at 0 0 0)
 					(length 7.62)
@@ -3774,60 +5166,6 @@
 					)
 				)
 				(pin output line
-					(at 45.72 -2.54 180)
-					(length 7.62)
-					(name "SW"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 45.72 -5.08 180)
-					(length 7.62)
-					(name "SW"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 45.72 -7.62 180)
-					(length 7.62)
-					(name "SW"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "11"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
 					(at 45.72 -12.7 180)
 					(length 7.62)
 					(name "TR/SS"
@@ -3856,6 +5194,73 @@
 						)
 					)
 					(number "16"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "LT8610ABEMSE-5-TRPBF_1_1"
+				(rectangle
+					(start 7.62 5.08)
+					(end 38.1 -45.72)
+					(stroke
+						(width 0.254)
+						(type solid)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at 45.72 -2.54 180)
+					(length 7.62)
+					(name "SW"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 45.72 -5.08 180)
+					(length 7.62)
+					(name "SW"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 45.72 -7.62 180)
+					(length 7.62)
+					(name "SW"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "11"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4976,6 +6381,107 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "power:PWR_FLAG"
+			(power)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#FLG"
+				(at 0 1.905 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "PWR_FLAG"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Special symbol for telling ERC where power comes from"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "flag power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "PWR_FLAG_0_0"
+				(pin power_out line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "PWR_FLAG_0_1"
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 1.27) (xy -1.016 1.905) (xy 0 2.54) (xy 1.016 1.905) (xy 0 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 	)
 	(rectangle
 		(start 41.91 134.62)
@@ -5060,6 +6566,18 @@
 			(type none)
 		)
 		(uuid b792591e-a51e-4525-8928-656bc20e040b)
+	)
+	(rectangle
+		(start 167.64 138.43)
+		(end 210.82 157.48)
+		(stroke
+			(width 1.27)
+			(type solid)
+		)
+		(fill
+			(type none)
+		)
+		(uuid b94b95f5-b0c0-4b41-9b9d-be01fc2177dc)
 	)
 	(rectangle
 		(start 66.04 17.78)
@@ -5513,6 +7031,18 @@
 		)
 		(uuid "e5fd4a8b-fbfb-4789-bf7d-2c6759e1f32e")
 	)
+	(text "PWR_FLAG"
+		(exclude_from_sim no)
+		(at 188.976 143.256 0)
+		(effects
+			(font
+				(size 5.08 5.08)
+				(thickness 1.016)
+				(bold yes)
+			)
+		)
+		(uuid "ec364c79-875f-41ee-8a5f-46f033cf5c54")
+	)
 	(text "main monitor pwr and control"
 		(exclude_from_sim no)
 		(at 50.292 56.642 0)
@@ -5716,12 +7246,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ab59c028-aba5-4d18-8971-96b7f7641ef9")
-	)
-	(junction
-		(at 161.29 72.39)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b29b8f90-233a-43f0-b2c4-50698ed80e4e")
 	)
 	(junction
 		(at 143.51 157.48)
@@ -10231,7 +11755,7 @@
 				)
 			)
 		)
-		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:MODULE_904"
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:Adafruit_INA219"
 			(at 91.44 43.18 0)
 			(effects
 				(font
@@ -13424,6 +14948,7 @@
 		)
 	)
 	(symbol
+		(lib_name "744066100_1")
 		(lib_id "RSX_CanSat_Custom_KiCad_Symbols:744066100")
 		(at 207.01 36.83 0)
 		(unit 1)
@@ -13450,7 +14975,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "IND_1038-WE-TPC_WRE"
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:IND_1038-WE-TPC_WRE"
 			(at 207.01 36.83 0)
 			(effects
 				(font
@@ -13725,7 +15250,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "IND_1038-WE-TPC_WRE"
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:IND_1038-WE-TPC_WRE"
 			(at 275.59 99.06 0)
 			(effects
 				(font
@@ -13993,7 +15518,7 @@
 				)
 			)
 		)
-		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:MODULE_904"
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:Adafruit_INA219"
 			(at 91.44 71.12 0)
 			(effects
 				(font
@@ -14167,6 +15692,7 @@
 		)
 	)
 	(symbol
+		(lib_name "BLM41PG181SN1L_2")
 		(lib_id "RSX_CanSat_Custom_KiCad_Symbols:BLM41PG181SN1L")
 		(at 137.16 168.91 0)
 		(unit 1)
@@ -17031,191 +18557,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:Raspberry_Pi_4")
-		(at 161.29 44.45 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "b600f141-bdc9-49c7-b433-a08b4273b172")
-		(property "Reference" "J6"
-			(at 161.29 13.97 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Raspberry_Pi_4"
-			(at 161.29 16.51 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x20_P2.54mm_Vertical"
-			(at 231.394 91.948 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://datasheets.raspberrypi.com/rpi4/raspberry-pi-4-datasheet.pdf"
-			(at 177.038 76.708 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Description" "Raspberry Pi 4 Model B"
-			(at 177.038 74.168 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(pin "10"
-			(uuid "f9c4744c-6c23-41c2-a82e-e96ef0f667c9")
-		)
-		(pin "8"
-			(uuid "8f387c2c-1c3b-45a6-a2d4-5eca0add156b")
-		)
-		(pin "32"
-			(uuid "41e3bb8e-2ee3-4b14-906c-469c8b6df3fa")
-		)
-		(pin "33"
-			(uuid "fb35df76-a847-4e0e-a4b1-35cf2ba14a19")
-		)
-		(pin "35"
-			(uuid "e8566488-5012-4917-8d8e-12661dd7f6a4")
-		)
-		(pin "38"
-			(uuid "cb76d317-98a9-4ec9-b8ea-18701f3cef19")
-		)
-		(pin "36"
-			(uuid "8c487006-73a1-4611-b0af-95aa3389d4a5")
-		)
-		(pin "40"
-			(uuid "ffe043b6-db85-40c9-a68c-248d5b05f862")
-		)
-		(pin "11"
-			(uuid "acbad0f8-78c8-4356-a55e-9fa20f19f153")
-		)
-		(pin "12"
-			(uuid "7640cc8d-4b55-446c-8a46-e010b72408d2")
-		)
-		(pin "15"
-			(uuid "b2d2d0a4-3561-4266-936d-29617d72c643")
-		)
-		(pin "25"
-			(uuid "9632d4e2-704c-4cdf-b802-4a332da3b2b5")
-		)
-		(pin "34"
-			(uuid "f3926cb9-225a-4640-8577-c1b6757706bc")
-		)
-		(pin "22"
-			(uuid "41748964-427f-489c-9700-738b66462ce7")
-		)
-		(pin "37"
-			(uuid "0deb7e4b-5222-49de-9b80-875665827e6f")
-		)
-		(pin "18"
-			(uuid "33b531bd-1b76-44f0-9d86-bea949bc82c2")
-		)
-		(pin "13"
-			(uuid "f88494e1-2d46-4caa-83bb-3cc286edf5fd")
-		)
-		(pin "14"
-			(uuid "ebece062-06ab-4dfb-9912-801b2f318fcc")
-		)
-		(pin "16"
-			(uuid "d2d730cd-8354-4ddf-8205-d5129af3f84c")
-		)
-		(pin "20"
-			(uuid "26a820e9-605f-42b5-8d61-9592d8526db6")
-		)
-		(pin "30"
-			(uuid "9c301e47-ce14-4b3b-9efd-c83ccd43d966")
-		)
-		(pin "39"
-			(uuid "c700fd59-363e-47b9-8021-35f73ec8fdc0")
-		)
-		(pin "6"
-			(uuid "a1356178-5010-4859-9b0c-73a09ccb4fee")
-		)
-		(pin "9"
-			(uuid "ffd09736-289f-4c80-b929-2ed7db6cc5dd")
-		)
-		(pin "24"
-			(uuid "9bce58cc-f9db-4e08-b75d-32a39a77856c")
-		)
-		(pin "23"
-			(uuid "df968666-6a5e-4233-a095-77a7b0efb2ae")
-		)
-		(pin "26"
-			(uuid "f311c91d-6536-4c00-955a-0aca921f429f")
-		)
-		(pin "19"
-			(uuid "1613c51c-354f-4cca-bc9d-ab3d7a16d050")
-		)
-		(pin "3"
-			(uuid "239bbf4a-fa16-4efc-b7d0-ecddf01f644a")
-		)
-		(pin "7"
-			(uuid "d369baf5-1582-4aea-a478-2ce008e84601")
-		)
-		(pin "29"
-			(uuid "6ad5c195-1820-43be-abdb-a07f97a9daa9")
-		)
-		(pin "27"
-			(uuid "d0e4fe26-25e6-49c2-ae15-c82e93eca384")
-		)
-		(pin "5"
-			(uuid "0aabc7a5-7dbb-4add-b3e3-efe71588c023")
-		)
-		(pin "28"
-			(uuid "c13d8c1a-7ff2-48a3-9e72-0966989254fd")
-		)
-		(pin "2"
-			(uuid "0591ea8d-d2d7-4a60-bea3-9e37395e65e2")
-		)
-		(pin "4"
-			(uuid "350bf04f-081d-4ba9-8aab-2c92df2b7f6f")
-		)
-		(pin "1"
-			(uuid "1d0beb73-ea23-4416-86d6-54f90ca0947f")
-		)
-		(pin "31"
-			(uuid "ee246f8e-9d5d-4ac8-8bca-e5a95fdf4752")
-		)
-		(pin "17"
-			(uuid "1a9bdbbc-2cf0-447e-9645-ebfd0ee4373c")
-		)
-		(pin "21"
-			(uuid "52f23d6e-edb5-4c10-ab77-f7e1f6e4cf4a")
-		)
-		(instances
-			(project ""
-				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 153.67 135.89 0)
 		(unit 1)
@@ -18210,6 +19551,7 @@
 		)
 	)
 	(symbol
+		(lib_name "BLM41PG181SN1L_3")
 		(lib_id "RSX_CanSat_Custom_KiCad_Symbols:BLM41PG181SN1L")
 		(at 137.16 171.45 0)
 		(unit 1)
@@ -18506,7 +19848,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:Pi_T_Cobbler_PinHeader_2x20_P2.54mm_Vertical"
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:Pi_T_Cobbler_PinHeader_2x20_P2.54mm_Vertical"
 			(at 231.394 91.948 0)
 			(effects
 				(font
@@ -19157,6 +20499,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:PWR_FLAG")
+		(at 187.96 154.94 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "df4fb2cb-ecc6-422b-9718-97951b4b825f")
+		(property "Reference" "#FLG01"
+			(at 187.96 153.035 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 187.96 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 187.96 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 187.96 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 187.96 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7646410f-96bc-444a-a0c2-84862ca18ec6")
+		)
+		(instances
+			(project "capybara_habitat"
+				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
+					(reference "#FLG01")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 223.52 29.21 0)
 		(unit 1)
@@ -19302,6 +20710,7 @@
 		)
 	)
 	(symbol
+		(lib_name "BLM41PG181SN1L_1")
 		(lib_id "RSX_CanSat_Custom_KiCad_Symbols:BLM41PG181SN1L")
 		(at 128.27 157.48 0)
 		(unit 1)
@@ -19791,7 +21200,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MSOP-16_MSE_LTI"
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:MSOP-16_MSE_LTI-M"
 			(at 224.79 99.06 0)
 			(effects
 				(font
