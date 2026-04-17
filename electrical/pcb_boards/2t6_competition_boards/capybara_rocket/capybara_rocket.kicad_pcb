@@ -60913,11 +60913,11 @@
 	(footprint "RSX_CanSat_Graphics:skule"
 		(layer "B.Cu")
 		(uuid "64c8985a-d5aa-420b-a9b4-591d8530b9ca")
-		(at 213.152832 119.379163 180)
+		(at 213.152832 118.73114 180)
 		(property "Reference" "G***"
 			(at 0 0 0)
 			(layer "F.Fab")
-			(uuid "b9ebdbd1-fe4e-43e7-83a2-00d6da33927d")
+			(uuid "e955e60d-b682-4d65-9a9f-066655fdcb23")
 			(effects
 				(font
 					(size 1.5 1.5)
@@ -60930,7 +60930,7 @@
 			(at 0.75 0 0)
 			(layer "B.SilkS")
 			(hide yes)
-			(uuid "ca496537-3f9d-483c-96a3-3278adb53d5b")
+			(uuid "b80ef585-47c6-4f02-b2f6-292b3dc29dd7")
 			(effects
 				(font
 					(size 1.5 1.5)
@@ -60943,7 +60943,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "a43fdd7b-51a0-46d4-92b9-1823651241dc")
+			(uuid "284e232e-8104-43d3-92a7-eacfc6294871")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -60956,7 +60956,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "e6c6cd32-3d6d-41d6-a10e-8113bdfd2087")
+			(uuid "d55dca92-08c8-4aa0-a0a9-d3a1c2c191d6")
 			(effects
 				(font
 					(size 1.27 1.27)
