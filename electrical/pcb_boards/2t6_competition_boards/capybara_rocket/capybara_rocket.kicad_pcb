@@ -43553,7 +43553,7 @@
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
 			(net 45 "IMU_INT")
-			(pinfunction "T_SWO(PB3/PB8(D13))")
+			(pinfunction "IMU_INT(PB3/PB8(D13))")
 			(pintype "bidirectional")
 			(solder_mask_margin 0.102)
 			(uuid "dddc002a-2f04-4379-9090-882f525af675")
