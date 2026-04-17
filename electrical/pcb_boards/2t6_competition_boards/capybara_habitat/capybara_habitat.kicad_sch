@@ -19565,7 +19565,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:Female_DC_Power_Barrel_Jack"
 			(at 21.59 32.766 0)
 			(effects
 				(font
