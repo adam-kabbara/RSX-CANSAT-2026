@@ -4,6 +4,14 @@
 	(generator_version "9.0")
 	(uuid "e906f51b-c3d1-42dd-85c1-45fc9b7b20d8")
 	(paper "A4")
+	(title_block
+		(title "RSX Aerial CanSat 2T6 Ground Station Schematic Design")
+		(date "2026-04-15")
+		(rev "A")
+		(company "Robotics of Space Exploration (RSX), University of Toronto")
+		(comment 1 "Designed by Electrical Team, RSX Aerial")
+		(comment 2 "Led by Adam Kabbara & Daniel Yu ")
+	)
 	(lib_symbols
 		(symbol "744066100_1"
 			(pin_names
@@ -3957,7 +3965,7 @@
 					(justify left bottom)
 				)
 			)
-			(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:MODULE_904"
+			(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:Adafruit_INA219"
 				(at 0 0 0)
 				(effects
 					(font
@@ -4082,6 +4090,15 @@
 						(size 1.27 1.27)
 					)
 					(justify bottom)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "INA219 904"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
 					(hide yes)
 				)
 			)
@@ -4218,81 +4235,6 @@
 						)
 					)
 					(number "4"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 15.24 -5.08 180)
-					(length 5.08)
-					(name "SHIELD"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-					(number "SH1"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 15.24 -5.08 180)
-					(length 5.08)
-					(hide yes)
-					(name "SHIELD"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-					(number "SH2"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 15.24 -5.08 180)
-					(length 5.08)
-					(hide yes)
-					(name "SHIELD"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-					(number "SH3"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 15.24 -5.08 180)
-					(length 5.08)
-					(hide yes)
-					(name "SHIELD"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-					(number "SH4"
 						(effects
 							(font
 								(size 1.016 1.016)
@@ -11886,9 +11828,6 @@
 		(pin "3"
 			(uuid "8dc0227b-6dbb-47da-bb03-f3816eeb74a4")
 		)
-		(pin "SH1"
-			(uuid "46daa762-faf1-412d-960a-dbc72985680f")
-		)
 		(pin "VIN-"
 			(uuid "2d639d75-bdd9-4475-9e82-c3afc2bc2826")
 		)
@@ -11907,17 +11846,8 @@
 		(pin "4"
 			(uuid "5ecb9918-d445-45f0-9dbc-aa4fb62da64d")
 		)
-		(pin "SH3"
-			(uuid "433ea000-c8d4-4fb0-876a-125fac876568")
-		)
-		(pin "SH4"
-			(uuid "f0724ffc-f397-48ed-889f-0d90a50740ec")
-		)
 		(pin "2"
 			(uuid "ea0413b4-62de-4ef5-b7f8-d46677554d57")
-		)
-		(pin "SH2"
-			(uuid "e2d3c7c5-31d0-438b-a968-f6d4fef4e27a")
 		)
 		(instances
 			(project ""
@@ -15649,9 +15579,6 @@
 		(pin "3"
 			(uuid "b009419d-9a77-40b6-9176-aa25c78a96db")
 		)
-		(pin "SH1"
-			(uuid "394d4841-95f0-4533-a920-07d2ad633c05")
-		)
 		(pin "VIN-"
 			(uuid "3d3f7990-a853-49f3-a7c5-2bfafd344e7e")
 		)
@@ -15670,17 +15597,8 @@
 		(pin "4"
 			(uuid "f5beacb0-00ef-4076-aa8a-007b9afc8d73")
 		)
-		(pin "SH3"
-			(uuid "90a251ee-ac89-494b-9d5a-d54971b6fc83")
-		)
-		(pin "SH4"
-			(uuid "5ab50b42-2a04-4179-81be-1e310d3bc79e")
-		)
 		(pin "2"
 			(uuid "caab2cbf-2cd6-43ab-9836-4ca1a39020fa")
-		)
-		(pin "SH2"
-			(uuid "b08041fd-d7d7-4ca5-95fb-def5a0847a50")
 		)
 		(instances
 			(project "capybara_habitat"
