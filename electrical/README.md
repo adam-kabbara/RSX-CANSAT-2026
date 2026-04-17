@@ -1,6 +1,9 @@
 # Datasheets of electronic components
 This folder contains datasheets of electronic components used in the project. This readme provides notes and highlights of the datasheets for quick reference.
 
+## MCU
+The main MCU used in the project is the Nucleo-32 board with the STM32G4 microcontroller. Datasheet: [STM32G4.pdf](datasheets/um2397-stm32g4-nucleo32-board-mb1430-stmicroelectronics.pdf)
+
 ## I2C Adress Book
 - INA219 (A0, A1 are gnd on CPL): 0x40
 - BMP581: 0x47 (can be changed to 0x46)
@@ -19,13 +22,15 @@ This folder contains datasheets of electronic components used in the project. Th
 - Package: D ; using smd on cpl and adafruit on gnd station
 
 ## Power Electronics
-### LT8610AB
-- Datasheet: [LT8610AB.pdf](datasheets/LT8610AB.pdf)
+### LT8610AB-5
+- Datasheet: [LT8610AB-5.pdf](datasheets/LT8610AB.pdf)
+- Digikey: [LT8610AB-5](https://www.digikey.com/en/products/detail/analog-devices-inc/LT8610ABEMSE-5-TRPBF/5233264)
 - Environment: Ground station
 - Details: 5v buck converter from 4s2p (16.8 to 12v) battery to 5v for the ground station. 5 volts used to power the raspberry pi and LED lights. Estimated current consumption to handel is 2.5A.
 
 ### LTC3114
 - Datasheet: [LTC3114.pdf](datasheets/LTC3114.pdf)
+- Digikey: [LTC3114](https://www.digikey.ca/en/products/detail/analog-devices-inc/LTC3114IFE-1-TRPBF/4840586)
 - Environment: Ground station
 - Details: 12v buckboost from 4s2p (16.8 to 12v) battery to 12v for the ground station. 12 volts used to power the monitor and speakers.
 - Package: FE
@@ -99,9 +104,9 @@ As mentioned in the section above, we have two rechargable batteries on the CPL,
 
 ### General Notes
 #### Power Isolation
-To allow for debugging, the STM32 must be able to be powered without powering the sensors. To achieve this, we decide put the STM on a separate power rail from the sensors, so it will need a seperate boost (5v power option) or buckboost (3.3v power option) converter. We decide to go with 5v as we have an extra Max756CPA+ boost converter, which will be used to power the STM alone. To allow for debugging though, the sensors (and motors) must also be able to be powered without powering the STM. We need power isolation between all output rails. 
+To allow for debugging, the STM32 must be able to be powered without powering the sensors. To achieve this, we decide put the STM on a separate power rail from the sensors, so it will need a seperate boost (5v power option) or buckboost (3.3v power option) converter. We decide to go with 3.3v as we have an extra LTC3536 buckboost converter, which will be used to power the STM alone. To allow for debugging though, the sensors (and motors) must also be able to be powered without powering the STM. We need power isolation between all output rails. 
 
-**We will assume that debugging always happens when the battery is disconnected (and has been for a couple seconds) and power is supplied to the stm through the usb, while power is supplied to the sensors and motors at the Vout nodes of the 3.3v and 5.5v converters.** 
+**We will assume that debugging always happens when the battery is disconnected (and has been for a couple seconds), the battery + and - terminals are grounded. Power is supplied to the stm32, sensors and motors at the Vout nodes of the stm_3.3v, 3.3v, and 5.5v converters via the test points.** 
 
 No voltage should be present at the Vin terminals of the converters this **WILL** break stuff. So do not connect power to where the battery was connected, you must provide power to the sensors and motors using an external power supply connected to the test points on the PCB.
 
@@ -127,13 +132,27 @@ To ensure Vin is truely discharged while debugging, we will add a solder bridge 
 ---
 
 #### Board debugging procedure
-There are two actors that require processing before board debugging. Follow in the order below:
-1. Power isolation must be ensured as discussed in the previous section. To do this:
-    - Disconnect battery and connect the solder bridge, ensuring Vin is pulled to ground through the pull down resistor.
-    - Using a multimeter, verify that there is no voltage at the Vin terminals of the converters.
-    - Provide power to the sensors via external power supply connected to the 3.3v and GND test point on the PCB.
-    - Provide power to the motors and cameras via external power supply connected to the 5.5v and GND test point on the PCB.
-    - Provide power to the STM via external power supply connected to the 5v and GND test point on the PCB. 
-    - Now you can move to STM debugging setup sequence.
-2. The STM must follow a specific power up sequence.
+Debugging is defined as powering the STM32 with an external power supply while the battery is disconnected, to allow for debugging without powering the sensors. ~~You can perfrom debugging with either the stm_3.3v being supplied alone (just programming the stm32) or with all stm_3.3v, 3.3v, and 5.5v being supplied (programming while also having sensors, motors and cameras running).~~
+
+~~Follow the steps below **in order** to ensure the power isolation features work as intended and nothing gets damaged. If you just want to program the STM without powering the other components skip steps 4-5.~~
+<del>
+    1. Disconnect battery ensuring Vin is pulled to ground (both battery terminals are grounded)
+    2. Using a multimeter, verify that there is no voltage at the Vin terminals of the converters.
+    3. Ensure the solder bridge sb15 is disconnected
+    4. Provide power to the sensors via external power supply connected to the 3.3v and GND test point on the PCB.
+    5. Provide power to the motors and cameras via external power supply connected to the 5.5v and GND test point on the PCB.
+    6. Provide power to the STM via external power supply connected to the stm_3.3v and GND test point on the PCB.
+    7. Ensure all grounds are common
+    8. Now you can move to STM debugging setup sequence (step 4 below)
+</del>
+
+The above proceedure is outdated. It was for when stm and sensors were on the same power rail. And then was slightly modified for when they were on different rails. 
+
+But apon reflection, the power isolation features should be robust enough to allow for the following simplified debugging proceedure.
+1. Ensure the solder bridge sb15 is disconnected
+2. Connect battery or power supply (3.6v) to the battery terminals.
+3. All power rails should be on, and all systems should be active.
+4. You can now debug the STM32 by simply plugging in the USB into the nucleo board.
+
+The STM must follow this specific power up sequence. This proceedure was develpoed with the help of the STM32 docs below.
 ![alt text](imgs/stm_deb.png)

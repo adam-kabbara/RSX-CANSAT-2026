@@ -1,4 +1,4 @@
-27691640123736776
+27777022195605234
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -2813,6 +2813,97 @@ speaker CUI
 0
 2
 2
+CAN-RGX
+3M_D3432-6302-AR
+
+
+0
+40
+40
+CAN-RGX
+SparkFun BME280
+
+
+0
+6
+6
+CAN-RGX
+canada
+
+
+0
+0
+0
+CAN-RGX
+canrgx
+
+
+0
+0
+0
+CAN-RGX
+cristar
+
+
+0
+0
+0
+CAN-RGX
+csa
+
+
+0
+0
+0
+CAN-RGX
+miller_group-1
+
+
+0
+0
+0
+CAN-RGX
+miller_group-2
+
+
+0
+0
+0
+CAN-RGX
+miller_group-3
+
+
+0
+0
+0
+CAN-RGX
+nserc
+
+
+0
+0
+0
+CAN-RGX
+seds
+
+
+0
+0
+0
+CAN-RGX
+seds_canrgx
+
+
+0
+0
+0
+CAN-RGX
+uoft
+
+
+0
+0
+0
 Calibration_Scale
 Gauge_10mm_Type1_CopperTop
 Gauge, Massstab, 10mm, CopperTop, Type 1,
@@ -63545,6 +63636,55 @@ One digit LED 7 segment SA39-11 SC39-11 SA39-12 SC39-12
 0
 10
 10
+ECE499_Thesis
+SOT65P210X110-5N
+
+
+0
+5
+5
+ECE499_Thesis
+SOT65P280X145-8N
+
+
+0
+8
+8
+ECE499_Thesis
+SOT95P280X145-5N
+
+
+0
+5
+5
+ECE499_Thesis
+Snap_Button_Electrode
+
+
+0
+1
+1
+ECE499_Thesis
+SolderWirePad
+
+
+0
+1
+1
+ECE499_Thesis
+bri_logo
+
+
+0
+0
+0
+ECE499_Thesis
+uoft_logo
+
+
+0
+0
+0
 ESP32-DEVKITC-32D
 MODULE_ESP32-DEVKITC-32D
 
@@ -97846,12 +97986,47 @@ BAT_2894TR
 3
 3
 RSX_CanSat_Custom_KiCad_Footprints
+Buzzer_12x9.5RM7.6
+Generic Buzzer, D12mm height 9.5mm with RM7.6mm
+buzzer
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
+CAPC1810X80N
+
+
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
 CAP_YX_8X11P5_RUB
 
 10ZLH680MEFC8X11.5 
 0
 2
 2
+RSX_CanSat_Custom_KiCad_Footprints
+DBV5
+
+SN74AUP1G04DBVR 
+0
+5
+5
+RSX_CanSat_Custom_KiCad_Footprints
+DBV5-L
+
+SN74AUP1G04DBVR 
+0
+5
+5
+RSX_CanSat_Custom_KiCad_Footprints
+DBV5-M
+
+SN74AUP1G04DBVR 
+0
+5
+5
 RSX_CanSat_Custom_KiCad_Footprints
 DIP794W47P254L991H457Q8
 
@@ -97866,6 +98041,13 @@ ESP32-WROOM-32D_Dev_Board
 0
 38
 38
+RSX_CanSat_Custom_KiCad_Footprints
+Female_DC_Power_Barrel_Jack
+
+
+0
+8
+2
 RSX_CanSat_Custom_KiCad_Footprints
 Freenove_ESP32-S3-WROOM_CAM_Board
 
@@ -97888,6 +98070,20 @@ GY-BNO08x_(BNO085)
 10
 10
 RSX_CanSat_Custom_KiCad_Footprints
+HPC_8040NC-4R7M
+
+
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
+IND_1038-WE-TPC_WRE
+
+744066100 
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
 IND_ASPI-4030S-220M-T
 
 
@@ -97898,6 +98094,34 @@ RSX_CanSat_Custom_KiCad_Footprints
 IND_ASPI-4030S-470M-T
 
 
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
+IND_B82462G4472M000
+
+
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
+IND_BLM41_1806_MUR-L
+
+BLM41PG181SN1L 
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
+IND_BOURNS_SRN6045
+
+SRN6045-2R2Y 
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
+IND_CD54_SUM
+
+CD54NP-220MC 
 0
 2
 2
@@ -98007,6 +98231,13 @@ MSOP-16_MSE
 17
 17
 RSX_CanSat_Custom_KiCad_Footprints
+MSOP-16_MSE_LTI-M
+
+LT8610ABEMSE-5-TRPBF 
+0
+17
+17
+RSX_CanSat_Custom_KiCad_Footprints
 Matek_Lost_Model_Beeper
 
 
@@ -98021,12 +98252,33 @@ PDIP8_300MC_MCH
 8
 8
 RSX_CanSat_Custom_KiCad_Footprints
+Pi_T_Cobbler_PinHeader_2x20_P2.54mm_Vertical
+Through hole straight pin header, 2x20, 2.54mm pitch, double rows
+Through hole pin header THT 2x20 2.54mm double row
+0
+40
+40
+RSX_CanSat_Custom_KiCad_Footprints
 RESC1508X55N
 
 
 0
 2
 2
+RSX_CanSat_Custom_KiCad_Footprints
+RESC6331X65N
+
+
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
+SO-8
+
+
+0
+8
+8
 RSX_CanSat_Custom_KiCad_Footprints
 SOIC127P599X175-8N
 
@@ -98063,6 +98315,27 @@ TPS610333DRLR
 8
 8
 RSX_CanSat_Custom_KiCad_Footprints
+SOT-23-6_MC_MCH
+
+MCP1640T-I/CHY 
+0
+6
+6
+RSX_CanSat_Custom_KiCad_Footprints
+SOT-23-6_MC_MCH-L
+
+MCP1640T-I/CHY 
+0
+6
+6
+RSX_CanSat_Custom_KiCad_Footprints
+SOT-23-6_MC_MCH-M
+
+MCP1640T-I/CHY 
+0
+6
+6
+RSX_CanSat_Custom_KiCad_Footprints
 SOT6_DRV8212_TEX
 
 DRV8212DRLR 
@@ -98095,8 +98368,8 @@ SparkFun_GNSS_MAX_M10S
 
 
 0
-0
-0
+4
+4
 RSX_CanSat_Custom_KiCad_Footprints
 SparkFun_XBee_Explorer_Regulated
 
@@ -98141,6 +98414,13 @@ WA-SMSI_9774030360
 1
 RSX_CanSat_Custom_KiCad_Footprints
 WE-LQS_4025
+
+
+0
+2
+2
+RSX_CanSat_Custom_KiCad_Footprints
+WE-TPC_4828
 
 
 0
@@ -98210,6 +98490,13 @@ capybara_big
 0
 0
 RSX_CanSat_Graphics
+defy_gravity
+
+
+0
+0
+0
+RSX_CanSat_Graphics
 logo
 
 
@@ -98218,6 +98505,27 @@ logo
 0
 RSX_CanSat_Graphics
 logo_x2
+
+
+0
+0
+0
+RSX_CanSat_Graphics
+maple_leaf
+
+
+0
+0
+0
+RSX_CanSat_Graphics
+music
+
+
+0
+0
+0
+RSX_CanSat_Graphics
+payload_2t6_drawing
 
 
 0
@@ -98252,6 +98560,27 @@ rsx_logo_3
 0
 0
 RSX_CanSat_Graphics
+rsx_new_logo
+
+
+0
+0
+0
+RSX_CanSat_Graphics
+skule
+
+
+0
+0
+0
+RSX_CanSat_Graphics
+uoft
+
+
+0
+0
+0
+RSX_CanSat_Graphics
 uoft_coat_of_arms
 
 
@@ -98260,6 +98589,13 @@ uoft_coat_of_arms
 0
 RSX_CanSat_Graphics
 uoft_coat_of_arms_2
+
+
+0
+0
+0
+RSX_CanSat_Graphics
+uoft_eng_logo
 
 
 0
