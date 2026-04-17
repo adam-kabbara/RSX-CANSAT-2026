@@ -589,7 +589,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "gerber_capybara_rocket/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "capybara_rocket.step",

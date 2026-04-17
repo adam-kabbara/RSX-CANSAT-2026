@@ -18854,7 +18854,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "25860f47-4b85-47da-8120-dcfa67ddd859")
-		(property "Reference" "#FLG05"
+		(property "Reference" "#FLG01"
 			(at 24.765 16.51 0)
 			(effects
 				(font
@@ -18905,7 +18905,7 @@
 		(instances
 			(project "capybara_rocket"
 				(path "/401cca29-8a99-4116-a8ac-f330975a064c"
-					(reference "#FLG05")
+					(reference "#FLG01")
 					(unit 1)
 				)
 			)
@@ -19919,7 +19919,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3a6e959f-e21a-4160-8171-b08aa9195688")
-		(property "Reference" "#FLG06"
+		(property "Reference" "#FLG02"
 			(at 24.765 31.75 0)
 			(effects
 				(font
@@ -19970,7 +19970,7 @@
 		(instances
 			(project "capybara_rocket"
 				(path "/401cca29-8a99-4116-a8ac-f330975a064c"
-					(reference "#FLG06")
+					(reference "#FLG02")
 					(unit 1)
 				)
 			)
@@ -20268,7 +20268,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3ecc000f-eeb6-4c1e-96fb-2fd93f371842")
-		(property "Reference" "#FLG01"
+		(property "Reference" "#FLG04"
 			(at 38.735 29.21 0)
 			(effects
 				(font
@@ -20319,7 +20319,7 @@
 		(instances
 			(project ""
 				(path "/401cca29-8a99-4116-a8ac-f330975a064c"
-					(reference "#FLG01")
+					(reference "#FLG04")
 					(unit 1)
 				)
 			)
@@ -21391,7 +21391,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4a71784e-8048-47b7-8be4-a19cd4a31066")
-		(property "Reference" "#PWR05"
+		(property "Reference" "#PWR06"
 			(at 19.05 40.64 0)
 			(effects
 				(font
@@ -21442,7 +21442,7 @@
 		(instances
 			(project "capybara_rocket"
 				(path "/401cca29-8a99-4116-a8ac-f330975a064c"
-					(reference "#PWR05")
+					(reference "#PWR06")
 					(unit 1)
 				)
 			)
@@ -23955,7 +23955,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "69058bdb-7d68-4542-a647-f2f6e0cd938c")
-		(property "Reference" "#FLG04"
+		(property "Reference" "#FLG06"
 			(at 131.445 186.69 0)
 			(effects
 				(font
@@ -24006,7 +24006,7 @@
 		(instances
 			(project "capybara_rocket"
 				(path "/401cca29-8a99-4116-a8ac-f330975a064c"
-					(reference "#FLG04")
+					(reference "#FLG06")
 					(unit 1)
 				)
 			)
@@ -27783,7 +27783,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "99ca61a7-b190-43bd-a02d-28c46426220e")
-		(property "Reference" "#PWR03"
+		(property "Reference" "#PWR04"
 			(at 19.05 25.4 0)
 			(effects
 				(font
@@ -27834,7 +27834,7 @@
 		(instances
 			(project "capybara_rocket"
 				(path "/401cca29-8a99-4116-a8ac-f330975a064c"
-					(reference "#PWR03")
+					(reference "#PWR04")
 					(unit 1)
 				)
 			)
@@ -28517,7 +28517,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "aa42c38d-7774-41f1-a2ff-3daa9d33a7e7")
-		(property "Reference" "#FLG02"
+		(property "Reference" "#FLG05"
 			(at 38.735 44.45 0)
 			(effects
 				(font
@@ -28568,7 +28568,7 @@
 		(instances
 			(project "capybara_rocket"
 				(path "/401cca29-8a99-4116-a8ac-f330975a064c"
-					(reference "#FLG02")
+					(reference "#FLG05")
 					(unit 1)
 				)
 			)
@@ -29055,7 +29055,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b7c02f12-f472-40ce-b497-d3c3cb62b731")
-		(property "Reference" "#PWR06"
+		(property "Reference" "#PWR05"
 			(at 29.21 38.1 0)
 			(effects
 				(font
@@ -29108,7 +29108,7 @@
 		(instances
 			(project "capybara_rocket"
 				(path "/401cca29-8a99-4116-a8ac-f330975a064c"
-					(reference "#PWR06")
+					(reference "#PWR05")
 					(unit 1)
 				)
 			)
@@ -32920,7 +32920,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f7383391-43e9-4d63-9bd9-f6499584c8c1")
-		(property "Reference" "#PWR04"
+		(property "Reference" "#PWR03"
 			(at 29.21 22.86 0)
 			(effects
 				(font
@@ -32973,7 +32973,7 @@
 		(instances
 			(project "capybara_rocket"
 				(path "/401cca29-8a99-4116-a8ac-f330975a064c"
-					(reference "#PWR04")
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)
