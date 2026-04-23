@@ -1,4 +1,4 @@
-26764167109508374
+26769498247860436
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -39397,6 +39397,13 @@ Through hole angled pin header THT 2x20 2.54mm double row
 40
 Connector_PinHeader_2.54mm
 PinHeader_2x20_P2.54mm_Vertical
+Through hole straight pin header, 2x20, 2.54mm pitch, double rows
+Through hole pin header THT 2x20 2.54mm double row
+0
+40
+40
+Connector_PinHeader_2.54mm
+PinHeader_2x20_P2.54mm_Vertical_1
 Through hole straight pin header, 2x20, 2.54mm pitch, double rows
 Through hole pin header THT 2x20 2.54mm double row
 0
@@ -95123,6 +95130,13 @@ RESC6331X65N
 2
 2
 RSX_CanSat_Custom_KiCad_Footprints
+Reverse_Connector_PinHeader_2.54mmPinHeader_2x20_P2.54mm_Vertical
+Through hole straight pin header, 2x20, 2.54mm pitch, double rows
+Through hole pin header THT 2x20 2.54mm double row
+0
+40
+40
+RSX_CanSat_Custom_KiCad_Footprints
 SO-8
 
 
@@ -95290,6 +95304,13 @@ XTAL_AB38T-32.768KHZ
 0
 2
 2
+RSX_CanSat_Custom_KiCad_Footprints
+rs
+Through hole straight pin header, 2x20, 2.54mm pitch, double rows
+Through hole pin header THT 2x20 2.54mm double row
+0
+40
+40
 Relay_SMD
 Relay_2P2T_10x6mm_TE_IMxxG
 Signal Relay, 10x6mm, 2 Form C, Gull Wings, https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F108-98001%7FZ.1%7Fpdf%7FEnglish%7FENG_DS_108-98001_Z.1.pdf

@@ -6992,6 +6992,12 @@
 		(uuid "fe293673-f49e-445e-8af5-8d0a5da6e89c")
 	)
 	(junction
+		(at 71.12 77.47)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "00362160-4992-405f-9662-28dd834da5af")
+	)
+	(junction
 		(at 116.84 161.29)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -7020,6 +7026,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "0988d214-bc5e-4b27-8c66-1f619d53d651")
+	)
+	(junction
+		(at 73.66 71.12)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0d2b1b3b-7cab-45d8-bf75-2ddf7e0fb844")
 	)
 	(junction
 		(at 220.98 62.23)
@@ -7082,6 +7094,12 @@
 		(uuid "50d7d87c-7ef4-4c3c-92f7-5fb12eb0ff12")
 	)
 	(junction
+		(at 71.12 81.28)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "588f8bb9-b665-4324-8fcb-a07e696b5cb2")
+	)
+	(junction
 		(at 119.38 157.48)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -7128,6 +7146,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7ed6583d-7eff-470b-a78f-8c0867efa9cc")
+	)
+	(junction
+		(at 73.66 77.47)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "84041252-4695-49dc-b15a-6ea0a5b798bd")
 	)
 	(junction
 		(at 29.21 74.93)
@@ -7304,10 +7328,6 @@
 		(uuid "a29ce4a7-31a5-4571-94e8-d869b2d2d56f")
 	)
 	(no_connect
-		(at 76.2 71.12)
-		(uuid "f239fe83-3c05-4521-a43d-be29e5e91850")
-	)
-	(no_connect
 		(at 76.2 40.64)
 		(uuid "fbcbb0f0-bc80-4886-a280-56e9618341bf")
 	)
@@ -7340,16 +7360,6 @@
 			(type default)
 		)
 		(uuid "01501fee-7b54-49c4-95bb-73f09597128b")
-	)
-	(polyline
-		(pts
-			(xy 71.12 71.12) (xy 71.1118 76.3295)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "04742f57-b09a-43d2-972b-2a0c522d65a6")
 	)
 	(wire
 		(pts
@@ -7430,16 +7440,6 @@
 			(type default)
 		)
 		(uuid "118a8ea4-c7e8-470e-87f3-0a43ddf64c1c")
-	)
-	(polyline
-		(pts
-			(xy 73.6694 71.1401) (xy 73.6977 76.2235)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "12610acd-ef3b-4f61-9458-ba705b263154")
 	)
 	(wire
 		(pts
@@ -7831,15 +7831,15 @@
 		)
 		(uuid "44ebe890-d33b-42fa-9211-53c5966697ce")
 	)
-	(polyline
+	(wire
 		(pts
-			(xy 76.2 71.12) (xy 71.12 71.12)
+			(xy 71.12 71.12) (xy 73.66 71.12)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "470cd3c4-70da-4c21-bf1f-ee3c492e2c0e")
+		(uuid "453f0b53-7602-4508-ae8b-18fb3e67e571")
 	)
 	(wire
 		(pts
@@ -7870,6 +7870,16 @@
 			(type default)
 		)
 		(uuid "4cafd81b-7dcb-41e0-9713-d1fee75bc85a")
+	)
+	(wire
+		(pts
+			(xy 73.66 71.12) (xy 73.66 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4fa916a0-3860-4d59-a6b5-ce0f54c6435d")
 	)
 	(wire
 		(pts
@@ -8041,6 +8051,16 @@
 		)
 		(uuid "63ced18c-8552-4ec0-94d2-447ddc724beb")
 	)
+	(wire
+		(pts
+			(xy 73.66 77.47) (xy 73.66 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6411258e-2869-45cd-9bf3-f20c7da543f0")
+	)
 	(polyline
 		(pts
 			(xy 157.48 144.78) (xy 157.48 147.32)
@@ -8190,6 +8210,16 @@
 			(type default)
 		)
 		(uuid "7539202c-2741-4764-8067-dcd89b98e71c")
+	)
+	(wire
+		(pts
+			(xy 71.12 71.12) (xy 71.12 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "775ef6bc-3132-4c44-987f-1cfa7fd73b02")
 	)
 	(wire
 		(pts
@@ -8550,6 +8580,16 @@
 			(type default)
 		)
 		(uuid "a37157c1-7cd5-435e-b31e-652c83f8d4c8")
+	)
+	(wire
+		(pts
+			(xy 71.12 77.47) (xy 73.66 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a45a5a14-4094-4365-8cbc-6bd4e0a16b67")
 	)
 	(wire
 		(pts
@@ -9053,6 +9093,16 @@
 	)
 	(wire
 		(pts
+			(xy 73.66 71.12) (xy 76.2 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e3aa5707-17d5-441a-97ba-f35f7ebf1abf")
+	)
+	(wire
+		(pts
 			(xy 266.7 109.22) (xy 265.43 109.22)
 		)
 		(stroke
@@ -9090,6 +9140,16 @@
 			(type default)
 		)
 		(uuid "e6a3a790-af11-42ec-8770-c148510d88e7")
+	)
+	(wire
+		(pts
+			(xy 71.12 77.47) (xy 71.12 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e94c1a73-140e-4d1f-b9f7-801dfc41eb36")
 	)
 	(wire
 		(pts
@@ -15263,7 +15323,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x20_P2.54mm_Vertical"
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:Reverse_Connector_PinHeader_2.54mmPinHeader_2x20_P2.54mm_Vertical"
 			(at 231.394 91.948 0)
 			(effects
 				(font
