@@ -1194,7 +1194,7 @@
 					(type none)
 				)
 			)
-			(pin unspecified line
+			(pin passive line
 				(at 0 0 0)
 				(length 2.54)
 				(name "2"
@@ -1212,7 +1212,7 @@
 					)
 				)
 			)
-			(pin unspecified line
+			(pin passive line
 				(at 15.24 0 180)
 				(length 2.54)
 				(name "1"
@@ -2997,7 +2997,7 @@
 					(type none)
 				)
 			)
-			(pin unspecified line
+			(pin passive line
 				(at 0 0 0)
 				(length 2.54)
 				(name "2"
@@ -3015,7 +3015,7 @@
 					)
 				)
 			)
-			(pin unspecified line
+			(pin passive line
 				(at 15.24 0 180)
 				(length 2.54)
 				(name "1"
@@ -5966,78 +5966,6 @@
 					)
 				)
 			)
-			(pin unspecified line
-				(at 0 -15.24 0)
-				(length 7.62)
-				(name "BIAS"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "14"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 0 -17.78 0)
-				(length 7.62)
-				(name "BST"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "12"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 0 -20.32 0)
-				(length 7.62)
-				(name "EN/UV"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "4"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin unspecified line
-				(at 0 -22.86 0)
-				(length 7.62)
-				(name "RT"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "3"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
 			(pin no_connect line
 				(at 0 -27.94 0)
 				(length 7.62)
@@ -6128,24 +6056,6 @@
 					)
 				)
 			)
-			(pin output line
-				(at 45.72 -15.24 180)
-				(length 7.62)
-				(name "VOUT"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "16"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
 		)
 		(symbol "LT8610ABEMSE-5-TRPBF_1_1"
 			(rectangle
@@ -6157,6 +6067,78 @@
 				)
 				(fill
 					(type background)
+				)
+			)
+			(pin power_in line
+				(at 0 -15.24 0)
+				(length 7.62)
+				(name "BIAS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "14"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -17.78 0)
+				(length 7.62)
+				(name "BST"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "12"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at 0 -20.32 0)
+				(length 7.62)
+				(name "EN/UV"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -22.86 0)
+				(length 7.62)
+				(name "RT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
 				)
 			)
 			(pin passive line
@@ -6206,6 +6188,24 @@
 					)
 				)
 				(number "11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_out line
+				(at 45.72 -15.24 180)
+				(length 7.62)
+				(name "VOUT"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "16"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -6281,8 +6281,8 @@
 		)
 		(symbol "LTC3114IFE-1_TRPBF_0_0"
 			(rectangle
-				(start -10.16 -17.78)
-				(end 10.16 15.24)
+				(start -10.16 15.24)
+				(end 10.16 -17.78)
 				(stroke
 					(width 0.254)
 					(type default)
@@ -6490,24 +6490,6 @@
 				)
 			)
 			(pin output line
-				(at 12.7 2.54 180)
-				(length 2.54)
-				(name "PVOUT"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "3"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-			)
-			(pin output line
 				(at 12.7 -2.54 180)
 				(length 2.54)
 				(name "LDO"
@@ -6590,6 +6572,26 @@
 					)
 				)
 				(number "8"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+		)
+		(symbol "LTC3114IFE-1_TRPBF_1_0"
+			(pin power_out line
+				(at 12.7 2.54 180)
+				(length 2.54)
+				(name "PVOUT"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "3"
 					(effects
 						(font
 							(size 1.016 1.016)
