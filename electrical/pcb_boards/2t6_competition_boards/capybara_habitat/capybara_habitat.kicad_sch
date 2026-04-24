@@ -10562,7 +10562,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "017aac28-0a59-4dcd-8a64-738a5d3e6063")
-		(property "Reference" "C22"
+		(property "Reference" "C17"
 			(at 150.368 174.498 90)
 			(effects
 				(font
@@ -10614,7 +10614,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C22")
+					(reference "C17")
 					(unit 1)
 				)
 			)
@@ -10630,7 +10630,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "01f43267-b6b5-45e0-a6ef-71ffc104e87f")
-		(property "Reference" "#PWR025"
+		(property "Reference" "#PWR012"
 			(at 41.91 88.9 0)
 			(effects
 				(font
@@ -10680,7 +10680,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR025")
+					(reference "#PWR012")
 					(unit 1)
 				)
 			)
@@ -10696,7 +10696,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0228075d-51f4-438a-b0a9-e705faf0cff7")
-		(property "Reference" "#PWR027"
+		(property "Reference" "#PWR07"
 			(at 38.1 162.56 0)
 			(effects
 				(font
@@ -10746,7 +10746,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR027")
+					(reference "#PWR07")
 					(unit 1)
 				)
 			)
@@ -10761,7 +10761,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "036ea269-418a-4b5c-a2ee-535e0ba9d875")
-		(property "Reference" "R5"
+		(property "Reference" "R6"
 			(at 49.784 165.354 0)
 			(effects
 				(font
@@ -10815,7 +10815,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R5")
+					(reference "R6")
 					(unit 1)
 				)
 			)
@@ -10830,7 +10830,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "039053fa-54fc-43d8-900f-8e260450aa7c")
-		(property "Reference" "J18"
+		(property "Reference" "J14"
 			(at 151.13 118.1099 0)
 			(effects
 				(font
@@ -11012,7 +11012,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J18")
+					(reference "J14")
 					(unit 1)
 				)
 			)
@@ -11027,7 +11027,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0986f4c3-98dd-4dec-a428-0f9f73d55879")
-		(property "Reference" "#PWR057"
+		(property "Reference" "#PWR045"
 			(at 200.66 105.41 0)
 			(effects
 				(font
@@ -11077,7 +11077,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR057")
+					(reference "#PWR045")
 					(unit 1)
 				)
 			)
@@ -11092,7 +11092,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0aee60e8-5a98-4a80-b336-c9fd61e3f123")
-		(property "Reference" "C5"
+		(property "Reference" "C36"
 			(at 267.716 49.53 0)
 			(effects
 				(font
@@ -11144,7 +11144,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C5")
+					(reference "C36")
 					(unit 1)
 				)
 			)
@@ -11160,7 +11160,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0b0aae61-5513-4826-9b05-a747345d1442")
-		(property "Reference" "#PWR052"
+		(property "Reference" "#PWR037"
 			(at 137.16 132.08 0)
 			(effects
 				(font
@@ -11210,7 +11210,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR052")
+					(reference "#PWR037")
 					(unit 1)
 				)
 			)
@@ -11225,7 +11225,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0e6e0dac-84da-4ca7-93f5-ae06c8ef14c4")
-		(property "Reference" "J15"
+		(property "Reference" "J7"
 			(at 71.628 186.69 90)
 			(effects
 				(font
@@ -11404,7 +11404,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J15")
+					(reference "J7")
 					(unit 1)
 				)
 			)
@@ -11420,7 +11420,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "103c2411-5246-470a-b24b-4b7904d4f13d")
-		(property "Reference" "#PWR01"
+		(property "Reference" "#PWR06"
 			(at 34.29 34.29 0)
 			(effects
 				(font
@@ -11471,7 +11471,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR01")
+					(reference "#PWR06")
 					(unit 1)
 				)
 			)
@@ -11486,7 +11486,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "11bb3aa8-0b6e-434b-a1ab-ac0491953f44")
-		(property "Reference" "#PWR045"
+		(property "Reference" "#PWR039"
 			(at 137.16 176.53 0)
 			(effects
 				(font
@@ -11536,7 +11536,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR045")
+					(reference "#PWR039")
 					(unit 1)
 				)
 			)
@@ -11551,7 +11551,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "14a9eb2a-e63c-411c-af10-cd873dadeb9b")
-		(property "Reference" "C6"
+		(property "Reference" "C30"
 			(at 260.096 24.13 0)
 			(effects
 				(font
@@ -11603,7 +11603,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C6")
+					(reference "C30")
 					(unit 1)
 				)
 			)
@@ -11619,7 +11619,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "154bca82-64d7-44f1-80b6-de0f46615c12")
-		(property "Reference" "U1"
+		(property "Reference" "U4"
 			(at 91.44 27.94 0)
 			(effects
 				(font
@@ -11790,7 +11790,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "U1")
+					(reference "U4")
 					(unit 1)
 				)
 			)
@@ -11805,7 +11805,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "170480ff-0c82-4020-9188-c70f81bf13da")
-		(property "Reference" "#PWR018"
+		(property "Reference" "#PWR01"
 			(at 20.32 172.72 0)
 			(effects
 				(font
@@ -11856,7 +11856,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR018")
+					(reference "#PWR01")
 					(unit 1)
 				)
 			)
@@ -11872,7 +11872,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "18028432-9026-4873-9633-ede490fca9a3")
-		(property "Reference" "U9"
+		(property "Reference" "U6"
 			(at 126.6033 158.75 0)
 			(effects
 				(font
@@ -11968,7 +11968,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "U9")
+					(reference "U6")
 					(unit 1)
 				)
 			)
@@ -11983,7 +11983,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "18cb6579-c133-43db-a251-14f4c4fdf20e")
-		(property "Reference" "C13"
+		(property "Reference" "C1"
 			(at 24.13 169.926 90)
 			(effects
 				(font
@@ -12035,7 +12035,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C13")
+					(reference "C1")
 					(unit 1)
 				)
 			)
@@ -12050,7 +12050,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "21002cde-21fb-4abb-b895-76bfd22e041b")
-		(property "Reference" "#PWR050"
+		(property "Reference" "#PWR033"
 			(at 119.38 142.24 0)
 			(effects
 				(font
@@ -12101,7 +12101,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR050")
+					(reference "#PWR033")
 					(unit 1)
 				)
 			)
@@ -12116,7 +12116,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "22a8a987-942f-4785-b658-aa5ac3130006")
-		(property "Reference" "C28"
+		(property "Reference" "C15"
 			(at 123.19 139.446 90)
 			(effects
 				(font
@@ -12168,7 +12168,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C28")
+					(reference "C15")
 					(unit 1)
 				)
 			)
@@ -12183,7 +12183,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "24203d08-9a12-43b4-adb5-b1e531523b27")
-		(property "Reference" "C4"
+		(property "Reference" "C35"
 			(at 275.844 34.29 0)
 			(effects
 				(font
@@ -12235,7 +12235,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C4")
+					(reference "C35")
 					(unit 1)
 				)
 			)
@@ -12251,7 +12251,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2883cae3-25aa-4aea-8387-b69619ac620f")
-		(property "Reference" "#PWR021"
+		(property "Reference" "#PWR08"
 			(at 39.37 99.06 0)
 			(effects
 				(font
@@ -12301,7 +12301,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR021")
+					(reference "#PWR08")
 					(unit 1)
 				)
 			)
@@ -12316,7 +12316,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "299a5a3b-5c80-4f6a-a71e-e540f7843eec")
-		(property "Reference" "TP4"
+		(property "Reference" "TP3"
 			(at 54.102 194.564 90)
 			(effects
 				(font
@@ -12367,7 +12367,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "TP4")
+					(reference "TP3")
 					(unit 1)
 				)
 			)
@@ -12382,7 +12382,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "2d06d7ee-57b8-4727-8bc0-985c96749ad7")
-		(property "Reference" "R10"
+		(property "Reference" "R13"
 			(at 148.844 137.414 0)
 			(effects
 				(font
@@ -12436,7 +12436,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R10")
+					(reference "R13")
 					(unit 1)
 				)
 			)
@@ -12451,7 +12451,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "2deec6ce-202c-4dd1-bd40-8f95029de28b")
-		(property "Reference" "R14"
+		(property "Reference" "R8"
 			(at 82.804 117.856 0)
 			(effects
 				(font
@@ -12505,7 +12505,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R14")
+					(reference "R8")
 					(unit 1)
 				)
 			)
@@ -12520,7 +12520,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "2e218cd5-20ef-4d54-8380-bb8abe10bb74")
-		(property "Reference" "C12"
+		(property "Reference" "C4"
 			(at 41.148 81.534 90)
 			(effects
 				(font
@@ -12572,7 +12572,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C12")
+					(reference "C4")
 					(unit 1)
 				)
 			)
@@ -12587,7 +12587,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "2e2629ce-5379-4f9c-9b4c-180f486e9613")
-		(property "Reference" "R24"
+		(property "Reference" "R11"
 			(at 126.238 86.106 90)
 			(effects
 				(font
@@ -12641,7 +12641,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R24")
+					(reference "R11")
 					(unit 1)
 				)
 			)
@@ -12656,7 +12656,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3151566b-272a-4372-bf3c-1fb2a8a9b1fb")
-		(property "Reference" "C34"
+		(property "Reference" "C29"
 			(at 258.318 129.54 0)
 			(effects
 				(font
@@ -12708,7 +12708,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C34")
+					(reference "C29")
 					(unit 1)
 				)
 			)
@@ -12723,7 +12723,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "31ef1cbe-d6e3-4c08-9143-814141649177")
-		(property "Reference" "#PWR049"
+		(property "Reference" "#PWR043"
 			(at 157.48 198.12 0)
 			(effects
 				(font
@@ -12773,7 +12773,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR049")
+					(reference "#PWR043")
 					(unit 1)
 				)
 			)
@@ -12788,7 +12788,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "341d1e9e-483c-4a83-aac2-a39090929402")
-		(property "Reference" "R7"
+		(property "Reference" "R4"
 			(at 41.148 184.15 90)
 			(effects
 				(font
@@ -12842,7 +12842,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R7")
+					(reference "R4")
 					(unit 1)
 				)
 			)
@@ -12857,7 +12857,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "38b67e76-c3ab-43d4-9542-9d9e264f9af5")
-		(property "Reference" "C23"
+		(property "Reference" "C18"
 			(at 152.146 185.42 0)
 			(effects
 				(font
@@ -12909,7 +12909,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C23")
+					(reference "C18")
 					(unit 1)
 				)
 			)
@@ -12925,7 +12925,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "38b86fc0-0a15-40f0-87b5-10ebbeaf7232")
-		(property "Reference" "#PWR010"
+		(property "Reference" "#PWR053"
 			(at 224.79 52.07 0)
 			(effects
 				(font
@@ -12976,7 +12976,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR010")
+					(reference "#PWR053")
 					(unit 1)
 				)
 			)
@@ -12991,7 +12991,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "395db42c-19e8-4721-a230-78620d4db94f")
-		(property "Reference" "C27"
+		(property "Reference" "C8"
 			(at 108.204 172.974 0)
 			(effects
 				(font
@@ -13043,7 +13043,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C27")
+					(reference "C8")
 					(unit 1)
 				)
 			)
@@ -13058,7 +13058,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3b292c75-3631-4b66-bcf8-91746f0de38a")
-		(property "Reference" "#PWR046"
+		(property "Reference" "#PWR040"
 			(at 152.4 195.58 0)
 			(effects
 				(font
@@ -13108,7 +13108,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR046")
+					(reference "#PWR040")
 					(unit 1)
 				)
 			)
@@ -13123,7 +13123,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3c1e0c0b-0edd-4e4d-b917-a95f035801eb")
-		(property "Reference" "C7"
+		(property "Reference" "C23"
 			(at 212.09 45.212 0)
 			(effects
 				(font
@@ -13175,7 +13175,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C7")
+					(reference "C23")
 					(unit 1)
 				)
 			)
@@ -13190,7 +13190,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "41a1bfdf-fbb2-42f1-b3f2-ba6da8105aca")
-		(property "Reference" "C20"
+		(property "Reference" "C14"
 			(at 123.952 154.94 0)
 			(effects
 				(font
@@ -13242,7 +13242,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C20")
+					(reference "C14")
 					(unit 1)
 				)
 			)
@@ -13257,7 +13257,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "41b57350-82ba-49b8-8d5e-86d8099c6d63")
-		(property "Reference" "C32"
+		(property "Reference" "C26"
 			(at 218.186 101.6 0)
 			(effects
 				(font
@@ -13309,7 +13309,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C32")
+					(reference "C26")
 					(unit 1)
 				)
 			)
@@ -13324,7 +13324,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4272907c-b56d-4a35-bb67-db37d238bff6")
-		(property "Reference" "C14"
+		(property "Reference" "C3"
 			(at 36.83 141.986 0)
 			(effects
 				(font
@@ -13376,7 +13376,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C14")
+					(reference "C3")
 					(unit 1)
 				)
 			)
@@ -13392,7 +13392,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "478df019-5847-4824-adb4-bc567785e839")
-		(property "Reference" "#PWR03"
+		(property "Reference" "#PWR056"
 			(at 262.89 57.15 0)
 			(effects
 				(font
@@ -13443,7 +13443,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR03")
+					(reference "#PWR056")
 					(unit 1)
 				)
 			)
@@ -13458,7 +13458,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "47f7fa92-2607-448e-9e5d-b05a42b31381")
-		(property "Reference" "#PWR026"
+		(property "Reference" "#PWR035"
 			(at 121.92 198.12 0)
 			(effects
 				(font
@@ -13508,7 +13508,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR026")
+					(reference "#PWR035")
 					(unit 1)
 				)
 			)
@@ -13523,7 +13523,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4bc01907-cfec-4ca8-9054-75b4da55c389")
-		(property "Reference" "J9"
+		(property "Reference" "J3"
 			(at 31.75 71.1199 0)
 			(effects
 				(font
@@ -13702,7 +13702,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J9")
+					(reference "J3")
 					(unit 1)
 				)
 			)
@@ -13717,7 +13717,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4bcb54a8-9e69-46e2-a460-26e7dfe16e8a")
-		(property "Reference" "#PWR051"
+		(property "Reference" "#PWR046"
 			(at 205.74 139.7 0)
 			(effects
 				(font
@@ -13767,7 +13767,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR051")
+					(reference "#PWR046")
 					(unit 1)
 				)
 			)
@@ -13782,7 +13782,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4cbca43a-63ef-48a7-a709-f26d24a1f261")
-		(property "Reference" "#PWR061"
+		(property "Reference" "#PWR047"
 			(at 209.55 111.76 0)
 			(effects
 				(font
@@ -13832,7 +13832,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR061")
+					(reference "#PWR047")
 					(unit 1)
 				)
 			)
@@ -13847,7 +13847,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4dde7f40-3b51-4a46-8896-00e389e49528")
-		(property "Reference" "C21"
+		(property "Reference" "C19"
 			(at 160.274 174.244 0)
 			(effects
 				(font
@@ -13899,7 +13899,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C21")
+					(reference "C19")
 					(unit 1)
 				)
 			)
@@ -13914,7 +13914,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4dfa88f7-0a29-462a-99ac-ea218e57df90")
-		(property "Reference" "#PWR040"
+		(property "Reference" "#PWR018"
 			(at 74.93 167.64 0)
 			(effects
 				(font
@@ -13964,7 +13964,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR040")
+					(reference "#PWR018")
 					(unit 1)
 				)
 			)
@@ -13979,7 +13979,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4f5ea3cd-913d-4967-8c0b-45b17891d712")
-		(property "Reference" "#PWR015"
+		(property "Reference" "#PWR058"
 			(at 264.16 45.72 0)
 			(effects
 				(font
@@ -14029,7 +14029,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR015")
+					(reference "#PWR058")
 					(unit 1)
 				)
 			)
@@ -14114,7 +14114,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "54409c20-a445-40cf-b521-f828fb7bd845")
-		(property "Reference" "U3"
+		(property "Reference" "U9"
 			(at 243.84 21.59 0)
 			(effects
 				(font
@@ -14222,7 +14222,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "U3")
+					(reference "U9")
 					(unit 1)
 				)
 			)
@@ -14237,7 +14237,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "56544df7-71d9-4e53-9ba0-c5ef6f4f9742")
-		(property "Reference" "C29"
+		(property "Reference" "C16"
 			(at 135.89 111.506 0)
 			(effects
 				(font
@@ -14289,7 +14289,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C29")
+					(reference "C16")
 					(unit 1)
 				)
 			)
@@ -14304,7 +14304,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "577f28af-b4f9-4161-8dd2-ec959cba7bbf")
-		(property "Reference" "C31"
+		(property "Reference" "C21"
 			(at 195.326 114.046 0)
 			(effects
 				(font
@@ -14356,7 +14356,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C31")
+					(reference "C21")
 					(unit 1)
 				)
 			)
@@ -14371,7 +14371,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "59244c87-a3a3-4359-99e0-deffd210f527")
-		(property "Reference" "#PWR06"
+		(property "Reference" "#PWR05"
 			(at 26.67 81.28 0)
 			(effects
 				(font
@@ -14421,7 +14421,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR06")
+					(reference "#PWR05")
 					(unit 1)
 				)
 			)
@@ -14436,7 +14436,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "5d76fd7b-a769-4fc1-97c7-1712cf9ab492")
-		(property "Reference" "C8"
+		(property "Reference" "C33"
 			(at 267.97 16.256 0)
 			(effects
 				(font
@@ -14488,7 +14488,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C8")
+					(reference "C33")
 					(unit 1)
 				)
 			)
@@ -14503,7 +14503,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "5f09be83-3e03-4f3e-a016-7cdcebe6c000")
-		(property "Reference" "J14"
+		(property "Reference" "J11"
 			(at 76.2 181.6101 0)
 			(effects
 				(font
@@ -14682,7 +14682,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J14")
+					(reference "J11")
 					(unit 1)
 				)
 			)
@@ -14697,7 +14697,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "620aae14-598d-4c7d-ac6d-dcf6be46cb05")
-		(property "Reference" "#PWR059"
+		(property "Reference" "#PWR057"
 			(at 262.89 138.43 0)
 			(effects
 				(font
@@ -14747,7 +14747,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR059")
+					(reference "#PWR057")
 					(unit 1)
 				)
 			)
@@ -14762,7 +14762,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "624e6210-bd8e-406d-b90b-a6b46714dd96")
-		(property "Reference" "#PWR042"
+		(property "Reference" "#PWR031"
 			(at 102.87 161.29 0)
 			(effects
 				(font
@@ -14812,7 +14812,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR042")
+					(reference "#PWR031")
 					(unit 1)
 				)
 			)
@@ -14827,7 +14827,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "659b35d4-6d2b-4abf-9261-6fac84f98d1e")
-		(property "Reference" "TP2"
+		(property "Reference" "TP1"
 			(at 16.002 178.816 0)
 			(effects
 				(font
@@ -14878,7 +14878,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "TP2")
+					(reference "TP1")
 					(unit 1)
 				)
 			)
@@ -14894,7 +14894,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "66c63490-f735-4d5c-a039-ee8484d55e02")
-		(property "Reference" "L1"
+		(property "Reference" "L6"
 			(at 216.154 30.734 0)
 			(effects
 				(font
@@ -14950,7 +14950,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "L1")
+					(reference "L6")
 					(unit 1)
 				)
 			)
@@ -14965,7 +14965,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "69581aa9-51bb-4e00-a240-2c005a244d9c")
-		(property "Reference" "R25"
+		(property "Reference" "R10"
 			(at 129.54 77.978 90)
 			(effects
 				(font
@@ -15019,7 +15019,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R25")
+					(reference "R10")
 					(unit 1)
 				)
 			)
@@ -15034,7 +15034,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6c0c3047-78e9-4a57-acdf-d6c20bd17810")
-		(property "Reference" "TP3"
+		(property "Reference" "TP4"
 			(at 51.054 178.308 0)
 			(effects
 				(font
@@ -15085,7 +15085,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "TP3")
+					(reference "TP4")
 					(unit 1)
 				)
 			)
@@ -15100,7 +15100,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6d0fae39-7090-4aab-83e9-e1536657ecbc")
-		(property "Reference" "R15"
+		(property "Reference" "R1"
 			(at 23.368 184.15 90)
 			(effects
 				(font
@@ -15154,7 +15154,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R15")
+					(reference "R1")
 					(unit 1)
 				)
 			)
@@ -15169,7 +15169,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6d3f9dfe-96d1-4992-903c-56b5e4239547")
-		(property "Reference" "L6"
+		(property "Reference" "L7"
 			(at 272.796 118.364 0)
 			(effects
 				(font
@@ -15225,7 +15225,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "L6")
+					(reference "L7")
 					(unit 1)
 				)
 			)
@@ -15240,7 +15240,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6d562f5c-a790-44ec-ae1f-b3a3f5fa3e3e")
-		(property "Reference" "#PWR037"
+		(property "Reference" "#PWR013"
 			(at 43.18 195.58 0)
 			(effects
 				(font
@@ -15291,7 +15291,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR037")
+					(reference "#PWR013")
 					(unit 1)
 				)
 			)
@@ -15307,7 +15307,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "701671ba-32c3-43ca-8bc2-e85ef0439e77")
-		(property "Reference" "J4"
+		(property "Reference" "J15"
 			(at 161.29 13.97 0)
 			(effects
 				(font
@@ -15476,7 +15476,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J4")
+					(reference "J15")
 					(unit 1)
 				)
 			)
@@ -15491,7 +15491,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "71c318fb-2bce-4412-955b-8a45ed23f50e")
-		(property "Reference" "#PWR056"
+		(property "Reference" "#PWR049"
 			(at 209.55 149.86 0)
 			(effects
 				(font
@@ -15541,7 +15541,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR056")
+					(reference "#PWR049")
 					(unit 1)
 				)
 			)
@@ -15556,7 +15556,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "746a43cb-3b57-4321-b5f5-aaec62ae6a54")
-		(property "Reference" "C11"
+		(property "Reference" "C9"
 			(at 110.49 30.988 0)
 			(effects
 				(font
@@ -15608,7 +15608,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C11")
+					(reference "C9")
 					(unit 1)
 				)
 			)
@@ -15624,7 +15624,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "767f0275-00eb-41df-a416-78c4f74c024e")
-		(property "Reference" "U2"
+		(property "Reference" "U5"
 			(at 91.44 55.88 0)
 			(effects
 				(font
@@ -15795,7 +15795,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "U2")
+					(reference "U5")
 					(unit 1)
 				)
 			)
@@ -15881,7 +15881,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7bd5dfe9-f463-42fc-ab15-36290d7c382f")
-		(property "Reference" "J2"
+		(property "Reference" "J4"
 			(at 44.45 24.1299 0)
 			(effects
 				(font
@@ -16060,7 +16060,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J2")
+					(reference "J4")
 					(unit 1)
 				)
 			)
@@ -16076,7 +16076,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7c7eff30-108a-4a0e-8e18-cb1211c60894")
-		(property "Reference" "#PWR054"
+		(property "Reference" "#PWR038"
 			(at 139.7 121.92 0)
 			(effects
 				(font
@@ -16126,7 +16126,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR054")
+					(reference "#PWR038")
 					(unit 1)
 				)
 			)
@@ -16141,7 +16141,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7dbe5df0-89f7-475f-9d7d-bf6e617c1a7c")
-		(property "Reference" "R8"
+		(property "Reference" "R15"
 			(at 224.282 57.15 0)
 			(effects
 				(font
@@ -16195,7 +16195,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R8")
+					(reference "R15")
 					(unit 1)
 				)
 			)
@@ -16210,7 +16210,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7e789f5b-64aa-4854-b375-772bf2c5e1a3")
-		(property "Reference" "R16"
+		(property "Reference" "R12"
 			(at 131.064 112.776 0)
 			(effects
 				(font
@@ -16264,7 +16264,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R16")
+					(reference "R12")
 					(unit 1)
 				)
 			)
@@ -16279,7 +16279,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7f6c252d-58f3-4fd5-820f-32e080d04051")
-		(property "Reference" "J10"
+		(property "Reference" "J5"
 			(at 52.07 148.5899 0)
 			(effects
 				(font
@@ -16461,7 +16461,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J10")
+					(reference "J5")
 					(unit 1)
 				)
 			)
@@ -16476,7 +16476,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "839c3f73-4019-4d51-bada-2dc3a2c75d58")
-		(property "Reference" "J12"
+		(property "Reference" "J13"
 			(at 102.87 123.1899 0)
 			(effects
 				(font
@@ -16658,7 +16658,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J12")
+					(reference "J13")
 					(unit 1)
 				)
 			)
@@ -16673,7 +16673,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "85c8fce1-c85e-4f3a-bc3c-f900803ed69f")
-		(property "Reference" "#PWR014"
+		(property "Reference" "#PWR059"
 			(at 267.97 21.59 0)
 			(effects
 				(font
@@ -16723,7 +16723,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR014")
+					(reference "#PWR059")
 					(unit 1)
 				)
 			)
@@ -16738,7 +16738,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "8769f79d-85c1-496f-879b-1502dd98f071")
-		(property "Reference" "R1"
+		(property "Reference" "R18"
 			(at 273.558 25.4 0)
 			(effects
 				(font
@@ -16792,7 +16792,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R1")
+					(reference "R18")
 					(unit 1)
 				)
 			)
@@ -16807,7 +16807,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "87ac077a-03c7-43aa-af08-cf908bbbde7a")
-		(property "Reference" "#PWR044"
+		(property "Reference" "#PWR034"
 			(at 125.73 149.86 0)
 			(effects
 				(font
@@ -16857,7 +16857,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR044")
+					(reference "#PWR034")
 					(unit 1)
 				)
 			)
@@ -16872,7 +16872,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "890b1258-68ba-4563-b4ad-cf5b5100b0f5")
-		(property "Reference" "#PWR053"
+		(property "Reference" "#PWR048"
 			(at 209.55 147.32 0)
 			(effects
 				(font
@@ -16922,7 +16922,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR053")
+					(reference "#PWR048")
 					(unit 1)
 				)
 			)
@@ -16937,7 +16937,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "8a25d467-bfe4-4225-9e97-6c056057d3e2")
-		(property "Reference" "#PWR038"
+		(property "Reference" "#PWR016"
 			(at 60.96 195.58 0)
 			(effects
 				(font
@@ -16988,7 +16988,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR038")
+					(reference "#PWR016")
 					(unit 1)
 				)
 			)
@@ -17003,7 +17003,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "8b490818-7f9b-48ad-a8b1-572280f44d00")
-		(property "Reference" "#PWR039"
+		(property "Reference" "#PWR032"
 			(at 116.84 198.12 0)
 			(effects
 				(font
@@ -17053,7 +17053,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR039")
+					(reference "#PWR032")
 					(unit 1)
 				)
 			)
@@ -17068,7 +17068,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "8f3f886d-e9ff-4d5f-aa93-5389e09f0e17")
-		(property "Reference" "R12"
+		(property "Reference" "R3"
 			(at 33.274 79.756 0)
 			(effects
 				(font
@@ -17122,7 +17122,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R12")
+					(reference "R3")
 					(unit 1)
 				)
 			)
@@ -17137,7 +17137,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "909afa53-91df-4684-a286-2fba399c07b7")
-		(property "Reference" "#PWR036"
+		(property "Reference" "#PWR014"
 			(at 44.45 195.58 0)
 			(effects
 				(font
@@ -17188,7 +17188,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR036")
+					(reference "#PWR014")
 					(unit 1)
 				)
 			)
@@ -17203,7 +17203,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "90d7a4f6-9f89-459f-872e-ef75bf239fca")
-		(property "Reference" "R3"
+		(property "Reference" "R17"
 			(at 239.014 17.018 90)
 			(effects
 				(font
@@ -17257,7 +17257,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R3")
+					(reference "R17")
 					(unit 1)
 				)
 			)
@@ -17272,7 +17272,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "913d66b9-8d3e-4405-b825-63e32420954f")
-		(property "Reference" "J7"
+		(property "Reference" "J6"
 			(at 53.34 85.0899 0)
 			(effects
 				(font
@@ -17454,7 +17454,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J7")
+					(reference "J6")
 					(unit 1)
 				)
 			)
@@ -17469,7 +17469,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "930347cc-6972-415c-af8b-572d2f7940cd")
-		(property "Reference" "#PWR041"
+		(property "Reference" "#PWR029"
 			(at 113.03 194.31 0)
 			(effects
 				(font
@@ -17519,7 +17519,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR041")
+					(reference "#PWR029")
 					(unit 1)
 				)
 			)
@@ -17535,7 +17535,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9647f715-5acb-4e3c-b509-b9fffd8b42d0")
-		(property "Reference" "#PWR04"
+		(property "Reference" "#PWR055"
 			(at 262.89 54.61 0)
 			(effects
 				(font
@@ -17586,7 +17586,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR04")
+					(reference "#PWR055")
 					(unit 1)
 				)
 			)
@@ -17601,7 +17601,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "96be4911-cb89-4fb4-8e89-0e98a0981bf6")
-		(property "Reference" "C19"
+		(property "Reference" "C12"
 			(at 108.458 156.718 0)
 			(effects
 				(font
@@ -17724,7 +17724,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C19")
+					(reference "C12")
 					(unit 1)
 				)
 			)
@@ -17739,7 +17739,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "973919a1-07cd-41cd-9f48-bb261bc5270c")
-		(property "Reference" "#PWR031"
+		(property "Reference" "#PWR019"
 			(at 76.2 119.38 0)
 			(effects
 				(font
@@ -17789,7 +17789,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR031")
+					(reference "#PWR019")
 					(unit 1)
 				)
 			)
@@ -17804,7 +17804,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "9832b92e-ff92-4107-af7f-677f8bec2d10")
-		(property "Reference" "R2"
+		(property "Reference" "R16"
 			(at 230.124 24.638 90)
 			(effects
 				(font
@@ -17858,7 +17858,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R2")
+					(reference "R16")
 					(unit 1)
 				)
 			)
@@ -17874,7 +17874,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "997a0177-f668-426e-9047-213e87de7ca3")
-		(property "Reference" "#PWR09"
+		(property "Reference" "#PWR026"
 			(at 113.03 50.8 0)
 			(effects
 				(font
@@ -17925,7 +17925,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR09")
+					(reference "#PWR026")
 					(unit 1)
 				)
 			)
@@ -17940,7 +17940,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "9aa46c49-6288-4bd2-a9c7-30cc59239da2")
-		(property "Reference" "C2"
+		(property "Reference" "C24"
 			(at 210.82 58.928 0)
 			(effects
 				(font
@@ -17992,7 +17992,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C2")
+					(reference "C24")
 					(unit 1)
 				)
 			)
@@ -18008,7 +18008,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9db8172b-f8a3-4fcb-bb1c-7514333c77a7")
-		(property "Reference" "U7"
+		(property "Reference" "U2"
 			(at 21.59 92.71 0)
 			(effects
 				(font
@@ -18072,7 +18072,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "U7")
+					(reference "U2")
 					(unit 1)
 				)
 			)
@@ -18087,7 +18087,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a1d3906c-91db-4405-a7ff-7ba09f7fa80c")
-		(property "Reference" "C24"
+		(property "Reference" "C20"
 			(at 155.702 186.182 0)
 			(effects
 				(font
@@ -18139,7 +18139,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C24")
+					(reference "C20")
 					(unit 1)
 				)
 			)
@@ -18154,7 +18154,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a27bb26a-ea7c-4b34-ae57-e7c08c818478")
-		(property "Reference" "TP1"
+		(property "Reference" "TP2"
 			(at 33.274 178.308 0)
 			(effects
 				(font
@@ -18205,7 +18205,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "TP1")
+					(reference "TP2")
 					(unit 1)
 				)
 			)
@@ -18221,7 +18221,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a28c64af-91d8-4d14-8a89-276f48fb2caf")
-		(property "Reference" "#PWR07"
+		(property "Reference" "#PWR044"
 			(at 161.29 78.74 0)
 			(effects
 				(font
@@ -18271,7 +18271,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR07")
+					(reference "#PWR044")
 					(unit 1)
 				)
 			)
@@ -18286,7 +18286,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a3ffb1a6-2c5d-4d69-b6e9-306670d13b35")
-		(property "Reference" "C36"
+		(property "Reference" "C31"
 			(at 261.62 106.172 0)
 			(effects
 				(font
@@ -18338,7 +18338,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C36")
+					(reference "C31")
 					(unit 1)
 				)
 			)
@@ -18353,7 +18353,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a5dc389b-2afe-4668-ad10-d6368fcf5e75")
-		(property "Reference" "J3"
+		(property "Reference" "J8"
 			(at 76.2 77.4699 0)
 			(effects
 				(font
@@ -18532,7 +18532,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J3")
+					(reference "J8")
 					(unit 1)
 				)
 			)
@@ -18616,7 +18616,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b0dc68aa-fd25-4536-8b6e-f6b18c992e74")
-		(property "Reference" "#PWR017"
+		(property "Reference" "#PWR036"
 			(at 124.46 198.12 0)
 			(effects
 				(font
@@ -18666,7 +18666,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR017")
+					(reference "#PWR036")
 					(unit 1)
 				)
 			)
@@ -18681,7 +18681,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b2d33c06-dc20-4257-a017-092de44de4cc")
-		(property "Reference" "C1"
+		(property "Reference" "C27"
 			(at 224.536 40.64 0)
 			(effects
 				(font
@@ -18733,7 +18733,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C1")
+					(reference "C27")
 					(unit 1)
 				)
 			)
@@ -18748,7 +18748,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b4432ed7-3935-4a62-945d-1da46a37f1fb")
-		(property "Reference" "#PWR012"
+		(property "Reference" "#PWR061"
 			(at 269.24 33.02 0)
 			(effects
 				(font
@@ -18798,7 +18798,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR012")
+					(reference "#PWR061")
 					(unit 1)
 				)
 			)
@@ -18813,7 +18813,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b661e3ad-920d-4912-a1e1-1294946de87e")
-		(property "Reference" "#PWR055"
+		(property "Reference" "#PWR041"
 			(at 153.67 142.24 0)
 			(effects
 				(font
@@ -18863,7 +18863,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR055")
+					(reference "#PWR041")
 					(unit 1)
 				)
 			)
@@ -18878,7 +18878,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b93a105c-b084-44d2-8091-a8aea93911db")
-		(property "Reference" "R11"
+		(property "Reference" "R14"
 			(at 210.058 137.16 90)
 			(effects
 				(font
@@ -18932,7 +18932,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R11")
+					(reference "R14")
 					(unit 1)
 				)
 			)
@@ -18947,7 +18947,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ba771730-7090-430a-a47c-a80f2e1981fe")
-		(property "Reference" "C35"
+		(property "Reference" "C34"
 			(at 272.542 129.54 0)
 			(effects
 				(font
@@ -18999,7 +18999,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C35")
+					(reference "C34")
 					(unit 1)
 				)
 			)
@@ -19014,7 +19014,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "bc000737-63d9-48ee-a788-07b6b6eda3b2")
-		(property "Reference" "#PWR058"
+		(property "Reference" "#PWR050"
 			(at 219.71 91.44 0)
 			(effects
 				(font
@@ -19064,7 +19064,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR058")
+					(reference "#PWR050")
 					(unit 1)
 				)
 			)
@@ -19079,7 +19079,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "bc811726-fcb2-43a1-b32c-d66ac36c70e1")
-		(property "Reference" "#PWR023"
+		(property "Reference" "#PWR025"
 			(at 113.03 27.94 0)
 			(effects
 				(font
@@ -19130,7 +19130,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR023")
+					(reference "#PWR025")
 					(unit 1)
 				)
 			)
@@ -19145,7 +19145,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c13261bd-1d89-4794-9267-b7224eb0256e")
-		(property "Reference" "C18"
+		(property "Reference" "C13"
 			(at 109.982 160.02 90)
 			(effects
 				(font
@@ -19197,7 +19197,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C18")
+					(reference "C13")
 					(unit 1)
 				)
 			)
@@ -19212,7 +19212,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c176f066-b390-43a1-84e7-00753e0aa38c")
-		(property "Reference" "#PWR028"
+		(property "Reference" "#PWR015"
 			(at 54.61 170.18 0)
 			(effects
 				(font
@@ -19262,7 +19262,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR028")
+					(reference "#PWR015")
 					(unit 1)
 				)
 			)
@@ -19277,7 +19277,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c53eacdf-7d61-4b1f-a5a3-53cd0a743b91")
-		(property "Reference" "#PWR075"
+		(property "Reference" "#PWR04"
 			(at 25.4 195.58 0)
 			(effects
 				(font
@@ -19328,7 +19328,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR075")
+					(reference "#PWR04")
 					(unit 1)
 				)
 			)
@@ -19343,7 +19343,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c7978668-f358-4ca3-bc09-eb3b25cb30c8")
-		(property "Reference" "J16"
+		(property "Reference" "J9"
 			(at 77.47 157.4799 0)
 			(effects
 				(font
@@ -19525,7 +19525,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J16")
+					(reference "J9")
 					(unit 1)
 				)
 			)
@@ -19540,7 +19540,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c7f47b50-731c-4de7-bafd-fa6dda08ec62")
-		(property "Reference" "R6"
+		(property "Reference" "R9"
 			(at 100.584 143.764 0)
 			(effects
 				(font
@@ -19594,7 +19594,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R6")
+					(reference "R9")
 					(unit 1)
 				)
 			)
@@ -19610,7 +19610,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c7ffcf64-271d-40c0-8270-8d36419bf786")
-		(property "Reference" "#PWR013"
+		(property "Reference" "#PWR062"
 			(at 271.78 59.69 0)
 			(effects
 				(font
@@ -19660,7 +19660,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR013")
+					(reference "#PWR062")
 					(unit 1)
 				)
 			)
@@ -19675,7 +19675,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "cadd6886-aeee-4233-9c1c-ff608d7d7e50")
-		(property "Reference" "#PWR019"
+		(property "Reference" "#PWR027"
 			(at 113.03 55.88 0)
 			(effects
 				(font
@@ -19726,7 +19726,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR019")
+					(reference "#PWR027")
 					(unit 1)
 				)
 			)
@@ -19741,7 +19741,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "cc950be3-e78b-4d73-927b-f208ef961b78")
-		(property "Reference" "#PWR030"
+		(property "Reference" "#PWR017"
 			(at 71.12 147.32 0)
 			(effects
 				(font
@@ -19792,7 +19792,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR030")
+					(reference "#PWR017")
 					(unit 1)
 				)
 			)
@@ -20014,7 +20014,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d1308b99-21a0-4a77-9deb-f43ec401513e")
-		(property "Reference" "#PWR032"
+		(property "Reference" "#PWR020"
 			(at 88.9 137.16 0)
 			(effects
 				(font
@@ -20064,7 +20064,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR032")
+					(reference "#PWR020")
 					(unit 1)
 				)
 			)
@@ -20146,7 +20146,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d28743e1-787c-45c5-a291-71ebcef8ddef")
-		(property "Reference" "J5"
+		(property "Reference" "J16"
 			(at 161.29 13.97 0)
 			(effects
 				(font
@@ -20315,7 +20315,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J5")
+					(reference "J16")
 					(unit 1)
 				)
 			)
@@ -20331,7 +20331,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d3868fab-7dd1-4bc6-bf6a-8185289517dc")
-		(property "Reference" "#PWR05"
+		(property "Reference" "#PWR054"
 			(at 262.89 52.07 0)
 			(effects
 				(font
@@ -20382,7 +20382,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR05")
+					(reference "#PWR054")
 					(unit 1)
 				)
 			)
@@ -20397,7 +20397,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d51e7abb-9e69-4059-b39d-8419ad5a18a5")
-		(property "Reference" "C25"
+		(property "Reference" "C2"
 			(at 25.4 106.426 90)
 			(effects
 				(font
@@ -20449,7 +20449,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C25")
+					(reference "C2")
 					(unit 1)
 				)
 			)
@@ -20464,7 +20464,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d551b5da-bd77-42dd-b02a-90944ce59543")
-		(property "Reference" "C9"
+		(property "Reference" "C28"
 			(at 259.334 41.91 90)
 			(effects
 				(font
@@ -20516,7 +20516,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C9")
+					(reference "C28")
 					(unit 1)
 				)
 			)
@@ -20531,7 +20531,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d99a487c-3989-47fa-b7d9-750cbf300041")
-		(property "Reference" "D2"
+		(property "Reference" "D1"
 			(at 25.908 180.34 90)
 			(effects
 				(font
@@ -20594,7 +20594,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "D2")
+					(reference "D1")
 					(unit 1)
 				)
 			)
@@ -20610,7 +20610,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "db782b7a-6413-4a55-a1e7-157e36514a37")
-		(property "Reference" "U8"
+		(property "Reference" "U3"
 			(at 71.12 130.81 0)
 			(effects
 				(font
@@ -20674,7 +20674,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "U8")
+					(reference "U3")
 					(unit 1)
 				)
 			)
@@ -20690,7 +20690,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "dc362e96-fbc8-4f29-a749-85c2dfabab1c")
-		(property "Reference" "#PWR08"
+		(property "Reference" "#PWR028"
 			(at 106.68 85.09 0)
 			(effects
 				(font
@@ -20740,7 +20740,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR08")
+					(reference "#PWR028")
 					(unit 1)
 				)
 			)
@@ -20755,7 +20755,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "de845e05-9b57-4125-8910-2ad033608491")
-		(property "Reference" "#PWR022"
+		(property "Reference" "#PWR02"
 			(at 21.59 109.22 0)
 			(effects
 				(font
@@ -20806,7 +20806,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR022")
+					(reference "#PWR02")
 					(unit 1)
 				)
 			)
@@ -20887,7 +20887,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e0c59385-8e89-4e49-b925-7eaaa2d4349a")
-		(property "Reference" "#PWR016"
+		(property "Reference" "#PWR052"
 			(at 223.52 35.56 0)
 			(effects
 				(font
@@ -20937,7 +20937,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR016")
+					(reference "#PWR052")
 					(unit 1)
 				)
 			)
@@ -20953,7 +20953,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e190d513-7801-409a-bc5c-f5966c3ca1a1")
-		(property "Reference" "U6"
+		(property "Reference" "U1"
 			(at 20.32 156.21 0)
 			(effects
 				(font
@@ -21017,7 +21017,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "U6")
+					(reference "U1")
 					(unit 1)
 				)
 			)
@@ -21033,7 +21033,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e1ec49eb-0e40-4f4e-b70f-a5fc4e026f12")
-		(property "Reference" "L7"
+		(property "Reference" "L1"
 			(at 135.636 151.13 0)
 			(effects
 				(font
@@ -21087,7 +21087,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "L7")
+					(reference "L1")
 					(unit 1)
 				)
 			)
@@ -21102,7 +21102,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e24d377e-9d8a-4ea9-83f7-5cf982d4b793")
-		(property "Reference" "C3"
+		(property "Reference" "C32"
 			(at 262.636 34.29 0)
 			(effects
 				(font
@@ -21154,7 +21154,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C3")
+					(reference "C32")
 					(unit 1)
 				)
 			)
@@ -21169,7 +21169,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e475b1c2-92fa-463a-a629-556134b757a6")
-		(property "Reference" "#PWR048"
+		(property "Reference" "#PWR042"
 			(at 162.56 176.53 0)
 			(effects
 				(font
@@ -21219,7 +21219,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR048")
+					(reference "#PWR042")
 					(unit 1)
 				)
 			)
@@ -21234,7 +21234,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e61bcd7a-c149-4476-b807-fbd3ae763068")
-		(property "Reference" "#PWR033"
+		(property "Reference" "#PWR024"
 			(at 105.41 148.59 0)
 			(effects
 				(font
@@ -21284,7 +21284,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR033")
+					(reference "#PWR024")
 					(unit 1)
 				)
 			)
@@ -21299,7 +21299,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e7aa8ccb-1ba6-4bbc-bb51-53e11bea32f3")
-		(property "Reference" "C17"
+		(property "Reference" "C11"
 			(at 101.854 191.516 0)
 			(effects
 				(font
@@ -21351,7 +21351,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C17")
+					(reference "C11")
 					(unit 1)
 				)
 			)
@@ -21366,7 +21366,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e982884d-a4f5-47d4-9f4f-695b877875a4")
-		(property "Reference" "#PWR047"
+		(property "Reference" "#PWR023"
 			(at 93.98 176.53 0)
 			(effects
 				(font
@@ -21416,7 +21416,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR047")
+					(reference "#PWR023")
 					(unit 1)
 				)
 			)
@@ -21431,7 +21431,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "e9ad3f16-6217-45c5-81e1-a31649f67973")
-		(property "Reference" "C30"
+		(property "Reference" "C22"
 			(at 201.676 123.19 0)
 			(effects
 				(font
@@ -21483,7 +21483,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C30")
+					(reference "C22")
 					(unit 1)
 				)
 			)
@@ -21498,7 +21498,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ea02048c-b7c3-4d37-84cc-eacba9776e46")
-		(property "Reference" "U4"
+		(property "Reference" "U8"
 			(at 238.76 99.06 0)
 			(effects
 				(font
@@ -21597,7 +21597,7 @@
 		(instances
 			(project ""
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "U4")
+					(reference "U8")
 					(unit 1)
 				)
 			)
@@ -21612,7 +21612,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ed3e8e43-fa3c-49ab-aaa9-8206d035d4c7")
-		(property "Reference" "#PWR011"
+		(property "Reference" "#PWR051"
 			(at 220.98 68.58 0)
 			(effects
 				(font
@@ -21662,7 +21662,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR011")
+					(reference "#PWR051")
 					(unit 1)
 				)
 			)
@@ -21755,7 +21755,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f0e888cc-34a5-42bd-83ed-08aec8e875bf")
-		(property "Reference" "C16"
+		(property "Reference" "C6"
 			(at 87.63 116.586 0)
 			(effects
 				(font
@@ -21807,7 +21807,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C16")
+					(reference "C6")
 					(unit 1)
 				)
 			)
@@ -21823,7 +21823,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f0efb0ce-45ed-4f8d-b39e-eb04651d48c8")
-		(property "Reference" "#PWR029"
+		(property "Reference" "#PWR010"
 			(at 40.64 152.4 0)
 			(effects
 				(font
@@ -21873,7 +21873,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR029")
+					(reference "#PWR010")
 					(unit 1)
 				)
 			)
@@ -21888,7 +21888,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f133f675-f992-4b67-bb2d-036865b11ff9")
-		(property "Reference" "C26"
+		(property "Reference" "C7"
 			(at 104.394 170.434 0)
 			(effects
 				(font
@@ -21940,7 +21940,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C26")
+					(reference "C7")
 					(unit 1)
 				)
 			)
@@ -21955,7 +21955,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f215eb79-d109-42cc-9a97-6787de371fa7")
-		(property "Reference" "D1"
+		(property "Reference" "D2"
 			(at 43.688 180.34 90)
 			(effects
 				(font
@@ -22018,7 +22018,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "D1")
+					(reference "D2")
 					(unit 1)
 				)
 			)
@@ -22034,7 +22034,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f2bdcd44-a597-49fb-ad48-72e78340eae2")
-		(property "Reference" "#PWR02"
+		(property "Reference" "#PWR011"
 			(at 41.91 34.29 0)
 			(effects
 				(font
@@ -22084,7 +22084,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR02")
+					(reference "#PWR011")
 					(unit 1)
 				)
 			)
@@ -22100,7 +22100,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f3954038-5e8d-45e4-838a-3bfb4f07b234")
-		(property "Reference" "#PWR034"
+		(property "Reference" "#PWR022"
 			(at 91.44 127 0)
 			(effects
 				(font
@@ -22150,7 +22150,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR034")
+					(reference "#PWR022")
 					(unit 1)
 				)
 			)
@@ -22165,7 +22165,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f687682d-e74d-4a8a-9ddb-9dee6bcc75c2")
-		(property "Reference" "#PWR035"
+		(property "Reference" "#PWR021"
 			(at 95.25 144.78 0)
 			(effects
 				(font
@@ -22215,7 +22215,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR035")
+					(reference "#PWR021")
 					(unit 1)
 				)
 			)
@@ -22230,7 +22230,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f695efec-4ffb-4186-b783-e6ddddfcc4dc")
-		(property "Reference" "C15"
+		(property "Reference" "C5"
 			(at 74.93 144.526 90)
 			(effects
 				(font
@@ -22282,7 +22282,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C15")
+					(reference "C5")
 					(unit 1)
 				)
 			)
@@ -22297,7 +22297,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f69b1be8-59e0-4609-a6d9-2593266ef6e0")
-		(property "Reference" "#PWR043"
+		(property "Reference" "#PWR030"
 			(at 102.87 157.48 0)
 			(effects
 				(font
@@ -22347,7 +22347,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR043")
+					(reference "#PWR030")
 					(unit 1)
 				)
 			)
@@ -22362,7 +22362,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f7116e23-0523-4a01-b74a-5479f4a83cda")
-		(property "Reference" "J13"
+		(property "Reference" "J12"
 			(at 83.82 148.5901 0)
 			(effects
 				(font
@@ -22541,7 +22541,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J13")
+					(reference "J12")
 					(unit 1)
 				)
 			)
@@ -22556,7 +22556,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f7fa8015-1272-4304-a656-88d5b6862663")
-		(property "Reference" "J11"
+		(property "Reference" "J10"
 			(at 81.28 109.2199 0)
 			(effects
 				(font
@@ -22735,7 +22735,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J11")
+					(reference "J10")
 					(unit 1)
 				)
 			)
@@ -22750,7 +22750,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f8e31796-2e96-492e-860f-bc481ff0b956")
-		(property "Reference" "R4"
+		(property "Reference" "R5"
 			(at 39.116 106.934 0)
 			(effects
 				(font
@@ -22804,7 +22804,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R4")
+					(reference "R5")
 					(unit 1)
 				)
 			)
@@ -22819,7 +22819,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f98b1289-5f15-4a6a-992d-080fb6810008")
-		(property "Reference" "J8"
+		(property "Reference" "J2"
 			(at 30.48 134.6199 0)
 			(effects
 				(font
@@ -22998,7 +22998,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "J8")
+					(reference "J2")
 					(unit 1)
 				)
 			)
@@ -23013,7 +23013,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f99f5fc3-4f0f-441d-868c-c90be25022eb")
-		(property "Reference" "C33"
+		(property "Reference" "C25"
 			(at 211.582 106.426 0)
 			(effects
 				(font
@@ -23065,7 +23065,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "C33")
+					(reference "C25")
 					(unit 1)
 				)
 			)
@@ -23080,7 +23080,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "fab824f4-bc6c-4799-a474-8d48e88e5c2f")
-		(property "Reference" "#PWR024"
+		(property "Reference" "#PWR09"
 			(at 40.64 118.11 0)
 			(effects
 				(font
@@ -23130,7 +23130,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR024")
+					(reference "#PWR09")
 					(unit 1)
 				)
 			)
@@ -23211,7 +23211,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "fe41d192-804b-4311-bede-7378957a9d51")
-		(property "Reference" "U5"
+		(property "Reference" "U7"
 			(at 119.38 125.73 0)
 			(effects
 				(font
@@ -23275,7 +23275,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "U5")
+					(reference "U7")
 					(unit 1)
 				)
 			)
@@ -23290,7 +23290,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "feda8ed4-bfb6-420c-ab0b-7f347cce39b6")
-		(property "Reference" "R13"
+		(property "Reference" "R2"
 			(at 32.004 143.256 0)
 			(effects
 				(font
@@ -23344,7 +23344,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R13")
+					(reference "R2")
 					(unit 1)
 				)
 			)
@@ -23359,7 +23359,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ff5ee333-b8d0-462b-9aed-674ee36f78cd")
-		(property "Reference" "R9"
+		(property "Reference" "R7"
 			(at 58.928 184.15 90)
 			(effects
 				(font
@@ -23413,7 +23413,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "R9")
+					(reference "R7")
 					(unit 1)
 				)
 			)
@@ -23428,7 +23428,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ff9b182e-c24f-4d33-82a3-dfc5b50fdcc9")
-		(property "Reference" "#PWR020"
+		(property "Reference" "#PWR03"
 			(at 25.4 144.78 0)
 			(effects
 				(font
@@ -23478,7 +23478,7 @@
 		(instances
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
-					(reference "#PWR020")
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)

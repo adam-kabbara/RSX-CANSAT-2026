@@ -51,7 +51,13 @@
           "min_clearance": 0.3
         }
       },
-      "diff_pair_dimensions": [],
+      "diff_pair_dimensions": [
+        {
+          "gap": 0.0,
+          "via_gap": 0.0,
+          "width": 0.0
+        }
+      ],
       "drc_exclusions": [],
       "meta": {
         "version": 2
@@ -180,7 +186,9 @@
           "td_width_to_size_filter_ratio": 0.9
         }
       ],
-      "track_widths": [],
+      "track_widths": [
+        0.0
+      ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
           "corner_radius_percentage": 80,
@@ -207,7 +215,12 @@
           "spacing": 0.6
         }
       },
-      "via_dimensions": [],
+      "via_dimensions": [
+        {
+          "diameter": 0.0,
+          "drill": 0.0
+        }
+      ],
       "zones_allow_external_fillets": false
     },
     "ipc2581": {
@@ -226,7 +239,20 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [],
+    "erc_exclusions": [
+      [
+        "pin_to_pin|1612900|723900|3d3a74ce-fa87-48e1-a1fc-d10b4260f50c|52e3e6bf-ea90-4be1-9057-476047e666f1|/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8|/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8|/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8",
+        ""
+      ],
+      [
+        "pin_to_pin|1943100|215900|adf20445-aee1-42f1-99de-19066c63591b|ee5d655d-bee1-4f54-b415-369f2d5c51b3|/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8|/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8|/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8",
+        ""
+      ],
+      [
+        "pin_to_pin|1943100|241300|748c1f12-9c5a-4f56-9c2e-d77a4267fc2b|9805da11-0c65-4b5e-b826-d16a164fc7e5|/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8|/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8|/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8",
+        ""
+      ]
+    ],
     "meta": {
       "version": 0
     },
