@@ -177,58 +177,48 @@
 		(uuid "b7258dd6-fef5-4205-bda7-94f2a2d04910")
 	)
 	(fp_line
-		(start -20.97 -19.103963)
-		(end 36.19 -19.103963)
+		(start -21.2 -19.4)
+		(end -21.2 -2.6)
 		(stroke
 			(width 0.05)
-			(type solid)
+			(type default)
 		)
 		(layer "F.CrtYd")
-		(uuid "b48d89b0-d916-4ac6-8929-a190b85b08e2")
+		(uuid "263bb43a-4fb0-4ba8-aeca-b85a8b7e9fd7")
 	)
 	(fp_line
-		(start -20.97 -19.098545)
-		(end -20.97 -2.875418)
+		(start -21.2 -2.6)
+		(end -3 -2.6)
 		(stroke
 			(width 0.05)
-			(type solid)
+			(type default)
 		)
 		(layer "F.CrtYd")
-		(uuid "5e14f568-346e-40b1-ae90-e9dec9bd56ca")
+		(uuid "056737c4-5931-4a46-bc53-ef585c438590")
 	)
 	(fp_line
-		(start -1.77 -2.875418)
-		(end -20.97 -2.875418)
+		(start -2 -2.6)
+		(end -3 -2.6)
 		(stroke
 			(width 0.05)
-			(type solid)
+			(type default)
 		)
 		(layer "F.CrtYd")
-		(uuid "6c334457-39be-4e6a-8d49-7b83c12949b1")
+		(uuid "0d3be8d5-bc6e-4f2e-aa5b-005bd9ff4425")
 	)
 	(fp_line
-		(start -1.77 -2.875418)
-		(end -1.77 50.07)
+		(start -2 55)
+		(end -2 -2.6)
 		(stroke
 			(width 0.05)
-			(type solid)
+			(type default)
 		)
 		(layer "F.CrtYd")
-		(uuid "21481d78-ad86-4d71-8d4e-d9635aeaaf2e")
+		(uuid "287f6e70-f972-4003-a755-dad3f9ede275")
 	)
 	(fp_line
-		(start -1.77 54.78)
-		(end -1.77 49.886)
-		(stroke
-			(width 0.05)
-			(type solid)
-		)
-		(layer "F.CrtYd")
-		(uuid "9da7cece-fc94-45d9-b811-84a9778c8d27")
-	)
-	(fp_line
-		(start -1.77 54.78)
-		(end 17.02 54.78)
+		(start -2 55)
+		(end 17.24 55)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -237,44 +227,44 @@
 		(uuid "4f20a4d9-c550-4562-a798-b58e90138160")
 	)
 	(fp_line
-		(start 17.02 50.02)
-		(end 17 -2.875418)
+		(start 17.24 -2.6)
+		(end 36.4 -2.6)
 		(stroke
 			(width 0.05)
-			(type solid)
+			(type default)
 		)
 		(layer "F.CrtYd")
-		(uuid "dc836b3a-8553-494c-8c0d-da10db934c13")
+		(uuid "02c7ed88-0fc5-41bf-8a93-29aacfc89343")
 	)
 	(fp_line
-		(start 17.02 54.78)
-		(end 17.02 50.03)
+		(start 17.24 55)
+		(end 17.24 -2.6)
 		(stroke
 			(width 0.05)
-			(type solid)
+			(type default)
 		)
 		(layer "F.CrtYd")
-		(uuid "e70654c5-22b1-48b6-a7ff-7091d95f9654")
+		(uuid "af1b43eb-b301-4e02-ab9b-4842d92bbf2c")
 	)
 	(fp_line
-		(start 36.19 -19.103963)
-		(end 36.2 -2.875418)
+		(start 36.4 -19.4)
+		(end -21.2 -19.4)
 		(stroke
 			(width 0.05)
-			(type solid)
+			(type default)
 		)
 		(layer "F.CrtYd")
-		(uuid "8a30acf5-8d71-49cf-88cc-f886495a39ff")
+		(uuid "13d94d8e-c226-4bc1-a84d-e21db55f8787")
 	)
 	(fp_line
-		(start 36.2 -2.875418)
-		(end 17 -2.875418)
+		(start 36.4 -2.6)
+		(end 36.4 -19.4)
 		(stroke
 			(width 0.05)
-			(type solid)
+			(type default)
 		)
 		(layer "F.CrtYd")
-		(uuid "f9de4aba-a1fc-49d7-a4df-df3c6ff3c6dd")
+		(uuid "2b5886e2-c5ec-4308-9dcb-cf0a31a9cd2a")
 	)
 	(fp_line
 		(start -1.27 0)
@@ -325,65 +315,6 @@
 		)
 		(layer "F.Fab")
 		(uuid "35ffb493-e863-42fb-bb86-5b000ffbd5c0")
-	)
-	(fp_text user "${REFERENCE}"
-		(at 14.41 50.83 0)
-		(unlocked yes)
-		(layer "F.Fab")
-		(uuid "03e4817d-3372-44f9-9530-fc013d1b0187")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
-	(fp_text user "${REFERENCE}"
-		(at 1.27 24.13 90)
-		(layer "F.Fab")
-		(uuid "269fd372-87dc-4ca8-84ae-7e6b69222972")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
-	(fp_text user "${REFERENCE}"
-		(at -21.37 -8.71 0)
-		(unlocked yes)
-		(layer "F.Fab")
-		(uuid "7f3a7467-5370-4be8-a4a9-d7276aed6d6d")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
-	(fp_text user "${REFERENCE}"
-		(at 1.26 53.9 0)
-		(unlocked yes)
-		(layer "F.Fab")
-		(uuid "8f29eb29-1776-4cb0-8738-1c564e9e2271")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
-	(fp_text user "${REFERENCE}"
-		(at 31.52 -5.6 0)
-		(unlocked yes)
-		(layer "F.Fab")
-		(uuid "c290641a-1a64-4725-a94d-3ae48acc8ba6")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
 	)
 	(pad "" np_thru_hole circle
 		(at -18.28 -5.56)
@@ -735,6 +666,7 @@
 	)
 	(embedded_fonts no)
 	(model "${CUSTOM_3D_MODELS}/Pi_T_Cobbler_PinHeader_2x20_P2.54mm_Vertical.step"
+		(hide yes)
 		(offset
 			(xyz 0 0 0)
 		)
@@ -743,6 +675,50 @@
 		)
 		(rotate
 			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/Raspberry Pi GPIO T-Type Expension Board.step"
+		(offset
+			(xyz 0 0.8 2.54)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_L3_Standoff.step"
+		(offset
+			(xyz -18.28 5.56 -1.4)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/9774030243R_M2_L3_Standoff.step"
+		(offset
+			(xyz 33.51 5.56 -1.4)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+	(model "${KICAD9_3DMODEL_DIR}/Connector_IDC.3dshapes/IDC-Header_2x20_P2.54mm_Vertical.step"
+		(offset
+			(xyz 31.55 15.25 4.2)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 90)
 		)
 	)
 )
