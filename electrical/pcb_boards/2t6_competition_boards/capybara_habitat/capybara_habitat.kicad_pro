@@ -722,10 +722,10 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "gerber_capybara_habitat/",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "capybara_habitat.step",
       "svg": "",
       "vrml": ""
     },
