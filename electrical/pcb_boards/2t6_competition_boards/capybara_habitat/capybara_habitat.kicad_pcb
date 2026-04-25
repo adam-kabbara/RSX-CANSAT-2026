@@ -55617,7 +55617,7 @@
 	(footprint "RSX_CanSat_Graphics:capybara"
 		(layer "F.Cu")
 		(uuid "5897c065-0794-4ffc-bf47-073b8cfb397b")
-		(at 121.4 125.875143)
+		(at 120.453515 126.505143)
 		(property "Reference" "G***"
 			(at 0 0 0)
 			(layer "F.Fab")
