@@ -1,7 +1,7 @@
 # RSX CanSat 2T5-2T6 Designs 
 
 <div align="left">
-    <img src="competition_documentation/team_assets/mission_patch.png" alt="mission_patch" height="120" style="height:120px; width:auto; margin-right:50px;">
+    <img src="competition_documentation/team_assets/payload_2t6_sketch.png" alt="payload_sketch" height="120" style="height:120px; width:auto;">
     <img src="competition_documentation/team_assets/mascot_capybara_transparent.png" alt="mascot_capybara" height="120" style="height:120px; width:auto;">
 </div>
 <br>

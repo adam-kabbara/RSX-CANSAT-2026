@@ -7602,6 +7602,12 @@
 		(uuid "cd8b7a71-ef77-4d49-91aa-86fc76ea8f9a")
 	)
 	(junction
+		(at 39.37 29.21)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "da2d0893-59fc-420b-992c-38d7852a1b07")
+	)
+	(junction
 		(at 156.21 168.91)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -7754,6 +7760,16 @@
 			(type default)
 		)
 		(uuid "09530a01-d59c-4217-9fd6-ab5550dc0b2e")
+	)
+	(wire
+		(pts
+			(xy 39.37 35.56) (xy 49.53 35.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b8662fe-616e-4f4d-85b8-1b64c67ac612")
 	)
 	(wire
 		(pts
@@ -8204,6 +8220,16 @@
 			(type default)
 		)
 		(uuid "453f0b53-7602-4508-ae8b-18fb3e67e571")
+	)
+	(wire
+		(pts
+			(xy 49.53 35.56) (xy 49.53 27.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "45714c3d-5ddf-4ab5-8d6b-ccd2f5deee53")
 	)
 	(wire
 		(pts
@@ -9074,6 +9100,16 @@
 			(type default)
 		)
 		(uuid "b0994241-85ae-4240-bf12-7d60fcb32878")
+	)
+	(wire
+		(pts
+			(xy 39.37 29.21) (xy 39.37 35.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b13822ae-23b9-4c01-a7e6-d8c8f865fa8f")
 	)
 	(wire
 		(pts
@@ -15314,6 +15350,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 52.07 27.94 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6494ac89-bc57-4e30-a07f-5372b14c8b80")
+		(property "Reference" "#PWR063"
+			(at 52.07 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 52.07 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 52.07 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 52.07 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 52.07 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4c35004b-83bb-475c-9243-31ab76ad4d57")
+		)
+		(instances
+			(project "capybara_habitat"
+				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
+					(reference "#PWR063")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Connector:TestPoint")
 		(at 16.51 181.61 0)
 		(unit 1)
@@ -17618,6 +17720,200 @@
 			(project "capybara_habitat"
 				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
 					(reference "R3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "RSX_CanSat_Custom_KiCad_Symbols:Wurth_M2_62000211622")
+		(at 50.8 24.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8f89a287-5c37-43a0-8c0f-fa870f9a575b")
+		(property "Reference" "J17"
+			(at 54.61 24.1299 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "charger_buck_in"
+			(at 51.308 19.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "RSX_CanSat_Custom_KiCad_Footprints:J_Wurth_WR-WTB_62000211622"
+			(at 50.8 16.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.we-online.com/en/components/products/datasheet/62000211622?ki"
+			(at 96.52 6.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2.00 mm Male Vertical Shrouded Header"
+			(at 50.8 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Wurth Elektronik"
+			(at 96.52 8.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer URL" "https://www.we-online.com"
+			(at 96.52 11.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Match Code" "WR-WTB"
+			(at 96.52 13.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Pins (pcs)" "2"
+			(at 96.52 16.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Pitch (mm)" "2.00"
+			(at 96.52 19.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Gender" "Male"
+			(at 96.52 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Type" "Vertical"
+			(at 96.52 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mounting Technology" "THT"
+			(at 96.52 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "IR (A)" "2"
+			(at 96.52 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Working Voltage (V (AC))" "125"
+			(at 96.52 31.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PCB/Cable/Panel" "PCB"
+			(at 96.52 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Contact Resistance (mΩ)" "20"
+			(at 96.52 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tol. R" "max."
+			(at 96.52 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "L (mm)" "6"
+			(at 96.52 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "b2f61328-c200-429e-b7b4-408cf1a41bda")
+		)
+		(pin "1"
+			(uuid "9e0b2717-f503-4163-ba71-582808183609")
+		)
+		(instances
+			(project "capybara_habitat"
+				(path "/e906f51b-c3d1-42dd-85c1-45fc9b7b20d8"
+					(reference "J17")
 					(unit 1)
 				)
 			)
