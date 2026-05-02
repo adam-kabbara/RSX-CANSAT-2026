@@ -150,6 +150,18 @@
 	)
 	(embedded_fonts no)
 	(model "${CUSTOM_3D_MODELS}/J_Wurth_WR-WTB_62000211622.wrl"
+		(hide yes)
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+	(model "${CUSTOM_3D_MODELS}/J_Wurth_WR-WTB_62000211622.step"
 		(offset
 			(xyz 0 0 0)
 		)

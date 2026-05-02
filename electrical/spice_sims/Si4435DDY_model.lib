@@ -1,0 +1,1 @@
+.model Si4435DDY VDMOS(pchan Vto=-1.7 Kp=55 Rs=8m Rd=11m Rg=5.8 Cgdmax=186p Cgdmin=28p Cgs=605p Cjo=188p Is=6.5p Bv=31 Ron=19m Vds=-30)

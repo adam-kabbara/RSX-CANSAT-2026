@@ -1,0 +1,63 @@
+LTspice 24.1.10 for Windows
+Circuit: C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\ni-mh_lvc_sim.net
+Start Time: Sat Apr  4 15:00:04 2026
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839G12_TRANS.LIB(149): There is more than one sub-circuit definition with this name, which is ill-formed.
+.SUBCKT INV_BASIC_GEN A  Y PARAMS: VDD=1 VSS=0 VTHRESH=0.5
+        ^^^^^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839G12_TRANS.LIB(170): There is more than one sub-circuit definition with this name, which is ill-formed.
+.SUBCKT BUF_BASIC_GEN A  Y PARAMS: VDD=1 VSS=0 VTHRESH=0.5
+        ^^^^^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839G12_TRANS.LIB(156): There is more than one sub-circuit definition with this name, which is ill-formed.
+.SUBCKT COMP_BASIC_GEN INP INM Y PARAMS: VDD=1 VSS=0 VTHRESH=0.5
+        ^^^^^^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839G12_TRANS.LIB(163): There is more than one sub-circuit definition with this name, which is ill-formed.
+.SUBCKT AND2_BASIC_GEN A B Y PARAMS: VDD=1 VSS=0 VTHRESH=0.5
+        ^^^^^^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839G12_TRANS.LIB(108): There is more than one sub-circuit definition with this name, which is ill-formed.
+.subckt TPS3839_TOPLEVEL_S9 1 2 3 4
+        ^^^^^^^^^^^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839G12_TRANS.LIB(114): There is more than one sub-circuit definition with this name, which is ill-formed.
+.subckt TPS3839_TOPLEVEL_S8 1 2 3 4
+        ^^^^^^^^^^^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839G12_TRANS.LIB(120): There is more than one sub-circuit definition with this name, which is ill-formed.
+.subckt TPS3839_TOPLEVEL_S6 1 2 3 4
+        ^^^^^^^^^^^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839G12_TRANS.LIB(126): There is more than one sub-circuit definition with this name, which is ill-formed.
+.subckt TPS3839_TOPLEVEL_S10 1 2 3 4
+        ^^^^^^^^^^^^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839G12_TRANS.LIB(132): There is more than one sub-circuit definition with this name, which is ill-formed.
+.subckt TPS3839_TOPLEVEL_S7 1 2 3 4
+        ^^^^^^^^^^^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839A09_TRANS.LIB(49): This model has multiple definitions. (Note: If you wish to allow this, add ".OPTIONS ALLOW_AMBIGUOUS_MODELS" to your netlist.)
+D_D3         RESET_CTRL_BAR N451192 D_D1special 
+                                    ^^^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839A09_TRANS.LIB(40): No such node.
+E_GAIN1         N451192 0 VALUE {1 * V(OVDRIVE_N)}
+                                       ^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\TPS3839A09_TRANS.LIB(73): No such node.
+E_ABM17         N146088 0 VALUE { IF(V(VDD_VALID) <0.5,0,V(N192225))  
+                                       ^^^^^^^^^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74AUP1G04.cir(144): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-VT)/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH,VEE)}
+                                      ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74AUP1G04.cir(146): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-VT)/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH,VEE)}
+                                      ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74AUP1G04.cir(148): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-(V(VCC,VEE)-VT))/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH1,VEE)}
+                                                   ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74AUP1G04.cir(150): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-(V(VCC,VEE)-VT))/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH1,VEE)}
+                                                   ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74AUP1G04.cir(144): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-VT)/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH,VEE)}
+                                      ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74AUP1G04.cir(146): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-VT)/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH,VEE)}
+                                      ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74AUP1G04.cir(148): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-(V(VCC,VEE)-VT))/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH1,VEE)}
+                                                   ^
+C:\Users\adamk\Desktop\RSX\cansat_2026\RSX-Cansat-2026\electrical\spice_sims\SN74AUP1G04.cir(150): Note: The caret character means exponentiation in this context. If you wish to silence this warning, use the "**" operator instead or add ".OPTIONS NO_CARET_WARNING" to your netlist.
++ 2*MAXICC*((V(IN,VEE)-(V(VCC,VEE)-VT))/V(VCC,VEE))^2)*(1 + SGN(V(VCC,VEE) - VCC_MIN))*V(VSWITCH1,VEE)}
+                                                   ^
