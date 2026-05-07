@@ -153,10 +153,6 @@ class GraphWindow(QMainWindow):
         self.state_labels_display = ("IDLE", "LAUNCH PAD", "ASCENT", "APOGEE", "DESCENT", "PROBE REL",
                              "PAYLD REL", "LANDED")
         
-        state_title = QLabel("PAYLOAD STATE")
-        state_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        state_title.setFont(cosmetics.state_title_font())
-
         # Previous state list
         self.previous_list = QListWidget()
         self.previous_list.setStyleSheet("border-radius: 0px;")
@@ -165,7 +161,7 @@ class GraphWindow(QMainWindow):
         self.previous_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.previous_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.previous_list.setFixedHeight(80)
-        self.previous_list.setStyleSheet("background-color: transparent; color:black; font-size: 10px; font-family: Roboto Mono;")
+        self.previous_list.setStyleSheet(cosmetics.transparent_list_stylesheet())
 
         # Next state list
         self.next_list = QListWidget()
@@ -203,7 +199,7 @@ class GraphWindow(QMainWindow):
         # Current state display
         self.current_state_display = QLabel("Unknown")
         self.current_state_display.setFrameShape(QFrame.Shape.Panel)
-        self.current_state_display.setStyleSheet("color: blue; padding: 5px;")
+        self.current_state_display.setStyleSheet(cosmetics.current_state_stylesheet())
 
         for field_name, field_value in self.sidebar_fields_data:
             # Handle state separately
@@ -225,10 +221,14 @@ class GraphWindow(QMainWindow):
 
         self.set_port_text_closed()
 
-        form_group = QGroupBox()
+        form_group = QGroupBox("Telemetry Data")
+        form_group.setFont(cosmetics.log_font())
+        form_group.setStyleSheet(cosmetics.sidebar_group_box_stylesheet())
         form_group.setLayout(live_graph_values)
 
-        state_visual_box = QGroupBox()
+        state_visual_box = QGroupBox("PAYLOAD STATE")
+        state_visual_box.setFont(cosmetics.log_font())
+        state_visual_box.setStyleSheet(cosmetics.sidebar_group_box_stylesheet())
         state_visual_layout = QVBoxLayout(state_visual_box)
         state_grid_layout = QGridLayout()
         state_grid_layout.addWidget(self.state_label, 0, 0, 1, 0, Qt.AlignmentFlag.AlignLeft)
@@ -244,7 +244,6 @@ class GraphWindow(QMainWindow):
 
         sidebar.addWidget(form_group)
         sidebar.addSpacing(20)
-        sidebar.addWidget(state_title)
         sidebar.addWidget(state_visual_box)
         sidebar.addStretch()
         sidebar.addWidget(credit_label)
