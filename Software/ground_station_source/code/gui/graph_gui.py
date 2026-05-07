@@ -5,7 +5,7 @@ from plotter.plotters import DynamicPlotter, DynamicPlotterMultiLine
 from . import cosmetics
 from .gps_map import GPSMapWidget
 import os
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QMainWindow,
@@ -38,6 +38,7 @@ class GraphWindow(QMainWindow):
         self._screen_width_cm = 32.1
         self._screen_height_cm = 20
         self._current_state = "Unknown"
+        self._state_flash_on = True
 
         self.setWindowTitle("Live Data")
         icon_path = os.path.join(os.path.dirname(__file__), '..', 'media', 'icon.png')
@@ -185,6 +186,10 @@ class GraphWindow(QMainWindow):
         self.state_label.setFont(cosmetics.state_label_font())
         self.state_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.state_label.setFont(cosmetics.state_label_font())
+
+        self.state_flash_timer = QTimer(self)
+        self.state_flash_timer.timeout.connect(self._toggle_state_flash)
+        self.state_flash_timer.start(900)
         self.reset_states()
 
         # --- Create Title Widgets ---
@@ -335,17 +340,30 @@ class GraphWindow(QMainWindow):
                     # self.plotters[self.graph_title_to_index.get("Altitude")].add_state_marker(state_str)
 
                 self._current_state = state_str
-                self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
+                self._state_flash_on = True
+                self._update_current_state_label()
 
     def reset_states(self):
         self._current_state = "Unknown"
-        self.state_label.setText("Current: " + cosmetics.data_status_init_color("Unknown"))
         self.previous_list.clear()
         self.next_list.clear()
         for item in self.state_labels_display:
             _pending_item = QListWidgetItem(item)
             cosmetics.set_next_states(_pending_item)
             self.next_list.addItem(_pending_item)
+        self._state_flash_on = True
+        self._update_current_state_label()
+
+    def _toggle_state_flash(self):
+        self._state_flash_on = not self._state_flash_on
+        self._update_current_state_label()
+
+    def _update_current_state_label(self):
+        if self._state_flash_on:
+            state_text = cosmetics.data_status_blue(self._current_state)
+        else:
+            state_text = cosmetics.data_status_init_color(self._current_state)
+        self.state_label.setText("Current: " + state_text)
 
     def update_mode(self, str):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Mode")].setText(cosmetics.data_status_blue(str))
