@@ -1,4 +1,5 @@
 import math
+import random
 import time
 
 from PyQt6.QtCore import QByteArray, QObject, QTimer, pyqtSignal
@@ -25,6 +26,7 @@ class PayloadSim(QObject):
         self._is_open = False
         self._buffer = []
         self._team_id = 6767
+        self._rng = random.Random(self._team_id)
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._generate_telemetry)
@@ -249,17 +251,31 @@ class PayloadSim(QObject):
 
         gyro_r, gyro_p, gyro_y = self._gyro_values()
         accel_r, accel_p, accel_y = self._accel_values()
+        altitude = max(0.0, self.altitude + self._jitter(0.12))
+        temperature = self.temperature + self._jitter(0.08)
+        pressure = max(0.0, self.pressure + self._jitter(0.015))
+        voltage = max(0.0, self.voltage + self._jitter(0.035))
+        current = max(0.0, self.current + self._jitter(4.0))
+        gyro_r += self._jitter(0.25)
+        gyro_p += self._jitter(0.25)
+        gyro_y += self._jitter(0.25)
+        accel_r += self._jitter(0.08)
+        accel_p += self._jitter(0.08)
+        accel_y += self._jitter(0.08)
+        gps_altitude = max(0.0, self.gps_altitude + self._jitter(0.20))
+        latitude = self.latitude + self._jitter(0.0000010)
+        longitude = self.longitude + self._jitter(0.0000010)
         current_time = time.strftime("%H:%M:%S", time.gmtime())
         mission_time_utc = time.strftime("%H:%M:%S", time.gmtime(self.mission_time))
         cam_status = self._camera_status_bits()
 
         telemetry = (
             f"{self._team_id},{mission_time_utc},{self.packet_count},{self.mode},{self.state},"
-            f"{self.altitude:.1f},{self.temperature:.1f},{self.pressure:.2f},"
-            f"{self.voltage:.1f},{self.current:.0f},"
+            f"{altitude:.1f},{temperature:.1f},{pressure:.2f},"
+            f"{voltage:.1f},{current:.0f},"
             f"{gyro_r:.1f},{gyro_p:.1f},{gyro_y:.1f},"
             f"{accel_r:.1f},{accel_p:.1f},{accel_y:.1f},"
-            f"{current_time},{self.gps_altitude:.1f},{self.latitude:.7f},{self.longitude:.7f},"
+            f"{current_time},{gps_altitude:.1f},{latitude:.7f},{longitude:.7f},"
             f"{self.gps_sats},{self.cmd_echo},{cam_status}"
         )
 
@@ -478,3 +494,6 @@ class PayloadSim(QObject):
     @staticmethod
     def _clamp(value, low, high):
         return max(low, min(high, value))
+
+    def _jitter(self, amplitude):
+        return self._rng.uniform(-amplitude, amplitude)
