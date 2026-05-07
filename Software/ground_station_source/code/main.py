@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import QMainWindow
 from serial.serial import SerialManager
 from gui.command_gui import CommandWindow
 from gui.graph_gui import GraphWindow
+from gui.payload_visualization import PayloadVisualizationWindow
 from data.process import DataProcessor
 from data.simp import SimpManager
 import gui.cosmetics
@@ -19,8 +20,9 @@ parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-g', action='store_true')
 group.add_argument('-c', action='store_true')
-group.add_argument('-psim', action='store_true')
-group.add_argument('-debug', action='store_true')
+parser.add_argument('-psim', action='store_true')
+parser.add_argument('-debug', action='store_true')
+parser.add_argument('-vis', '--vis', action='store_true')
 
 def center_window(window: QMainWindow):
 
@@ -41,6 +43,7 @@ if __name__ == "__main__":
 
     serial = SerialManager()
     graphing = GraphWindow()
+    visualization = PayloadVisualizationWindow() if args.vis else None
     simp = SimpManager(serial)
     processor = DataProcessor(graphing, simp)
     command = CommandWindow(serial, graphing, processor, simp)
@@ -48,11 +51,15 @@ if __name__ == "__main__":
     app.lastWindowClosed.connect(app.quit)
 
     serial.recv_data_signal.connect(processor.process_data)
+    if visualization is not None:
+        processor.telemetry_data_signal.connect(visualization.update_telemetry)
 
     gui.cosmetics.set_app_style(app)
 
     center_window(graphing)
     center_window(command)
+    if visualization is not None:
+        center_window(visualization)
 
     if(args.g):
         graphing.show()
@@ -61,6 +68,9 @@ if __name__ == "__main__":
     else:
         graphing.show()
         command.show()
+
+    if visualization is not None:
+        visualization.show()
 
     if(args.psim):
         # Wait 500ms for GUI to load, then start the debug sequence

@@ -24,12 +24,12 @@ class TelemetryData:
     PRESSURE: float
     VOLTAGE: float
     CURRENT: float
-    GYRO_R: int
-    GYRO_P: int
-    GYRO_Y: int
-    ACCEL_R: int
-    ACCEL_P: int
-    ACCEL_Y: int
+    GYRO_R: float
+    GYRO_P: float
+    GYRO_Y: float
+    ACCEL_R: float
+    ACCEL_P: float
+    ACCEL_Y: float
     GPS_TIME: str
     GPS_ALTITUDE: float
     GPS_LATITUDE: float
@@ -46,6 +46,7 @@ class DataProcessor(QObject):
     file_error_signal = pyqtSignal(str)
     sat_error_signal = pyqtSignal(str)
     sat_resp_signal = pyqtSignal(str)
+    telemetry_data_signal = pyqtSignal(object)
 
     def __init__(self, graph_ui: GraphWindow, simp: SimpManager, parent=None):
 
@@ -179,6 +180,7 @@ class DataProcessor(QObject):
             return  # message is empty or only whitespace/commas
         
         data = self.extract_data_str(msg)
+        self.telemetry_data_signal.emit(data)
 
         # Update graphs and live data values
         if data.ALTITUDE is not None:
@@ -192,6 +194,9 @@ class DataProcessor(QObject):
         
         if data.VOLTAGE is not None:
             self._graph_ui.update_volt_graph(data.VOLTAGE)
+
+        if data.CURRENT is not None:
+            self._graph_ui.update_current_graph(data.CURRENT)
 
         if data.GYRO_R is not None and data.GYRO_P is not None and data.GYRO_Y is not None:
             new_gyro_data = [data.GYRO_R, data.GYRO_P, data.GYRO_Y]
@@ -253,30 +258,54 @@ class DataProcessor(QObject):
         fields = msg.split(',')
 
         telemetry_data = TelemetryData(
-            TEAM_ID      = int(fields[0]) if fields else None,
-            MISSION_TIME = fields[1] if 1 < len(fields) else None,
-            PACKET_COUNT = fields[2] if 2 < len(fields) else None,
-            MODE         = fields[3] if 3 < len(fields) else None,
-            STATE        = fields[4] if 4 < len(fields) else None,
-            ALTITUDE     = float(fields[5]) if 5 < len(fields) else None,
-            TEMPERATURE  = float(fields[6]) if 6 < len(fields) else None,
-            PRESSURE     = float(fields[7]) if 7 < len(fields) else None,
-            VOLTAGE      = float(fields[8]) if 8 < len(fields) else None,
-            CURRENT      = float(fields[9]) if 9 < len(fields) else None,
-            GYRO_R       = int(fields[10]) if 10 < len(fields) else None,
-            GYRO_P       = int(fields[11]) if 11 < len(fields) else None,
-            GYRO_Y       = int(fields[12]) if 12 < len(fields) else None,
-            ACCEL_R      = int(fields[13]) if 13 < len(fields) else None,
-            ACCEL_P      = int(fields[14]) if 14 < len(fields) else None,
-            ACCEL_Y      = int(fields[15]) if 15 < len(fields) else None,
-            GPS_TIME     = fields[16] if 16 < len(fields) else None,
-            GPS_ALTITUDE = float(fields[17]) if 17 < len(fields) else None,
-            GPS_LATITUDE = float(fields[18]) if 18 < len(fields) else None,
-            GPS_LONGITUDE= float(fields[19]) if 19 < len(fields) else None,
-            GPS_SATS     = fields[20] if 20 < len(fields) else None,
-            CMD_ECHO     = fields[21] if 21 < len(fields) else None,
-            CAM_STATUS   = fields[22] if 22 < len(fields) else None,
+            TEAM_ID      = self._parse_int(self._field(fields, 0)),
+            MISSION_TIME = self._field(fields, 1),
+            PACKET_COUNT = self._field(fields, 2),
+            MODE         = self._field(fields, 3),
+            STATE        = self._field(fields, 4),
+            ALTITUDE     = self._parse_float(self._field(fields, 5)),
+            TEMPERATURE  = self._parse_float(self._field(fields, 6)),
+            PRESSURE     = self._parse_float(self._field(fields, 7)),
+            VOLTAGE      = self._parse_float(self._field(fields, 8)),
+            CURRENT      = self._parse_float(self._field(fields, 9)),
+            GYRO_R       = self._parse_float(self._field(fields, 10)),
+            GYRO_P       = self._parse_float(self._field(fields, 11)),
+            GYRO_Y       = self._parse_float(self._field(fields, 12)),
+            ACCEL_R      = self._parse_float(self._field(fields, 13)),
+            ACCEL_P      = self._parse_float(self._field(fields, 14)),
+            ACCEL_Y      = self._parse_float(self._field(fields, 15)),
+            GPS_TIME     = self._field(fields, 16),
+            GPS_ALTITUDE = self._parse_float(self._field(fields, 17)),
+            GPS_LATITUDE = self._parse_float(self._field(fields, 18)),
+            GPS_LONGITUDE= self._parse_float(self._field(fields, 19)),
+            GPS_SATS     = self._field(fields, 20),
+            CMD_ECHO     = self._field(fields, 21),
+            CAM_STATUS   = self._parse_int(self._field(fields, 22)),
             PACKET_RECV  = self._graph_ui.get_packet_count()
         )
 
         return telemetry_data
+
+    def _field(self, fields: list[str], index: int):
+        if index >= len(fields):
+            return None
+        value = fields[index].strip()
+        if value == "":
+            return None
+        return value
+
+    def _parse_float(self, value):
+        if value is None:
+            return None
+        try:
+            return float(value)
+        except ValueError:
+            return None
+
+    def _parse_int(self, value):
+        if value is None:
+            return None
+        try:
+            return int(float(value))
+        except ValueError:
+            return None
