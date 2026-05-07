@@ -2,55 +2,107 @@
 Manage cosmetic settings for the GUI
 """
 
+from pathlib import Path
+import tomllib
+
 from PyQt6.QtGui import QFont, QColor, QPalette
 from PyQt6.QtWidgets import QApplication, QListWidgetItem
+
+_COLOR_CONFIG_PATH = Path(__file__).with_name("colors.toml")
+_DEFAULT_MODE = "day"
+_COLOR_CONFIG = None
+
+
+def _load_color_config():
+    global _COLOR_CONFIG
+
+    if _COLOR_CONFIG is None:
+        with _COLOR_CONFIG_PATH.open("rb") as config_file:
+            _COLOR_CONFIG = tomllib.load(config_file)
+    return _COLOR_CONFIG
+
+
+def _active_mode():
+    config = _load_color_config()
+    night_mode = config.get("night_mode", False)
+    high_contrast_mode = config.get("high_contrast_mode", False)
+
+    if night_mode and high_contrast_mode:
+        return "black_high_contrast"
+    if night_mode:
+        return "night"
+    if high_contrast_mode:
+        return "high_contrast"
+    return _DEFAULT_MODE
+
+
+def _theme_section(section):
+    config = _load_color_config()
+    return config["modes"][_active_mode()].get(section, {})
+
+
+def theme_color(section, key, default):
+    return _theme_section(section).get(key, default)
+
+
+def theme_rgb(section, key, default):
+    value = theme_color(section, key, default)
+    return tuple(value)
+
+
+def theme_qcolor(section, key, default):
+    value = theme_color(section, key, default)
+    if isinstance(value, list):
+        return QColor(*value)
+    return QColor(value)
+
 
 def set_app_style(app: QApplication):
     app.setStyle('Fusion')
     app.setPalette(customPalette())
 
 def gui_log_normal_color():
-    return "black"
+    return theme_color("logs", "gui_normal", "black")
 
 def gui_log_error_color():
-    return "red"
+    return theme_color("logs", "gui_error", "red")
 
 def sat_log_normal_color():
-    return "black"
+    return theme_color("logs", "sat_normal", "black")
 
 def sat_log_error_color():
-    return "red"
+    return theme_color("logs", "sat_error", "red")
 
 def data_status_init_color(text):
-    return f'<span style="color:GREY;">{text}'
+    return f'<span style="color:{theme_color("status", "init", "GREY")};">{text}'
 
 def data_status_red(text):
-    return f'<span style="color:RED;">{text}' 
+    return f'<span style="color:{theme_color("status", "red", "RED")};">{text}' 
 
 def data_status_green(text):
-    return f'<span style="color:GREEN;">{text}'
+    return f'<span style="color:{theme_color("status", "green", "GREEN")};">{text}'
 
 def data_status_blue(text):
-    return f'<span style="color:BLUE;">{text}'
+    return f'<span style="color:{theme_color("status", "blue", "BLUE")};">{text}'
 
 def state_label_font():
     return QFont("Roboto Mono", 14)
 
 def set_previous_states(item: QListWidgetItem):
     item.setFont(QFont("Consolas", 14))
-    item.setForeground(QColor("green"))
+    item.setForeground(theme_qcolor("status", "previous_state", "green"))
 
 def set_current_states(item: QListWidgetItem):
     item.setFont(QFont("Consolas", 14))
-    item.setForeground(QColor("blue"))
+    item.setForeground(theme_qcolor("status", "current_state", "blue"))
 
 def set_skipped_states(item: QListWidgetItem):
     item.setFont(QFont("Consolas", 14))
-    item.setForeground(QColor("red"))
+    item.setForeground(theme_qcolor("status", "skipped_state", "red"))
 
 def set_next_states(item: QListWidgetItem):
     item.setFont(QFont("Consolas", 14))
-    item.setForeground(QColor("grey"))
+    item.setForeground(theme_qcolor("status", "next_state", "grey"))
 
 def graph_font():
     font = QFont("Roboto Mono")
@@ -84,6 +136,28 @@ def state_title_font():
     state_title_font.setWeight(QFont.Weight.DemiBold)
     return state_title_font
 
+def sidebar_group_box_stylesheet():
+    border = theme_color("palette", "Mid", "#a0a0a0")
+    background = theme_color("palette", "Window", "#f0f0f0")
+    text = theme_color("palette", "WindowText", "#000000")
+    return f"""
+            QGroupBox {{
+                border: 1px solid {border};
+                margin-top: 12px;
+                padding-top: 10px;
+            }}
+
+            QGroupBox::title {{
+                subcontrol-origin: margin;
+                subcontrol-position: top center;
+                padding: 0 8px;
+                background-color: {background};
+                color: {text};
+                font-size: 14pt;
+                font-weight: 600;
+            }}
+        """
+
 def log_font():
     log_font = QFont()
     log_font.setPointSize(14)
@@ -97,13 +171,15 @@ def graph_font():
     return graph_font
 
 def graph_background():
-    return 'w'
+    return theme_color("graph", "background", "w")
 
 def graph_title(text):
-    return f'<span style="font-family: Monospace; font-size:14pt; font-weight:bold;">{text}</span>'
+    color = theme_color("graph", "axis_text", "black")
+    return f'<span style="color:{color}; font-family: Monospace; font-size:14pt; font-weight:bold;">{text}</span>'
 
 def graph_axis(text):
-    return f'<span style="font-family: Consolas; font-size:14pt; font-weight:bold;">{text}</span>'
+    color = theme_color("graph", "axis_text", "black")
+    return f'<span style="color:{color}; font-family: Consolas; font-size:14pt; font-weight:bold;">{text}</span>'
 
 def sidebar_data_font():
     live_graph_data_font = QFont("Consolas")
@@ -116,96 +192,86 @@ def sidebar_field_font():
     return live_graph_field_font
 
 def graph_pen_color(line_num):
-    match line_num:
-        case 0:
-            return (255, 0, 0)
-        case 1:
-            return (0, 255, 0)
-        case 2:
-            return (0, 0, 255)
-        case _:
-            return (144,144,144)
+    pen_colors = _theme_section("graph").get(
+        "pen_colors",
+        [(255, 0, 0), (0, 255, 0), (0, 0, 255), (144, 144, 144)],
+    )
+    index = line_num if line_num < len(pen_colors) else len(pen_colors) - 1
+    return tuple(pen_colors[index])
 
 def graph_pen_size():
     return 3
 
 def set_label_default(text):
-    return f'<span style="color:black;">{text} \
-             </span><span style="color:GREY;">N/A</span>'
+    label_color = theme_color("status", "label_text", "black")
+    init_color = theme_color("status", "init", "GREY")
+    return f'<span style="color:{label_color};">{text} \
+             </span><span style="color:{init_color};">N/A</span>'
+
+def transparent_list_stylesheet():
+    color = theme_color("status", "label_text", "black")
+    return f"background-color: transparent; color:{color}; font-size: 10px; font-family: Roboto Mono;"
+
+def current_state_stylesheet():
+    color = theme_color("status", "current_state", "blue")
+    return f"color: {color}; padding: 5px;"
 
 def servo_val_stylesheet():
-    return """
-            QLineEdit {
-                background-color: #f0f0f0;
-                border: 1px solid #cccccc;
+    return f"""
+            QLineEdit {{
+                background-color: {theme_color("inputs", "background", "#f0f0f0")};
+                border: 1px solid {theme_color("inputs", "border", "#cccccc")};
                 border-radius: 10px;
                 padding: 4px;
                 font-size: 14px;
-            }
+            }}
             
-            QLineEdit:focus {
-                border: 1px solid #0078d4;
-                background-color: #ffffff;
-            }
+            QLineEdit:focus {{
+                border: 1px solid {theme_color("inputs", "focus_border", "#0078d4")};
+                background-color: {theme_color("inputs", "focus_background", "#ffffff")};
+            }}
         """
 
 def team_id_stylesheet():
-    return """
-            QLineEdit {
-                background-color: #f0f0f0;
-                border: 1px solid #cccccc;
+    return f"""
+            QLineEdit {{
+                background-color: {theme_color("inputs", "background", "#f0f0f0")};
+                border: 1px solid {theme_color("inputs", "border", "#cccccc")};
                 border-radius: 10px;
                 padding: 4px;
                 font-size: 14px;
-            }
+            }}
             
-            QLineEdit:focus {
-                border: 1px solid #0078d4;
-                background-color: #ffffff;
-            }
+            QLineEdit:focus {{
+                border: 1px solid {theme_color("inputs", "focus_border", "#0078d4")};
+                background-color: {theme_color("inputs", "focus_background", "#ffffff")};
+            }}
         """
 
 def log_overlay_stylesheet():
-    return """
-            background-color: rgba(0, 0, 0, 215);
-            color: white;
+    return f"""
+            background-color: {theme_color("logs", "overlay_background", "rgba(0, 0, 0, 215)")};
+            color: {theme_color("logs", "overlay_text", "white")};
             font-size: 18px;
         """
 
 def log_stylesheet():
-    return """
-            QTableWidget {
+    return f"""
+            QTableWidget {{
                 font-size: 18px;
-                background-color: #dcdcdc;
+                background-color: {theme_color("logs", "background", "#dcdcdc")};
                 border-radius: 6px;
                 padding: 3px;
-            }
+            }}
         """
 
 def customPalette():
 
     palette = QPalette()
 
-    palette.setColor(QPalette.ColorRole.WindowText, QColor("#000000"))
-    palette.setColor(QPalette.ColorRole.Button, QColor("#f0f0f0"))
-    palette.setColor(QPalette.ColorRole.Light, QColor("#ffffff"))
-    palette.setColor(QPalette.ColorRole.Midlight, QColor("#e3e3e3"))
-    palette.setColor(QPalette.ColorRole.Dark, QColor("#a0a0a0"))
-    palette.setColor(QPalette.ColorRole.Mid, QColor("#a0a0a0"))
-    palette.setColor(QPalette.ColorRole.Text, QColor("#000000"))
-    palette.setColor(QPalette.ColorRole.BrightText, QColor("#ffffff"))
-    palette.setColor(QPalette.ColorRole.ButtonText, QColor("#000000"))
-    palette.setColor(QPalette.ColorRole.Base, QColor("#ffffff"))
-    palette.setColor(QPalette.ColorRole.Window, QColor("#f0f0f0"))
-    palette.setColor(QPalette.ColorRole.Shadow, QColor("#696969"))
-    palette.setColor(QPalette.ColorRole.Highlight, QColor("#0078d7"))
-    palette.setColor(QPalette.ColorRole.HighlightedText, QColor("#ffffff"))
-    palette.setColor(QPalette.ColorRole.Link, QColor("#006770"))
-    palette.setColor(QPalette.ColorRole.LinkVisited, QColor("#00343b"))
-    palette.setColor(QPalette.ColorRole.AlternateBase, QColor("#e9e7e3"))
-    palette.setColor(QPalette.ColorRole.ToolTipBase, QColor("#ffffdc"))
-    palette.setColor(QPalette.ColorRole.ToolTipText, QColor("#000000"))
-    palette.setColor(QPalette.ColorRole.PlaceholderText, QColor("#000000"))
-    palette.setColor(QPalette.ColorRole.Accent, QColor("#009faa"))
+    for role_name, color in _theme_section("palette").items():
+        role = getattr(QPalette.ColorRole, role_name, None)
+        if role is not None:
+            palette.setColor(role, QColor(color))
 
     return palette
