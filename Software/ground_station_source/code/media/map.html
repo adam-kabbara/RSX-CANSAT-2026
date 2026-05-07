@@ -41,6 +41,12 @@
         var marker;
         var startMarker;
         var firstPoint = true;
+        var payloadIcon = L.icon({
+            iconUrl: 'icon.ico',
+            iconSize: [18, 18],
+            iconAnchor: [9, 9],
+            popupAnchor: [0, -9]
+        });
 
         window.onload = function() {
             console.log("Map page loaded, initializing default view...");
@@ -68,7 +74,6 @@
             // }).addTo(map);
 
             trace.addTo(map);
-            L.Icon.Default.imagePath = 'images/';
             console.log("Map initialized.");
         }
 
@@ -88,7 +93,7 @@
             }
 
             if (!marker) {
-                marker = L.marker(newPoint).addTo(map);
+                marker = L.marker(newPoint, {icon: payloadIcon}).addTo(map);
                 marker.bindTooltip(coordText, {
                     permanent: true, 
                     direction: 'bottom', 
