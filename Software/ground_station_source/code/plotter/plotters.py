@@ -19,9 +19,6 @@ class BaseDynamicPlotter:
         self.last_time = None
         self.base_line_color_idx = 0
 
-        # List of the added markers
-        self.markers = []
-
         font = gui.cosmetics.graph_font()
 
         self.plt = pg.PlotWidget()
@@ -33,7 +30,6 @@ class BaseDynamicPlotter:
         self.plt.getAxis('bottom').setLabel(gui.cosmetics.graph_axis(x_unit))
         self.plt.getAxis('left').setStyle(tickFont=font)
         self.plt.getAxis('left').setLabel(gui.cosmetics.graph_axis(y_unit))
-        # self.plt.setRange(xRange=[0, 20], yRange=[0, 100]) # TODO: Refine zoom-level
     
     def get_pen(self, index):
         return mkPen(color=gui.cosmetics.graph_pen_color(index), width=gui.cosmetics.graph_pen_size())
@@ -47,22 +43,17 @@ class BaseDynamicPlotter:
     def get_graph_object(self):
         return self.plt
 
-    def clear_markers(self):
-        for marker in self.markers:
-            self.plt.removeItem(marker)
-        self.markers.clear()
-
 # Plotting system for regular graphs with 1 line
 class DynamicPlotter(BaseDynamicPlotter):
 
-    def __init__(self, title, time_window, x_unit, y_unit):
-        super().__init__(title, time_window, x_unit, y_unit)
-        self.data_buffer = deque([0.0] * time_window, maxlen=time_window)
-        self.x = np.linspace(0, 0, time_window)
-        self.y = np.zeros(self.data_buffer.maxlen, dtype=float)
+    def __init__(self, title, timewindow, x_unit, y_unit):
+        super().__init__(title, timewindow, x_unit, y_unit)
+        self.databuffer = deque([0.0] * timewindow, maxlen=timewindow)
+        self.x = np.linspace(-timewindow, 0, timewindow)
+        self.y = np.zeros(self.databuffer.maxlen, dtype=float)
         self.curve = self.plt.plot(self.x, self.y, pen=self.get_pen(0))
         #self.plt.getViewBox().setLimits(xMin=-5, xMax=5000, minXRange=5, yMin=-10000, yMax=10000, minYRange=2)
-        self.plt.setXRange(0, 50)
+        self.plt.setXRange(-20, 0)
     def update_plot(self, new_val):
 
         current_time = time.time()
@@ -71,53 +62,21 @@ class DynamicPlotter(BaseDynamicPlotter):
             
         self.last_time = current_time
 
-        self.data_buffer.append(new_val)
-        self.y[:] = self.data_buffer
+        self.databuffer.append(new_val)
+        self.y[:] = self.databuffer
 
         self.x = np.roll(self.x, -1)
         self.x[-1] = self.x[-2] + time_diff
 
         self.curve.setData(self.x, self.y)
-        self.plt.setXRange(max(0, self.x[-1] - 50), max(50, self.x[-1]))
-
-    def add_state_marker(self, state_name):
-        if len(self.x) == 0: return
-
-        latest_x = self.x[-1]
-        latest_y = self.y[-1]
-
-        # Create dashed vertical line
-        vline = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen(style=Qt.PenStyle.DashLine,
-                                                                      width=2,
-                                                                      color= '#0000FF',
-                                                                      cosmetic=True))
-        vline.setPos(latest_x)
-
-        # Create text label with state name and value
-        label = pg.TextItem(
-            html=f"""<div style="text-align: center;">
-                        <span style="color: yellow; font-weight: bold; font-size: 12px; font-family: 'Consolas';">{state_name}</span><br>
-                        <span style="color: white; font-size: 10px;">{latest_y:.2f}</span>
-                    </div>""",
-            anchor=(1, 1),
-            fill=pg.mkBrush(0, 0, 0, 180),   # Semi-transparent black background
-            border=pg.mkPen('y', width=1))
-
-        label.setPos(latest_x, latest_y)
-
-        # Add to plot and store in markers list
-        self.plt.addItem(vline)
-        self.plt.addItem(label)
-        self.markers.extend([vline, label])
-
-
+        self.plt.setXRange(self.x[-1] - 50, self.x[-1])
+    
     def reset_plot(self):
-        self.data_buffer = deque([0.0] * self.timewindow, maxlen=self.timewindow)
-        self.x = np.linspace(0, 0, self.timewindow)
+        self.databuffer = deque([0.0] * self.timewindow, maxlen=self.timewindow)
+        self.x = np.linspace(-self.timewindow, 0, self.timewindow)
         self.y[:] = 0
         self.curve.setData(self.x, self.y)
         self.last_time = None
-        self.clear_markers()
 
 # Plotting system for graphs with multiple lines
 class DynamicPlotterMultiLine(BaseDynamicPlotter):
@@ -125,9 +84,9 @@ class DynamicPlotterMultiLine(BaseDynamicPlotter):
         super().__init__(title, timewindow, x_unit, y_unit)
         self.num_lines = num_lines
         self.databuffer = [deque([0.0] * timewindow, maxlen=timewindow) for _ in range(num_lines)]
-        self.x = np.linspace(0, 0, timewindow)
+        self.x = np.linspace(-timewindow, 0, timewindow)
         self.y = np.zeros(shape=(self.num_lines, timewindow), dtype=float)
-        self.plt.getViewBox().setLimits(xMin=0, xMax=5000, minXRange=5, yMin=-10000, yMax=10000, minYRange=2)
+        self.plt.getViewBox().setLimits(xMin=-5, xMax=5000, minXRange=5, yMin=-10000, yMax=10000, minYRange=2)
         self.curve = [
             self.plt.plot(self.x, self.y[i], pen=self.get_pen(self.base_line_color_idx + i))
             for i in range(self.num_lines)
@@ -170,7 +129,7 @@ class DynamicPlotterMultiLine(BaseDynamicPlotter):
     
     def reset_plot(self):
         self.databuffer = [deque([0.0] * self.timewindow, maxlen=self.timewindow) for _ in range(self.num_lines)]
-        self.x = np.linspace(0, 0, self.timewindow)
+        self.x = np.linspace(-self.timewindow, 0, self.timewindow)
         self.y[:] = 0
         for i in range(self.num_lines):
             self.curve[i].setData(self.x, self.y[i])

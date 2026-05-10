@@ -6,8 +6,8 @@
   ******************************************************************************
   */
 
-#ifndef INC_COMMAND_MANAGER_HPP
-#define INC_COMMAND_MANAGER_HPP
+#ifndef INC_COMMAND_MANAGER_HPP_
+#define INC_COMMAND_MANAGER_HPP_
 
 #include "global_includes.hpp"
 #include "serial_manager.hpp"
@@ -37,4 +37,4 @@ public:
 };
 
 
-#endif /* INC_COMMAND_MANAGER_HPP */
+#endif /* INC_COMMAND_MANAGER_HPP_ */

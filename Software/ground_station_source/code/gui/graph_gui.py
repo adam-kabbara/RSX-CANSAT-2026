@@ -1,12 +1,13 @@
 """
 Front end GUI elements for graph window
 """
+import folium
 from plotter.plotters import DynamicPlotter, DynamicPlotterMultiLine
 from . import cosmetics
-from .gps_map import GPSMapWidget
 import os
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QUrl
 from PyQt6.QtGui import QIcon
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -47,7 +48,13 @@ class GraphWindow(QMainWindow):
         tray.setVisible(True)
         tray.show()
 
-        self.map_widget = GPSMapWidget()
+        self.gps_map = folium.Map(
+            location=(43.664781, -79.398232),
+            control_scale=True,
+            zoom_start=18
+        )
+        self.gps_map_webview = self.gps_map.get_root().render()
+        self.map_widget = QWebEngineView()
 
         # CENTRAL WIDGET
         self.central_widget = QWidget(self)
@@ -90,7 +97,7 @@ class GraphWindow(QMainWindow):
 
             if entry["lines"] == 1:
                 plotter = DynamicPlotter(title=entry["title"],
-                                         time_window=self._graph_time_window,
+                                         timewindow=self._graph_time_window,
                                          x_unit=entry["x_unit"],
                                          y_unit=entry["y_unit"])
             elif entry["lines"] != 1:
@@ -104,6 +111,7 @@ class GraphWindow(QMainWindow):
                 graph_grid_layout.addWidget(plotter.get_graph_object(), i // 2, i % 2)
 
             if entry["title"] == "GPS Map":
+                self.map_widget.setHtml(self.gps_map_webview)
                 graph_grid_layout.addWidget(self.map_widget, i // 2, i % 2)
 
         graph_parent_group.addWidget(grid_container, stretch=75)
@@ -261,7 +269,6 @@ class GraphWindow(QMainWindow):
         self._initiate_data_fields()
         for plotter in self.plotters:
             plotter.reset_plot()
-        self.map_widget.reset()
 
     def _initiate_data_fields(self):
         for name, val in self.sidebar_fields_data:
@@ -283,11 +290,10 @@ class GraphWindow(QMainWindow):
 
     def update_temp(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Temperature")].setText(
-            cosmetics.data_status_blue(str(val)) + " °C")
+            cosmetics.data_status_blue(str(val)))
 
     def update_pressure(self, val):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(
-            cosmetics.data_status_blue(str(val)) + " kPa")
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(cosmetics.data_status_blue(str(val)))
 
     # State updates
     def update_state(self, state_str):
@@ -331,9 +337,6 @@ class GraphWindow(QMainWindow):
 
                     self.next_list.scrollToTop()
 
-                    # Add markers to altitude graph plots TODO: Reformat markers
-                    # self.plotters[self.graph_title_to_index.get("Altitude")].add_state_marker(state_str)
-
                 self._current_state = state_str
                 self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
 
@@ -368,7 +371,7 @@ class GraphWindow(QMainWindow):
 
     def update_gps_alt(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Altitude")].setText(
-            cosmetics.data_status_blue(str(val)) + " m")
+            cosmetics.data_status_blue(str(val)))
 
     def update_gps_time(self, str):
         self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Time")].setText(cosmetics.data_status_blue(str))
@@ -377,8 +380,6 @@ class GraphWindow(QMainWindow):
         self.sidebar_data_labels[self.sidebar_data_dict.get("CMD ECHO")].setText(cosmetics.data_status_blue(str))
 
     def update_alt_graph(self, data):
-        if self._current_state == "LANDED":
-            return
         self.plotters[self.graph_title_to_index.get("Altitude")].update_plot(data)
 
     def update_volt_graph(self, data):
@@ -393,11 +394,20 @@ class GraphWindow(QMainWindow):
     def update_accel_graph(self, data):
         self.plotters[self.graph_title_to_index.get("Accel")].update_plot(data)
 
-    def update_gps_map(self, lat, lon):
-        if self._current_state == "LANDED":
-            return
-        else:
-            self.map_widget.add_point(lat, lon)
+    def update_map_view(self):
+        """Re-renders the folium map and updates the webview."""
+        if hasattr(self, 'map_widget'):
+            new_html = self.gps_map._repr_html_()
+            self.map_widget.setHtml(new_html)
+
+    def add_map_element(self, element, refresh=True):
+        """
+        Allows other functions to add folium elements (Markers, PolyLines, etc.)
+        Example: window.add_map_element(folium.Marker([lat, lon]))
+        """
+        element.add_to(self.gps_map)
+        if refresh:
+            self.update_map_view()
 
     def closeEvent(self, event):
         app = QApplication.instance()

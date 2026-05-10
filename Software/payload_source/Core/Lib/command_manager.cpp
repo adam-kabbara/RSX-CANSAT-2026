@@ -113,7 +113,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
 
     if(strcmp(data, "ON") == 0)
     {
-        if(info.getOpState() == IDLE && (info.isAltCalibrated() == true || info.getOpMode() == OPMODE_SIM))
+        if(info.getOpState() == IDLE && (info.isAltCalibrated() == 1 || info.getOpMode() == OPMODE_SIM))
         {
             info.clearPacketCount();
             ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");
@@ -195,7 +195,7 @@ void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, Se
 
 void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
-  ser.sendInfoMsg("Attempting to restart processor!");
+  ser.sendInfoMsg("Attempting to restart processor! NOT TESTED!!!");
   HAL_NVIC_SystemReset();
 } // END: do_restart
 
@@ -323,13 +323,6 @@ void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorMan
 
 void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
-  int ret = sensors.updateBMP();
-  if(ret != 0)
-  {
-	  ser.sendErrorDataMsg("BMP ERROR %d", ret);
-	  return;
-  }
-  ser.sendInfoDataMsg("Getting pressure value: %f", sensors.getPressure());
   info.setAltCalibration(pressure_to_alt(sensors.getPressure()));
   sensors.EEPROM_updateAltitude(info.getLaunchAlt());
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
@@ -374,76 +367,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
     strcpy(val, token);
   }
 
-  if(strcmp(mec, "PAYLOAD") == 0)
-  {
-	  sensors.writeEggServo(0);
-	  ser.sendInfoMsg("I don't have a value to write yet!");
-  }
-  else if(strcmp(mec, "PROBE") == 0)
-  {
-	  sensors.writeContainerServo(0);
-	  ser.sendInfoMsg("I don't have a value to write yet!");
-  }
-  else if(strcmp(mec, "SERVO") == 0)
-  {
-	  const char *sep = strchr(val, '|');
-	  if(sep != NULL)
-	  {
-		  char left[8], right[8];
-		  size_t len_left = sep - val;
-
-		  strncpy(left, val, len_left);
-		  left[len_left] = '\0';
-
-		  strcpy(right, sep + 1);
-
-		  int servo_num = atoi(left);
-		  float servo_val = atoi(right);
-
-		  switch(servo_num)
-		  {
-		  	  case 0:
-		  		  sensors.writeNoseconeServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to nosecone servo.", servo_val);
-		  		  break;
-		  	  case 1:
-		  		  sensors.writeContainerServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to container servo.", servo_val);
-		  		  break;
-		  	  case 2:
-		  		  sensors.writeWingDirServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to wing direction servo.", servo_val);
-		  		  break;
-		  	  case 3:
-		  		  sensors.writeWingPWMServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to wing PWM servo.", servo_val);
-		  		  break;
-		  	  case 4:
-		  		  sensors.writeElevatorServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to elevator servo.", servo_val);
-		  		  break;
-		  	  case 5:
-		  		  sensors.writeAileronServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to aileron servo.", servo_val);
-		  		  break;
-		  	  case 6:
-		  		  sensors.writeEggServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to egg servo.", servo_val);
-		  		  break;
-		  	  default:
-		  		  ser.sendErrorMsg("ERROR: SERVO ID DOES NOT MATCH 0-6");
-		  		  break;
-		  }
-	  }
-	  else
-	  {
-		  ser.sendErrorMsg("ERROR: SERVO COMMAND FORMAT INCORRECT, DID NOT RECEIVE '#|VAL'");
-	  }
-  }
-  else
-  {
-	  ser.sendErrorDataMsg("ERROR: UNRECOGNIZED MEC COMMAND: %s", mec);
-  }
+  ser.sendErrorDataMsg("ERROR: UNRECOGNIZED MEC COMMAND: %s", mec);
 }
 
 void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)

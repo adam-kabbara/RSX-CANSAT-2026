@@ -6,8 +6,8 @@
   ******************************************************************************
   */
 
-#ifndef INC_MISSION_MANAGER_HPP
-#define INC_MISSION_MANAGER_HPP
+#ifndef INC_MISSION_MANAGER_HPP_
+#define INC_MISSION_MANAGER_HPP_
 
 #include "global_includes.hpp"
 
@@ -23,7 +23,7 @@ private:
     float launch_altitude = 0.0;
     int SIMP_DATA = 0;
     bool waiting_for_simp = false;
-    char last_command[CMD_BUFF_SIZE];
+    char* last_command;
     bool logfile_chk = true;
 
 public:
@@ -77,4 +77,4 @@ public:
     void enableLogfile();
 };
 
-#endif /* INC_MISSION_MANAGER_HPP */
+#endif /* INC_MISSION_MANAGER_HPP_ */

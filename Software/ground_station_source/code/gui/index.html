@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live GPS Location</title>
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function showPosition(position) {
+            // Send latitude and longitude to the server
+            document.getElementById('latitude').value = position.coords.latitude;
+            document.getElementById('longitude').value = position.coords.longitude;
+            document.getElementById('locationForm').submit();
+        }
+    </script>
+</head>
+    <body>
+        <div id="controls" style="max-width:900px;margin:8px auto;display:flex;gap:12px;justify-content:center;align-items:center;">
+            <button id="startBtn">Start demo</button>
+            <button id="mapLiveBtn">Map Live Coords</button> 
+            <button id="stopBtn" disabled>Stop</button>
+            <label style="display:flex;align-items:center;gap:8px;">Speed (ms): <input id="intervalInput" type="number" value="1000" style="width:90px;"></label>
+            <button id="fetchBtn">Refresh coords</button>
+        </div>
+
+
+
+        <div id="map" style="height:600px;max-width:900px;margin:0 auto;border:1px solid #ccc;"></div>
+
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+        <script>
+            let map = L.map('map').setView([37.7749, -122.4194], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            let demoCoords = [];
+            let idx = 0;
+            let timer = null;
+            let marker = null;
+            let polyline = L.polyline([], {color: 'red'}).addTo(map);
+
+            async function fetchCoords() {
+                try {
+                    const res = await fetch('/coords');
+                    demoCoords = await res.json();
+                    demoCoords = demoCoords.map(c => [c.lat, c.lon]);
+                    idx = 0;
+                    polyline.setLatLngs([]);
+                    if (marker) { map.removeLayer(marker); marker = null; }
+                    if (demoCoords.length) map.setView(demoCoords[0], 16);
+                } catch (err) {
+                    console.error(err);
+                    alert('Failed to fetch coordinates from /coords');
+                }
+            }
+
+            function renderStep() {
+                if (!demoCoords || !demoCoords.length) return;
+                if (idx >= demoCoords.length) {
+                    stopDemo();
+                    return;
+                }
+                const [lat, lon] = demoCoords[idx];
+                if (!marker) {
+                    marker = L.circleMarker([lat, lon], {radius:6, color:'blue'}).addTo(map);
+                } else {
+                    marker.setLatLng([lat, lon]);
+                }
+                polyline.addLatLng([lat, lon]);
+                idx += 1;
+            }
+
+            function startDemo() {
+                const ms = parseInt(document.getElementById('intervalInput').value, 10) || 1000;
+                if (!demoCoords || demoCoords.length === 0) {
+                    alert('No coordinates loaded — fetching first');
+                    fetchCoords().then(() => {
+                        timer = setInterval(renderStep, ms);
+                        document.getElementById('startBtn').disabled = true;
+                        document.getElementById('stopBtn').disabled = false;
+                    });
+                    return;
+                }
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                timer = setInterval(renderStep, ms);
+            }
+
+            function stopDemo() {
+                if (timer) clearInterval(timer);
+                timer = null;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+            }
+
+            document.getElementById('startBtn').addEventListener('click', startDemo);
+            document.getElementById('stopBtn').addEventListener('click', stopDemo);
+            document.getElementById('fetchBtn').addEventListener('click', fetchCoords);
+
+            // auto-load coords on page open
+            fetchCoords().catch(err => console.error(err));
+        </script>
+
+    </body>
+</html>
+</html>

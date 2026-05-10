@@ -104,8 +104,6 @@ class SerialManager(QObject):
 
     # Handle serial connection error
     def handle_serial_error(self, error):
-        if error == QSerialPort.SerialPortError.NoError:
-            return
         self.fatal_catch.emit(f"FATAL SERIAL ERROR: {error}")
         if self._active_serial.isOpen():
             self._active_serial.close()

@@ -27,10 +27,6 @@ class PayloadSim(QObject):
         self.calibrated = False
         self.cmd_echo = "NONE"
 
-        # Coordinate Telemetry
-        self.latitude = 38.3760167
-        self.longitude = -79.6078722
-
         # Track cameras individually
         self.cam1_active = False
         self.cam2_active = False
@@ -53,7 +49,7 @@ class PayloadSim(QObject):
         }
     def open(self, mode):
         self._is_open = True
-        self.timer.start(1000)  # 1Hz
+        self.timer.start(500)  # 2Hz
         return True
 
     def close(self):
@@ -213,11 +209,6 @@ class PayloadSim(QObject):
 
         self.mission_time = time.time() - self.launch_time
         self.mission_time_utc = time.strftime("%H:%M:%S", time.gmtime(self.mission_time))
-
-        # latitude, longitude increments
-        self.latitude -= (38.3760167 - 38.3720333) * (1 / 100) if self.state != "LANDED" else 0
-        self.longitude -= (79.6161889 - 79.6078722) * (1 / 100) if self.state != "LANDED" else 0
-
         # Format: TEAM_ID,TIME,PKT,MODE,STATE,ALT,TEMP,PRESS,VOLT,CURR,GYRO,ACCEL,GPS...
         # cam_int Removed
         telemetry = (
@@ -225,7 +216,7 @@ class PayloadSim(QObject):
             f"{self.altitude:.1f},{self.temperature:.1f},{self.pressure:.2f},12.5,0.5,"
             f"1,2,3,4,5,1,"
             f"{current_time}," # GPS Time
-            f"{self.altitude:.1f},{self.latitude},{self.longitude},8," # GPS_ALTITUDE, GPS_LATITUDE, GPS_LONGITUDE, GPS_SATS
+            f"{self.altitude:.1f},{43.664781+(43.662994-43.664781)/(self.packet_count/45)}, {-79.398232-(79.398232-79.391861)/(self.packet_count/45)},8," # GPS_ALTITUDE, GPS_LATITUDE, GPS_LONGITUDE, GPS_SATS
             f"{self.cmd_echo}"
         )
 

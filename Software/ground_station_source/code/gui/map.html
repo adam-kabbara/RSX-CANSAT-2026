@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { width: 100%; height: 100vh; }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // 1. Initialize the Map
+        // We start at a neutral location (0,0) and zoom level 2
+        var map = L.map('map').setView([0, 0], 2);
+
+        // 2. Add a Tile Layer (OpenStreetMap)
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        // 3. Initialize Route Storage
+        var routeCoordinates = [];
+        var polyline = L.polyline(routeCoordinates, {color: 'blue', weight: 5}).addTo(map);
+        var currentMarker = null;
+
+        // --- EXPOSED FUNCTION FOR PYTHON ---
+        // This function will be called by PyQt6
+        function updateRoute(lat, lng) {
+            var newPoint = [lat, lng];
+
+            // Add point to the array
+            routeCoordinates.push(newPoint);
+
+            // Update the polyline on the map
+            polyline.setLatLngs(routeCoordinates);
+
+            // Update the "Current Location" marker
+            if (currentMarker) {
+                currentMarker.setLatLng(newPoint);
+            } else {
+                currentMarker = L.marker(newPoint).addTo(map);
+            }
+
+            // Center map on the new point
+            map.setView(newPoint, 15);
+        }
+    </script>
+</body>
+</html>

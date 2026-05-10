@@ -9,7 +9,3 @@ Release/
 *.launch
 
 *.csv
-
-output/
-
-tiles/

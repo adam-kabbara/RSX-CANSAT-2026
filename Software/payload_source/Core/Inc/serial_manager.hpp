@@ -5,8 +5,8 @@
  *      Author: avaniyadav
  */
 
-#ifndef INC_SERIAL_MANAGER_HPP
-#define INC_SERIAL_MANAGER_HPP
+#ifndef INC_SERIAL_MANAGER_HPP_
+#define INC_SERIAL_MANAGER_HPP_
 
 #include "global_includes.hpp"
 
@@ -47,4 +47,4 @@ public:
 };
 
 
-#endif /* INC_SERIAL_MANAGER_HPP */
+#endif /* INC_SERIAL_MANAGER_HPP_ */

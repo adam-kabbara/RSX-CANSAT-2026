@@ -3,7 +3,6 @@ Package runner
 ** Use python main.py -g to only show graphing window
 ** Use python main.py -c to only show command window
 """
-from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWidgets import QMainWindow
 from serial.serial import SerialManager
@@ -19,8 +18,6 @@ parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-g', action='store_true')
 group.add_argument('-c', action='store_true')
-group.add_argument('-psim', action='store_true')
-group.add_argument('-debug', action='store_true')
 
 def center_window(window: QMainWindow):
 
@@ -61,10 +58,6 @@ if __name__ == "__main__":
     else:
         graphing.show()
         command.show()
-
-    if(args.psim):
-        # Wait 500ms for GUI to load, then start the debug sequence
-        QTimer.singleShot(500, command.run_payload_sim)
 
     if processor.csv_check() is False:
         command.update_gui_log_error("ERROR: CSV WAS NOT ABLE TO OPEN! DETAILS:")
