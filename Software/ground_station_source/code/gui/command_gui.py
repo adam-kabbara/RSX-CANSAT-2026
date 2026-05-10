@@ -11,7 +11,7 @@ from data.process import DataProcessor
 from data.simp import SimpManager
 from command.commands import Commands
 from PyQt6.QtGui import QColor, QIcon, QIntValidator, QTextCursor
-from PyQt6.QtCore import Qt, QTime
+from PyQt6.QtCore import Qt, QTime, QTimer
 from PyQt6.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -215,10 +215,13 @@ class CommandWindow(QMainWindow):
 
         self.servo_id_field = QComboBox()
         self.servo_id_field.setPlaceholderText("SELECT SERVO")
-        self.servo_id_field.addItem("Servo 1", 0)
-        self.servo_id_field.addItem("Servo 2", 1)
-        self.servo_id_field.addItem("Servo 3", 2)
-        self.servo_id_field.addItem("Servo 4", 3)
+        self.servo_id_field.addItem("Nosecone Release", 0)
+        self.servo_id_field.addItem("Container Release", 1)
+        self.servo_id_field.addItem("Wing Direction", 2)
+        self.servo_id_field.addItem("Wing PWM", 3)
+        self.servo_id_field.addItem("Elevator", 4)
+        self.servo_id_field.addItem("Aileron", 5)
+        self.servo_id_field.addItem("Egg Release", 6)
         self.servo_id_field.setFont(button_font)
         self.servo_id_field.activated.connect(self.servo_id_edited)
 
@@ -265,10 +268,19 @@ class CommandWindow(QMainWindow):
         self.program_camera_button.hide()
         ### end program camera
 
-        self.probe_release_force = QPushButton("FORCE PROBE RELEASE")
+        force_release_box = QHBoxLayout()
+        self.probe_release_force = QPushButton("RELEASE PROBE")
         self.probe_release_force.setFont(button_font)
         self.probe_release_force.clicked.connect(self.command_manager.command__probe_release)
         self.probe_release_force.hide()
+
+        self.payload_release_force = QPushButton("RELEASE PAYLOAD")
+        self.payload_release_force.setFont(button_font)
+        self.payload_release_force.clicked.connect(self.command_manager.command__payload_release)
+        self.payload_release_force.hide()
+
+        force_release_box.addWidget(self.probe_release_force)
+        force_release_box.addWidget(self.payload_release_force)
 
         self.camera_status_button = QPushButton("GET CAMERA STATUS")
         self.camera_status_button.setFont(button_font)
@@ -313,7 +325,7 @@ class CommandWindow(QMainWindow):
         commands_layout.addWidget(self.button_sim_mode_activate)
         commands_layout.addWidget(self.button_sim_mode_disable)
         commands_layout.addWidget(self.button_get_log_data)
-        commands_layout.addWidget(self.probe_release_force)
+        commands_layout.addLayout(force_release_box)
         commands_layout.addLayout(team_id_editing_box)
         commands_layout.addWidget(self.button_back)
 
@@ -363,7 +375,8 @@ class CommandWindow(QMainWindow):
             self.program_camera_button,
             self.camera_id_field,
             self.camera_status_button,
-            self.probe_release_force
+            self.probe_release_force,
+            self.payload_release_force
         ]
 
         self.buttons_connection = [
@@ -623,6 +636,32 @@ class CommandWindow(QMainWindow):
             self.__last_msg = None
             self.__last_msg_sat = False
             self.__log_repeat_count = 0
+
+    def run_payload_sim(self):
+        self.refresh_ports(False)
+        
+        # Find SIM port index
+        sim_index = -1
+        for i in range(self.combo_select_port.count()):
+            if "SIM" in self.combo_select_port.itemText(i):
+                sim_index = i
+                break
+        
+        if sim_index != -1:
+            self.combo_select_port.setCurrentIndex(sim_index)
+            self.port_selected()
+            self.open_port()
+
+            QTimer.singleShot(500, self._debug_calibrate)
+        else:
+            self.update_gui_log_error("DEBUG: SIM port not found")
+
+    def _debug_calibrate(self):
+        self.command_manager.command__alt_cal()
+        QTimer.singleShot(500, self._debug_start_mission)
+
+    def _debug_start_mission(self):
+        self.start_transmission()
 
     def closeEvent(self, event):
         self._processor.close_csv()

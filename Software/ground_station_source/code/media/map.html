@@ -1,118 +1,131 @@
 <!DOCTYPE html>
 <html>
 <head>
-    
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
-    
-            <meta name="viewport" content="width=device-width,
-                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-            <style>
-                #map_0d2475fd1566b4753c19ae6bdcf89e78 {
-                    position: relative;
-                    width: 100.0%;
-                    height: 100.0%;
-                    left: 0.0%;
-                    top: 0.0%;
-                }
-                .leaflet-container { font-size: 1rem; }
-            </style>
-
-            <style>html, body {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            </style>
-
-            <style>#map {
-                position:absolute;
-                top:0;
-                bottom:0;
-                right:0;
-                left:0;
-                }
-            </style>
-
-            <script>
-                L_NO_TOUCH = false;
-                L_DISABLE_3D = false;
-            </script>
-
-        
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="leaflet.css" />
+    <script src="leaflet.js"></script>
+    <style>
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+        }
+        .leaflet-container {
+            background-color: #1a1a1a !important;
+        }
+        .coord-tooltip {
+            background: rgba(26, 26, 26, 0.8) !important;
+            border: 1px solid #00d4ff !important;
+            color: #00d4ff !important;
+            font-weight: bold;
+            font-family: 'Consolas', monospace;
+            font-size: 11px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+        .leaflet-tooltip-bottom:before {
+            border-bottom-color: #00d4ff !important;
+        }
+        .leaflet-tile-pane img.leaflet-error {
+            visibility: hidden;
+        }
+    </style>
 </head>
 <body>
-    
-    
-            <div class="folium-map" id="map_0d2475fd1566b4753c19ae6bdcf89e78" ></div>
-        
-</body>
-<script>
-    
-    
-            var map_0d2475fd1566b4753c19ae6bdcf89e78 = L.map(
-                "map_0d2475fd1566b4753c19ae6bdcf89e78",
-                {
-                    center: [34.6629, -75.3957],
-                    crs: L.CRS.EPSG3857,
-                    ...{
-  "zoom": 15,
-  "zoomControl": true,
-  "preferCanvas": true,
-}
+    <div id="map"></div>
+    <script>
+        var map;
+        var trace = L.polyline([], {color: '#00d4ff', weight: 3, opacity: 0.8});
+        var marker;
+        var startMarker;
+        var firstPoint = true;
 
-                }
-            );
+        window.onload = function() {
+            console.log("Map page loaded, initializing default view...");
+            initMap(38.3760167,-79.6078722, 16);
+        };
 
+        function initMap(lat, lon, zoom) {
+            if (map) return;
+            map = L.map('map', {
+                zoomControl: true,
+                attributionControl: false
+            }).setView([lat, lon], zoom);
+
+            // 1. Local tiles fallback (for offline use)
+            L.tileLayer('tiles/{z}/{x}/{y}.png', {
+                maxZoom: 19, // Todo: Will need better tile dataset :(
+                minZoom: 12,
+                tms: false
+            }).addTo(map);
+
+            // 2. OpenStreetMap online fallback
+            // L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            //     maxZoom: 19,
+            //     attribution: '&copy; OpenStreetMap contributors'
+            // }).addTo(map);
+
+            trace.addTo(map);
+            L.Icon.Default.imagePath = 'images/';
+            console.log("Map initialized.");
+        }
+
+        function addPoint(lat, lon) {
+            if (!map) {
+                initMap(lat, lon, 15);
+            }
             
+            var newPoint = [lat, lon];
+            trace.addLatLng(newPoint);
+            var coordText = lat.toFixed(6) + ", " + lon.toFixed(6);
 
-        
-    
-            var tile_layer_32d3e841789cbb85da58e683aa0f7c0e = L.tileLayer(
-                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                {
-  "minZoom": 0,
-  "maxZoom": 19,
-  "maxNativeZoom": 19,
-  "noWrap": false,
-  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
-  "subdomains": "abc",
-  "detectRetina": false,
-  "tms": false,
-  "opacity": 1,
-}
+            // On first real point, zoom in to follow the track
+            if (firstPoint) {
+                map.setView(newPoint, 15);
+                firstPoint = false;
+            }
 
-            );
+            if (!marker) {
+                marker = L.marker(newPoint).addTo(map);
+                marker.bindTooltip(coordText, {
+                    permanent: true, 
+                    direction: 'bottom', 
+                    offset: [0, 10],
+                    className: 'coord-tooltip'
+                }).openTooltip();
+                
+                startMarker = L.circleMarker(newPoint, {
+                    color: '#ff0000',
+                    radius: 8,
+                    fillOpacity: 1
+                }).addTo(map);
+                startMarker.bindPopup("Start Position");
+            } else {
+                marker.setLatLng(newPoint);
+                marker.setTooltipContent(coordText);
+            }
+
+            map.panTo(newPoint);
+        }
+
+        function clearMap() {
+            trace.setLatLngs([]);
+            if (marker) { map.removeLayer(marker); marker = null; }
+            if (startMarker) { map.removeLayer(startMarker); startMarker = null; }
+            firstPoint = true;
+            map.setView([0, 0], 2);
+        }
+
+        function setZoom(zoom) {
+            if (map) map.setZoom(zoom);
+        }
         
-    
-            tile_layer_32d3e841789cbb85da58e683aa0f7c0e.addTo(map_0d2475fd1566b4753c19ae6bdcf89e78);
-        
-    
-            var marker_e7ebc6380082113e6e7358397e82590e = L.marker(
-                [34.6629, -75.3957],
-                {
-}
-            ).addTo(map_0d2475fd1566b4753c19ae6bdcf89e78);
-        
-    
-            marker_e7ebc6380082113e6e7358397e82590e.bindTooltip(
-                `<div>
-                     CanSat Location
-                 </div>`,
-                {
-  "sticky": true,
-}
-            );
-        
-</script>
+        window.initMap = initMap;
+        window.addPoint = addPoint;
+        window.clearMap = clearMap;
+        window.setZoom = setZoom;
+    </script>
+</body>
 </html>

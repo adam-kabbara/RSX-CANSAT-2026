@@ -21,6 +21,7 @@
 #define CMD_BUFF_SIZE 128
 #define RESP_SIZE 128
 #define SEA_LEVEL_PRESSURE_HPA 1013.25
+#define SEA_LEVEL_PRESSURE_PA 101325.0
 #define WORD_SIZE 64
 #define DATA_SIZE 32
 #define SENTENCE_SIZE 128
@@ -59,12 +60,12 @@ enum cam_status {
 };
 
 struct rpy_data {
-	int gyro_r;
-	int gyro_p;
-	int gyro_y;
-	int accel_r;
-	int accel_p;
-	int accel_y;
+	float gyro_r;
+	float gyro_p;
+	float gyro_y;
+	float accel_r;
+	float accel_p;
+	float accel_y;
 };
 
 struct bar_data {
@@ -131,7 +132,7 @@ inline const char* op_state_to_string(OperatingState state)
 
 inline const float pressure_to_alt(const float pressure)
 {
-	return 44330.0 * (1.0 - pow(pressure / SEA_LEVEL_PRESSURE_HPA, 0.1903));
+	return 44330.0 * (1.0 - pow(pressure / SEA_LEVEL_PRESSURE_PA, 0.1903));
 }
 
 #endif /* INC_GLOBAL_INCLUDES_HPP_ */

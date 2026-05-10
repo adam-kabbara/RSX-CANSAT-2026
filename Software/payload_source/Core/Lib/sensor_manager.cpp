@@ -6,95 +6,24 @@
 
 #include "sensor_manager.hpp"
 
-// datasheet link for further ref: https://ww1.microchip.com/downloads/aemDocuments/documents/MPD/ProductDocuments/DataSheets/25LC1024-1-Mbit-SPI-Bus-Serial-EEPROM-20002064E.pdf
-
-/* constants from datasheet! */
-#define MEM_SIZE 131072UL // 128 kb x 8 (unsigned long for math)
-#define PAGE_SIZE 256 // 256 bytes per page
-#define TIMEOUT 100 // (in ms) some HAL funcs need timeout value
-
-/* spi commands from datasheet */
-#define READ_CMD  0x03
-#define WRITE_CMD 0x02
-#define WREN_CMD  0x06 // write enable
-#define WRDI_CMD  0x04 // write disable
-#define RDSR_CMD  0x05 // read status reg
-#define WRSR_CMD  0x01 // write status reg
-/*there is also page erase but can overwrite directly so not needed (?)*/ 
-
-/* need to check status reg: bits for wpen, wip, wel, bp1, and bp0 bits  */
-#define SR_WIP 0x01 // wip (write in progress)
-#define SR_WEL 0x02 // wel (write enable latch)
-/*there are bp1 and bp0 bits for block protect but not using them(?)*/
-
-/* header needed at beginning of memory to define starting addr of each block and current size of data in each block */
-#define HEADER_SIZE 64 // in bytes (would provide space for 8 blocks just in case)
-#define NUM_RECOVERY_BLOCKS 4 // recovery data field has 4 fields: launch altitude, state, mode, packet count
-#define RECOVERY_BLOCK_SIZE 16 
-#define RECOVERY_DATA_START (HEADER_SIZE)
-#define LOG_DATA_START (HEADER_SIZE + (NUM_RECOVERY_BLOCKS * RECOVERY_BLOCK_SIZE)) // log data starts after recovery data
-#define LOG_DATA_SIZE (MEM_SIZE - LOG_DATA_START) // size available for log data
-#define LOG_LINE_TERMINATOR '\r'
-
-/* indices for recovery data blocks */
-#define BLOCK_ALTITUDE 0
-#define BLOCK_STATE 1
-#define BLOCK_MODE 2
-#define BLOCK_PACKET 3
-#define BLOCK_LOG 4
-
-extern SPI_HandleTypeDef hspi1; // is this correct way to access hspi1 from main.c?
-
-
-void writeEnable()
-{
-	unsigned char cmd = WREN_CMD;
-	
-	HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_RESET);
-	HAL_StatusTypeDef status = HAL_SPI_Transmit(&hspi1, &cmd, 1, TIMEOUT);
-	HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
-}
-
-
-bool waitForWriteComplete()
-{
-	unsigned char status;
-	unsigned int timeout = 0;
-	unsigned char cmd = RDSR_CMD;
-	
-	while(timeout < TIMEOUT)
-	{
-		HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_RESET);
-		HAL_SPI_Transmit(&hspi1, &cmd, 1, TIMEOUT); // read the status register
-		HAL_SPI_Receive(&hspi1, &status, 1, TIMEOUT); 
-		HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
-		
-		// if write in progress bit is cleared, write is complete
-		if((status & SR_WIP) == 0)
-		{
-			return true;
-		}
-		
-		HAL_Delay(1);
-		timeout++;
-	}
-	
-	return false;
-}
-
 SensorManager::SensorManager()
 {
-    /* Initialize sensors */
+    /* Declare sensors */
+}
+
+int SensorManager::updateBMP()
+{
+	return BMP5_SaveConvData(&bmp_dev);
 }
 
 float SensorManager::getPressure()
 {
-	return 0.0;
+	return bmp_dev.pressure;
 }
 
 float SensorManager::getTemp()
 {
-	return 0.0;
+	return bmp_dev.temperature;
 }
 
 float SensorManager::getVoltage()
@@ -107,15 +36,70 @@ float SensorManager::getCurrent()
 	return 0.0;
 }
 
+void SensorManager::BNO_enableGyro(int microsec, SerialManager &serial)
+{
+	if(BNO085_EnableGyro(&bno_dev, microsec) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO GYRO ENABLE DID NOT RETURN OK STATUS");
+	}
+}
+
+void SensorManager::BNO_enableAccel(int microsec, SerialManager &serial)
+{
+	if(BNO085_EnableAccelerometer(&bno_dev, microsec) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO ACCELEROMETER ENABLE DID NOT RETURN OK STATUS");
+	}
+}
+
+void SensorManager::BNO_enableMag(int microsec, SerialManager &serial)
+{
+	if(BNO085_EnableMagnetometer(&bno_dev, microsec) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO MAGNOMETER ENABLE DID NOT RETURN OK STATUS");
+	}
+}
+
+void SensorManager::BNO_enableRotationVector(int microsec, SerialManager &serial)
+{
+	if(BNO085_EnableRotationVector(&bno_dev, microsec) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO ROTATION VECTOR ENABLE DID NOT RETURN OK STATUS");
+	}
+}
+
+void SensorManager::updateBNO()
+{
+	BNO085_GetData(&bno_dev);
+}
+
 struct rpy_data SensorManager::getIMUData()
 {
 	struct rpy_data data;
-	data.gyro_r = 0.0;
-	data.gyro_p = 0.0;
-	data.gyro_y = 0.0;
-	data.accel_r = 0.0;
-	data.accel_p = 0.0;
-	data.accel_y = 0.0;
+	data.gyro_r = bno_dev.gyro.x * (180.0f / M_PI);
+	data.gyro_p = -bno_dev.gyro.y * (180.0f / M_PI);
+	data.gyro_y = -bno_dev.gyro.z * (180.0f / M_PI);
+	// no idea if this is correct
+	if(bno_last_t == 0.0)
+	{
+		bno_last_t = HAL_GetTick();
+		data.accel_r = 0.0;
+		data.accel_p = 0.0;
+		data.accel_y = 0.0;
+	}
+	else
+	{
+		uint32_t now = HAL_GetTick();
+		float dt = (now - bno_last_t) / 1000.0f;
+		if(dt <= 0) dt = 0.02f;
+		data.accel_r = (data.gyro_r - prev_gyro_r) / dt;
+		data.accel_p = (data.gyro_p - prev_gyro_p) / dt;
+		data.accel_y = (data.gyro_y - prev_gyro_y) / dt;
+		prev_gyro_r = data.gyro_r;
+		prev_gyro_p = data.gyro_p;
+		prev_gyro_y = data.gyro_y;
+		bno_last_t = now;
+	}
 	return data;
 }
 
@@ -151,471 +135,120 @@ void SensorManager::getGPSTime(char time_str[DATA_SIZE])
 	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
 }
 
-
-/* ============================================================================
- * EEPROM PRIVATE FUNCTIONS
- * ========================================================================== */
-
-bool SensorManager::readBytes(unsigned long address, unsigned char *buffer, unsigned int size)
+void SensorManager::writeNoseconeServo(float val)
 {
-	// checking for valid parameters
-	if(address + size > MEM_SIZE || buffer == nullptr || size == 0)
-	{
-		return false;
-	}
-
-	HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_RESET);
-	
-	unsigned char cmd[4]; // command + 3 byte address
-	cmd[0] = READ_CMD;
-	cmd[1] = (unsigned char)((address >> 16) & 0xFF); // MSB (7 are don't care bits)
-	cmd[2] = (unsigned char)((address >> 8) & 0xFF);
-	cmd[3] = (unsigned char)(address & 0xFF); // LSB
-	
-	// if STM32 malfunctioned errors:
-	if(HAL_SPI_Transmit(&hspi1, cmd, 4, TIMEOUT) != HAL_OK)
-	{
-		HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
-		return false;
-	}
-	
-	if(HAL_SPI_Receive(&hspi1, buffer, size, TIMEOUT) != HAL_OK)
-	{
-		HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
-		return false;
-	}
-	
-	HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
-	return true;
+	servo_nosecone.SetAngle(val);
 }
 
-
-bool SensorManager::readString(unsigned long address, unsigned int size, char *buffer)
+void SensorManager::writeContainerServo(float val)
 {
-	// check for errors and valid parameters while reading the bytes
-	if(!readBytes(address, (unsigned char*)buffer, size))
-	{
-		return false;
-	}
-	
-	buffer[size] = '\0';
-	return true;
+	servo_container.SetAngle(val);
 }
 
-/* This is the lower-level function compared to writeByte. Can write up to 256 bytes, within page boundary*/
-bool SensorManager::writePage(unsigned long address, const unsigned char *buffer, unsigned int size)
+void SensorManager::writeWingDirServo(float val)
 {
-	// checking for valid parameters
-	if(address + size > MEM_SIZE || buffer == nullptr || size == 0 || size > PAGE_SIZE)
-	{
-		return false;
-	}
-	
-	// Check if write crosses page boundary
-	if((address / PAGE_SIZE) != ((address + size - 1) / PAGE_SIZE))
-	{
-		return false;
-	}
-	
-	writeEnable();
-
-	HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_RESET);
-	
-	unsigned char cmd[4];
-	cmd[0] = WRITE_CMD;
-	cmd[1] = (unsigned char)((address >> 16) & 0xFF);
-	cmd[2] = (unsigned char)((address >> 8) & 0xFF);
-	cmd[3] = (unsigned char)(address & 0xFF);
-		
-	if(HAL_SPI_Transmit(&hspi1, cmd, 4, TIMEOUT) != HAL_OK)
-	{
-		HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
-		return false;
-	}
-	
-	if(HAL_SPI_Transmit(&hspi1, (unsigned char*)buffer, size, TIMEOUT) != HAL_OK)
-	{
-		HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
-		return false;
-	}
-	
-	HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
-	
-	return waitForWriteComplete();
+	servo_wing_dir.SetAngle(val);
 }
 
-
-/* Higher level compared to writePage. Can write any number of bytes so can span multiple pgs*/
-bool SensorManager::writeBytes(unsigned long address, const unsigned char *buffer, unsigned int size)
+void SensorManager::writeWingPWMServo(float val)
 {
-	// checking for valid parameters
-	if(address + size > MEM_SIZE || buffer == nullptr || size == 0)
-	{
-		// not checking for page size limit here since can span multiple pages
-		return false;
-	}
-
-	int bytes_to_write = size;
-	unsigned long cur_address = address;
-	const unsigned char *cur_buffer = buffer;
-
-	while (bytes_to_write > 0)
-	{
-		// need to calculate how many bytes can be written in current page
-		unsigned int page_offset = cur_address % PAGE_SIZE;
-		unsigned int bytes_in_page = PAGE_SIZE - page_offset;
-		
-		// determine chunk size to write
-		unsigned int chunk_size;
-		if (bytes_to_write < bytes_in_page)
-		{
-			chunk_size = bytes_to_write;
-		}
-		else
-		{
-			chunk_size = bytes_in_page;
-		}
-		
-		if(!writePage(cur_address, cur_buffer, chunk_size))
-		{
-			return false;
-		}
-		
-		bytes_to_write -= chunk_size;
-		cur_address += chunk_size;
-		cur_buffer += chunk_size;
-	}
-
-	return true;
+	servo_wing_pwm.SetAngle(val);
 }
 
-
-bool SensorManager::writeString(unsigned long address, unsigned int size, const char *buffer)
+void SensorManager::writeElevatorServo(float val)
 {
-	if (buffer == nullptr)
-	{
-		return false;
-	}
-
-	return writeBytes(address, (const unsigned char*)buffer, size);
+	servo_elevator.SetAngle(val);
 }
 
-
-bool SensorManager::updateHeader(unsigned int block_index, unsigned int new_size)
+void SensorManager::writeAileronServo(float val)
 {
-	if(block_index > BLOCK_LOG)
-	{
-		return false;
-	}
-	
-	// Header structure: [start_addr0][size0][start_addr1][size1]...
-	// Each entry is 8 bytes: 4 for address, 4 for size
-	unsigned long header_offset = block_index * 8 + 4;
-	unsigned char size_bytes[4];
-	
-	size_bytes[0] = (unsigned char)((new_size >> 24) & 0xFF);
-	size_bytes[1] = (unsigned char)((new_size >> 16) & 0xFF);
-	size_bytes[2] = (unsigned char)((new_size >> 8) & 0xFF);
-	size_bytes[3] = (unsigned char)(new_size & 0xFF);
-	
-	return writeBytes(header_offset, size_bytes, 4);
+	servo_aileron.SetAngle(val);
 }
 
-
-unsigned int SensorManager::getBlockSize(unsigned int block_index)
+void SensorManager::writeEggServo(float val)
 {
-	// reads the size of a block from the header
-
-	if(block_index > BLOCK_LOG)
-	{
-		return 0;
-	}
-	
-	// header structure: [start_addr0][size0][start_addr1][size1]...
-	// each entry is 8 bytes: 4 for address, 4 for size
-	unsigned long header_offset = block_index * 8 + 4;
-	unsigned char size_bytes[4];
-	
-	if(!readBytes(header_offset, size_bytes, 4))
-	{
-		return 0;
-	}
-	
-	return ((unsigned int)size_bytes[0] << 24) |
-	       ((unsigned int)size_bytes[1] << 16) |
-	       ((unsigned int)size_bytes[2] << 8) |
-	       ((unsigned int)size_bytes[3]);
+	servo_egg.SetAngle(val);
 }
-
-
-/* ============================================================================
- * EEPROM PUBLIC FUNCTIONS
- * ========================================================================== */
 
 void SensorManager::EEPROM_updateAltitude(float alt)
 {
-	char buffer[RECOVERY_BLOCK_SIZE];
-	snprintf(buffer, RECOVERY_BLOCK_SIZE, "%.2f", alt); 
-	
-	// ensure string fits in block
-	unsigned int str_len = strlen(buffer);
-	if(str_len >= RECOVERY_BLOCK_SIZE)
-	{
-		str_len = RECOVERY_BLOCK_SIZE - 1; // for null terminator (kinda not needed lolsies but just in case)
-	}
-	
-	unsigned long addr = RECOVERY_DATA_START + (BLOCK_ALTITUDE * RECOVERY_BLOCK_SIZE);
-	
-	if(writeString(addr, str_len, buffer))
-	{
-		updateHeader(BLOCK_ALTITUDE, str_len);
-	}
+	return;
 }
-
 
 void SensorManager::EEPROM_updateState(OperatingState state)
 {
-	char buffer[RECOVERY_BLOCK_SIZE];
-	snprintf(buffer, RECOVERY_BLOCK_SIZE, "%d", (int)state);
-	
-	unsigned int str_len = strlen(buffer);
-	if(str_len >= RECOVERY_BLOCK_SIZE)
-	{
-		str_len = RECOVERY_BLOCK_SIZE - 1;
-	}
-	
-	unsigned long addr = RECOVERY_DATA_START + (BLOCK_STATE * RECOVERY_BLOCK_SIZE);
-	
-	if(writeString(addr, str_len, buffer))
-	{
-		updateHeader(BLOCK_STATE, str_len);
-	}
+	return;
 }
-
 
 void SensorManager::EEPROM_updateMode(OperatingMode mode)
 {
-	char buffer[RECOVERY_BLOCK_SIZE];
-	snprintf(buffer, RECOVERY_BLOCK_SIZE, "%d", (int)mode);
-	
-	unsigned int str_len = strlen(buffer);
-	if(str_len >= RECOVERY_BLOCK_SIZE)
-	{
-		str_len = RECOVERY_BLOCK_SIZE - 1;
-	}
-	
-	unsigned long addr = RECOVERY_DATA_START + (BLOCK_MODE * RECOVERY_BLOCK_SIZE);
-	
-	if(writeString(addr, str_len, buffer))
-	{
-		updateHeader(BLOCK_MODE, str_len);
-	}
+	return;
 }
-
 
 void SensorManager::EEPROM_updatePackets(int count)
 {
-	char buffer[RECOVERY_BLOCK_SIZE];
-	snprintf(buffer, RECOVERY_BLOCK_SIZE, "%d", count);
-	
-	unsigned int str_len = strlen(buffer);
-	if(str_len >= RECOVERY_BLOCK_SIZE)
-	{
-		str_len = RECOVERY_BLOCK_SIZE - 1;
-	}
-	
-	unsigned long addr = RECOVERY_DATA_START + (BLOCK_PACKET * RECOVERY_BLOCK_SIZE);
-	
-	if(writeString(addr, str_len, buffer))
-	{
-		updateHeader(BLOCK_PACKET, str_len);
-	}
+	return;
 }
 
+bool SensorManager::EEPROM_addLogLine(char *buffer)
+{
+	return true;
+}
 
 struct recovery_data SensorManager::EEPROM_getRecoveryData()
 {
 	struct recovery_data data;
-	char buffer[RECOVERY_BLOCK_SIZE + 1];
-	unsigned int size;
-	unsigned long addr;
-	
-	// Read altitude
-	size = getBlockSize(BLOCK_ALTITUDE);
-	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
-	{
-		addr = RECOVERY_DATA_START + (BLOCK_ALTITUDE * RECOVERY_BLOCK_SIZE);
-		if(readString(addr, size, buffer))
-		{
-			data.launch_altitude = atof(buffer); // convert to float
-		}
-		else
-		{
-			data.launch_altitude = 0.0; // what to do on error?
-		}
-	}
-	else
-	{
-		data.launch_altitude = 0.0; // default if no data (?)
-	}
-	
-	// Read state
-	size = getBlockSize(BLOCK_STATE);
-	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
-	{
-		addr = RECOVERY_DATA_START + (BLOCK_STATE * RECOVERY_BLOCK_SIZE);
-		if(readString(addr, size, buffer))
-		{
-			data.state = (OperatingState)atoi(buffer); // convert to OperatingState
-		}
-		else
-		{
-			data.state = OperatingState::IDLE; // default if no data (?)
-		}
-	}
-	else
-	{
-		data.state = OperatingState::IDLE; // default if no data (?)
-	}
-	
-	// Read mode
-	size = getBlockSize(BLOCK_MODE);
-	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
-	{
-		addr = RECOVERY_DATA_START + (BLOCK_MODE * RECOVERY_BLOCK_SIZE);
-		if(readString(addr, size, buffer))
-		{
-			data.mode = (OperatingMode)atoi(buffer); // convert to OperatingMode
-		}
-		else
-		{
-			data.mode = OperatingMode::OPMODE_FLIGHT; // default if no data (?)
-		}
-	}
-	else
-	{
-		data.mode = OperatingMode::OPMODE_FLIGHT; // default if no data (?)
-	}
-	
-	// Read packet count
-	size = getBlockSize(BLOCK_PACKET);
-	if(size > 0 && size < RECOVERY_BLOCK_SIZE)
-	{
-		addr = RECOVERY_DATA_START + (BLOCK_PACKET * RECOVERY_BLOCK_SIZE);
-		if(readString(addr, size, buffer))
-		{
-			data.packet_count = atoi(buffer); // convert to int
-		}
-		else
-		{
-			data.packet_count = 0; // default if no data (?)
-		}
-	}
-	else
-	{
-		data.packet_count = 0; // default if no data (?)
-	}
-	
+	data.launch_altitude = 0.0;
+	data.state = OperatingState::IDLE;
+	data.mode = OperatingMode::OPMODE_FLIGHT;
+	data.packet_count = 0;
+
 	return data;
 }
 
-
-bool SensorManager::EEPROM_addLogLine(char *buffer)
+void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
+		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4)
 {
-	if(buffer == nullptr)
-	{
-		return false;
-	}
-	
-	unsigned int log_size = getBlockSize(BLOCK_LOG);
-	unsigned int line_len = strlen(buffer);
-	
-	// Check if there's enough space (line + terminator)
-	if(log_size + line_len + 1 > LOG_DATA_SIZE)
-	{
-		// EEPROM is full
-		return false;
-	}
-	
-	unsigned long write_addr = LOG_DATA_START + log_size;
-	
-	// Write the line
-	if(!writeString(write_addr, line_len, buffer))
-	{
-		// EEPROM malfunction
-		return false;
-	}
-	
-	// Write the terminator
-	char terminator = LOG_LINE_TERMINATOR;
-	if(!writeBytes(write_addr + line_len, (unsigned char*)&terminator, 1))
-	{
-		return false;
-	}
-	
-	// Update header with new size
-	if(!updateHeader(BLOCK_LOG, log_size + line_len + 1))
-	{
-		return false;
-	}
-	
-	return true;
-}
+	/* Start all sensors that need to be started
+	 * Add a delay between each start and send an
+	 * info message */
 
-
-void SensorManager::EEPROM_dumpLog(SerialManager &serial)
-{
-	unsigned int log_size = getBlockSize(BLOCK_LOG);
-	
-	if(log_size == 0)
+	if(BMP5_Init(&bmp_dev, hi2c1, BMP5_I2C_ADDR_FIRST))
 	{
-		serial.sendInfoMsg("No log data in EEPROM.");
-		return;
+		serial.sendErrorMsg("BMP Init failed");
 	}
-	
-	char line_buffer[DATA_BUFF_SIZE];
-	unsigned int pos = 0;
-	unsigned int line_pos = 0;
-	unsigned char byte_read;
-	
-	
-	while(pos < log_size)
-	{
-		// Read one byte at a time
-		if(!readBytes(LOG_DATA_START + pos, &byte_read, 1))
-		{
-			serial.sendErrorMsg("EEPROM read error during dump.");
-			return;
-		}
-		
-		if(byte_read == LOG_LINE_TERMINATOR)
-		{
-			// we need to discard the log line terminator
 
-			// End of line, send it
-			line_buffer[line_pos] = '\0';
-			serial.sendTelemetry(line_buffer);
-			
-			line_pos = 0;
-			HAL_Delay(10);  // delay of 10 ms between lines
-		}
-		else
-		{
-			// Add to line buffer
-			line_buffer[line_pos++] = byte_read;
-			
-			// If buffer is full, send it as a chunk and continue
-			if(line_pos >= DATA_BUFF_SIZE - 1)
-			{
-				line_buffer[line_pos] = '\0';
-				serial.sendTelemetry(line_buffer);
-				line_pos = 0;
-				// do we want delay here? reading same line
-			}
-		}
-		
-		pos++;
+	if(BMP5_Start_Mode(&bmp_dev, 1, BMP5_ODR_120HZ, BMP5_OSR_X4, BMP5_OSR_X1))
+	{
+		serial.sendErrorMsg("BMP Start Mode Init Failed");
 	}
-	
-	serial.sendInfoMsg("EEPROM dump complete.");
+
+	HAL_Delay(100);
+
+	if(BNO085_Init(&bno_dev, hi2c1, BNO085_I2C_ADDR_DEFAULT) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BN0 Init failed");
+	}
+
+	HAL_Delay(100);
+
+	servo_nosecone.Init(htim4, TIM_CHANNEL_2, 1000, 2000, 180);
+	servo_container.Init(htim4, TIM_CHANNEL_1, 1000, 2000, 180);
+	servo_wing_dir.Init(htim2, TIM_CHANNEL_1, 1000, 2000, 180);
+	servo_wing_pwm.Init(htim2, TIM_CHANNEL_2, 1000, 2000, 180);
+	servo_elevator.Init(htim3, TIM_CHANNEL_1, 1000, 2000, 180);
+	servo_aileron.Init(htim3, TIM_CHANNEL_2, 1000, 2000, 180);
+	servo_egg.Init(htim3, TIM_CHANNEL_3, 1000, 2000, 180);
+
+	HAL_Delay(100);
+
+	BNO_enableGyro(20000, serial);
+
+	//BNO_enableAccel(20000, serial);
+
+	//BNO_enableMag(20000, serial);
+
+	//BNO_enableRotationVector(20000, serial);
+
+	serial.sendInfoMsg("Sensor initialization complete.");
 }
