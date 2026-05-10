@@ -44,7 +44,6 @@ private:
 	struct transmission_packet packet;
 
 public:
-	OperatingState updateState(OperatingState curr_state);
 	void sampleSensors(SensorManager &sensors, MissionManager &mission_info);
 	void cmd_buff_to_echo(char buff[CMD_BUFF_SIZE], char *cmd_buff);
 	void build_data_str(char *buff, size_t size);

@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <cmath>
+#include <algorithm>
 
 #define CMD_BUFF_SIZE 128
 #define RESP_SIZE 128
@@ -29,6 +30,14 @@
 #define TEAM_ID 1011
 #define SENSOR_SAMPLE_RATE_HZ 20
 #define MAX_LOG_FILE_SIZE_BYTES 125000
+#define ALTITUDE_SMOOTHING_WINDOW 5
+#define ASCENT_ALT_THRESHOLD_M 8
+#define DESCENT_FALL_THRESHOLD_M 2
+#define EGG_ALT_THRESHOLD_MM 4000
+#define TOF_TIMING_BUDGET_MS 100
+#define TOF_SMOOTHING_WINOW 5
+#define LANDED_THRESHOLD_M 2
+#define MAX_EXP_CURRENT_A 2.5
 
 enum SimModeStatus {
     SIM_OFF = 0,

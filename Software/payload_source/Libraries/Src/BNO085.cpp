@@ -3,7 +3,7 @@
 #include <math.h>
 
 /* ========== Private constants ========== */
-#define BNO085_I2C_TIMEOUT		1		// HAL I2C timeout (ms)
+#define BNO085_I2C_TIMEOUT		100		// HAL I2C timeout (ms)
 #define SHTP_HEADER_SIZE		4
 #define MAX_PACKET_SIZE			512
 #define TIMESTAMP_RECORD_SIZE	5		// [0xFB][ts0][ts1][ts2][ts3]
@@ -45,6 +45,11 @@ BNO085_Status_t BNO085_Init(BNO085_t *bno, I2C_HandleTypeDef *hi2c, uint8_t i2c_
 
 	// WaitForPacket inside GetProductID drains all queued boot packets until the 0xF8 response appears
 	return BNO085_GetProductID(bno);
+}
+
+bool BNO085_DataReady(BNO085_t *bno) {
+	if(bno == NULL) { return false; }
+	return HAL_GPIO_ReadPin(IMU_INT_GPIO_Port, IMU_INT_Pin) == GPIO_PIN_RESET;
 }
 
 /**
@@ -256,7 +261,7 @@ BNO085_Status_t BNO085_GetProductID(BNO085_t *bno) {
 	shtpData[0] = SHTP_REPORT_PRODUCT_ID_REQUEST;
 	shtpData[1] = 0;
 	if(BNO085_SendPacket(bno, CHANNEL_CONTROL, 2) != BNO085_OK) { return BNO085_ERROR; }
-	return BNO085_WaitForPacket(bno, CHANNEL_CONTROL, SHTP_REPORT_PRODUCT_ID_RESPONSE, 1000);
+	return BNO085_WaitForPacket(bno, CHANNEL_CONTROL, SHTP_REPORT_PRODUCT_ID_RESPONSE, 10000);
 }
 
 /**

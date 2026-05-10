@@ -25,8 +25,45 @@ private:
     bool waiting_for_simp = false;
     char last_command[CMD_BUFF_SIZE];
     bool logfile_chk = true;
+    float alt_buffer[ALTITUDE_SMOOTHING_WINDOW] = {0};
+    int alt_buffer_idx = 0;
+    float max_alt = 0.0;
+    int descent_trigger_count = 0;
+    bool apogee_flag = false;
+    bool nosecone_flag = false;
+    bool probe_flag = false;
+    bool wing_flag = false;
+    bool egg_flag = false;
+    int landed_trigger_count = 0;
 
 public:
+
+    bool nosecone_check();
+    bool probe_check();
+    bool egg_check();
+    bool wing_check();
+    void nosecone_rel();
+    void probe_rel();
+    void wing_rel();
+    void egg_rel();
+
+    bool landed_trigger();
+
+    bool is_apogee_packet_sent();
+
+    void apogee_packet_sent();
+
+    void reset_params();
+
+    bool descent_trigger();
+
+    float get_max_alt();
+
+    void update_max_alt(float value);
+
+    void update_alt_buffer(float value);
+
+    float calculate_median_alt();
 
     OperatingState getOpState();
 
@@ -46,15 +83,11 @@ public:
 
     float getLaunchAlt();
 
-    void setAltCalOff();
-
     void setPacketCount(int count);
 
     int getPacketCount();
 
     void incrPacketCount();
-
-    void clearPacketCount();
 
     void waitingForSimp();
 

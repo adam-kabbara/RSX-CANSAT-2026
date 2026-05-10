@@ -115,7 +115,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
     {
         if(info.getOpState() == IDLE && (info.isAltCalibrated() == true || info.getOpMode() == OPMODE_SIM))
         {
-            info.clearPacketCount();
+            info.reset_params();
             ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");
             info.setOpState(LAUNCH_PAD);
             sensors.EEPROM_updateState(LAUNCH_PAD);
@@ -135,7 +135,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
         {
             info.setOpState(IDLE);
             sensors.EEPROM_updateState(IDLE);
-            info.setAltCalOff();
+            info.reset_params();
             ser.sendInfoDataMsg("ENDING PAYLOAD TRANSMISSION.{%s|%s}",
                 op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
         }
@@ -374,15 +374,54 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
     strcpy(val, token);
   }
 
-  if(strcmp(mec, "PAYLOAD") == 0)
+  if(strcmp(mec, "REL") == 0)
   {
-	  sensors.writeEggServo(0);
-	  ser.sendInfoMsg("I don't have a value to write yet!");
-  }
-  else if(strcmp(mec, "PROBE") == 0)
-  {
-	  sensors.writeContainerServo(0);
-	  ser.sendInfoMsg("I don't have a value to write yet!");
+	  int val_int = atoi(val);
+
+	  if(val_int == 0)
+	  {
+		  sensors.activate_nosecone_release();
+		  if(info.getOpState() != DESCENT)
+		  {
+			  info.setOpState(DESCENT);
+			  sensors.EEPROM_updateState(DESCENT);
+			  info.nosecone_rel();
+		  }
+	  }
+	  else if(val_int == 1)
+	  {
+		  sensors.activate_probe_release();
+		  if(info.getOpState() != PROBE_RELEASE)
+		  {
+			  info.setOpState(PROBE_RELEASE);
+			  sensors.EEPROM_updateState(PROBE_RELEASE);
+			  info.probe_rel();
+		  }
+	  }
+	  else if(val_int == 2)
+	  {
+		  sensors.activate_wing_deployment();
+		  if(info.getOpState() != PROBE_RELEASE)
+		  {
+			  info.setOpState(PROBE_RELEASE);
+			  sensors.EEPROM_updateState(PROBE_RELEASE);
+			  info.wing_rel();
+		  }
+	  }
+	  else if(val_int == 3)
+	  {
+		  sensors.activate_egg_release();
+		  if(info.getOpState() != PAYLOAD_RELEASE)
+		  {
+			  info.setOpState(PAYLOAD_RELEASE);
+			  sensors.EEPROM_updateState(PAYLOAD_RELEASE);
+			  info.egg_rel();
+		  }
+	  }
+	  else
+	  {
+		  ser.sendErrorMsg("ERROR: RELEASE COMMAND FORMAT INCORRECT");
+	  }
   }
   else if(strcmp(mec, "SERVO") == 0)
   {
@@ -411,22 +450,14 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  		  ser.sendInfoDataMsg("Wrote %d to container servo.", servo_val);
 		  		  break;
 		  	  case 2:
-		  		  sensors.writeWingDirServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to wing direction servo.", servo_val);
-		  		  break;
-		  	  case 3:
-		  		  sensors.writeWingPWMServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to wing PWM servo.", servo_val);
-		  		  break;
-		  	  case 4:
 		  		  sensors.writeElevatorServo(servo_val);
 		  		  ser.sendInfoDataMsg("Wrote %d to elevator servo.", servo_val);
 		  		  break;
-		  	  case 5:
+		  	  case 3:
 		  		  sensors.writeAileronServo(servo_val);
 		  		  ser.sendInfoDataMsg("Wrote %d to aileron servo.", servo_val);
 		  		  break;
-		  	  case 6:
+		  	  case 4:
 		  		  sensors.writeEggServo(servo_val);
 		  		  ser.sendInfoDataMsg("Wrote %d to egg servo.", servo_val);
 		  		  break;

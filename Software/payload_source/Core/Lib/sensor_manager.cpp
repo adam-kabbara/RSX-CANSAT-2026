@@ -11,6 +11,39 @@ SensorManager::SensorManager()
     /* Declare sensors */
 }
 
+void SensorManager::startTof()
+{
+	VL53L1X_StartRanging(tof_dev);
+}
+
+void SensorManager::stopTof()
+{
+	VL53L1X_StopRanging(tof_dev);
+}
+
+bool SensorManager::checkTof()
+{
+	uint8_t data_ready;
+	VL53L1X_CheckForDataReady(tof_dev, &data_ready);
+	return (data_ready == 1);
+}
+
+bool SensorManager::tofValid()
+{
+	uint8_t range_status;
+	VL53L1X_GetRangeStatus(tof_dev, &range_status);
+	VL53L1X_ClearInterrupt(tof_dev); /* clear interrupt has to be called to enable next interrupt*/
+	return (range_status == 0);
+}
+
+uint16_t SensorManager::tofDistReading()
+{
+	uint16_t distance;
+	VL53L1X_GetDistance(tof_dev, &distance);
+	VL53L1X_ClearInterrupt(tof_dev); /* clear interrupt has to be called to enable next interrupt*/
+	return distance;
+}
+
 int SensorManager::updateBMP()
 {
 	return BMP5_SaveConvData(&bmp_dev);
@@ -28,12 +61,12 @@ float SensorManager::getTemp()
 
 float SensorManager::getVoltage()
 {
-	return 0.0;
+	return INA219getBusVoltage();
 }
 
 float SensorManager::getCurrent()
 {
-	return 0.0;
+	return INA219getCurrent();
 }
 
 void SensorManager::BNO_enableGyro(int microsec, SerialManager &serial)
@@ -66,6 +99,11 @@ void SensorManager::BNO_enableRotationVector(int microsec, SerialManager &serial
 	{
 		serial.sendErrorMsg("BNO ROTATION VECTOR ENABLE DID NOT RETURN OK STATUS");
 	}
+}
+
+bool SensorManager::BNO_dataReady()
+{
+	return BNO085_DataReady(&bno_dev);
 }
 
 void SensorManager::updateBNO()
@@ -135,6 +173,25 @@ void SensorManager::getGPSTime(char time_str[DATA_SIZE])
 	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
 }
 
+void SensorManager::activate_egg_release()
+{
+	// writeEggServo(0);
+}
+
+void SensorManager::activate_wing_deployment()
+{
+	//
+}
+
+void SensorManager::activate_nosecone_release()
+{
+	// writeNoseconeServo(0);
+}
+void SensorManager::activate_probe_release()
+{
+	// writeContainerServo(0);
+}
+
 void SensorManager::writeNoseconeServo(float val)
 {
 	servo_nosecone.SetAngle(val);
@@ -143,16 +200,6 @@ void SensorManager::writeNoseconeServo(float val)
 void SensorManager::writeContainerServo(float val)
 {
 	servo_container.SetAngle(val);
-}
-
-void SensorManager::writeWingDirServo(float val)
-{
-	servo_wing_dir.SetAngle(val);
-}
-
-void SensorManager::writeWingPWMServo(float val)
-{
-	servo_wing_pwm.SetAngle(val);
 }
 
 void SensorManager::writeElevatorServo(float val)
@@ -213,6 +260,11 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	 * Add a delay between each start and send an
 	 * info message */
 
+	if(!INA219setup(MAX_EXP_CURRENT_A, 0.1, 0))
+	{
+		serial.sendErrorMsg("INA Init failed");
+	}
+
 	if(BMP5_Init(&bmp_dev, hi2c1, BMP5_I2C_ADDR_FIRST))
 	{
 		serial.sendErrorMsg("BMP Init failed");
@@ -230,25 +282,47 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 		serial.sendErrorMsg("BN0 Init failed");
 	}
 
+	BNO_enableGyro(50000, serial);
+
 	HAL_Delay(100);
 
 	servo_nosecone.Init(htim4, TIM_CHANNEL_2, 1000, 2000, 180);
 	servo_container.Init(htim4, TIM_CHANNEL_1, 1000, 2000, 180);
-	servo_wing_dir.Init(htim2, TIM_CHANNEL_1, 1000, 2000, 180);
-	servo_wing_pwm.Init(htim2, TIM_CHANNEL_2, 1000, 2000, 180);
 	servo_elevator.Init(htim3, TIM_CHANNEL_1, 1000, 2000, 180);
 	servo_aileron.Init(htim3, TIM_CHANNEL_2, 1000, 2000, 180);
 	servo_egg.Init(htim3, TIM_CHANNEL_3, 1000, 2000, 180);
 
+	// TODO
+	// htim2 TIM_CHANNEL_1 and TIM_CHANNEL_2 available for wing driver
+
 	HAL_Delay(100);
 
-	BNO_enableGyro(20000, serial);
+	uint32_t tof_bootup_start = HAL_GetTick();
+	uint8_t tof_sensor_state = 0;
 
-	//BNO_enableAccel(20000, serial);
+	while(tof_sensor_state == 0)
+	{
+	 	VL53L1X_BootState(tof_dev, &tof_sensor_state);
+	 	HAL_Delay(2);
+	 	if(HAL_GetTick() - tof_bootup_start > 100)
+	 	{
+	 		serial.sendErrorMsg("TOF init failed");
+	 		break;
+	 	}
+	}
 
-	//BNO_enableMag(20000, serial);
+	if(tof_sensor_state != 0)
+	{
+		VL53L1X_SensorInit(tof_dev);
+		VL53L1X_SetDistanceMode(tof_dev, 2); /* 1=short, 2=long */
+		VL53L1X_SetTimingBudgetInMs(tof_dev, TOF_TIMING_BUDGET_MS); /* in ms possible values [20, 50, 100, 200, 500] */
+		VL53L1X_SetInterMeasurementInMs(tof_dev, TOF_TIMING_BUDGET_MS); /* in ms, IM must be > = TB */
+		// TODO check these values
+		VL53L1X_CalibrateOffset(tof_dev, 140, &offset);
+		VL53L1X_CalibrateXtalk(tof_dev, 1000, &xtalk);
+	}
 
-	//BNO_enableRotationVector(20000, serial);
+	HAL_Delay(100);
 
 	serial.sendInfoMsg("Sensor initialization complete.");
 }
