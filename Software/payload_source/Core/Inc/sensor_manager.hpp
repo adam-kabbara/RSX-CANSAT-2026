@@ -15,6 +15,7 @@
 #include "VL53L1X_api.h"
 #include "VL53L1X_calibration.h"
 #include "INA219.hpp"
+#include "ds1307.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,6 +50,8 @@ private:
 	int16_t offset;
 	uint16_t xtalk;
 
+
+
 public:
 	SensorManager();
 
@@ -77,7 +80,7 @@ public:
 
 	cam_status getCameraStatus();
 
-	void setRTCTime(int h, int m, int s);
+	void setRTCTime(uint8_t h, uint8_t m, uint8_t s);
 	void getRTCTime(char time_str[DATA_SIZE]);
 	void getGPSTime(char time_str[DATA_SIZE]);
 

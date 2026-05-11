@@ -158,14 +158,19 @@ cam_status SensorManager::getCameraStatus()
 	return cam_status::CAM1_OFF_CAM2_OFF;
 }
 
-void SensorManager::setRTCTime(int h, int m, int s)
+void SensorManager::setRTCTime(uint8_t h, uint8_t m, uint8_t s)
 {
-	return;
+	DS1307_SetHour(h);
+	DS1307_SetMinute(m);
+	DS1307_SetSecond(s);
 }
 
 void SensorManager::getRTCTime(char time_str[DATA_SIZE])
 {
-	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
+	uint8_t h = DS1307_GetHour();
+	uint8_t m = DS1307_GetMinute();
+	uint8_t s = DS1307_GetSecond();
+	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", h, m, s);
 }
 
 void SensorManager::getGPSTime(char time_str[DATA_SIZE])
@@ -259,6 +264,11 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	/* Start all sensors that need to be started
 	 * Add a delay between each start and send an
 	 * info message */
+
+	if(!DS1307_Init(hi2c1))
+	{
+		serial.sendErrorMsg("RTC Init failed");
+	}
 
 	if(!INA219setup(MAX_EXP_CURRENT_A, 0.1, 0))
 	{
