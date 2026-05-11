@@ -327,9 +327,12 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 		VL53L1X_SetDistanceMode(tof_dev, 2); /* 1=short, 2=long */
 		VL53L1X_SetTimingBudgetInMs(tof_dev, TOF_TIMING_BUDGET_MS); /* in ms possible values [20, 50, 100, 200, 500] */
 		VL53L1X_SetInterMeasurementInMs(tof_dev, TOF_TIMING_BUDGET_MS); /* in ms, IM must be > = TB */
-		// TODO check these values
+		// TODO replace calibrate with set (delete calibrate)
 		VL53L1X_CalibrateOffset(tof_dev, 140, &offset);
 		VL53L1X_CalibrateXtalk(tof_dev, 1000, &xtalk);
+		serial.sendInfoDataMsg("Offset value=%d, xtalk value=%d. Delete these functions and uncomment set functions", offset, xtalk);
+		//VL53L1X_SetOffset(tof_dev, offset);
+		//VL53L1X_SetXtalk(tof_dev, xtalk);
 	}
 
 	HAL_Delay(100);
