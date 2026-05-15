@@ -1,0 +1,42 @@
+../Libraries/Src/VL53L1X_api.cpp:159:15:VL53L1X_ERROR VL53L1X_GetSWVersion(VL53L1X_Version_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:170:15:VL53L1X_ERROR VL53L1X_SetI2CAddress(uint16_t, uint8_t)	1
+../Libraries/Src/VL53L1X_api.cpp:178:15:VL53L1X_ERROR VL53L1X_SensorInit(uint16_t)	4
+../Libraries/Src/VL53L1X_api.cpp:206:15:VL53L1X_ERROR VL53L1X_ClearInterrupt(uint16_t)	1
+../Libraries/Src/VL53L1X_api.cpp:214:15:VL53L1X_ERROR VL53L1X_SetInterruptPolarity(uint16_t, uint8_t)	2
+../Libraries/Src/VL53L1X_api.cpp:225:15:VL53L1X_ERROR VL53L1X_GetInterruptPolarity(uint16_t, uint8_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:236:15:VL53L1X_ERROR VL53L1X_StartRanging(uint16_t)	1
+../Libraries/Src/VL53L1X_api.cpp:244:15:VL53L1X_ERROR VL53L1X_StopRanging(uint16_t)	1
+../Libraries/Src/VL53L1X_api.cpp:252:15:VL53L1X_ERROR VL53L1X_CheckForDataReady(uint16_t, uint8_t*)	3
+../Libraries/Src/VL53L1X_api.cpp:270:15:VL53L1X_ERROR VL53L1X_SetTimingBudgetInMs(uint16_t, uint16_t)	25
+../Libraries/Src/VL53L1X_api.cpp:372:15:VL53L1X_ERROR VL53L1X_GetTimingBudgetInMs(uint16_t, uint16_t*)	25
+../Libraries/Src/VL53L1X_api.cpp:413:15:VL53L1X_ERROR VL53L1X_SetDistanceMode(uint16_t, uint16_t)	5
+../Libraries/Src/VL53L1X_api.cpp:448:15:VL53L1X_ERROR VL53L1X_GetDistanceMode(uint16_t, uint16_t*)	3
+../Libraries/Src/VL53L1X_api.cpp:460:15:VL53L1X_ERROR VL53L1X_SetInterMeasurementInMs(uint16_t, uint32_t)	1
+../Libraries/Src/VL53L1X_api.cpp:473:15:VL53L1X_ERROR VL53L1X_GetInterMeasurementInMs(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:487:15:VL53L1X_ERROR VL53L1X_BootState(uint16_t, uint8_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:497:15:VL53L1X_ERROR VL53L1X_GetSensorId(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:507:15:VL53L1X_ERROR VL53L1X_GetDistance(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:518:15:VL53L1X_ERROR VL53L1X_GetSignalPerSpad(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:531:15:VL53L1X_ERROR VL53L1X_GetAmbientPerSpad(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:542:15:VL53L1X_ERROR VL53L1X_GetSignalRate(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:553:15:VL53L1X_ERROR VL53L1X_GetSpadNb(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:564:15:VL53L1X_ERROR VL53L1X_GetAmbientRate(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:574:15:VL53L1X_ERROR VL53L1X_GetRangeStatus(uint16_t, uint8_t*)	2
+../Libraries/Src/VL53L1X_api.cpp:587:15:VL53L1X_ERROR VL53L1X_GetResult(uint16_t, VL53L1X_Result_t*)	2
+../Libraries/Src/VL53L1X_api.cpp:606:15:VL53L1X_ERROR VL53L1X_SetOffset(uint16_t, int16_t)	1
+../Libraries/Src/VL53L1X_api.cpp:619:16:VL53L1X_ERROR VL53L1X_GetOffset(uint16_t, int16_t*)	2
+../Libraries/Src/VL53L1X_api.cpp:637:15:VL53L1X_ERROR VL53L1X_SetXtalk(uint16_t, uint16_t)	1
+../Libraries/Src/VL53L1X_api.cpp:652:15:VL53L1X_ERROR VL53L1X_GetXtalk(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:661:15:VL53L1X_ERROR VL53L1X_SetDistanceThreshold(uint16_t, uint16_t, uint16_t, uint8_t, uint8_t)	2
+../Libraries/Src/VL53L1X_api.cpp:681:15:VL53L1X_ERROR VL53L1X_GetDistanceThresholdWindow(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:690:15:VL53L1X_ERROR VL53L1X_GetDistanceThresholdLow(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:700:15:VL53L1X_ERROR VL53L1X_GetDistanceThresholdHigh(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:710:15:VL53L1X_ERROR VL53L1X_SetROICenter(uint16_t, uint8_t)	1
+../Libraries/Src/VL53L1X_api.cpp:717:15:VL53L1X_ERROR VL53L1X_GetROICenter(uint16_t, uint8_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:726:15:VL53L1X_ERROR VL53L1X_SetROI(uint16_t, uint16_t, uint16_t)	5
+../Libraries/Src/VL53L1X_api.cpp:745:15:VL53L1X_ERROR VL53L1X_GetROI_XY(uint16_t, uint16_t*, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:756:15:VL53L1X_ERROR VL53L1X_SetSignalThreshold(uint16_t, uint16_t)	1
+../Libraries/Src/VL53L1X_api.cpp:764:15:VL53L1X_ERROR VL53L1X_GetSignalThreshold(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:775:15:VL53L1X_ERROR VL53L1X_SetSigmaThreshold(uint16_t, uint16_t)	2
+../Libraries/Src/VL53L1X_api.cpp:787:15:VL53L1X_ERROR VL53L1X_GetSigmaThreshold(uint16_t, uint16_t*)	1
+../Libraries/Src/VL53L1X_api.cpp:798:15:VL53L1X_ERROR VL53L1X_StartTemperatureUpdate(uint16_t)	3

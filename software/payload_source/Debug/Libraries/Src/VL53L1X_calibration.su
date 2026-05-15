@@ -1,0 +1,2 @@
+../Libraries/Src/VL53L1X_calibration.cpp:25:8:int8_t VL53L1X_CalibrateOffset(uint16_t, uint16_t, int16_t*)	32	static
+../Libraries/Src/VL53L1X_calibration.cpp:64:8:int8_t VL53L1X_CalibrateXtalk(uint16_t, uint16_t, uint16_t*)	56	static

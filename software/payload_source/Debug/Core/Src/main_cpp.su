@@ -1,0 +1,4 @@
+../Core/Inc/serial_manager.hpp:29:5:SerialManager::SerialManager(UART_HandleTypeDef&)	16	static
+../Core/Inc/mission_manager.hpp:14:7:MissionManager::MissionManager()	16	static
+../Core/Src/main_cpp.cpp:29:17:void main_cpp()	1544	static
+../Core/Src/main_cpp.cpp:194:16:OperatingState update_state(SensorManager&, MissionManager&, OperatingState)	48	static
