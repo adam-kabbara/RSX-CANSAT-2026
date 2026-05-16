@@ -8,8 +8,11 @@ import tomllib
 from PyQt6.QtGui import QFont, QColor, QPalette
 from PyQt6.QtWidgets import QApplication, QListWidgetItem
 
-_COLOR_CONFIG_PATH = Path(__file__).with_name("colors.toml")
+_COLOR_CONFIG_PATH = Path(__file__).resolve().parent.parent / "config.toml"
 _DEFAULT_MODE = "day"
+_DEFAULT_WINDOW_RESOLUTION = (800, 600)
+_DEFAULT_WINDOW_DISPLAY_MODE = "fullscreen"
+_WINDOW_DISPLAY_MODES = {"fullscreen", "borderless"}
 _COLOR_CONFIG = None
 
 
@@ -41,6 +44,11 @@ def _theme_section(section):
     return config["modes"][_active_mode()].get(section, {})
 
 
+def _window_section(window_name):
+    config = _load_color_config()
+    return config.get("windows", {}).get(window_name, {})
+
+
 def theme_color(section, key, default):
     return _theme_section(section).get(key, default)
 
@@ -55,6 +63,27 @@ def theme_qcolor(section, key, default):
     if isinstance(value, list):
         return QColor(*value)
     return QColor(value)
+
+
+def window_resolution(window_name):
+    resolution = _window_section(window_name).get("resolution", _DEFAULT_WINDOW_RESOLUTION)
+    if not isinstance(resolution, (list, tuple)) or len(resolution) != 2:
+        return _DEFAULT_WINDOW_RESOLUTION
+    return int(resolution[0]), int(resolution[1])
+
+
+def window_display_mode(window_name):
+    display_mode = str(_window_section(window_name).get("display_mode", _DEFAULT_WINDOW_DISPLAY_MODE)).lower()
+    if display_mode not in _WINDOW_DISPLAY_MODES:
+        return _DEFAULT_WINDOW_DISPLAY_MODE
+    return display_mode
+
+
+def window_settings(window_name):
+    return {
+        "resolution": window_resolution(window_name),
+        "display_mode": window_display_mode(window_name),
+    }
 
 
 def set_app_style(app: QApplication):

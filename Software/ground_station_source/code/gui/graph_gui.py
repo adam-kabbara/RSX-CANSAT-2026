@@ -35,8 +35,6 @@ class GraphWindow(QMainWindow):
         self._packets_recv = 0
         self._packets_sent = 0
         self._graph_time_window = 500 # how long data stays on graph
-        self._screen_width_cm = 32.1
-        self._screen_height_cm = 20
         self._current_state = "Unknown"
         self._state_flash_on = True
 
@@ -53,10 +51,6 @@ class GraphWindow(QMainWindow):
         # CENTRAL WIDGET
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
-        pixel_width = int((self._screen_width_cm / 2.54) * 96)
-        self.central_widget.setFixedWidth(pixel_width)
-        pixel_height = int((self._screen_height_cm / 2.54) * 96)
-        self.central_widget.setFixedHeight(pixel_height)
 
         graph_parent_group = QHBoxLayout(self.central_widget)
         

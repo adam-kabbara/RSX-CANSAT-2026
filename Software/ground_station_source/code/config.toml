@@ -6,6 +6,14 @@
 night_mode = true
 high_contrast_mode = false
 
+[windows.live_data]
+resolution = [1600, 900]
+display_mode = "fullscreen"
+
+[windows.command_panel]
+resolution = [1920, 540]
+display_mode = "fullscreen"
+
 [modes.day.logs]
 gui_normal = "black"
 gui_error = "red"
