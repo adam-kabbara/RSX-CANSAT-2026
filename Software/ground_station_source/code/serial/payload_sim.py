@@ -13,13 +13,12 @@ class PayloadSim(QObject):
     START_LATITUDE = 38.3760167
     START_LONGITUDE = -79.6078722
 
-    PAD_TIME_S = 5.0
-    ASCENT_TIME_S = 32.0
-    APOGEE_HOLD_S = 3.0
-    APOGEE_ALTITUDE_M = 185.0
-    DESCENT_RATE_MPS = 4.7
-    PROBE_RELEASE_ALTITUDE_M = 135.0
-    PAYLOAD_RELEASE_ALTITUDE_M = 95.0
+    ARM_TIME_S = 2.0
+    TAKEOFF_TIME_S = 8.0
+    HOVER_TIME_S = 10.0
+    LOITER_TIME_S = 22.0
+    LANDING_TIME_S = 10.0
+    HOVER_ALTITUDE_M = 24.0
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -158,13 +157,11 @@ class PayloadSim(QObject):
             return f"$ MSG:CAMERA2 {'ON' if self.cam2_active else 'OFF'}"
 
         if val == "PROBE:X":
-            self._probe_released = True
-            self._forced_release_state = "PROBE_RELEASE"
+            self._aux_event_until = self.mission_time + 2.0
             return "$ MSG:PROBE RELEASE FORCED."
 
         if val == "PAYLOAD:X":
-            self._payload_released = True
-            self._forced_release_state = "PAYLOAD_RELEASE"
+            self._aux_event_until = self.mission_time + 2.0
             return "$ MSG:PAYLOAD RELEASE FORCED."
 
         if val.startswith("SERVO"):
@@ -226,9 +223,7 @@ class PayloadSim(QObject):
         self._east_m = 0.0
         self._north_m = 0.0
 
-        self._probe_released = False
-        self._payload_released = False
-        self._forced_release_state = None
+        self._aux_event_until = 0.0
         self._sim_pressure_kpa = None
         self._sim_altitude_m = None
 
@@ -288,28 +283,38 @@ class PayloadSim(QObject):
             return
 
         t = self.mission_time
-        descent_start = self.PAD_TIME_S + self.ASCENT_TIME_S + self.APOGEE_HOLD_S
+        takeoff_end = self.ARM_TIME_S + self.TAKEOFF_TIME_S
+        landing_start = takeoff_end + self.HOVER_TIME_S + self.LOITER_TIME_S
+        landing_end = landing_start + self.LANDING_TIME_S
 
-        if t < self.PAD_TIME_S:
+        if t < self.ARM_TIME_S:
             self.state = "LAUNCH_PAD"
             self.altitude = 0.0
             return
 
-        if t < self.PAD_TIME_S + self.ASCENT_TIME_S:
-            ascent_t = t - self.PAD_TIME_S
-            progress = ascent_t / self.ASCENT_TIME_S
+        if t < takeoff_end:
+            ascent_t = t - self.ARM_TIME_S
+            progress = self._clamp(ascent_t / self.TAKEOFF_TIME_S, 0.0, 1.0)
+            progress = progress * progress * (3.0 - 2.0 * progress)
             self.state = "ASCENT"
-            self.altitude = self.APOGEE_ALTITUDE_M * math.sin(progress * math.pi / 2.0)
+            self.altitude = self.HOVER_ALTITUDE_M * progress
             return
 
-        if t < descent_start:
+        if t < landing_start:
             self.state = "APOGEE"
-            self.altitude = self.APOGEE_ALTITUDE_M + 0.4 * math.sin(t * 2.1)
+            self.altitude = self.HOVER_ALTITUDE_M + 0.25 * math.sin(t * 1.8)
             return
 
-        descent_t = t - descent_start
-        self.altitude = max(0.0, self.APOGEE_ALTITUDE_M - self.DESCENT_RATE_MPS * descent_t)
-        self._set_descent_state()
+        if t < landing_end:
+            landing_t = t - landing_start
+            progress = self._clamp(landing_t / self.LANDING_TIME_S, 0.0, 1.0)
+            progress = progress * progress * (3.0 - 2.0 * progress)
+            self.state = "DESCENT"
+            self.altitude = max(0.0, self.HOVER_ALTITUDE_M * (1.0 - progress))
+            return
+
+        self.altitude = 0.0
+        self.state = "LANDED"
 
     def _update_from_simp_pressure(self, previous_altitude):
         self.altitude = max(0.0, self._sim_altitude_m)
@@ -322,30 +327,17 @@ class PayloadSim(QObject):
             self.state = "LANDED"
             return
 
-        if self.altitude >= previous_altitude - 0.1:
+        if self.altitude > previous_altitude + 0.15:
             self.state = "ASCENT"
-        else:
+        elif self.altitude < previous_altitude - 0.15:
             self._set_descent_state()
+        else:
+            self.state = "APOGEE"
 
     def _set_descent_state(self):
         if self.altitude <= 0.0:
             self.altitude = 0.0
             self.state = "LANDED"
-            return
-
-        if self._forced_release_state is not None:
-            self.state = self._forced_release_state
-            self._forced_release_state = None
-            return
-
-        if not self._probe_released and self.altitude <= self.PROBE_RELEASE_ALTITUDE_M:
-            self._probe_released = True
-            self.state = "PROBE_RELEASE"
-            return
-
-        if not self._payload_released and self.altitude <= self.PAYLOAD_RELEASE_ALTITUDE_M:
-            self._payload_released = True
-            self.state = "PAYLOAD_RELEASE"
             return
 
         self.state = "DESCENT"
@@ -367,15 +359,24 @@ class PayloadSim(QObject):
             return (0.0, 0.0)
 
         if self.state == "ASCENT":
-            return (0.8 + 0.2 * math.sin(self.mission_time * 0.25), -0.25)
+            return (
+                0.10 * math.sin(self.mission_time * 0.9),
+                0.08 * math.cos(self.mission_time * 0.7),
+            )
 
         if self.state == "APOGEE":
-            return (1.4, -0.45)
+            loiter_t = max(0.0, self.mission_time - self.ARM_TIME_S - self.TAKEOFF_TIME_S)
+            return (
+                1.2 * math.cos(loiter_t * 0.35),
+                0.9 * math.sin(loiter_t * 0.35),
+            )
 
-        if self.state in ("PROBE_RELEASE", "PAYLOAD_RELEASE"):
-            return (2.8, -1.2)
-
-        return (2.2 + 0.4 * math.sin(self.mission_time * 0.18), -0.9)
+        east_correction = self._clamp(-self._east_m * 0.22, -1.6, 1.6)
+        north_correction = self._clamp(-self._north_m * 0.22, -1.6, 1.6)
+        return (
+            east_correction + 0.10 * math.sin(self.mission_time * 1.1),
+            north_correction + 0.08 * math.cos(self.mission_time * 0.8),
+        )
 
     def _update_environment(self):
         if self.mode == "S" and self._sim_pressure_kpa is not None:
@@ -388,89 +389,105 @@ class PayloadSim(QObject):
         self.temperature = 24.0 - 0.0065 * self.altitude + temp_noise
 
         camera_count = int(self.cam1_active) + int(self.cam2_active)
-        release_spike_ma = 180.0 if self.state in ("PROBE_RELEASE", "PAYLOAD_RELEASE") else 0.0
-        landed_buzzer_ma = 30.0 if self.state == "LANDED" else 0.0
+        aux_spike_ma = 260.0 if self.mission_time < self._aux_event_until else 0.0
         radio_tx_ma = 75.0
-        base_ma = 165.0
-        sensor_ma = 18.0
+        avionics_ma = 220.0
+        sensor_ma = 45.0
         camera_ma = 450.0 * camera_count
-        motion_ma = 35.0 if self.state in ("ASCENT", "DESCENT", "APOGEE") else 10.0
-        ripple_ma = 8.0 * math.sin(self.packet_count * 0.53)
-        self.current = base_ma + sensor_ma + radio_tx_ma + motion_ma + camera_ma + release_spike_ma + landed_buzzer_ma + ripple_ma
+
+        if self.state == "LAUNCH_PAD":
+            motor_ma = 620.0 + 110.0 * abs(math.sin(self.packet_count * 0.8))
+        elif self.state == "ASCENT":
+            motor_ma = 8_800.0 + 550.0 * math.sin(self.packet_count * 0.45)
+        elif self.state == "APOGEE":
+            motor_ma = 5_600.0 + 420.0 * math.sin(self.packet_count * 0.32)
+        elif self.state == "DESCENT":
+            motor_ma = 4_000.0 + 320.0 * math.sin(self.packet_count * 0.38)
+        elif self.state == "LANDED":
+            motor_ma = 0.0
+        else:
+            motor_ma = 180.0
+
+        ripple_ma = 85.0 * math.sin(self.packet_count * 1.7)
+        self.current = avionics_ma + sensor_ma + radio_tx_ma + motor_ma + camera_ma + aux_spike_ma + ripple_ma
+        self.current = max(0.0, self.current)
 
         camera_sag = 0.08 * camera_count
-        release_sag = 0.05 if release_spike_ma else 0.0
+        aux_sag = 0.03 if aux_spike_ma else 0.0
+        motor_sag = 0.55 * min(1.0, motor_ma / 9_000.0)
         mission_drain = 0.002 * (self.mission_time / 10.0)
-        self.voltage = max(10.8, 12.6 - mission_drain - camera_sag - release_sag)
+        self.voltage = max(10.8, 12.6 - mission_drain - camera_sag - aux_sag - motor_sag)
 
     def _gyro_values(self):
         t = self.mission_time
+        aux_event = 1.0 if t < self._aux_event_until else 0.0
 
         if self.state == "LAUNCH_PAD":
-            return (0.2 * math.sin(t), 0.2 * math.cos(t * 0.7), 0.1)
+            return (
+                0.4 * math.sin(t * 5.0),
+                0.4 * math.cos(t * 4.6),
+                0.2 * math.sin(t * 2.0),
+            )
 
         if self.state == "ASCENT":
             return (
-                2.5 * math.sin(t * 0.8),
-                1.8 * math.cos(t * 0.6),
-                10.0 + 3.0 * math.sin(t * 0.35),
+                3.2 * math.sin(t * 1.4),
+                2.6 * math.cos(t * 1.2),
+                8.0 + 2.5 * math.sin(t * 0.7),
             )
 
         if self.state == "APOGEE":
             return (
-                4.0 * math.sin(t * 1.3),
-                3.5 * math.cos(t * 1.1),
-                16.0 + 5.0 * math.sin(t * 0.9),
-            )
-
-        if self.state in ("PROBE_RELEASE", "PAYLOAD_RELEASE"):
-            return (
-                18.0 * math.sin(t * 1.7),
-                14.0 * math.cos(t * 1.2),
-                55.0 + 8.0 * math.sin(t),
+                4.5 * math.sin(t * 1.6) + 4.0 * aux_event,
+                3.8 * math.cos(t * 1.4) - 3.0 * aux_event,
+                14.0 * math.sin(t * 0.45),
             )
 
         if self.state == "DESCENT":
             return (
-                8.0 * math.sin(t * 0.9),
-                6.0 * math.cos(t * 0.7),
-                24.0 + 7.0 * math.sin(t * 0.4),
+                5.0 * math.sin(t * 1.3),
+                4.4 * math.cos(t * 1.1),
+                6.0 + 2.0 * math.sin(t * 0.5),
             )
 
         return (0.1 * math.sin(t), 0.1 * math.cos(t), 0.0)
 
     def _accel_values(self):
         t = self.mission_time
+        vibration = 0.18 * math.sin(self.packet_count * 2.8)
+        aux_event = 1.0 if t < self._aux_event_until else 0.0
 
         if self.state == "LAUNCH_PAD":
-            return (0.05 * math.sin(t), 0.05 * math.cos(t), 9.8)
+            return (
+                0.08 * math.sin(t * 5.0),
+                0.08 * math.cos(t * 4.4),
+                9.8 + vibration,
+            )
 
         if self.state == "ASCENT":
-            boost = 3.5 * max(0.0, 1.0 - ((t - self.PAD_TIME_S) / 10.0))
+            takeoff_t = max(0.0, t - self.ARM_TIME_S)
+            boost = 2.8 * max(0.0, 1.0 - (takeoff_t / self.TAKEOFF_TIME_S))
             return (
-                0.5 * math.sin(t * 0.7),
-                0.4 * math.cos(t * 0.5),
-                9.8 + boost,
+                0.35 * math.sin(t * 1.2),
+                0.30 * math.cos(t * 1.0),
+                9.8 + boost + vibration,
             )
 
         if self.state == "APOGEE":
-            return (0.8 * math.sin(t * 1.4), 0.6 * math.cos(t), 4.5)
-
-        if self.state in ("PROBE_RELEASE", "PAYLOAD_RELEASE"):
             return (
-                3.0 * math.sin(t * 2.0),
-                2.5 * math.cos(t * 1.8),
-                12.2,
+                0.75 * math.sin(t * 0.8) + 0.9 * aux_event,
+                0.65 * math.cos(t * 0.9) - 0.7 * aux_event,
+                9.8 + 0.25 * math.sin(t * 2.1) + vibration,
             )
 
         if self.state == "DESCENT":
             return (
-                1.4 * math.sin(t * 0.9),
-                1.1 * math.cos(t * 1.1),
-                9.8 + 0.7 * math.sin(t * 0.6),
+                0.45 * math.sin(t * 1.0),
+                0.35 * math.cos(t * 1.2),
+                9.1 + 0.25 * math.sin(t * 1.6) + vibration,
             )
 
-        return (0.0, 0.0, 9.8)
+        return (0.0, 0.0, 9.8 + vibration)
 
     def _camera_status_bits(self):
         return int(self.cam1_active) + (2 * int(self.cam2_active))
