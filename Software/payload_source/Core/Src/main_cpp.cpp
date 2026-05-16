@@ -5,6 +5,7 @@
 #include "serial_manager.hpp"
 #include "telemetry_manager.hpp"
 #include "command_manager.hpp"
+#include "controller.hpp"
 
 extern "C" volatile uint8_t send_flag;
 extern "C" volatile uint8_t pvd_flag;
@@ -20,6 +21,11 @@ extern "C" I2C_HandleTypeDef hi2c1;
 extern "C" volatile char rx_buff[128];
 extern "C" volatile uint8_t cmd_ready;
 
+uint32_t nosecone_rel__payload_rel_timer=0;
+uint32_t wing_servo_timer=0;
+uint32_t tof_timer=0;
+OperatingState update_state(SensorManager &sensors, MissionManager &mgr, OperatingState current_state);
+
 extern "C" void main_cpp()
 {
 
@@ -30,6 +36,8 @@ extern "C" void main_cpp()
     TelemetryManager telemetry_mgr;
 
     SensorManager sensors;
+
+    Controller pid_controller;
 
 	if (__HAL_RCC_GET_FLAG(RCC_FLAG_LPWRRST)){
 		serial.sendErrorMsg("Reset Reason: low power reset");
@@ -93,17 +101,6 @@ extern "C" void main_cpp()
 
             }
 
-            /*
-            if(pvd_flag == 1)
-            {
-                serial.sendErrorMsg("WARNING: POWER VOLTAGE DETECTOR TRIGGERED");
-                pvd_flag = 0;
-            }
-            */
-            
-            // Need to read packets faster than updated to ensure queue is clear
-            sensors.updateBNO();
-
             HAL_Delay(10);
         }
 
@@ -121,6 +118,7 @@ extern "C" void main_cpp()
         serial.sendInfoMsg("MISSION STARTING!");
 
         HAL_TIM_Base_Start_IT(&htim1);
+        HAL_TIM_Base_Start_IT(&htim8);
 
         while(mission_mgr.getOpState() != IDLE)
         {
@@ -149,16 +147,178 @@ extern "C" void main_cpp()
 				}
 
             	send_flag = 0;
+
+            	if(mission_mgr.getOpState() == ASCENT)
+            	{
+            		mission_mgr.apogee_packet_sent();
+            	}
             }
-            sensors.updateBNO();
+
+            if(update_flag)
+            {
+            	sensors.updateBMP();
+            	mission_mgr.update_alt_buffer(sensors.getPressure()-mission_mgr.getLaunchAlt());
+
+				if(mission_mgr.getOpState() == DESCENT || mission_mgr.getOpState() == PROBE_RELEASE || mission_mgr.getOpState() == PAYLOAD_RELEASE)
+				{
+					pid_controller.update();
+				}
+
+				OperatingState next_state = update_state(sensors, mission_mgr, mission_mgr.getOpState());
+				if(next_state != mission_mgr.getOpState())
+				{
+					sensors.EEPROM_updateState(next_state);
+					mission_mgr.setOpState(next_state);
+				}
+
+				update_flag = 0;
+            }
+
+            if(sensors.BNO_dataReady())
+            {
+            	sensors.updateBNO();
+            }
         }
 
         HAL_TIM_Base_Stop_IT(&htim1);
+        HAL_TIM_Base_Stop_IT(&htim8);
         
-        mission_mgr.setAltCalOff();
+        mission_mgr.reset_params();
         mission_mgr.waitingForSimp();
         mission_mgr.enableLogfile();
 
         serial.sendInfoMsg("Transitioning back to IDLE mode...");
     }
+}
+
+OperatingState update_state(SensorManager &sensors, MissionManager &mgr, OperatingState current_state)
+{
+	OperatingState new_state = current_state;
+	switch(current_state)
+	{
+		case LAUNCH_PAD: {
+			float alt = mgr.calculate_median_alt();
+			mgr.update_max_alt(alt);
+			if(alt > ASCENT_ALT_THRESHOLD_M)
+			{
+				new_state = ASCENT;
+			}
+			break;
+		}
+
+		case ASCENT: {
+			float alt = mgr.calculate_median_alt();
+			mgr.update_max_alt(alt);
+			if(mgr.get_max_alt() - alt > DESCENT_FALL_THRESHOLD_M)
+			{
+				if(mgr.descent_trigger())
+				{
+					new_state = APOGEE;
+				}
+			}
+			break;
+		}
+
+		case APOGEE: {
+			mgr.update_max_alt(mgr.calculate_median_alt());
+			if(mgr.is_apogee_packet_sent())
+			{
+				new_state = DESCENT;
+			}
+			break;
+		}
+
+		case DESCENT: {
+			if(!mgr.nosecone_check() && mgr.calculate_median_alt() <= mgr.get_max_alt() * 0.82)
+			{
+				sensors.activate_nosecone_release();
+				mgr.nosecone_rel();
+				nosecone_rel__payload_rel_timer = HAL_GetTick();
+				//BNO_enableAccel(50000, serial);
+				//BNO_enableMag(50000, serial);
+				//BNO_enableRotationVector(50000, serial);
+			}
+
+			if(!mgr.probe_check() && mgr.calculate_median_alt() <= mgr.get_max_alt() * 0.80 && (HAL_GetTick()-nosecone_rel__payload_rel_timer>=1000))
+			{
+				sensors.activate_probe_release();
+				mgr.probe_rel();
+				wing_servo_timer = HAL_GetTick();
+				if(mgr.getOpMode() == OPMODE_FLIGHT)
+				{
+					tof_timer = HAL_GetTick();
+					sensors.startTof();
+				}
+				new_state = PROBE_RELEASE;
+			}
+
+			break;
+		}
+
+		case PROBE_RELEASE: {
+			if(mgr.getOpMode() == OPMODE_SIM)
+			{
+				if((HAL_GetTick()-wing_servo_timer>=1000) && !mgr.wing_check())
+				{
+					sensors.activate_wing_deployment();
+					mgr.wing_rel();
+				}
+				if(mgr.wing_check())
+				{
+					if(mgr.calculate_median_alt() < EGG_ALT_THRESHOLD_MM && !mgr.egg_check())
+					{
+						sensors.activate_egg_release();
+						mgr.egg_rel();
+						new_state = PAYLOAD_RELEASE;
+					}
+				}
+			}
+			else if(HAL_GetTick()-tof_timer>=TOF_TIMING_BUDGET_MS && sensors.checkTof())
+			{
+				tof_timer = HAL_GetTick();
+				if(!sensors.tofValid())
+				{
+					if(!mgr.wing_check())
+					{
+						sensors.activate_wing_deployment();
+						mgr.wing_rel();
+					}
+				}
+				else if(mgr.wing_check())
+				{
+					uint16_t dist = sensors.tofDistReading();
+					if(dist < EGG_ALT_THRESHOLD_MM && !mgr.egg_check())
+					{
+						sensors.activate_egg_release();
+						mgr.egg_rel();
+						sensors.stopTof();
+						new_state = PAYLOAD_RELEASE;
+					}
+				}
+			}
+			break;
+		}
+
+		case PAYLOAD_RELEASE: {
+			if(mgr.calculate_median_alt() < LANDED_THRESHOLD_M)
+			{
+				if(mgr.landed_trigger())
+				{
+					new_state = LANDED;
+					HAL_TIM_Base_Stop_IT(&htim8);
+				}
+			}
+			break;
+		}
+
+		case LANDED: {
+			break;
+		}
+
+		default: {
+			break;
+		}
+	}
+
+	return new_state;
 }

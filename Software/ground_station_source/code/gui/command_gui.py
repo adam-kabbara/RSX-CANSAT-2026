@@ -44,6 +44,7 @@ class CommandWindow(QMainWindow):
 
         self.__set_time_id        = 1
         self.__camera_id          = 1
+        self.__mec_id             = 1
         self.__servo_id           = -1
         self.__servo_val          = -1
         self.__CURRENT_CMD_WINDOW = None
@@ -215,13 +216,11 @@ class CommandWindow(QMainWindow):
 
         self.servo_id_field = QComboBox()
         self.servo_id_field.setPlaceholderText("SELECT SERVO")
-        self.servo_id_field.addItem("Nosecone Release", 0)
-        self.servo_id_field.addItem("Container Release", 1)
-        self.servo_id_field.addItem("Wing Direction", 2)
-        self.servo_id_field.addItem("Wing PWM", 3)
-        self.servo_id_field.addItem("Elevator", 4)
-        self.servo_id_field.addItem("Aileron", 5)
-        self.servo_id_field.addItem("Egg Release", 6)
+        self.servo_id_field.addItem("Nosecone", 0)
+        self.servo_id_field.addItem("Container", 1)
+        self.servo_id_field.addItem("Elevator", 2)
+        self.servo_id_field.addItem("Aileron", 3)
+        self.servo_id_field.addItem("Egg", 4)
         self.servo_id_field.setFont(button_font)
         self.servo_id_field.activated.connect(self.servo_id_edited)
 
@@ -269,18 +268,24 @@ class CommandWindow(QMainWindow):
         ### end program camera
 
         force_release_box = QHBoxLayout()
-        self.probe_release_force = QPushButton("RELEASE PROBE")
-        self.probe_release_force.setFont(button_font)
-        self.probe_release_force.clicked.connect(self.command_manager.command__probe_release)
-        self.probe_release_force.hide()
+        self.mec_release_field = QComboBox()
+        self.mec_release_field.setPlaceholderText("SELECT MECHANISM")
+        self.mec_release_field.addItem("NOSECONE RELEASE")
+        self.mec_release_field.addItem("PROBE RELEASE")
+        self.mec_release_field.addItem("WING DEPLOYMENT")
+        self.mec_release_field.addItem("EGG RELEASE")
+        self.mec_release_field.setFont(button_font)
+        self.mec_release_field.activated.connect(self.mec_rel_edited)
 
-        self.payload_release_force = QPushButton("RELEASE PAYLOAD")
-        self.payload_release_force.setFont(button_font)
-        self.payload_release_force.clicked.connect(self.command_manager.command__payload_release)
-        self.payload_release_force.hide()
+        self.mec_activate_button = QPushButton("ACTIVATE")
+        self.mec_activate_button.setFont(button_font)
+        self.mec_activate_button.clicked.connect(lambda: self.command_manager.command__mec_release(self.__mec_id))
 
-        force_release_box.addWidget(self.probe_release_force)
-        force_release_box.addWidget(self.payload_release_force)
+        self.mec_release_field.hide()
+        self.mec_activate_button.hide()
+
+        force_release_box.addWidget(self.mec_release_field)
+        force_release_box.addWidget(self.mec_activate_button)
 
         self.camera_status_button = QPushButton("GET CAMERA STATUS")
         self.camera_status_button.setFont(button_font)
@@ -375,8 +380,8 @@ class CommandWindow(QMainWindow):
             self.program_camera_button,
             self.camera_id_field,
             self.camera_status_button,
-            self.probe_release_force,
-            self.payload_release_force
+            self.mec_release_field,
+            self.mec_activate_button,
         ]
 
         self.buttons_connection = [
@@ -615,6 +620,9 @@ class CommandWindow(QMainWindow):
 
     def camera_id_edited(self, index):
         self.__camera_id = self.camera_id_field.itemText(index)
+
+    def mec_rel_edited(self, index):
+        self.__mec_id = self.mec_release_field.itemText(index)
     
     def set_time_field_edited(self, index):
         self.__set_time_id = self.set_time_field.itemData(index)

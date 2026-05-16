@@ -7,6 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "main.h"
 
 #include "stm32g4xx_hal.h"
 
@@ -180,6 +181,7 @@ BNO085_Status_t BNO085_SoftReset(BNO085_t *bno);
 
 bool			BNO085_DataAvailable(BNO085_t *bno);
 BNO085_Status_t BNO085_GetData(BNO085_t *bno);
+bool            BNO085_DataReady(BNO085_t *bno);
 
 // Sensor enable — time_between_reports in microseconds
 BNO085_Status_t BNO085_EnableRotationVector(BNO085_t *bno, uint32_t time_between_reports);

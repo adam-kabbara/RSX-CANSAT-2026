@@ -6,42 +6,6 @@
 
 #include "telemetry_manager.hpp"
 
-OperatingState TelemetryManager::updateState(OperatingState curr_state)
-{
-	switch(curr_state)
-	{
-		case LAUNCH_PAD: {
-			break;
-		}
-
-		case ASCENT: {
-			break;
-		}
-
-		case APOGEE: {
-			break;
-		}
-
-		case DESCENT: {
-			break;
-		}
-
-		case PROBE_RELEASE: {
-			break;
-		}
-
-		case PAYLOAD_RELEASE: {
-			break;
-		}
-
-		default: {
-			break;
-		}
-	}
-
-	return curr_state;
-}
-
 void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mission_info)
 {
 	packet.TEAM_ID_PCKT = TEAM_ID;
@@ -52,7 +16,7 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mis
 	sensors.EEPROM_updatePackets(mission_info.getPacketCount());
 	packet.PACKET_COUNT = mission_info.getPacketCount();
 
-	strcpy(packet.STATE, op_state_to_string(updateState(mission_info.getOpState())));
+	strcpy(packet.STATE, op_state_to_string(mission_info.getOpState()));
 
 	strcpy(packet.MODE, op_mode_to_string(mission_info.getOpMode(), 0));
 
