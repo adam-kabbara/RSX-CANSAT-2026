@@ -5,7 +5,7 @@ from plotter.plotters import DynamicPlotter, DynamicPlotterMultiLine
 from . import cosmetics
 from .gps_map import GPSMapWidget
 import os
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QMainWindow,
@@ -35,9 +35,8 @@ class GraphWindow(QMainWindow):
         self._packets_recv = 0
         self._packets_sent = 0
         self._graph_time_window = 500 # how long data stays on graph
-        self._screen_width_cm = 32.1
-        self._screen_height_cm = 20
         self._current_state = "Unknown"
+        self._state_flash_on = True
 
         self.setWindowTitle("Live Data")
         icon_path = os.path.join(os.path.dirname(__file__), '..', 'media', 'icon.png')
@@ -52,10 +51,6 @@ class GraphWindow(QMainWindow):
         # CENTRAL WIDGET
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
-        pixel_width = int((self._screen_width_cm / 2.54) * 96)
-        self.central_widget.setFixedWidth(pixel_width)
-        pixel_height = int((self._screen_height_cm / 2.54) * 96)
-        self.central_widget.setFixedHeight(pixel_height)
 
         graph_parent_group = QHBoxLayout(self.central_widget)
         
@@ -152,10 +147,6 @@ class GraphWindow(QMainWindow):
         self.state_labels_display = ("IDLE", "LAUNCH PAD", "ASCENT", "APOGEE", "DESCENT", "PROBE REL",
                              "PAYLD REL", "LANDED")
         
-        state_title = QLabel("PAYLOAD STATE")
-        state_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        state_title.setFont(cosmetics.state_title_font())
-
         # Previous state list
         self.previous_list = QListWidget()
         self.previous_list.setStyleSheet("border-radius: 0px;")
@@ -164,7 +155,7 @@ class GraphWindow(QMainWindow):
         self.previous_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.previous_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.previous_list.setFixedHeight(80)
-        self.previous_list.setStyleSheet("background-color: transparent; color:black; font-size: 10px; font-family: Roboto Mono;")
+        self.previous_list.setStyleSheet(cosmetics.transparent_list_stylesheet())
 
         # Next state list
         self.next_list = QListWidget()
@@ -185,6 +176,10 @@ class GraphWindow(QMainWindow):
         self.state_label.setFont(cosmetics.state_label_font())
         self.state_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.state_label.setFont(cosmetics.state_label_font())
+
+        self.state_flash_timer = QTimer(self)
+        self.state_flash_timer.timeout.connect(self._toggle_state_flash)
+        self.state_flash_timer.start(900)
         self.reset_states()
 
         # --- Create Title Widgets ---
@@ -198,7 +193,7 @@ class GraphWindow(QMainWindow):
         # Current state display
         self.current_state_display = QLabel("Unknown")
         self.current_state_display.setFrameShape(QFrame.Shape.Panel)
-        self.current_state_display.setStyleSheet("color: blue; padding: 5px;")
+        self.current_state_display.setStyleSheet(cosmetics.current_state_stylesheet())
 
         for field_name, field_value in self.sidebar_fields_data:
             # Handle state separately
@@ -220,10 +215,14 @@ class GraphWindow(QMainWindow):
 
         self.set_port_text_closed()
 
-        form_group = QGroupBox()
+        form_group = QGroupBox("Telemetry Data")
+        form_group.setFont(cosmetics.log_font())
+        form_group.setStyleSheet(cosmetics.sidebar_group_box_stylesheet())
         form_group.setLayout(live_graph_values)
 
-        state_visual_box = QGroupBox()
+        state_visual_box = QGroupBox("PAYLOAD STATE")
+        state_visual_box.setFont(cosmetics.log_font())
+        state_visual_box.setStyleSheet(cosmetics.sidebar_group_box_stylesheet())
         state_visual_layout = QVBoxLayout(state_visual_box)
         state_grid_layout = QGridLayout()
         state_grid_layout.addWidget(self.state_label, 0, 0, 1, 0, Qt.AlignmentFlag.AlignLeft)
@@ -239,7 +238,6 @@ class GraphWindow(QMainWindow):
 
         sidebar.addWidget(form_group)
         sidebar.addSpacing(20)
-        sidebar.addWidget(state_title)
         sidebar.addWidget(state_visual_box)
         sidebar.addStretch()
         sidebar.addWidget(credit_label)
@@ -335,17 +333,30 @@ class GraphWindow(QMainWindow):
                     # self.plotters[self.graph_title_to_index.get("Altitude")].add_state_marker(state_str)
 
                 self._current_state = state_str
-                self.state_label.setText("Current " + cosmetics.data_status_blue(state_str))
+                self._state_flash_on = True
+                self._update_current_state_label()
 
     def reset_states(self):
         self._current_state = "Unknown"
-        self.state_label.setText("Current: " + cosmetics.data_status_init_color("Unknown"))
         self.previous_list.clear()
         self.next_list.clear()
         for item in self.state_labels_display:
             _pending_item = QListWidgetItem(item)
             cosmetics.set_next_states(_pending_item)
             self.next_list.addItem(_pending_item)
+        self._state_flash_on = True
+        self._update_current_state_label()
+
+    def _toggle_state_flash(self):
+        self._state_flash_on = not self._state_flash_on
+        self._update_current_state_label()
+
+    def _update_current_state_label(self):
+        if self._state_flash_on:
+            state_text = cosmetics.data_status_blue(self._current_state)
+        else:
+            state_text = cosmetics.data_status_init_color(self._current_state)
+        self.state_label.setText("Current: " + state_text)
 
     def update_mode(self, str):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Mode")].setText(cosmetics.data_status_blue(str))

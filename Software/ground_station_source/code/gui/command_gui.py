@@ -90,11 +90,12 @@ class CommandWindow(QMainWindow):
         grid_layout = QGridLayout(self.central_widget)
         grid_layout.setHorizontalSpacing(10)
         grid_layout.setVerticalSpacing(20)
+        grid_layout.setContentsMargins(10, 10, 10, 10)
 
         # ------ COMMANDS GROUP ------ #
         commands_group_box = QGroupBox()
-        commands_group_box.setFixedHeight(300)
-        commands_group_box.setFixedWidth(500)
+        commands_group_box.setMinimumHeight(300)
+        commands_group_box.setMinimumWidth(500)
         commands_layout = QVBoxLayout(commands_group_box)
 
         self.button_mode = QPushButton("CHANGE MODE")
@@ -124,7 +125,6 @@ class CommandWindow(QMainWindow):
         self.button_transmit_on.clicked.connect(self.start_transmission)
         self.button_transmit_on.hide()
 
-        # TODO: close csv file and any other clean up on receiving confirmation of mission end
         self.button_transmit_off = QPushButton("END MISSION")
         self.button_transmit_off.setFont(button_font)
         self.button_transmit_off.clicked.connect(self.end_transmission)
@@ -598,13 +598,20 @@ class CommandWindow(QMainWindow):
             self._graph_ui.set_port_text_closed()
 
     def start_transmission(self):
+        if not self._processor.reset_csv():
+            self.update_gui_log_error("ERROR: CSV WAS NOT ABLE TO OPEN! DETAILS:")
+            self.update_gui_log_error(self._processor.get_csv_error_msg())
+            self.update_gui_log_error("MISSION START ABORTED TO AVOID LOSING TELEMETRY.")
+            return
         if self.command_manager.command__start_mission():
             self._graph_ui.reset_data()
     
     def end_transmission(self):
-        if self._simp.simp_check():
-            self._simp.simp_disable()
-        self.command_manager.command__end_mission()
+        if self.command_manager.command__end_mission():
+            if self._simp.simp_check():
+                self._simp.simp_disable()
+            self._processor.close_csv()
+            self.update_gui_log("Telemetry CSV saved.")
 
     def team_id_edited(self):
         self.team_id_field.clearFocus()
@@ -640,7 +647,9 @@ class CommandWindow(QMainWindow):
             self.gui_log.clear()
             self.cansat_log.clear()
             self._graph_ui.reset_data()
-            self._processor.reset_csv()
+            if not self._processor.reset_csv():
+                self.update_gui_log_error("ERROR: CSV WAS NOT ABLE TO RESET! DETAILS:")
+                self.update_gui_log_error(self._processor.get_csv_error_msg())
             self.__last_msg = None
             self.__last_msg_sat = False
             self.__log_repeat_count = 0

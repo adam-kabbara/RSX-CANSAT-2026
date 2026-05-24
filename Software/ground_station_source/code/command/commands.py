@@ -45,7 +45,7 @@ class Commands(QObject):
         if servo_id == -1 or servo_val == -1:
             self.print_signal.emit("Enter a servo # and value first")
         elif self._serial.send_data(self._cmd(op="MEC", val=f"SERVO:{servo_id}|{servo_val}")):
-            self.update_gui_log(f"Sent command to program servo {servo_id} to {servo_val}")
+            self.print_signal.emit(f"Sent command to program servo {servo_id} to {servo_val}")
 
     def command__toggle_camera(self, camera_id):
         if self._serial.send_data(self._cmd(op="MEC", val=f"CAM:{camera_id}")):
@@ -56,7 +56,7 @@ class Commands(QObject):
             self.print_signal.emit(f"Sent force probe release command")
 
     def command__cam_status(self):
-        if self._serial.send_data(self._cmd(op="MEC", val="CAMERA_STAT:X")):
+        if self._serial.send_data(self._cmd(op="MEC", val="CAMERA_STATUS:X")):
             self.print_signal.emit("Requesting CAMERA status")
     
     def command__sim_mode(self, mode: str):
@@ -99,3 +99,5 @@ class Commands(QObject):
         if response == QMessageBox.StandardButton.Yes:
             if self._serial.send_data(self._cmd(op="CX", val="OFF")):
                 self.print_signal.emit("SENT TRANSMISSION OFF COMMAND")
+                return 1
+        return 0

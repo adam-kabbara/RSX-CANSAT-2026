@@ -24,12 +24,12 @@ class TelemetryData:
     PRESSURE: float
     VOLTAGE: float
     CURRENT: float
-    GYRO_R: int
-    GYRO_P: int
-    GYRO_Y: int
-    ACCEL_R: int
-    ACCEL_P: int
-    ACCEL_Y: int
+    GYRO_R: float
+    GYRO_P: float
+    GYRO_Y: float
+    ACCEL_R: float
+    ACCEL_P: float
+    ACCEL_Y: float
     GPS_TIME: str
     GPS_ALTITUDE: float
     GPS_LATITUDE: float
@@ -46,6 +46,7 @@ class DataProcessor(QObject):
     file_error_signal = pyqtSignal(str)
     sat_error_signal = pyqtSignal(str)
     sat_resp_signal = pyqtSignal(str)
+    telemetry_data_signal = pyqtSignal(object)
 
     def __init__(self, graph_ui: GraphWindow, simp: SimpManager, parent=None):
 
@@ -60,24 +61,41 @@ class DataProcessor(QObject):
         self._csv_error_msg = ""
 
         self._csv_fields = [field.name for field in fields(TelemetryData)]
+        file_path = os.path.join(os.path.dirname(__file__), '..')
+        self.output_dir = os.path.join(file_path, 'output')
+        self._csv_path = os.path.join(self.output_dir, 'telemetry_data.csv')
 
         try:
-            file_path = os.path.join(os.path.dirname(__file__), '..')
-            self.output_dir = os.path.join(file_path, 'output')
             os.makedirs(self.output_dir, exist_ok=True)
-
-            self._csv_file = open(os.path.join(self.output_dir, 'telemetry_data.csv'), "w", newline="")
-            self._csv_writer = csv.DictWriter(self._csv_file, fieldnames=self._csv_fields)
-            self._csv_writer.writeheader()
+            self.open_csv()
         except Exception as e:
             self._csv_file = None
-            self._csv_error_msg = e
+            self._csv_writer = None
+            self._csv_error_msg = str(e)
+
+    def open_csv(self):
+        try:
+            os.makedirs(self.output_dir, exist_ok=True)
+            if self._csv_file is not None and not self._csv_file.closed:
+                self._csv_file.close()
+            self._csv_file = open(self._csv_path, "w", newline="")
+            self._csv_writer = csv.DictWriter(self._csv_file, fieldnames=self._csv_fields)
+            self._csv_writer.writeheader()
+            self._csv_file.flush()
+            self._csv_error_msg = ""
+            return True
+        except Exception as e:
+            self._csv_file = None
+            self._csv_writer = None
+            self._csv_error_msg = str(e)
+            return False
 
     def csv_check(self):
-        if self._csv_file is None:
-            return False
-        else:
-            return True
+        return (
+            self._csv_file is not None
+            and not self._csv_file.closed
+            and self._csv_writer is not None
+        )
         
     def get_csv_error_msg(self):
         return self._csv_error_msg
@@ -100,9 +118,29 @@ class DataProcessor(QObject):
                 self._csv_file.close()
 
     def reset_csv(self):
-        if self._csv_file is not None:
+        if not self.csv_check():
+            return self.open_csv()
+        try:
             self._csv_file.seek(0)
             self._csv_file.truncate()
+            self._csv_writer.writeheader()
+            self._csv_file.flush()
+            self._csv_error_msg = ""
+            return True
+        except Exception as e:
+            self._csv_error_msg = str(e)
+            self.file_error_signal.emit(f"ERROR: CSV could not be reset: {e}")
+            return False
+
+    def _write_csv_row(self, row):
+        if not self.csv_check():
+            return
+        try:
+            self._csv_writer.writerow(row)
+            self._csv_file.flush()
+        except Exception as e:
+            self._csv_error_msg = str(e)
+            self.file_error_signal.emit(f"ERROR: CSV write failed: {e}")
 
     def process_data(self, msg):
         if self._write_to_log:
@@ -146,9 +184,9 @@ class DataProcessor(QObject):
             if "CAMERA2 OFF" in msg:
                 self._graph_ui.update_camera2_status("OFF")
 
-            row = {field: "" for field in self._csv_writer.fieldnames}
+            row = {field: "" for field in self._csv_fields}
             row["CMD_ECHO"] = msg
-            self._csv_writer.writerow(row)
+            self._write_csv_row(row)
 
             msg_text = re.search(':(.+)', msg).group(1)
             if msg_text is None:
@@ -179,6 +217,7 @@ class DataProcessor(QObject):
             return  # message is empty or only whitespace/commas
         
         data = self.extract_data_str(msg)
+        self.telemetry_data_signal.emit(data)
 
         # Update graphs and live data values
         if data.ALTITUDE is not None:
@@ -192,6 +231,9 @@ class DataProcessor(QObject):
         
         if data.VOLTAGE is not None:
             self._graph_ui.update_volt_graph(data.VOLTAGE)
+
+        if data.CURRENT is not None:
+            self._graph_ui.update_current_graph(data.CURRENT)
 
         if data.GYRO_R is not None and data.GYRO_P is not None and data.GYRO_Y is not None:
             new_gyro_data = [data.GYRO_R, data.GYRO_P, data.GYRO_Y]
@@ -246,37 +288,61 @@ class DataProcessor(QObject):
                 self._graph_ui.update_camera2_status("OFF")
 
         data_dict = asdict(data)
-        self._csv_writer.writerow(data_dict)
+        self._write_csv_row(data_dict)
     
     def extract_data_str(self, msg: str) -> TelemetryData:
 
         fields = msg.split(',')
 
         telemetry_data = TelemetryData(
-            TEAM_ID      = int(fields[0]) if fields else None,
-            MISSION_TIME = fields[1] if 1 < len(fields) else None,
-            PACKET_COUNT = fields[2] if 2 < len(fields) else None,
-            MODE         = fields[3] if 3 < len(fields) else None,
-            STATE        = fields[4] if 4 < len(fields) else None,
-            ALTITUDE     = float(fields[5]) if 5 < len(fields) else None,
-            TEMPERATURE  = float(fields[6]) if 6 < len(fields) else None,
-            PRESSURE     = float(fields[7]) if 7 < len(fields) else None,
-            VOLTAGE      = float(fields[8]) if 8 < len(fields) else None,
-            CURRENT      = float(fields[9]) if 9 < len(fields) else None,
-            GYRO_R       = int(fields[10]) if 10 < len(fields) else None,
-            GYRO_P       = int(fields[11]) if 11 < len(fields) else None,
-            GYRO_Y       = int(fields[12]) if 12 < len(fields) else None,
-            ACCEL_R      = int(fields[13]) if 13 < len(fields) else None,
-            ACCEL_P      = int(fields[14]) if 14 < len(fields) else None,
-            ACCEL_Y      = int(fields[15]) if 15 < len(fields) else None,
-            GPS_TIME     = fields[16] if 16 < len(fields) else None,
-            GPS_ALTITUDE = float(fields[17]) if 17 < len(fields) else None,
-            GPS_LATITUDE = float(fields[18]) if 18 < len(fields) else None,
-            GPS_LONGITUDE= float(fields[19]) if 19 < len(fields) else None,
-            GPS_SATS     = fields[20] if 20 < len(fields) else None,
-            CMD_ECHO     = fields[21] if 21 < len(fields) else None,
-            CAM_STATUS   = fields[22] if 22 < len(fields) else None,
+            TEAM_ID      = self._parse_int(self._field(fields, 0)),
+            MISSION_TIME = self._field(fields, 1),
+            PACKET_COUNT = self._field(fields, 2),
+            MODE         = self._field(fields, 3),
+            STATE        = self._field(fields, 4),
+            ALTITUDE     = self._parse_float(self._field(fields, 5)),
+            TEMPERATURE  = self._parse_float(self._field(fields, 6)),
+            PRESSURE     = self._parse_float(self._field(fields, 7)),
+            VOLTAGE      = self._parse_float(self._field(fields, 8)),
+            CURRENT      = self._parse_float(self._field(fields, 9)),
+            GYRO_R       = self._parse_float(self._field(fields, 10)),
+            GYRO_P       = self._parse_float(self._field(fields, 11)),
+            GYRO_Y       = self._parse_float(self._field(fields, 12)),
+            ACCEL_R      = self._parse_float(self._field(fields, 13)),
+            ACCEL_P      = self._parse_float(self._field(fields, 14)),
+            ACCEL_Y      = self._parse_float(self._field(fields, 15)),
+            GPS_TIME     = self._field(fields, 16),
+            GPS_ALTITUDE = self._parse_float(self._field(fields, 17)),
+            GPS_LATITUDE = self._parse_float(self._field(fields, 18)),
+            GPS_LONGITUDE= self._parse_float(self._field(fields, 19)),
+            GPS_SATS     = self._field(fields, 20),
+            CMD_ECHO     = self._field(fields, 21),
+            CAM_STATUS   = self._parse_int(self._field(fields, 22)),
             PACKET_RECV  = self._graph_ui.get_packet_count()
         )
 
         return telemetry_data
+
+    def _field(self, fields: list[str], index: int):
+        if index >= len(fields):
+            return None
+        value = fields[index].strip()
+        if value == "":
+            return None
+        return value
+
+    def _parse_float(self, value):
+        if value is None:
+            return None
+        try:
+            return float(value)
+        except ValueError:
+            return None
+
+    def _parse_int(self, value):
+        if value is None:
+            return None
+        try:
+            return int(float(value))
+        except ValueError:
+            return None
