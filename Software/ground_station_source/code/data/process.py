@@ -75,6 +75,7 @@ class DataProcessor(QObject):
 
     def open_csv(self):
         try:
+            os.makedirs(self.output_dir, exist_ok=True)
             if self._csv_file is not None and not self._csv_file.closed:
                 self._csv_file.close()
             self._csv_file = open(self._csv_path, "w", newline="")

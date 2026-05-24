@@ -99,3 +99,5 @@ class Commands(QObject):
         if response == QMessageBox.StandardButton.Yes:
             if self._serial.send_data(self._cmd(op="CX", val="OFF")):
                 self.print_signal.emit("SENT TRANSMISSION OFF COMMAND")
+                return 1
+        return 0
