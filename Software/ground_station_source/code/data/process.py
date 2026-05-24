@@ -61,24 +61,40 @@ class DataProcessor(QObject):
         self._csv_error_msg = ""
 
         self._csv_fields = [field.name for field in fields(TelemetryData)]
+        file_path = os.path.join(os.path.dirname(__file__), '..')
+        self.output_dir = os.path.join(file_path, 'output')
+        self._csv_path = os.path.join(self.output_dir, 'telemetry_data.csv')
 
         try:
-            file_path = os.path.join(os.path.dirname(__file__), '..')
-            self.output_dir = os.path.join(file_path, 'output')
             os.makedirs(self.output_dir, exist_ok=True)
-
-            self._csv_file = open(os.path.join(self.output_dir, 'telemetry_data.csv'), "w", newline="")
-            self._csv_writer = csv.DictWriter(self._csv_file, fieldnames=self._csv_fields)
-            self._csv_writer.writeheader()
+            self.open_csv()
         except Exception as e:
             self._csv_file = None
-            self._csv_error_msg = e
+            self._csv_writer = None
+            self._csv_error_msg = str(e)
+
+    def open_csv(self):
+        try:
+            if self._csv_file is not None and not self._csv_file.closed:
+                self._csv_file.close()
+            self._csv_file = open(self._csv_path, "w", newline="")
+            self._csv_writer = csv.DictWriter(self._csv_file, fieldnames=self._csv_fields)
+            self._csv_writer.writeheader()
+            self._csv_file.flush()
+            self._csv_error_msg = ""
+            return True
+        except Exception as e:
+            self._csv_file = None
+            self._csv_writer = None
+            self._csv_error_msg = str(e)
+            return False
 
     def csv_check(self):
-        if self._csv_file is None:
-            return False
-        else:
-            return True
+        return (
+            self._csv_file is not None
+            and not self._csv_file.closed
+            and self._csv_writer is not None
+        )
         
     def get_csv_error_msg(self):
         return self._csv_error_msg
@@ -101,9 +117,29 @@ class DataProcessor(QObject):
                 self._csv_file.close()
 
     def reset_csv(self):
-        if self._csv_file is not None:
+        if not self.csv_check():
+            return self.open_csv()
+        try:
             self._csv_file.seek(0)
             self._csv_file.truncate()
+            self._csv_writer.writeheader()
+            self._csv_file.flush()
+            self._csv_error_msg = ""
+            return True
+        except Exception as e:
+            self._csv_error_msg = str(e)
+            self.file_error_signal.emit(f"ERROR: CSV could not be reset: {e}")
+            return False
+
+    def _write_csv_row(self, row):
+        if not self.csv_check():
+            return
+        try:
+            self._csv_writer.writerow(row)
+            self._csv_file.flush()
+        except Exception as e:
+            self._csv_error_msg = str(e)
+            self.file_error_signal.emit(f"ERROR: CSV write failed: {e}")
 
     def process_data(self, msg):
         if self._write_to_log:
@@ -147,9 +183,9 @@ class DataProcessor(QObject):
             if "CAMERA2 OFF" in msg:
                 self._graph_ui.update_camera2_status("OFF")
 
-            row = {field: "" for field in self._csv_writer.fieldnames}
+            row = {field: "" for field in self._csv_fields}
             row["CMD_ECHO"] = msg
-            self._csv_writer.writerow(row)
+            self._write_csv_row(row)
 
             msg_text = re.search(':(.+)', msg).group(1)
             if msg_text is None:
@@ -251,7 +287,7 @@ class DataProcessor(QObject):
                 self._graph_ui.update_camera2_status("OFF")
 
         data_dict = asdict(data)
-        self._csv_writer.writerow(data_dict)
+        self._write_csv_row(data_dict)
     
     def extract_data_str(self, msg: str) -> TelemetryData:
 
