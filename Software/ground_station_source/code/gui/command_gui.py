@@ -90,11 +90,12 @@ class CommandWindow(QMainWindow):
         grid_layout = QGridLayout(self.central_widget)
         grid_layout.setHorizontalSpacing(10)
         grid_layout.setVerticalSpacing(20)
+        grid_layout.setContentsMargins(10, 10, 10, 10)
 
         # ------ COMMANDS GROUP ------ #
         commands_group_box = QGroupBox()
-        commands_group_box.setFixedHeight(300)
-        commands_group_box.setFixedWidth(500)
+        commands_group_box.setMinimumHeight(300)
+        commands_group_box.setMinimumWidth(500)
         commands_layout = QVBoxLayout(commands_group_box)
 
         self.button_mode = QPushButton("CHANGE MODE")
