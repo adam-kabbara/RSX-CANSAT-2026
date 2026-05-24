@@ -158,14 +158,19 @@ cam_status SensorManager::getCameraStatus()
 	return cam_status::CAM1_OFF_CAM2_OFF;
 }
 
-void SensorManager::setRTCTime(int h, int m, int s)
+void SensorManager::setRTCTime(uint8_t h, uint8_t m, uint8_t s)
 {
-	return;
+	DS1307_SetHour(h);
+	DS1307_SetMinute(m);
+	DS1307_SetSecond(s);
 }
 
 void SensorManager::getRTCTime(char time_str[DATA_SIZE])
 {
-	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
+	uint8_t h = DS1307_GetHour();
+	uint8_t m = DS1307_GetMinute();
+	uint8_t s = DS1307_GetSecond();
+	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", h, m, s);
 }
 
 void SensorManager::getGPSTime(char time_str[DATA_SIZE])
@@ -260,6 +265,11 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	 * Add a delay between each start and send an
 	 * info message */
 
+	if(!DS1307_Init(hi2c1))
+	{
+		serial.sendErrorMsg("RTC Init failed");
+	}
+
 	if(!INA219setup(MAX_EXP_CURRENT_A, 0.1, 0))
 	{
 		serial.sendErrorMsg("INA Init failed");
@@ -317,9 +327,12 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 		VL53L1X_SetDistanceMode(tof_dev, 2); /* 1=short, 2=long */
 		VL53L1X_SetTimingBudgetInMs(tof_dev, TOF_TIMING_BUDGET_MS); /* in ms possible values [20, 50, 100, 200, 500] */
 		VL53L1X_SetInterMeasurementInMs(tof_dev, TOF_TIMING_BUDGET_MS); /* in ms, IM must be > = TB */
-		// TODO check these values
+		// TODO replace calibrate with set (delete calibrate)
 		VL53L1X_CalibrateOffset(tof_dev, 140, &offset);
 		VL53L1X_CalibrateXtalk(tof_dev, 1000, &xtalk);
+		serial.sendInfoDataMsg("Offset value=%d, xtalk value=%d. Delete these functions and uncomment set functions", offset, xtalk);
+		//VL53L1X_SetOffset(tof_dev, offset);
+		//VL53L1X_SetXtalk(tof_dev, xtalk);
 	}
 
 	HAL_Delay(100);
