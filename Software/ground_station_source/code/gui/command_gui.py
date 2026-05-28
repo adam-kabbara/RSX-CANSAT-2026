@@ -54,6 +54,7 @@ class CommandWindow(QMainWindow):
         self.__gps_rad            = 0.0
         self.__sim_mode           = "ENABLE"
         self.__custom_msg         = ""
+        
         self.__CURRENT_CMD_WINDOW = None
         self.__last_msg           = None
         self.__last_msg_sat       = False
@@ -412,7 +413,19 @@ class CommandWindow(QMainWindow):
         self.button_send_custom.hide()
         self.custom_msg_field.hide()
 
+        self.button_auto_ctr = QPushButton("ENABLE AUTOMATIC CTR")
+        self.button_auto_ctr.setFont(button_font)
+        self.button_auto_ctr.clicked.connect(lambda: self.command_manager.command__set_control(0))
+        
+        self.button_manual_ctr = QPushButton("ENABLE MANUAL CONTROL")
+        self.button_manual_ctr.setFont(button_font)
+        self.button_manual_ctr.clicked.connect(lambda: self.command_manager.command__set_control(1))
 
+        control_mode_box = QHBoxLayout()
+        control_mode_box.addWidget(self.button_auto_ctr)
+        control_mode_box.addWidget(self.button_manual_ctr)
+        self.button_auto_ctr.hide()
+        self.button_manual_ctr.hide()
 
         
         # MAIN buttons
@@ -439,6 +452,7 @@ class CommandWindow(QMainWindow):
         commands_layout.addWidget(self.button_restart)
         commands_layout.addWidget(self.button_reset_mission)
         commands_layout.addLayout(custom_msg_editing_box)
+        commands_layout.addLayout(control_mode_box)
         
         # SENSORS buttons
         commands_layout.addWidget(self.button_altitude_cal)
@@ -483,6 +497,8 @@ class CommandWindow(QMainWindow):
             self.button_back,
             self.custom_msg_field,
             self.button_send_custom,
+            self.button_auto_ctr,
+            self.button_manual_ctr,
         ]
 
         self.buttons_mission_control = [
