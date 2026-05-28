@@ -47,6 +47,28 @@ class Commands(QObject):
         elif self._serial.send_data(self._cmd(op="MEC", val=f"SERVO:{servo_id}|{servo_val}")):
             self.print_signal.emit(f"Sent command to program servo {servo_id} to {servo_val}")
 
+    def command__set_dc(self, __dc_motor_val):
+        if self._serial.send_data(self._cmd(op="MEC", val=f"DC_MOTOR:{__dc_motor_val}")):
+            self.print_signal.emit(f"Sent command to program DC motor to {__dc_motor_val}")
+
+    def command__custom(self, __custom_msg):
+        if self._serial.send_data(__custom_msg):
+            self.print_signal.emit(f"Sent custom message: {__custom_msg}")
+
+    def command__cal(self, cal_type: str):
+        if self._serial.send_data(self._cmd(op="CAL2", val=cal_type)):
+            self.print_signal.emit(f"Sent {cal_type} calibration command")
+
+    def command__set_gps(self, __gps_lat, __gps_lon, __gps_rad):
+        if self._serial.send_data(self._cmd(op="GPS", val=(f"{__gps_lat}|{__gps_lon}|{__gps_rad}"))):
+            self.print_signal.emit(f"Sent command to set GPS coordinates to LAT:{__gps_lat}, LON:{__gps_lon}, RAD:{__gps_rad}")
+
+    def command__set_control(self, control_mode: int):
+        if self._serial.send_data(self._cmd(op="CTR", val=f"{control_mode}")):
+            self.print_signal.emit(f"Sent command to set control mode to {control_mode}")
+        #control mode 0 = auto, 1 = manual
+
+
     def command__toggle_camera(self, camera_id):
         if self._serial.send_data(self._cmd(op="MEC", val=f"CAM:{camera_id}")):
             self.print_signal.emit(f"Sent Camera {camera_id} toggle command")
@@ -58,7 +80,7 @@ class Commands(QObject):
     def command__cam_status(self):
         if self._serial.send_data(self._cmd(op="MEC", val="CAMERA_STATUS:X")):
             self.print_signal.emit("Requesting CAMERA status")
-    
+       
     def command__sim_mode(self, mode: str):
         if self._serial.send_data(self._cmd(op="SIM", val=mode)):
             self.print_signal.emit(f"Sent simulation mode '{mode}'")

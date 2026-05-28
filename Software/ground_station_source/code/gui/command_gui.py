@@ -10,7 +10,7 @@ from .graph_gui import GraphWindow
 from data.process import DataProcessor
 from data.simp import SimpManager
 from command.commands import Commands
-from PyQt6.QtGui import QColor, QIcon, QIntValidator, QTextCursor
+from PyQt6.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator, QTextCursor
 from PyQt6.QtCore import Qt, QTime, QTimer
 from PyQt6.QtWidgets import (
     QMainWindow,
@@ -30,11 +30,12 @@ from PyQt6.QtWidgets import (
 
 class CommandButtonGroup(Enum):
     MAIN = 0
-    MODE = 1
+    ACTUATION = 1
     ADVANCED = 2
     SENSORS = 3
     CONNECTION = 4
-    TELEMETRY = 5
+    MISSION_CONTROL = 5
+    SETUP = 6
 
 class CommandWindow(QMainWindow):
 
@@ -47,6 +48,13 @@ class CommandWindow(QMainWindow):
         self.__mec_id             = 1
         self.__servo_id           = -1
         self.__servo_val          = -1
+        self.__dc_motor_val       = 0
+        self.__gps_lat            = 0.0
+        self.__gps_lon            = 0.0
+        self.__gps_rad            = 0.0
+        self.__sim_mode           = "ENABLE"
+        self.__custom_msg         = ""
+        
         self.__CURRENT_CMD_WINDOW = None
         self.__last_msg           = None
         self.__last_msg_sat       = False
@@ -98,9 +106,9 @@ class CommandWindow(QMainWindow):
         commands_group_box.setMinimumWidth(500)
         commands_layout = QVBoxLayout(commands_group_box)
 
-        self.button_mode = QPushButton("CHANGE MODE")
-        self.button_mode.setFont(button_font)
-        self.button_mode.clicked.connect(lambda: self.command_group_change_buttons(CommandButtonGroup.MODE))
+        self.button_actuation = QPushButton("ACTUATION")
+        self.button_actuation.setFont(button_font)
+        self.button_actuation.clicked.connect(lambda: self.command_group_change_buttons(CommandButtonGroup.ACTUATION))
 
         self.button_connection_group = QPushButton("CONNECTION")
         self.button_connection_group.setFont(button_font)
@@ -116,16 +124,16 @@ class CommandWindow(QMainWindow):
         self.button_connect_close.clicked.connect(self.close_port)
         self.button_connect_close.hide()
 
-        self.button_telemetry = QPushButton("TELEMETRY")
+        self.button_telemetry = QPushButton("MISSION CONTROL")
         self.button_telemetry.setFont(button_font)
-        self.button_telemetry.clicked.connect(lambda: self.command_group_change_buttons(CommandButtonGroup.TELEMETRY))
+        self.button_telemetry.clicked.connect(lambda: self.command_group_change_buttons(CommandButtonGroup.MISSION_CONTROL))
 
         self.button_transmit_on = QPushButton("START MISSION")
         self.button_transmit_on.setFont(button_font)
         self.button_transmit_on.clicked.connect(self.start_transmission)
         self.button_transmit_on.hide()
 
-        self.button_transmit_off = QPushButton("END MISSION")
+        self.button_transmit_off = QPushButton("STOP MISSION")
         self.button_transmit_off.setFont(button_font)
         self.button_transmit_off.clicked.connect(self.end_transmission)
         self.button_transmit_off.hide()
@@ -134,13 +142,16 @@ class CommandWindow(QMainWindow):
         self.button_advanced.setFont(button_font)
         self.button_advanced.clicked.connect(lambda: self.command_group_change_buttons(CommandButtonGroup.ADVANCED))
 
+        self.button_setup = QPushButton("SETUP")
+        self.button_setup.setFont(button_font)
+        self.button_setup.clicked.connect(lambda: self.command_group_change_buttons(CommandButtonGroup.SETUP))
+
         self.button_back = QPushButton("BACK")
         self.button_back.setFont(button_font)
         self.button_back.clicked.connect(lambda: self.command_group_change_buttons(CommandButtonGroup.MAIN))
         self.button_back.hide()
 
         self.combo_select_port = QComboBox()
-        self.combo_select_port.setPlaceholderText("SELECT PORT")
         self.combo_select_port.setFont(button_font)
         self.combo_select_port.activated.connect(self.port_selected)
         self.combo_select_port.hide()
@@ -172,20 +183,60 @@ class CommandWindow(QMainWindow):
         self.button_reset_mission.clicked.connect(self.reset_mission)
         self.button_reset_mission.hide()
 
-        self.button_sim_mode_enable = QPushButton("SIM MODE ENABLE")
-        self.button_sim_mode_enable.setFont(button_font)
-        self.button_sim_mode_enable.clicked.connect(lambda: self.command_manager.command__sim_mode("ENABLE"))
-        self.button_sim_mode_enable.hide()
+        sim_mode_box = QHBoxLayout()
 
-        self.button_sim_mode_activate = QPushButton("SIM MODE ACTIVATE")
-        self.button_sim_mode_activate.setFont(button_font)
-        self.button_sim_mode_activate.clicked.connect(lambda: self.command_manager.command__sim_mode("ACTIVATE"))
-        self.button_sim_mode_activate.hide()
+        ### Set GPS
+        set_gps_box = QHBoxLayout()
+        self.button_set_gps = QPushButton("SET GPS COOR")
+        self.button_set_gps.setFont(button_font)
 
-        self.button_sim_mode_disable = QPushButton("SIM MODE DISABLE")
-        self.button_sim_mode_disable.setFont(button_font)
-        self.button_sim_mode_disable.clicked.connect(lambda: self.command_manager.command__sim_mode("DISABLE"))
-        self.button_sim_mode_disable.hide()
+        self.gps_lat = QLineEdit()
+        self.gps_lat.setPlaceholderText("Latitude")
+        self.gps_lat.setValidator(QDoubleValidator())
+        self.gps_lat.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_lat.editingFinished.connect(self.gps_lat_edited)
+        
+
+        self.gps_lon = QLineEdit()
+        self.gps_lon.setPlaceholderText("Longitude")
+        self.gps_lon.setValidator(QDoubleValidator())
+        self.gps_lon.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_lon.editingFinished.connect(self.gps_lon_edited)
+        
+
+        self.gps_rad = QLineEdit()
+        self.gps_rad.setPlaceholderText("Radius")
+        self.gps_rad.setValidator(QDoubleValidator())
+        self.gps_rad.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_rad.editingFinished.connect(self.gps_rad_edited)
+
+        self.button_set_gps.clicked.connect(lambda: self.command_manager.command__set_gps(self.__gps_lat, self.__gps_lon, self.__gps_rad))
+        self.button_set_gps.hide()
+
+        self.gps_lat.hide()
+        self.gps_lon.hide()
+        self.gps_rad.hide()
+
+        set_gps_box.addWidget(self.button_set_gps)
+        set_gps_box.addWidget(self.gps_lat)
+        set_gps_box.addWidget(self.gps_lon)
+        set_gps_box.addWidget(self.gps_rad)
+
+        self.button_set_sim_mode = QPushButton("SET MODE")
+        self.button_set_sim_mode.setFont(button_font)
+        self.button_set_sim_mode.clicked.connect(lambda: self.command_manager.command__sim_mode(self.__sim_mode))
+        self.button_set_sim_mode.hide()
+
+        self.sim_mode_field = QComboBox()
+        self.sim_mode_field.addItem("ENABLE")
+        self.sim_mode_field.addItem("ACTIVATE")
+        self.sim_mode_field.addItem("DISABLE")
+        self.sim_mode_field.setFont(button_font)
+        self.sim_mode_field.activated.connect(self.sim_mode_field_edited)
+        self.sim_mode_field.hide()
+
+        sim_mode_box.addWidget(self.button_set_sim_mode)
+        sim_mode_box.addWidget(self.sim_mode_field)
 
         self.button_refresh_ports = QPushButton("REFRESH PORTS")
         self.button_refresh_ports.setFont(button_font)
@@ -197,7 +248,7 @@ class CommandWindow(QMainWindow):
         self.button_get_log_data.clicked.connect(self.command_manager.command__get_log)
         self.button_get_log_data.hide()
 
-        self.button_sensor_control = QPushButton("SENSOR CONTROL")
+        self.button_sensor_control = QPushButton("CALIBRATION")
         self.button_sensor_control.setFont(button_font)
         self.button_sensor_control.clicked.connect(lambda: self.command_group_change_buttons(CommandButtonGroup.SENSORS))
 
@@ -206,16 +257,57 @@ class CommandWindow(QMainWindow):
         self.button_altitude_cal.clicked.connect(self.command_manager.command__alt_cal)
         self.button_altitude_cal.hide()
 
+        self.button_accel_cal = QPushButton("CALIBRATE ACCELERATION")
+        self.button_accel_cal.setFont(button_font)
+        self.button_accel_cal.clicked.connect(lambda: self.command_manager.command__cal("ACCE"))
+        self.button_accel_cal.hide()
+
+        self.button_tof_cal = QPushButton("CALIBRATE ToF")
+        self.button_tof_cal.setFont(button_font)
+        self.button_tof_cal.clicked.connect(lambda: self.command_manager.command__cal("TOF"))
+        self.button_tof_cal.hide()
+
+        self.button_mag_cal = QPushButton("CALIBRATE MAGNETIC")
+        self.button_mag_cal.setFont(button_font)
+        self.button_mag_cal.clicked.connect(lambda: self.command_manager.command__cal("MAG"))
+        self.button_mag_cal.hide()
+
+        self.button_gyro_cal = QPushButton("CALIBRATE GYRO")
+        self.button_gyro_cal.setFont(button_font)
+        self.button_gyro_cal.clicked.connect(lambda: self.command_manager.command__cal("GYRO"))
+        self.button_gyro_cal.hide()
+
         self.button_test_connection = QPushButton("CHECK CONNECTION")
         self.button_test_connection.setFont(button_font)
         self.button_test_connection.clicked.connect(self.command_manager.command__check_connection)
         self.button_test_connection.hide()
 
         ### Program servo
+        set_dc_motor_box = QHBoxLayout()
+
+        self.set_dc_motor_button = QPushButton("SET DC MOTOR")
+        self.set_dc_motor_button.setFont(button_font)
+
+        
+        self.dc_motor_val_field = QLineEdit()
+        self.dc_motor_val_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
+        self.dc_motor_val_field.setMaxLength(4)
+        self.dc_motor_val_field.setStyleSheet(cosmetics.servo_val_stylesheet())
+        dc_int_validator = QIntValidator(-255, 255, self) #should it be restricted?
+        self.dc_motor_val_field.setValidator(dc_int_validator)
+        self.dc_motor_val_field.editingFinished.connect(self.dc_motor_val_edited)
+        self.set_dc_motor_button.clicked.connect(lambda: self.command_manager.command__set_dc(self.__dc_motor_val))
+
+        self.set_dc_motor_button.hide()
+
+        self.dc_motor_val_field.hide()
+
+        set_dc_motor_box.addWidget(self.set_dc_motor_button)
+        set_dc_motor_box.addWidget(self.dc_motor_val_field)
+
         program_servo_box = QHBoxLayout()
 
         self.servo_id_field = QComboBox()
-        self.servo_id_field.setPlaceholderText("SELECT SERVO")
         self.servo_id_field.addItem("Nosecone", 0)
         self.servo_id_field.addItem("Container", 1)
         self.servo_id_field.addItem("Elevator", 2)
@@ -250,7 +342,6 @@ class CommandWindow(QMainWindow):
         program_camera_box = QHBoxLayout()
 
         self.camera_id_field = QComboBox()
-        self.camera_id_field.setPlaceholderText("SELECT CAMERA")
         self.camera_id_field.addItem("CAMERA1")
         self.camera_id_field.addItem("CAMERA2")
         self.camera_id_field.setFont(button_font)
@@ -269,7 +360,6 @@ class CommandWindow(QMainWindow):
 
         force_release_box = QHBoxLayout()
         self.mec_release_field = QComboBox()
-        self.mec_release_field.setPlaceholderText("SELECT MECHANISM")
         self.mec_release_field.addItem("NOSECONE RELEASE")
         self.mec_release_field.addItem("PROBE RELEASE")
         self.mec_release_field.addItem("WING DEPLOYMENT")
@@ -307,31 +397,84 @@ class CommandWindow(QMainWindow):
         self.team_id_field_info.hide()
         self.team_id_field.hide()
 
+        
+        self.custom_msg_field = QLineEdit()
+        self.custom_msg_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
+        self.custom_msg_field.setMaxLength(50)
+        self.custom_msg_field.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.custom_msg_field.editingFinished.connect(self.custom_msg_edited)
+        self.button_send_custom = QPushButton("SEND CUSTOM MSG")
+        self.button_send_custom.setFont(button_font)
+        self.button_send_custom.clicked.connect(lambda: self.command_manager.command__custom(self.__custom_msg))
+        
+        custom_msg_editing_box = QHBoxLayout()
+        custom_msg_editing_box.addWidget(self.button_send_custom)
+        custom_msg_editing_box.addWidget(self.custom_msg_field)
+        self.button_send_custom.hide()
+        self.custom_msg_field.hide()
+
+        self.button_auto_ctr = QPushButton("ENABLE AUTOMATIC CTR")
+        self.button_auto_ctr.setFont(button_font)
+        self.button_auto_ctr.clicked.connect(lambda: self.command_manager.command__set_control(0))
+        
+        self.button_manual_ctr = QPushButton("ENABLE MANUAL CONTROL")
+        self.button_manual_ctr.setFont(button_font)
+        self.button_manual_ctr.clicked.connect(lambda: self.command_manager.command__set_control(1))
+
+        control_mode_box = QHBoxLayout()
+        control_mode_box.addWidget(self.button_auto_ctr)
+        control_mode_box.addWidget(self.button_manual_ctr)
+        self.button_auto_ctr.hide()
+        self.button_manual_ctr.hide()
+
+        
+        # MAIN buttons
         commands_layout.addWidget(self.button_connection_group)
+        commands_layout.addWidget(self.button_telemetry)
+        commands_layout.addWidget(self.button_setup)
+        commands_layout.addWidget(self.button_sensor_control)
+        commands_layout.addWidget(self.button_actuation)
+        commands_layout.addWidget(self.button_advanced)
+        
+        # CONNECTION buttons
         commands_layout.addWidget(self.combo_select_port)
         commands_layout.addWidget(self.button_connect)
         commands_layout.addWidget(self.button_connect_close)
         commands_layout.addWidget(self.button_refresh_ports)
         commands_layout.addWidget(self.button_test_connection)
-        commands_layout.addWidget(self.button_telemetry)
+        
+        # MISSION_CONTROL buttons
         commands_layout.addWidget(self.button_transmit_on)
         commands_layout.addWidget(self.button_transmit_off)
+        commands_layout.addWidget(self.button_get_log_data)
+        
+        # ADVANCED buttons
         commands_layout.addWidget(self.button_restart)
-        commands_layout.addWidget(self.button_sensor_control)
-        commands_layout.addWidget(self.button_mode)
+        commands_layout.addWidget(self.button_reset_mission)
+        commands_layout.addLayout(custom_msg_editing_box)
+        commands_layout.addLayout(control_mode_box)
+        
+        # SENSORS buttons
         commands_layout.addWidget(self.button_altitude_cal)
-        commands_layout.addWidget(self.camera_status_button)
+        commands_layout.addWidget(self.button_accel_cal)
+        commands_layout.addWidget(self.button_tof_cal)
+        commands_layout.addWidget(self.button_mag_cal)
+        commands_layout.addWidget(self.button_gyro_cal)
+        
+        # SETUP buttons
+        commands_layout.addLayout(set_time_box)
+        commands_layout.addLayout(sim_mode_box)
+        commands_layout.addLayout(team_id_editing_box)
+        commands_layout.addLayout(set_gps_box)
+        
+        # ACTUATION buttons
+        commands_layout.addLayout(set_dc_motor_box)
         commands_layout.addLayout(program_servo_box)
         commands_layout.addLayout(program_camera_box)
-        commands_layout.addWidget(self.button_advanced)
-        commands_layout.addLayout(set_time_box)
-        commands_layout.addWidget(self.button_reset_mission)
-        commands_layout.addWidget(self.button_sim_mode_enable)
-        commands_layout.addWidget(self.button_sim_mode_activate)
-        commands_layout.addWidget(self.button_sim_mode_disable)
-        commands_layout.addWidget(self.button_get_log_data)
+        commands_layout.addWidget(self.camera_status_button)
         commands_layout.addLayout(force_release_box)
-        commands_layout.addLayout(team_id_editing_box)
+        
+        # BACK button (universal)
         commands_layout.addWidget(self.button_back)
 
         grid_layout.setColumnStretch(0,1)
@@ -341,39 +484,33 @@ class CommandWindow(QMainWindow):
         # Store buttons in groups so we can control them later
         self.buttons_main = [
             self.button_advanced,
+            self.button_setup,
             self.button_connection_group,
-            self.button_mode,
+            self.button_actuation,
             self.button_sensor_control,
             self.button_telemetry,
         ]
         
         self.buttons_adv = [
             self.button_reset_mission,
-            self.button_back,
-            self.button_get_log_data,
-            self.team_id_field,
-            self.team_id_field_info,
-        ]
-
-        self.buttons_telemetry = [
-            self.button_transmit_on,
-            self.button_transmit_off,
             self.button_restart,
             self.button_back,
+            self.custom_msg_field,
+            self.button_send_custom,
+            self.button_auto_ctr,
+            self.button_manual_ctr,
         ]
 
-        self.buttons_mode = [
-            self.button_sim_mode_enable,
-            self.button_sim_mode_disable,
-            self.button_sim_mode_activate,
+        self.buttons_mission_control = [
+            self.button_transmit_on,
+            self.button_transmit_off,
+            self.button_get_log_data,
             self.button_back,
         ]
 
-        self.buttons_sensor = [
-            self.button_set_time,
-            self.set_time_field,
-            self.button_back,
-            self.button_altitude_cal,
+        self.buttons_actuation = [
+            self.set_dc_motor_button,
+            self.dc_motor_val_field,
             self.program_servo_button,
             self.servo_id_field,
             self.servo_val_field,
@@ -382,6 +519,30 @@ class CommandWindow(QMainWindow):
             self.camera_status_button,
             self.mec_release_field,
             self.mec_activate_button,
+            self.button_back,
+        ]
+
+        self.buttons_setup = [
+            self.button_set_gps,
+            self.gps_lat,
+            self.gps_lon,
+            self.gps_rad,
+            self.button_back,
+            self.button_set_time,
+            self.set_time_field,
+            self.team_id_field,
+            self.team_id_field_info,
+            self.button_set_sim_mode,
+            self.sim_mode_field,
+        ]
+
+        self.buttons_sensor = [
+            self.button_back,
+            self.button_altitude_cal,
+            self.button_accel_cal,
+            self.button_tof_cal,
+            self.button_mag_cal,
+            self.button_gyro_cal,
         ]
 
         self.buttons_connection = [
@@ -520,23 +681,25 @@ class CommandWindow(QMainWindow):
 
     # Change what buttons are shown in the commands box
     def command_group_change_buttons(self, mode):
-        if mode == CommandButtonGroup.TELEMETRY:
+        if mode == CommandButtonGroup.MISSION_CONTROL:
             self.control_buttons(self.buttons_main, hide=True)
-            self.control_buttons(self.buttons_telemetry)
-            self.__CURRENT_CMD_WINDOW = CommandButtonGroup.TELEMETRY
+            self.control_buttons(self.buttons_mission_control)
+            self.__CURRENT_CMD_WINDOW = CommandButtonGroup.MISSION_CONTROL
 
         elif mode == CommandButtonGroup.MAIN:
             match self.__CURRENT_CMD_WINDOW:
                 case CommandButtonGroup.ADVANCED:
                     self.control_buttons(self.buttons_adv, hide=True)
-                case CommandButtonGroup.MODE:
-                    self.control_buttons(self.buttons_mode, hide=True)
+                case CommandButtonGroup.ACTUATION:
+                    self.control_buttons(self.buttons_actuation, hide=True)
                 case CommandButtonGroup.CONNECTION:
                     self.control_buttons(self.buttons_connection, hide=True)
                 case CommandButtonGroup.SENSORS:
                     self.control_buttons(self.buttons_sensor, hide=True)
-                case CommandButtonGroup.TELEMETRY:
-                    self.control_buttons(self.buttons_telemetry, hide=True)
+                case CommandButtonGroup.SETUP:
+                    self.control_buttons(self.buttons_setup, hide=True)
+                case CommandButtonGroup.MISSION_CONTROL:
+                    self.control_buttons(self.buttons_mission_control, hide=True)
             self.control_buttons(self.buttons_main)
         
         elif mode == CommandButtonGroup.ADVANCED:
@@ -544,11 +707,16 @@ class CommandWindow(QMainWindow):
             self.control_buttons(self.buttons_adv)
             self.__CURRENT_CMD_WINDOW = CommandButtonGroup.ADVANCED
 
-        elif mode == CommandButtonGroup.MODE:
+        elif mode == CommandButtonGroup.ACTUATION:
             self.control_buttons(self.buttons_main, hide=True)
-            self.control_buttons(self.buttons_mode)
-            self.__CURRENT_CMD_WINDOW = CommandButtonGroup.MODE
+            self.control_buttons(self.buttons_actuation)
+            self.__CURRENT_CMD_WINDOW = CommandButtonGroup.ACTUATION
         
+        elif mode == CommandButtonGroup.SETUP:
+            self.control_buttons(self.buttons_main, hide=True)
+            self.control_buttons(self.buttons_setup)
+            self.__CURRENT_CMD_WINDOW = CommandButtonGroup.SETUP
+
         elif mode == CommandButtonGroup.SENSORS:
             self.control_buttons(self.buttons_main, hide=True)
             self.control_buttons(self.buttons_sensor)
@@ -556,7 +724,6 @@ class CommandWindow(QMainWindow):
         
         elif mode == CommandButtonGroup.CONNECTION:
             self.combo_select_port.clear()
-            self.combo_select_port.setPlaceholderText("SELECT PORT")
             self.refresh_ports(False)
             self.control_buttons(self.buttons_main, hide=True)
             self.control_buttons(self.buttons_connection)
@@ -572,7 +739,6 @@ class CommandWindow(QMainWindow):
     # Refresh available ports connected to the computer
     def refresh_ports(self, b_print):
         self.combo_select_port.clear()
-        self.combo_select_port.setPlaceholderText("SELECT PORT")
 
         ports_info = self._serial.search_ports()
 
@@ -617,7 +783,34 @@ class CommandWindow(QMainWindow):
         self.team_id_field.clearFocus()
         self.__TEAM_ID = int(self.team_id_field.text())
         self.update_gui_log(f"Updated local TEAM ID to '{self.__TEAM_ID}'")
+
+    def custom_msg_edited(self):
+        self.custom_msg_field.clearFocus()
+        self.__custom_msg = self.custom_msg_field.text()
+        self.update_gui_log(f"Custom message set to: '{self.__custom_msg}'")
+
     
+    
+    def dc_motor_val_edited(self):
+        self.dc_motor_val_field.clearFocus()
+        if self.dc_motor_val_field.text():
+            self.__dc_motor_val = int(self.dc_motor_val_field.text())
+
+    def gps_lat_edited(self):
+        self.gps_lat.clearFocus()
+        if self.gps_lat.text():
+            self.__gps_lat = float(self.gps_lat.text())
+
+    def gps_lon_edited(self):
+        self.gps_lon.clearFocus()
+        if self.gps_lon.text():
+            self.__gps_lon = float(self.gps_lon.text())
+
+    def gps_rad_edited(self):
+        self.gps_rad.clearFocus()
+        if self.gps_rad.text():
+            self.__gps_rad = float(self.gps_rad.text())
+
     def servo_id_edited(self, index):
         self.__servo_id = self.servo_id_field.itemData(index)
     
@@ -633,6 +826,9 @@ class CommandWindow(QMainWindow):
     
     def set_time_field_edited(self, index):
         self.__set_time_id = self.set_time_field.itemData(index)
+    
+    def sim_mode_field_edited(self, index):
+        self.__sim_mode = self.sim_mode_field.itemText(index)
         
     def reset_mission(self):
         msg_box = QMessageBox()
