@@ -49,6 +49,9 @@ class CommandWindow(QMainWindow):
         self.__servo_id           = -1
         self.__servo_val          = -1
         self.__dc_motor_val       = 0
+        self.__gps_lat            = 0.0
+        self.__gps_lon            = 0.0
+        self.__gps_rad            = 0.0
         self.__sim_mode           = "ENABLE"
         self.__custom_msg         = ""
         self.__CURRENT_CMD_WINDOW = None
@@ -185,24 +188,32 @@ class CommandWindow(QMainWindow):
         set_gps_box = QHBoxLayout()
         self.button_set_gps = QPushButton("SET GPS COOR")
         self.button_set_gps.setFont(button_font)
-        self.button_set_gps.hide()
 
         self.gps_lat = QLineEdit()
         self.gps_lat.setPlaceholderText("Latitude")
         self.gps_lat.setValidator(QDoubleValidator())
         self.gps_lat.setStyleSheet(cosmetics.team_id_stylesheet())
-        self.gps_lat.hide()
+        self.gps_lat.editingFinished.connect(self.gps_lat_edited)
+        
 
         self.gps_lon = QLineEdit()
         self.gps_lon.setPlaceholderText("Longitude")
         self.gps_lon.setValidator(QDoubleValidator())
         self.gps_lon.setStyleSheet(cosmetics.team_id_stylesheet())
-        self.gps_lon.hide()
+        self.gps_lon.editingFinished.connect(self.gps_lon_edited)
+        
 
         self.gps_rad = QLineEdit()
         self.gps_rad.setPlaceholderText("Radius")
         self.gps_rad.setValidator(QDoubleValidator())
         self.gps_rad.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_rad.editingFinished.connect(self.gps_rad_edited)
+
+        self.button_set_gps.clicked.connect(lambda: self.command_manager.command__set_gps(self.__gps_lat, self.__gps_lon, self.__gps_rad))
+        self.button_set_gps.hide()
+
+        self.gps_lat.hide()
+        self.gps_lon.hide()
         self.gps_rad.hide()
 
         set_gps_box.addWidget(self.button_set_gps)
@@ -247,18 +258,22 @@ class CommandWindow(QMainWindow):
 
         self.button_accel_cal = QPushButton("CALIBRATE ACCELERATION")
         self.button_accel_cal.setFont(button_font)
+        self.button_accel_cal.clicked.connect(lambda: self.command_manager.command__cal("ACCE"))
         self.button_accel_cal.hide()
 
         self.button_tof_cal = QPushButton("CALIBRATE ToF")
         self.button_tof_cal.setFont(button_font)
+        self.button_tof_cal.clicked.connect(lambda: self.command_manager.command__cal("TOF"))
         self.button_tof_cal.hide()
 
         self.button_mag_cal = QPushButton("CALIBRATE MAGNETIC")
         self.button_mag_cal.setFont(button_font)
+        self.button_mag_cal.clicked.connect(lambda: self.command_manager.command__cal("MAG"))
         self.button_mag_cal.hide()
 
         self.button_gyro_cal = QPushButton("CALIBRATE GYRO")
         self.button_gyro_cal.setFont(button_font)
+        self.button_gyro_cal.clicked.connect(lambda: self.command_manager.command__cal("GYRO"))
         self.button_gyro_cal.hide()
 
         self.button_test_connection = QPushButton("CHECK CONNECTION")
@@ -271,15 +286,19 @@ class CommandWindow(QMainWindow):
 
         self.set_dc_motor_button = QPushButton("SET DC MOTOR")
         self.set_dc_motor_button.setFont(button_font)
-        self.set_dc_motor_button.hide()
 
+        
         self.dc_motor_val_field = QLineEdit()
         self.dc_motor_val_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.dc_motor_val_field.setMaxLength(4)
         self.dc_motor_val_field.setStyleSheet(cosmetics.servo_val_stylesheet())
-        dc_int_validator = QIntValidator(-255, 255, self)
+        dc_int_validator = QIntValidator(-255, 255, self) #should it be restricted?
         self.dc_motor_val_field.setValidator(dc_int_validator)
         self.dc_motor_val_field.editingFinished.connect(self.dc_motor_val_edited)
+        self.set_dc_motor_button.clicked.connect(lambda: self.command_manager.command__set_dc(self.__dc_motor_val))
+
+        self.set_dc_motor_button.hide()
+
         self.dc_motor_val_field.hide()
 
         set_dc_motor_box.addWidget(self.set_dc_motor_button)
@@ -383,13 +402,18 @@ class CommandWindow(QMainWindow):
         self.custom_msg_field.setMaxLength(50)
         self.custom_msg_field.setStyleSheet(cosmetics.team_id_stylesheet())
         self.custom_msg_field.editingFinished.connect(self.custom_msg_edited)
-        self.custom_msg_field_info = QLabel("Custom message input")
-        self.custom_msg_field_info.setFont(button_font)
+        self.button_send_custom = QPushButton("SEND CUSTOM MSG")
+        self.button_send_custom.setFont(button_font)
+        self.button_send_custom.clicked.connect(lambda: self.command_manager.command__custom(self.__custom_msg))
+        
         custom_msg_editing_box = QHBoxLayout()
-        custom_msg_editing_box.addWidget(self.custom_msg_field_info)
+        custom_msg_editing_box.addWidget(self.button_send_custom)
         custom_msg_editing_box.addWidget(self.custom_msg_field)
-        self.custom_msg_field_info.hide()
+        self.button_send_custom.hide()
         self.custom_msg_field.hide()
+
+
+
         
         # MAIN buttons
         commands_layout.addWidget(self.button_connection_group)
@@ -458,7 +482,7 @@ class CommandWindow(QMainWindow):
             self.button_restart,
             self.button_back,
             self.custom_msg_field,
-            self.custom_msg_field_info,
+            self.button_send_custom,
         ]
 
         self.buttons_mission_control = [
@@ -748,11 +772,28 @@ class CommandWindow(QMainWindow):
         self.custom_msg_field.clearFocus()
         self.__custom_msg = self.custom_msg_field.text()
         self.update_gui_log(f"Custom message set to: '{self.__custom_msg}'")
+
+    
     
     def dc_motor_val_edited(self):
         self.dc_motor_val_field.clearFocus()
         if self.dc_motor_val_field.text():
             self.__dc_motor_val = int(self.dc_motor_val_field.text())
+
+    def gps_lat_edited(self):
+        self.gps_lat.clearFocus()
+        if self.gps_lat.text():
+            self.__gps_lat = float(self.gps_lat.text())
+
+    def gps_lon_edited(self):
+        self.gps_lon.clearFocus()
+        if self.gps_lon.text():
+            self.__gps_lon = float(self.gps_lon.text())
+
+    def gps_rad_edited(self):
+        self.gps_rad.clearFocus()
+        if self.gps_rad.text():
+            self.__gps_rad = float(self.gps_rad.text())
 
     def servo_id_edited(self, index):
         self.__servo_id = self.servo_id_field.itemData(index)
