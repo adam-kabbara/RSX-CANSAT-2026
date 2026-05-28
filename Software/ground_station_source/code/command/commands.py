@@ -56,11 +56,11 @@ class Commands(QObject):
             self.print_signal.emit(f"Sent custom message: {__custom_msg}")
 
     def command__cal(self, cal_type: str):
-        if self._serial.send_data(self._cmd(op="CAL2", val=f"TYPE:{cal_type}")):
+        if self._serial.send_data(self._cmd(op="CAL2", val=cal_type)):
             self.print_signal.emit(f"Sent {cal_type} calibration command")
 
     def command__set_gps(self, __gps_lat, __gps_lon, __gps_rad):
-        if self._serial.send_data(self._cmd(op="GPS", val=f"COOR:{__gps_lat}|{__gps_lon}|{__gps_rad}")):
+        if self._serial.send_data(self._cmd(op="GPS", val=(f"{__gps_lat}|{__gps_lon}|{__gps_rad}"))):
             self.print_signal.emit(f"Sent command to set GPS coordinates to LAT:{__gps_lat}, LON:{__gps_lon}, RAD:{__gps_rad}")
 
     def command__toggle_camera(self, camera_id):
