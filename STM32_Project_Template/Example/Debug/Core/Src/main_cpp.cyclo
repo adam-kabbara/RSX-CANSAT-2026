@@ -1,3 +1,5 @@
-../Core/Src/main_cpp.cpp:3:6:void setup()	1
-../Core/Src/main_cpp.cpp:8:6:void loop()	1
-../Core/Src/main_cpp.cpp:26:17:void main_cpp()	1
+../Core/Src/main_cpp.cpp:9:6:void motor_run(uint8_t, uint32_t)	2
+../Core/Src/main_cpp.cpp:23:17:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	3
+../Core/Src/main_cpp.cpp:34:6:void setup()	1
+../Core/Src/main_cpp.cpp:44:6:void loop()	1
+../Core/Src/main_cpp.cpp:54:17:void main_cpp()	1

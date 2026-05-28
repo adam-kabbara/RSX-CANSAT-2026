@@ -12,7 +12,8 @@ void motor_run(uint8_t direction, uint32_t time_ms)
 
     HAL_GPIO_WritePin(SERVO_WING_DIR_GPIO_Port, SERVO_WING_DIR_Pin,
                       direction ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(SERVO_WING_PWM_GPIO_Port, SERVO_WING_PWM_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(SERVO_WING_PWM_GPIO_Port, SERVO_WING_PWM_Pin,
+    				  direction ? GPIO_PIN_RESET : GPIO_PIN_SET);
 
     motor_ticks_remaining = (int32_t)time_ms;
     HAL_TIM_Base_Start_IT(&htim1);
@@ -48,4 +49,10 @@ void loop()
         motor_run(1, 2000);         // returns immediately
         HAL_Delay(5000);            // 5 s between runs
     }
+}
+
+extern "C" void main_cpp(void)
+{
+    setup();
+    loop();
 }

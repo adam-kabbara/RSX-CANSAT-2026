@@ -1,5 +1,6 @@
 #include "main.h"
 #include "global_includes.hpp"
+#include "drv.h"
 #include "mission_manager.hpp"
 #include "sensor_manager.hpp"
 #include "serial_manager.hpp"
@@ -100,7 +101,7 @@ extern "C" void main_cpp()
                 }
 
             }
-
+			motor_update();
             HAL_Delay(10);
         }
 
@@ -111,6 +112,7 @@ extern "C" void main_cpp()
             // Wait until first simulation packet is received
             while(mission_mgr.getOpMode() == OPMODE_SIM && mission_mgr.isWaitingSimp())
             {
+				motor_update();
                 HAL_Delay(100);
             }
         }
@@ -189,11 +191,12 @@ extern "C" void main_cpp()
             {
             	sensors.updateBNO();
             }
+            motor_update();
         }
 
         HAL_TIM_Base_Stop_IT(&htim1);
         HAL_TIM_Base_Stop_IT(&htim8);
-        
+
         mission_mgr.reset_params();
         mission_mgr.waitingForSimp();
         mission_mgr.enableLogfile();

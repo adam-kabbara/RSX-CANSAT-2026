@@ -7,6 +7,7 @@
   */
 
 #include "command_manager.hpp"
+#include "drv.h"
 
 CommandManager::CommandManager()
 {
@@ -469,6 +470,22 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 	  else
 	  {
 		  ser.sendErrorMsg("ERROR: SERVO COMMAND FORMAT INCORRECT, DID NOT RECEIVE '#|VAL'");
+	  }
+  }
+  else if(strcmp(mec, "DC") == 0)
+  {
+	  int DC_val = atoi(val);
+	  if(DC_val == 0)
+	  {
+		  motor_stop();
+		  ser.sendInfoMsg("Motor stopped.");
+	  }
+	  else
+	  {
+		  uint8_t  direction = (DC_val > 0) ? 1 : 0;
+		  uint32_t duration  = (uint32_t)(DC_val > 0 ? DC_val : -DC_val);
+		  motor_run(direction, duration);
+		  ser.sendInfoDataMsg("Motor running %s for %lu ms.", direction ? "forward" : "reverse", (unsigned long)duration);
 	  }
   }
   else
