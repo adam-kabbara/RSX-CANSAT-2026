@@ -202,10 +202,13 @@ class DataProcessor(QObject):
                 mission_info = "NONE"
             if mission_info != "NONE":
                 msg_text = re.sub(r'{.+?}', '', msg_text).strip()
-                new_mode, new_state, new_flight_ctrl = mission_info.split('|')
-                self._graph_ui.update_mode(new_mode)
-                self._graph_ui.update_state(new_state)
-                self._graph_ui.update_flight_ctrl(new_flight_ctrl)
+                mission_parts = [part.strip() for part in mission_info.split('|')]
+                if len(mission_parts) >= 2:
+                    new_mode, new_state = mission_parts[:2]
+                    self._graph_ui.update_mode(new_mode)
+                    self._graph_ui.update_state(new_state)
+                if len(mission_parts) >= 3:
+                    self._graph_ui.update_flight_ctrl(mission_parts[2])
 
             if msg.startswith("$E"):
                 self.sat_error_signal.emit(f"{msg_text}")
