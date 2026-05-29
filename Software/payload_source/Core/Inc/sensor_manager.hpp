@@ -102,7 +102,7 @@ public:
 	struct recovery_data EEPROM_getRecoveryData();
 
 	void startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
-			TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4);
+			TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4);
 };
 
 #endif /* INC_SENSOR_MANAGER_HPP */

@@ -259,7 +259,7 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 }
 
 void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
-		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4)
+		TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4)
 {
 	/* Start all sensors that need to be started
 	 * Add a delay between each start and send an
