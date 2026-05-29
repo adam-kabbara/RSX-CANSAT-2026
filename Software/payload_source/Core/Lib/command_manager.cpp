@@ -180,7 +180,7 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
         sensors.setRTCTime(s,m,h);
         char time_str[DATA_SIZE];
         sensors.getRTCTime(time_str);
-        ser.sendInfoDataMsg("Set RTC time to %s", time_str);
+        ser.sendInfoDataMsg("Attempted to set RTC time to %s, got %s", data, time_str);
     }
     else
     {
