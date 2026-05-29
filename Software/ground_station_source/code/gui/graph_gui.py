@@ -129,7 +129,8 @@ class GraphWindow(QMainWindow):
             ("GPS Altitude", "0.0 m"),
             ("GPS Time", "00:00:00"),
             ("CMD ECHO", "N/A"),
-            ("Flight Ctrl", "Manual")
+            ("Flight Ctrl", "Autonomous"),
+            ("Joystick", "Disconnected")
         ]
 
         self.sidebar_data_labels = []
@@ -406,6 +407,12 @@ class GraphWindow(QMainWindow):
             self.sidebar_data_labels[self.sidebar_data_dict.get("Flight Ctrl")].setText(cosmetics.data_status_red(str))
         else:
             self.sidebar_data_labels[self.sidebar_data_dict.get("Flight Ctrl")].setText(cosmetics.data_status_blue(str))
+
+    def update_joystick_status(self, connected: bool):
+        if connected:
+            self.sidebar_data_labels[self.sidebar_data_dict.get("Joystick")].setText(cosmetics.data_status_green("Connected"))
+        else:
+            self.sidebar_data_labels[self.sidebar_data_dict.get("Joystick")].setText(cosmetics.data_status_red("Disconnected"))
 
     def update_alt_graph(self, data):
         if self._current_state == "LANDED":

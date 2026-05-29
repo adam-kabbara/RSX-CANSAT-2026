@@ -6,6 +6,7 @@ from enum import Enum
 import os
 from . import cosmetics
 from serial.serial import SerialManager
+from serial.joystick import JoystickManager
 from .graph_gui import GraphWindow
 from data.process import DataProcessor
 from data.simp import SimpManager
@@ -46,14 +47,14 @@ class CommandWindow(QMainWindow):
         self.__set_time_id        = 0 # 0 for computer time, 1 for GPS time
         self.__camera_id          = 1
         self.__mec_id             = 1
-        self.__servo_id           = -1
+        self.__servo_id           = 0 # first option is nosecone by gui default
         self.__servo_val          = -1
         self.__dc_motor_val       = 0
         self.__gps_lat            = 0.0
         self.__gps_lon            = 0.0
         self.__gps_rad            = 0.0
         self.__sim_mode           = "ENABLE"
-        self.__flight_mode        = "AUTONOMOUS"
+        self.__flight_ctrl        = "AUTONOMOUS"
         self.__custom_msg         = ""
         
         self.__CURRENT_CMD_WINDOW = None
@@ -65,13 +66,27 @@ class CommandWindow(QMainWindow):
         self._graph_ui            = graph_ui
         self._processor           = processor
         self._simp                = simp
-        self.command_manager      = Commands(self._serial)
+
+        self._joystick            = JoystickManager()
+        self.command_manager      = Commands(self._serial, self._joystick, self._graph_ui)
+
+        # Joystick axis accumulator for attitude indicator debug feed
+        self._joy_roll  = 0.0
+        self._joy_pitch = 0.0
+        self._joy_yaw   = 0.0
 
         self._serial.error_catch.connect(self.update_gui_log_error)
         self._serial.fatal_catch.connect(self.serial_fatal)
         self._serial.print_catch.connect(self.update_gui_log)
 
         self.command_manager.print_signal.connect(self.update_gui_log)
+
+        self._joystick.connected_changed.connect(self._graph_ui.update_joystick_status)
+        self._joystick.button_pressed.connect(self.command_manager._on_joystick_button)
+        self._joystick.roll_changed.connect(self.command_manager._on_joy_roll)
+        self._joystick.pitch_changed.connect(self.command_manager._on_joy_pitch)
+        self._joystick.yaw_changed.connect(self.command_manager._on_joy_yaw)
+        self._graph_ui.update_joystick_status(False)
 
         self._processor.log_end_signal.connect(self.logfile_finish)
         self._processor.log_begin_signal.connect(self.logfile_start)
@@ -239,22 +254,22 @@ class CommandWindow(QMainWindow):
         sim_mode_box.addWidget(self.button_set_sim_mode)
         sim_mode_box.addWidget(self.sim_mode_field)
 
-        flight_mode_box = QHBoxLayout()
+        flight_ctrl_box = QHBoxLayout()
 
-        self.button_set_flight_mode = QPushButton("SET CONTROL MODE")
-        self.button_set_flight_mode.setFont(button_font)
-        self.button_set_flight_mode.clicked.connect(lambda: self.command_manager.command__flight_mode(self.__flight_mode))
-        self.button_set_flight_mode.hide()
+        self.button_set_flight_ctrl = QPushButton("SET CONTROL MODE")
+        self.button_set_flight_ctrl.setFont(button_font)
+        self.button_set_flight_ctrl.clicked.connect(lambda: self.command_manager.command__flight_ctrl(self.__flight_ctrl))
+        self.button_set_flight_ctrl.hide()
 
-        self.flight_mode_field = QComboBox()
-        self.flight_mode_field.addItem("AUTONOMOUS")
-        self.flight_mode_field.addItem("MANUAL")
-        self.flight_mode_field.setFont(button_font)
-        self.flight_mode_field.activated.connect(self.flight_mode_field_edited)
-        self.flight_mode_field.hide()
+        self.flight_ctrl_field = QComboBox()
+        self.flight_ctrl_field.addItem("AUTONOMOUS")
+        self.flight_ctrl_field.addItem("MANUAL")
+        self.flight_ctrl_field.setFont(button_font)
+        self.flight_ctrl_field.activated.connect(self.flight_ctrl_field_edited)
+        self.flight_ctrl_field.hide()
 
-        flight_mode_box.addWidget(self.button_set_flight_mode)
-        flight_mode_box.addWidget(self.flight_mode_field)
+        flight_ctrl_box.addWidget(self.button_set_flight_ctrl)
+        flight_ctrl_box.addWidget(self.flight_ctrl_field)
 
         self.button_refresh_ports = QPushButton("REFRESH PORTS")
         self.button_refresh_ports.setFont(button_font)
@@ -339,7 +354,6 @@ class CommandWindow(QMainWindow):
 
         self.servo_val_field = QLineEdit()
         self.servo_val_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
-        self.servo_val_field.setMaxLength(3)
         self.servo_val_field.setStyleSheet(cosmetics.servo_val_stylesheet())
         int_validator = QIntValidator(self)
         self.servo_val_field.setValidator(int_validator)
@@ -382,7 +396,7 @@ class CommandWindow(QMainWindow):
         force_release_box = QHBoxLayout()
         self.mec_release_field = QComboBox()
         self.mec_release_field.addItem("NOSECONE RELEASE")
-        self.mec_release_field.addItem("PROBE RELEASE")
+        self.mec_release_field.addItem("CPL RELEASE")
         self.mec_release_field.addItem("WING DEPLOYMENT")
         self.mec_release_field.addItem("EGG RELEASE")
         self.mec_release_field.setFont(button_font)
@@ -486,7 +500,7 @@ class CommandWindow(QMainWindow):
         # SETUP buttons
         commands_layout.addLayout(set_time_box)
         commands_layout.addLayout(sim_mode_box)
-        commands_layout.addLayout(flight_mode_box)
+        commands_layout.addLayout(flight_ctrl_box)
         commands_layout.addLayout(team_id_editing_box)
         commands_layout.addLayout(set_gps_box)
         
@@ -557,8 +571,8 @@ class CommandWindow(QMainWindow):
             self.team_id_field_info,
             self.button_set_sim_mode,
             self.sim_mode_field,
-            self.button_set_flight_mode,
-            self.flight_mode_field
+            self.button_set_flight_ctrl,
+            self.flight_ctrl_field
         ]
 
         self.buttons_sensor = [
@@ -856,8 +870,8 @@ class CommandWindow(QMainWindow):
     def sim_mode_field_edited(self, index):
         self.__sim_mode = self.sim_mode_field.itemText(index)
 
-    def flight_mode_field_edited(self, index):
-        self.__flight_mode = self.flight_mode_field.itemText(index)
+    def flight_ctrl_field_edited(self, index):
+        self.__flight_ctrl = self.flight_ctrl_field.itemText(index)
         
     def reset_mission(self):
         msg_box = QMessageBox()
@@ -906,6 +920,7 @@ class CommandWindow(QMainWindow):
         self.start_transmission()
 
     def closeEvent(self, event):
+        self._joystick.stop()
         self._processor.close_csv()
         self._processor.close_logfile()
         self._serial.close_port()

@@ -184,9 +184,9 @@ class DataProcessor(QObject):
             elif "CAMERA2 OFF" in msg:
                 self._graph_ui.update_camera2_status("OFF")
 
-            elif "Flight mode auto" in msg:
+            elif "Flight ctrl auto" in msg:
                     self._graph_ui.update_flight_ctrl("Autonomous")
-            elif "Flight mode manu" in msg:
+            elif "Flight ctrl manu" in msg:
                 self._graph_ui.update_flight_ctrl("Manual")
 
             row = {field: "" for field in self._csv_fields}
@@ -205,6 +205,7 @@ class DataProcessor(QObject):
                 new_mode, new_state = mission_info.split('|')
                 self._graph_ui.update_mode(new_mode)
                 self._graph_ui.update_state(new_state)
+                #self._graph_ui.update_flight_ctrl(new_flight_ctrl)
 
             if msg.startswith("$E"):
                 self.sat_error_signal.emit(f"{msg_text}")
