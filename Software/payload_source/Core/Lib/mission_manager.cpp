@@ -124,6 +124,11 @@ OperatingState MissionManager::getOpState()
     return op_state;
 }
 
+FlightCtrl MissionManager::getFlightCtrl()
+{
+	return flight_ctrl;
+}
+
 SimModeStatus MissionManager::getSimStatus()
 {
     return sim_status;
@@ -137,6 +142,11 @@ OperatingMode MissionManager::getOpMode()
 void MissionManager::setOpState(OperatingState state)
 {
     op_state = state;
+}
+
+void MissionManager::setFlightCtrl(FlightCtrl ctrl)
+{
+	flight_ctrl = ctrl;
 }
 
 void MissionManager::setSimStatus(SimModeStatus status)

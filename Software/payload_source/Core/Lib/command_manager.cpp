@@ -137,8 +137,8 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
             info.setOpState(IDLE);
             sensors.EEPROM_updateState(IDLE);
             info.reset_params();
-            ser.sendInfoDataMsg("ENDING PAYLOAD TRANSMISSION.{%s|%s}",
-                op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+            ser.sendInfoDataMsg("ENDING PAYLOAD TRANSMISSION.{%s|%s|%s}",
+              op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
         }
         else
         {
@@ -190,8 +190,8 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
 
 void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
-  ser.sendInfoDataMsg("CANSAT IS ONLINE.{%s|%s}",
-      op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+  ser.sendInfoDataMsg("CANSAT IS ONLINE.{%s|%s|%s}",
+      op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
 } // END: do_give_status
 
 void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
@@ -246,8 +246,8 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setOpMode(OPMODE_SIM);
           info.waitingForSimp();
           sensors.EEPROM_updateMode(info.getOpMode());
-          ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE{%s|%s}",
-            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+          ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE{%s|%s|%s}",
+            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
           break;
         }
       case SIM_OFF:
@@ -272,8 +272,8 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setSimStatus(SIM_OFF);
           info.setOpMode(OPMODE_FLIGHT);
           sensors.EEPROM_updateMode(info.getOpMode());
-          ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.{%s|%s}",
-            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+          ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.{%s|%s|%s}",
+            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
           break;
         }
       case SIM_OFF:

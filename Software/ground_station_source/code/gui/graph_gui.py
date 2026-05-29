@@ -129,7 +129,7 @@ class GraphWindow(QMainWindow):
             ("GPS Altitude", "0.0 m"),
             ("GPS Time", "00:00:00"),
             ("CMD ECHO", "N/A"),
-            ("Flight Ctrl", "Autonomous"),
+            ("Flight Ctrl", "AUTONOMOUS"),
             ("Joystick", "Disconnected")
         ]
 
@@ -206,7 +206,7 @@ class GraphWindow(QMainWindow):
             # Create the field label and data label
             field_label = QLabel(f"{field_name}:")
             if field_name == "Flight Ctrl":
-                if field_value == "Manual":
+                if field_value == "MANUAL":
                     data_label = QLabel(cosmetics.data_status_red(field_value))
                 else:
                     data_label = QLabel(cosmetics.data_status_blue(field_value))
@@ -403,7 +403,7 @@ class GraphWindow(QMainWindow):
         self.sidebar_data_labels[self.sidebar_data_dict.get("CMD ECHO")].setText(cosmetics.data_status_blue(str))
 
     def update_flight_ctrl(self, str):
-        if str == "Manual":
+        if str == "MANUAL":
             self.sidebar_data_labels[self.sidebar_data_dict.get("Flight Ctrl")].setText(cosmetics.data_status_red(str))
         else:
             self.sidebar_data_labels[self.sidebar_data_dict.get("Flight Ctrl")].setText(cosmetics.data_status_blue(str))
