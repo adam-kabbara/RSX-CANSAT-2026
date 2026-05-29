@@ -79,10 +79,10 @@ static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_USART1_UART_Init(void);
-static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM8_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -125,10 +125,10 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM1_Init();
   MX_USART1_UART_Init();
-  MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM8_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
@@ -381,6 +381,10 @@ static void MX_TIM2_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_OnePulse_Init(&htim2, TIM_OPMODE_SINGLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
@@ -391,10 +395,6 @@ static void MX_TIM2_Init(void)
   sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-  {
-    Error_Handler();
-  }
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
@@ -652,7 +652,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOF, G_CAM_OUT_Pin|PG_CAM_OUT_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, SPI_CS_GPIO_OUT_Pin|PG_CAM_IN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, SERVO_WING_DIR_Pin|SPI_CS_GPIO_OUT_Pin|PG_CAM_IN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : G_CAM_OUT_Pin PG_CAM_OUT_Pin */
   GPIO_InitStruct.Pin = G_CAM_OUT_Pin|PG_CAM_OUT_Pin;
@@ -661,8 +661,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SPI_CS_GPIO_OUT_Pin PG_CAM_IN_Pin */
-  GPIO_InitStruct.Pin = SPI_CS_GPIO_OUT_Pin|PG_CAM_IN_Pin;
+  /*Configure GPIO pins : SERVO_WING_DIR_Pin SPI_CS_GPIO_OUT_Pin PG_CAM_IN_Pin */
+  GPIO_InitStruct.Pin = SERVO_WING_DIR_Pin|SPI_CS_GPIO_OUT_Pin|PG_CAM_IN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

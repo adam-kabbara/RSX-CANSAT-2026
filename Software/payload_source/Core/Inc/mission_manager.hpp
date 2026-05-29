@@ -60,7 +60,7 @@ public:
 
     float get_max_alt();
 
-    void update_max_alt(float value);
+    bool update_max_alt(float value);
 
     void update_alt_buffer(float value);
 

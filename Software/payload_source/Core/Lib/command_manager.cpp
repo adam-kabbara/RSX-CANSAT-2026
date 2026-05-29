@@ -7,7 +7,7 @@
   */
 
 #include "command_manager.hpp"
-#include "drv.h"
+#include "drv.hpp"
 
 CommandManager::CommandManager()
 {
@@ -117,6 +117,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
         if(info.getOpState() == IDLE && (info.isAltCalibrated() == true || info.getOpMode() == OPMODE_SIM))
         {
             info.reset_params();
+            sensors.EEPROM_resetData();
             ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");
             info.setOpState(LAUNCH_PAD);
             sensors.EEPROM_updateState(LAUNCH_PAD);
@@ -180,7 +181,7 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
         sensors.setRTCTime(s,m,h);
         char time_str[DATA_SIZE];
         sensors.getRTCTime(time_str);
-        ser.sendInfoDataMsg("Set RTC time to %s", time_str);
+        ser.sendInfoDataMsg("Attempted to set RTC time to %s, got %s", data, time_str);
     }
     else
     {
@@ -477,14 +478,14 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 	  int DC_val = atoi(val);
 	  if(DC_val == 0)
 	  {
-		  motor_stop();
+		  sensors.stopMotor();
 		  ser.sendInfoMsg("Motor stopped.");
 	  }
 	  else
 	  {
 		  uint8_t  direction = (DC_val > 0) ? 1 : 0;
 		  uint32_t duration  = (uint32_t)(DC_val > 0 ? DC_val : -DC_val);
-		  motor_run(direction, duration);
+		  sensors.writeMotor(direction, duration);
 		  ser.sendInfoDataMsg("Motor running %s for %lu ms.", direction ? "forward" : "reverse", (unsigned long)duration);
 	  }
   }
