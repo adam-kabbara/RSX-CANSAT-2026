@@ -68,7 +68,6 @@ class Commands(QObject):
             self.print_signal.emit(f"Sent command to set control mode to {control_mode}")
         #control mode 0 = auto, 1 = manual
 
-
     def command__toggle_camera(self, camera_id):
         if self._serial.send_data(self._cmd(op="MEC", val=f"CAM:{camera_id}")):
             self.print_signal.emit(f"Sent Camera {camera_id} toggle command")

@@ -277,6 +277,11 @@ class CommandWindow(QMainWindow):
         self.button_gyro_cal.clicked.connect(lambda: self.command_manager.command__cal("GYRO"))
         self.button_gyro_cal.hide()
 
+        self.button_next_cal_step = QPushButton("NEXT CALIBRATION STEP")
+        self.button_next_cal_step.setFont(button_font)
+        self.button_next_cal_step.clicked.connect(lambda: self.command_manager.command__cal("NEXT"))
+        self.button_next_cal_step.hide()
+
         self.button_test_connection = QPushButton("CHECK CONNECTION")
         self.button_test_connection.setFont(button_font)
         self.button_test_connection.clicked.connect(self.command_manager.command__check_connection)
@@ -460,6 +465,7 @@ class CommandWindow(QMainWindow):
         commands_layout.addWidget(self.button_tof_cal)
         commands_layout.addWidget(self.button_mag_cal)
         commands_layout.addWidget(self.button_gyro_cal)
+        commands_layout.addWidget(self.button_next_cal_step)
         
         # SETUP buttons
         commands_layout.addLayout(set_time_box)
@@ -543,6 +549,7 @@ class CommandWindow(QMainWindow):
             self.button_tof_cal,
             self.button_mag_cal,
             self.button_gyro_cal,
+            self.button_next_cal_step,
         ]
 
         self.buttons_connection = [
