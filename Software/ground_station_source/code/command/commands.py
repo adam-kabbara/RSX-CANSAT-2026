@@ -69,6 +69,8 @@ class Commands(QObject):
     def command__set_gps(self, __gps_lat, __gps_lon, __gps_rad):
         if self._serial.send_data(self._cmd(op="GPS", val=(f"{__gps_lat}|{__gps_lon}|{__gps_rad}"))):
             self.print_signal.emit(f"Sent command to set GPS coordinates to LAT:{__gps_lat}, LON:{__gps_lon}, RAD:{__gps_rad}")
+            return True
+        return False
 
     def command__toggle_camera(self, camera_id):
         if self._serial.send_data(self._cmd(op="MEC", val=f"CAM:{camera_id}")):
@@ -162,4 +164,3 @@ class Commands(QObject):
         self._joy_yaw = (self._joy_yaw + v * 2.0) % 360.0
         if self._graph_ui is not None:
             self._graph_ui.update_attitude(self._joy_roll, self._joy_pitch, self._joy_yaw)
-

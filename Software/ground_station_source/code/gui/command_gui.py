@@ -226,7 +226,7 @@ class CommandWindow(QMainWindow):
         self.gps_rad.setStyleSheet(cosmetics.team_id_stylesheet())
         self.gps_rad.editingFinished.connect(self.gps_rad_edited)
 
-        self.button_set_gps.clicked.connect(lambda: self.command_manager.command__set_gps(self.__gps_lat, self.__gps_lon, self.__gps_rad))
+        self.button_set_gps.clicked.connect(self.set_gps_coordinates)
         self.button_set_gps.hide()
 
         self.gps_lat.hide()
@@ -832,6 +832,42 @@ class CommandWindow(QMainWindow):
         self.gps_rad.clearFocus()
         if self.gps_rad.text():
             self.__gps_rad = float(self.gps_rad.text())
+
+    def set_gps_coordinates(self):
+        lat_text = self.gps_lat.text().strip()
+        lon_text = self.gps_lon.text().strip()
+        rad_text = self.gps_rad.text().strip()
+
+        if not lat_text or not lon_text or not rad_text:
+            self.update_gui_log_error("ERROR: Enter latitude, longitude, and radius before setting GPS coordinates.")
+            return
+
+        try:
+            lat = float(lat_text)
+            lon = float(lon_text)
+            radius = float(rad_text)
+        except ValueError:
+            self.update_gui_log_error("ERROR: GPS coordinates and radius must be numeric.")
+            return
+
+        if not (-90 <= lat <= 90):
+            self.update_gui_log_error("ERROR: Latitude must be between -90 and 90.")
+            return
+
+        if not (-180 <= lon <= 180):
+            self.update_gui_log_error("ERROR: Longitude must be between -180 and 180.")
+            return
+
+        if radius <= 0:
+            self.update_gui_log_error("ERROR: Radius must be greater than 0.")
+            return
+
+        self.__gps_lat = lat
+        self.__gps_lon = lon
+        self.__gps_rad = radius
+
+        if self.command_manager.command__set_gps(lat, lon, radius):
+            self._graph_ui.draw_gps_circle(lat, lon, radius)
 
     def servo_id_edited(self, index):
         self.__servo_id = self.servo_id_field.itemData(index)
