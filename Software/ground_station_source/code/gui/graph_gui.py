@@ -442,6 +442,9 @@ class GraphWindow(QMainWindow):
         else:
             self.map_widget.add_point(lat, lon)
 
+    def draw_gps_circle(self, lat, lon, radius):
+        return self.map_widget.draw_circle(lat, lon, radius)
+
     def closeEvent(self, event):
         app = QApplication.instance()
         app.quit()
