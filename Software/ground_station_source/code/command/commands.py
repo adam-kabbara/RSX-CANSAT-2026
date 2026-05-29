@@ -48,7 +48,7 @@ class Commands(QObject):
             self.print_signal.emit(f"Sent command to program servo {servo_id} to {servo_val}")
 
     def command__set_dc(self, __dc_motor_val):
-        if self._serial.send_data(self._cmd(op="MEC", val=f"DC_MOTOR:{__dc_motor_val}")):
+        if self._serial.send_data(self._cmd(op="MEC", val=f"DC:{__dc_motor_val}")):
             self.print_signal.emit(f"Sent command to program DC motor to {__dc_motor_val}")
 
     def command__custom(self, __custom_msg):

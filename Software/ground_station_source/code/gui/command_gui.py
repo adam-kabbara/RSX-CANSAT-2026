@@ -43,7 +43,7 @@ class CommandWindow(QMainWindow):
 
         super().__init__(parent)
 
-        self.__set_time_id        = 1
+        self.__set_time_id        = 0 # 0 for computer time, 1 for GPS time
         self.__camera_id          = 1
         self.__mec_id             = 1
         self.__servo_id           = -1
@@ -292,13 +292,11 @@ class CommandWindow(QMainWindow):
 
         self.set_dc_motor_button = QPushButton("SET DC MOTOR")
         self.set_dc_motor_button.setFont(button_font)
-
         
         self.dc_motor_val_field = QLineEdit()
         self.dc_motor_val_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
-        self.dc_motor_val_field.setMaxLength(4)
         self.dc_motor_val_field.setStyleSheet(cosmetics.servo_val_stylesheet())
-        dc_int_validator = QIntValidator(-255, 255, self) #should it be restricted?
+        dc_int_validator = QIntValidator(self)
         self.dc_motor_val_field.setValidator(dc_int_validator)
         self.dc_motor_val_field.editingFinished.connect(self.dc_motor_val_edited)
         self.set_dc_motor_button.clicked.connect(lambda: self.command_manager.command__set_dc(self.__dc_motor_val))
@@ -418,7 +416,7 @@ class CommandWindow(QMainWindow):
         self.button_send_custom.hide()
         self.custom_msg_field.hide()
 
-        self.button_auto_ctr = QPushButton("ENABLE AUTOMATIC CTR")
+        self.button_auto_ctr = QPushButton("ENABLE AUTONOMOUS CONTROL")
         self.button_auto_ctr.setFont(button_font)
         self.button_auto_ctr.clicked.connect(lambda: self.command_manager.command__set_control(0))
         

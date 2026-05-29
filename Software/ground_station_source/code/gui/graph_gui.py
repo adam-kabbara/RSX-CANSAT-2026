@@ -4,6 +4,7 @@ Front end GUI elements for graph window
 from plotter.plotters import DynamicPlotter, DynamicPlotterMultiLine
 from . import cosmetics
 from .gps_map import GPSMapWidget
+from .attitude_indicator import AttitudeIndicator
 import os
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QIcon
@@ -116,7 +117,7 @@ class GraphWindow(QMainWindow):
 
         self.sidebar_fields_data = [
             ("Port", "CLOSED"),
-            ("Calibration", "Unknown"),
+            ("Alt Calib", "Unknown"),
             ("Temperature", "0.0 °C"),
             ("Pressure", "0.0 kPa"),
             ("Mode", "Unknown"),
@@ -127,7 +128,8 @@ class GraphWindow(QMainWindow):
             ("Camera 2", "Unknown"),
             ("GPS Altitude", "0.0 m"),
             ("GPS Time", "00:00:00"),
-            ("CMD ECHO", "N/A")
+            ("CMD ECHO", "N/A"),
+            ("Flight Ctrl", "Manual")
         ]
 
         self.sidebar_data_labels = []
@@ -202,7 +204,13 @@ class GraphWindow(QMainWindow):
 
             # Create the field label and data label
             field_label = QLabel(f"{field_name}:")
-            data_label = QLabel(cosmetics.data_status_init_color(field_value))
+            if field_name == "Flight Ctrl":
+                if field_value == "Manual":
+                    data_label = QLabel(cosmetics.data_status_red(field_value))
+                else:
+                    data_label = QLabel(cosmetics.data_status_blue(field_value))
+            else:
+                data_label = QLabel(cosmetics.data_status_init_color(field_value))
 
             # Set fonts
             field_label.setFont(cosmetics.sidebar_field_font())
@@ -224,21 +232,24 @@ class GraphWindow(QMainWindow):
         state_visual_box.setFont(cosmetics.log_font())
         state_visual_box.setStyleSheet(cosmetics.sidebar_group_box_stylesheet())
         state_visual_layout = QVBoxLayout(state_visual_box)
+
+        state_visual_layout.addWidget(self.state_label)
+
         state_grid_layout = QGridLayout()
-        state_grid_layout.addWidget(self.state_label, 0, 0, 1, 0, Qt.AlignmentFlag.AlignLeft)
-
-        state_grid_layout.addWidget(self.previous_label_title, 2, 0)
-        state_grid_layout.addWidget(self.next_label_title, 2, 1)
-
-        state_grid_layout.addWidget(self.previous_list, 3, 0)
-        state_grid_layout.addWidget(self.next_list, 3, 1)
-
+        state_grid_layout.addWidget(self.previous_label_title, 0, 0)
+        state_grid_layout.addWidget(self.next_label_title, 0, 1)
+        state_grid_layout.addWidget(self.previous_list, 1, 0)
+        state_grid_layout.addWidget(self.next_list, 1, 1)
         state_grid_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         state_visual_layout.addLayout(state_grid_layout)
+
+        self.attitude_indicator = AttitudeIndicator()
 
         sidebar.addWidget(form_group)
         sidebar.addSpacing(20)
         sidebar.addWidget(state_visual_box)
+        sidebar.addSpacing(20)
+        sidebar.addWidget(self.attitude_indicator)
         sidebar.addStretch()
         sidebar.addWidget(credit_label)
 
@@ -265,7 +276,10 @@ class GraphWindow(QMainWindow):
         for name, val in self.sidebar_fields_data:
             if name == "Port":
                 continue
-            self.sidebar_data_labels[self.sidebar_data_dict.get(name)].setText(cosmetics.data_status_init_color(val))
+            if name == "Flight Ctrl":
+                self.update_flight_ctrl(val)
+            else:
+                self.sidebar_data_labels[self.sidebar_data_dict.get(name)].setText(cosmetics.data_status_init_color(val))
 
     def update_packet_count(self):
         self._packets_recv += 1
@@ -387,6 +401,12 @@ class GraphWindow(QMainWindow):
     def update_cmd_echo(self, str):
         self.sidebar_data_labels[self.sidebar_data_dict.get("CMD ECHO")].setText(cosmetics.data_status_blue(str))
 
+    def update_flight_ctrl(self, str):
+        if str == "Manual":
+            self.sidebar_data_labels[self.sidebar_data_dict.get("Flight Ctrl")].setText(cosmetics.data_status_red(str))
+        else:
+            self.sidebar_data_labels[self.sidebar_data_dict.get("Flight Ctrl")].setText(cosmetics.data_status_blue(str))
+
     def update_alt_graph(self, data):
         if self._current_state == "LANDED":
             return
@@ -403,6 +423,11 @@ class GraphWindow(QMainWindow):
 
     def update_accel_graph(self, data):
         self.plotters[self.graph_title_to_index.get("Accel")].update_plot(data)
+
+    def update_attitude(self, roll: float, pitch: float, yaw: float):
+        self.attitude_indicator.set_roll(roll)
+        self.attitude_indicator.set_pitch(pitch)
+        self.attitude_indicator.set_yaw(yaw)
 
     def update_gps_map(self, lat, lon):
         if self._current_state == "LANDED":

@@ -163,7 +163,7 @@ class DataProcessor(QObject):
                 return
 
             # Get logfile
-            if "$LOGFILE:BEGIN" in msg:
+            elif "$LOGFILE:BEGIN" in msg:
                 self.log_begin_signal.emit()
                 if self.open_logfile():
                     self._outfile.write((msg + "\n").encode('utf-8'))
@@ -172,17 +172,22 @@ class DataProcessor(QObject):
                     self.file_error_signal.emit("ERROR: Logfile could not be opened! Wait and try again!")
                 return
             
-            if "CAMERA1 ON" in msg:
+            elif "CAMERA1 ON" in msg:
                 self._graph_ui.update_camera1_status("ON")
             
-            if "CAMERA2 ON" in msg:
+            elif "CAMERA2 ON" in msg:
                 self._graph_ui.update_camera2_status("ON")
                 
-            if "CAMERA1 OFF" in msg:
+            elif "CAMERA1 OFF" in msg:
                 self._graph_ui.update_camera1_status("OFF")
             
-            if "CAMERA2 OFF" in msg:
+            elif "CAMERA2 OFF" in msg:
                 self._graph_ui.update_camera2_status("OFF")
+
+            elif msg_text == "Flight mode auto":
+                    self._graph_ui.update_flight_ctrl("Autonomous")
+            elif msg_text == "Flight mode manu":
+                self._graph_ui.update_flight_ctrl("Manual")
 
             row = {field: "" for field in self._csv_fields}
             row["CMD_ECHO"] = msg

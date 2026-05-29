@@ -112,6 +112,7 @@ class SerialManager(QObject):
 
     # Send data through serial port
     def send_data(self, msg):
+        print(f"Sent message: {msg}")  # Debug print for sending message
         if self._active_serial.isOpen():
             try:
                 msg = msg + "\r"
@@ -131,6 +132,9 @@ class SerialManager(QObject):
         self._serial_buffer += self._active_serial.readAll().data()
         while b'\r' in self._serial_buffer:
             line, self._serial_buffer = self._serial_buffer.split(b'\r', 1)
+            if not line:
+                continue # Skip empty lines
             msg = line.decode().strip()
             if msg:
+                print(f"Received message: {msg}")  # Debug print for processed message
                 self.recv_data_signal.emit(msg)
