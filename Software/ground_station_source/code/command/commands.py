@@ -70,11 +70,6 @@ class Commands(QObject):
         if self._serial.send_data(self._cmd(op="GPS", val=(f"{__gps_lat}|{__gps_lon}|{__gps_rad}"))):
             self.print_signal.emit(f"Sent command to set GPS coordinates to LAT:{__gps_lat}, LON:{__gps_lon}, RAD:{__gps_rad}")
 
-    def command__set_control(self, control_mode: int):
-        if self._serial.send_data(self._cmd(op="CTR", val=f"{control_mode}")):
-            self.print_signal.emit(f"Sent command to set control mode to {control_mode}")
-        #control mode 0 = auto, 1 = manual
-
     def command__toggle_camera(self, camera_id):
         if self._serial.send_data(self._cmd(op="MEC", val=f"CAM:{camera_id}")):
             self.print_signal.emit(f"Sent Camera {camera_id} toggle command")

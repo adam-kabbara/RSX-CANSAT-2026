@@ -447,21 +447,6 @@ class CommandWindow(QMainWindow):
         custom_msg_editing_box.addWidget(self.custom_msg_field)
         self.button_send_custom.hide()
         self.custom_msg_field.hide()
-
-        self.button_auto_ctr = QPushButton("ENABLE AUTONOMOUS CONTROL")
-        self.button_auto_ctr.setFont(button_font)
-        self.button_auto_ctr.clicked.connect(lambda: self.command_manager.command__set_control(0))
-        
-        self.button_manual_ctr = QPushButton("ENABLE MANUAL CONTROL")
-        self.button_manual_ctr.setFont(button_font)
-        self.button_manual_ctr.clicked.connect(lambda: self.command_manager.command__set_control(1))
-
-        control_mode_box = QHBoxLayout()
-        control_mode_box.addWidget(self.button_auto_ctr)
-        control_mode_box.addWidget(self.button_manual_ctr)
-        self.button_auto_ctr.hide()
-        self.button_manual_ctr.hide()
-
         
         # MAIN buttons
         commands_layout.addWidget(self.button_connection_group)
@@ -487,7 +472,6 @@ class CommandWindow(QMainWindow):
         commands_layout.addWidget(self.button_restart)
         commands_layout.addWidget(self.button_reset_mission)
         commands_layout.addLayout(custom_msg_editing_box)
-        commands_layout.addLayout(control_mode_box)
         
         # SENSORS buttons
         commands_layout.addWidget(self.button_altitude_cal)
@@ -525,7 +509,7 @@ class CommandWindow(QMainWindow):
             self.button_connection_group,
             self.button_actuation,
             self.button_sensor_control,
-            self.button_telemetry,
+            self.button_telemetry
         ]
         
         self.buttons_adv = [
@@ -533,16 +517,14 @@ class CommandWindow(QMainWindow):
             self.button_restart,
             self.button_back,
             self.custom_msg_field,
-            self.button_send_custom,
-            self.button_auto_ctr,
-            self.button_manual_ctr,
+            self.button_send_custom
         ]
 
         self.buttons_mission_control = [
             self.button_transmit_on,
             self.button_transmit_off,
             self.button_get_log_data,
-            self.button_back,
+            self.button_back
         ]
 
         self.buttons_actuation = [
@@ -556,7 +538,7 @@ class CommandWindow(QMainWindow):
             self.camera_status_button,
             self.mec_release_field,
             self.mec_activate_button,
-            self.button_back,
+            self.button_back
         ]
 
         self.buttons_setup = [
@@ -582,7 +564,7 @@ class CommandWindow(QMainWindow):
             self.button_tof_cal,
             self.button_mag_cal,
             self.button_gyro_cal,
-            self.button_next_cal_step,
+            self.button_next_cal_step
         ]
 
         self.buttons_connection = [
@@ -591,7 +573,7 @@ class CommandWindow(QMainWindow):
             self.button_connect,
             self.button_connect_close,
             self.combo_select_port,
-            self.button_refresh_ports,
+            self.button_refresh_ports
         ]
 
         self.get_log_overlay = QLabel("Logfile collection in progress.", self)
