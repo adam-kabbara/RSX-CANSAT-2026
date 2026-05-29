@@ -95,6 +95,11 @@ struct recovery_data {
 	OperatingState state;
 	OperatingMode mode;
 	int packet_count;
+	float max_alt;
+	bool nosecone_flag;
+	bool probe_flag;
+	bool wing_flag;
+	bool egg_flag;
 };
 
 inline const char* op_mode_to_string(OperatingMode mode, int full)

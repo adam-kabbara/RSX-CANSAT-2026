@@ -96,12 +96,14 @@ float MissionManager::get_max_alt()
 	return max_alt;
 }
 
-void MissionManager::update_max_alt(float value)
+bool MissionManager::update_max_alt(float value)
 {
 	if(value > max_alt && value < 1000)
 	{
 		max_alt = value;
+		return true;
 	}
+	return false;
 }
 
 void MissionManager::update_alt_buffer(float value)

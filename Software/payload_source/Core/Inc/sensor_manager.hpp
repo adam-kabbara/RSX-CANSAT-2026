@@ -98,6 +98,12 @@ public:
 	void EEPROM_updateState(OperatingState state);
 	void EEPROM_updateMode(OperatingMode mode);
 	void EEPROM_updatePackets(int count);
+	void EEPROM_updateMaxAlt(float alt);
+	void EEPROM_updateEggRel();
+	void EEPROM_updateWingRel();
+	void EEPROM_updateProbeRel();
+	void EEPROM_updateNoseconeRel();
+	void EEPROM_resetData();
 	bool EEPROM_addLogLine(char *buffer);
 	struct recovery_data EEPROM_getRecoveryData();
 

@@ -247,6 +247,37 @@ bool SensorManager::EEPROM_addLogLine(char *buffer)
 	return true;
 }
 
+void SensorManager::EEPROM_updateMaxAlt(float alt)
+{
+	return;
+}
+
+void SensorManager::EEPROM_updateEggRel()
+{
+	return;
+}
+
+void SensorManager::EEPROM_updateWingRel()
+{
+	return;
+}
+
+void SensorManager::EEPROM_updateProbeRel()
+{
+	return;
+}
+
+void SensorManager::EEPROM_updateNoseconeRel()
+{
+	return;
+}
+
+void SensorManager::EEPROM_resetData()
+{
+	// Reset max alt and release fields
+	return;
+}
+
 struct recovery_data SensorManager::EEPROM_getRecoveryData()
 {
 	struct recovery_data data;
@@ -254,6 +285,7 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 	data.state = OperatingState::IDLE;
 	data.mode = OperatingMode::OPMODE_FLIGHT;
 	data.packet_count = 0;
+	data.max_alt = 0.0;
 
 	return data;
 }

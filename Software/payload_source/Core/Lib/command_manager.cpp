@@ -117,6 +117,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
         if(info.getOpState() == IDLE && (info.isAltCalibrated() == true || info.getOpMode() == OPMODE_SIM))
         {
             info.reset_params();
+            sensors.EEPROM_resetData();
             ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");
             info.setOpState(LAUNCH_PAD);
             sensors.EEPROM_updateState(LAUNCH_PAD);
@@ -137,6 +138,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
             info.setOpState(IDLE);
             sensors.EEPROM_updateState(IDLE);
             info.reset_params();
+            sensors.EEPROM_resetData();
             ser.sendInfoDataMsg("ENDING PAYLOAD TRANSMISSION.{%s|%s}",
                 op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
         }

@@ -76,6 +76,23 @@ extern "C" void main_cpp()
         mission_mgr.setAltCalibration(recovery.launch_altitude);
         mission_mgr.setOpMode(recovery.mode);
         mission_mgr.setPacketCount(recovery.packet_count);
+        mission_mgr.update_max_alt(recovery.max_alt);
+        if(recovery.nosecone_flag)
+        {
+        	mission_mgr.nosecone_rel();
+        }
+        if(recovery.egg_flag)
+        {
+        	mission_mgr.egg_rel();
+        }
+        if(recovery.probe_flag)
+        {
+        	mission_mgr.probe_rel();
+        }
+        if(recovery.wing_flag)
+        {
+        	mission_mgr.wing_rel();
+        }
     }
     else
     {
@@ -211,7 +228,10 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 	{
 		case LAUNCH_PAD: {
 			float alt = mgr.calculate_median_alt();
-			mgr.update_max_alt(alt);
+			if(mgr.update_max_alt(alt))
+			{
+				sensors.EEPROM_updateMaxAlt(alt);
+			}
 			if(alt > ASCENT_ALT_THRESHOLD_M)
 			{
 				new_state = ASCENT;
@@ -221,7 +241,10 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 
 		case ASCENT: {
 			float alt = mgr.calculate_median_alt();
-			mgr.update_max_alt(alt);
+			if(mgr.update_max_alt(alt))
+			{
+				sensors.EEPROM_updateMaxAlt(alt);
+			}
 			if(mgr.get_max_alt() - alt > DESCENT_FALL_THRESHOLD_M)
 			{
 				if(mgr.descent_trigger())
@@ -233,7 +256,11 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 		}
 
 		case APOGEE: {
-			mgr.update_max_alt(mgr.calculate_median_alt());
+			float alt = mgr.calculate_median_alt();
+			if(mgr.update_max_alt(alt))
+			{
+				sensors.EEPROM_updateMaxAlt(alt);
+			}
 			if(mgr.is_apogee_packet_sent())
 			{
 				new_state = DESCENT;
@@ -246,6 +273,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 			{
 				sensors.activate_nosecone_release();
 				mgr.nosecone_rel();
+				sensors.EEPROM_updateNoseconeRel();
 				nosecone_rel__payload_rel_timer = HAL_GetTick();
 				//BNO_enableAccel(50000, serial);
 				//BNO_enableMag(50000, serial);
@@ -256,6 +284,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 			{
 				sensors.activate_probe_release();
 				mgr.probe_rel();
+				sensors.EEPROM_updateProbeRel();
 				wing_servo_timer = HAL_GetTick();
 				if(mgr.getOpMode() == OPMODE_FLIGHT)
 				{
@@ -275,6 +304,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 				{
 					sensors.activate_wing_deployment();
 					mgr.wing_rel();
+					sensors.EEPROM_updateWingRel();
 				}
 				if(mgr.wing_check())
 				{
@@ -282,6 +312,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 					{
 						sensors.activate_egg_release();
 						mgr.egg_rel();
+						sensors.EEPROM_updateEggRel();
 						new_state = PAYLOAD_RELEASE;
 					}
 				}
@@ -295,6 +326,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 					{
 						sensors.activate_wing_deployment();
 						mgr.wing_rel();
+						sensors.EEPROM_updateWingRel();
 					}
 				}
 				else if(mgr.wing_check())
@@ -304,6 +336,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 					{
 						sensors.activate_egg_release();
 						mgr.egg_rel();
+						sensors.EEPROM_updateEggRel();
 						sensors.stopTof();
 						new_state = PAYLOAD_RELEASE;
 					}
