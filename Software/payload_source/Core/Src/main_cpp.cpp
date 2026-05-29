@@ -1,6 +1,6 @@
+#include <drv.hpp>
 #include "main.h"
 #include "global_includes.hpp"
-#include "drv.h"
 #include "mission_manager.hpp"
 #include "sensor_manager.hpp"
 #include "serial_manager.hpp"
@@ -13,6 +13,7 @@ extern "C" volatile uint8_t pvd_flag;
 extern "C" volatile uint8_t update_flag;
 extern "C" UART_HandleTypeDef huart1;
 extern "C" TIM_HandleTypeDef htim1;
+extern "C" TIM_HandleTypeDef htim2;
 extern "C" TIM_HandleTypeDef htim3;
 extern "C" TIM_HandleTypeDef htim4;
 extern "C" TIM_HandleTypeDef htim8;
@@ -63,7 +64,7 @@ extern "C" void main_cpp()
 
 	__HAL_RCC_CLEAR_RESET_FLAGS();
 
-	sensors.startSensors(serial, &hi2c1, &htim3, &htim4);
+	sensors.startSensors(serial, &hi2c1, &htim2, &htim3, &htim4, SERVO_WING_DIR_GPIO_Port, SERVO_WING_DIR_Pin);
 
     struct recovery_data recovery = sensors.EEPROM_getRecoveryData();
 
@@ -117,7 +118,6 @@ extern "C" void main_cpp()
                 }
 
             }
-			motor_update();
             HAL_Delay(10);
         }
 
@@ -128,7 +128,6 @@ extern "C" void main_cpp()
             // Wait until first simulation packet is received
             while(mission_mgr.getOpMode() == OPMODE_SIM && mission_mgr.isWaitingSimp())
             {
-				motor_update();
                 HAL_Delay(100);
             }
         }
@@ -207,7 +206,6 @@ extern "C" void main_cpp()
             {
             	sensors.updateBNO();
             }
-            motor_update();
         }
 
         HAL_TIM_Base_Stop_IT(&htim1);

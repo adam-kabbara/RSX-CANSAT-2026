@@ -16,6 +16,7 @@
 #include "VL53L1X_calibration.h"
 #include "INA219.hpp"
 #include "ds1307.hpp"
+#include "drv.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,6 +46,8 @@ private:
 	Servo servo_elevator;
 	Servo servo_aileron;
 	Servo servo_egg;
+
+	DRV motor;
 
 	uint16_t tof_dev=0x52;
 	int16_t offset;
@@ -93,6 +96,8 @@ public:
 	void writeElevatorServo(float val);
 	void writeAileronServo(float val);
 	void writeEggServo(float val);
+	void writeMotor(uint8_t dir, uint32_t time_ms);
+	void stopMotor();
 
 	void EEPROM_updateAltitude(float alt);
 	void EEPROM_updateState(OperatingState state);
@@ -108,7 +113,8 @@ public:
 	struct recovery_data EEPROM_getRecoveryData();
 
 	void startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
-			TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4);
+			TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4,
+			GPIO_TypeDef *wing_dir_port, uint16_t wing_dir_pin);
 };
 
 #endif /* INC_SENSOR_MANAGER_HPP */

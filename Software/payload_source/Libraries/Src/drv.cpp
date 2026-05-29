@@ -1,31 +1,32 @@
-#include "drv.h"
-#include "main.h"
+#include "drv.hpp"
 
-static volatile uint32_t motor_stop_tick = 0;
-static volatile uint8_t  motor_running   = 0;
+DRV::DRV(){}
 
-void motor_run(uint8_t direction, uint32_t time_ms)
-{ // direction: 1 = forward, 0 = reverse; time_ms: how long to run in milliseconds (non-blocking — call motor_update() in main loop)
-    motor_stop_tick = HAL_GetTick() + time_ms;
-    motor_running   = 1;
+void DRV::Init(TIM_HandleTypeDef *htim, uint32_t channel, GPIO_TypeDef *port, uint16_t pin)
+{
+	_htim            = htim;
+	_channel         = channel;
+	_port            = port;
+	_pin             = pin;
 
-    HAL_GPIO_WritePin(SERVO_WING_DIR_GPIO_Port, SERVO_WING_DIR_Pin,
-                      direction ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(SERVO_WING_PWM_GPIO_Port, SERVO_WING_PWM_Pin,
-                      direction ? GPIO_PIN_RESET : GPIO_PIN_SET);
+	HAL_TIM_PWM_Start(htim, channel);
 }
 
-void motor_stop()
+void DRV::motor_run(uint8_t direction, uint32_t time_ms)
 {
-    motor_running = 0;
-    HAL_GPIO_WritePin(SERVO_WING_PWM_GPIO_Port, SERVO_WING_PWM_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(SERVO_WING_DIR_GPIO_Port, SERVO_WING_DIR_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(_port, _pin, direction ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+    __HAL_TIM_SET_COUNTER(_htim, 0);
+
+    __HAL_TIM_SET_AUTORELOAD(_htim, time_ms);
+
+    __HAL_TIM_SET_COMPARE(_htim, _channel, 1);
+
+    HAL_TIM_OnePulse_Start(_htim, _channel);
 }
 
-void motor_update()
+void DRV::motor_stop()
 {
-    if (motor_running && HAL_GetTick() >= motor_stop_tick)
-    {
-        motor_stop();
-    }
+	HAL_TIM_OnePulse_Stop(_htim, _channel);
+	HAL_GPIO_WritePin(_port, _pin, GPIO_PIN_RESET);
 }

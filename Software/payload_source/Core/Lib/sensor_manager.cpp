@@ -185,7 +185,7 @@ void SensorManager::activate_egg_release()
 
 void SensorManager::activate_wing_deployment()
 {
-	//
+	// writeMotor(0, 0);
 }
 
 void SensorManager::activate_nosecone_release()
@@ -220,6 +220,16 @@ void SensorManager::writeAileronServo(float val)
 void SensorManager::writeEggServo(float val)
 {
 	servo_egg.SetAngle(val);
+}
+
+void SensorManager::writeMotor(uint8_t dir, uint32_t time_ms)
+{
+	motor.motor_run(dir, time_ms);
+}
+
+void SensorManager::stopMotor()
+{
+	motor.motor_stop();
 }
 
 void SensorManager::EEPROM_updateAltitude(float alt)
@@ -291,7 +301,8 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 }
 
 void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
-		TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4)
+		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4,
+		GPIO_TypeDef *wing_dir_port, uint16_t wing_dir_pin)
 {
 	/* Start all sensors that need to be started
 	 * Add a delay between each start and send an
@@ -334,8 +345,7 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	servo_aileron.Init(htim3, TIM_CHANNEL_2, 1000, 2000, 180);
 	servo_egg.Init(htim3, TIM_CHANNEL_3, 1000, 2000, 180);
 
-	// TODO
-	// htim2 TIM_CHANNEL_1 and TIM_CHANNEL_2 available for wing driver
+	motor.Init(htim2, TIM_CHANNEL_2, wing_dir_port, wing_dir_pin);
 
 	HAL_Delay(100);
 

@@ -7,7 +7,7 @@
   */
 
 #include "command_manager.hpp"
-#include "drv.h"
+#include "drv.hpp"
 
 CommandManager::CommandManager()
 {
@@ -479,14 +479,14 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 	  int DC_val = atoi(val);
 	  if(DC_val == 0)
 	  {
-		  motor_stop();
+		  sensors.stopMotor();
 		  ser.sendInfoMsg("Motor stopped.");
 	  }
 	  else
 	  {
 		  uint8_t  direction = (DC_val > 0) ? 1 : 0;
 		  uint32_t duration  = (uint32_t)(DC_val > 0 ? DC_val : -DC_val);
-		  motor_run(direction, duration);
+		  sensors.writeMotor(direction, duration);
 		  ser.sendInfoDataMsg("Motor running %s for %lu ms.", direction ? "forward" : "reverse", (unsigned long)duration);
 	  }
   }
