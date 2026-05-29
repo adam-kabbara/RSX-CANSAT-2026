@@ -84,6 +84,10 @@ class Commands(QObject):
         if self._serial.send_data(self._cmd(op="SIM", val=mode)):
             self.print_signal.emit(f"Sent simulation mode '{mode}'")
 
+    def command__flight_mode(self, mode: str):
+        if self._serial.send_data(self._cmd(op="FLIGHT_MODE", val=mode)):
+            self.print_signal.emit(f"Sent flight mode '{mode}'")
+
     def command__alt_cal(self):
         if self._serial.send_data(self._cmd(op="CAL")):
             self.print_signal.emit(f"Sent altitude calibration command")

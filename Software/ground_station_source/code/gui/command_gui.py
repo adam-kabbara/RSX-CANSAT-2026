@@ -53,6 +53,7 @@ class CommandWindow(QMainWindow):
         self.__gps_lon            = 0.0
         self.__gps_rad            = 0.0
         self.__sim_mode           = "ENABLE"
+        self.__flight_mode        = "AUTONOMOUS"
         self.__custom_msg         = ""
         
         self.__CURRENT_CMD_WINDOW = None
@@ -222,7 +223,7 @@ class CommandWindow(QMainWindow):
         set_gps_box.addWidget(self.gps_lon)
         set_gps_box.addWidget(self.gps_rad)
 
-        self.button_set_sim_mode = QPushButton("SET MODE")
+        self.button_set_sim_mode = QPushButton("SET SIM MODE")
         self.button_set_sim_mode.setFont(button_font)
         self.button_set_sim_mode.clicked.connect(lambda: self.command_manager.command__sim_mode(self.__sim_mode))
         self.button_set_sim_mode.hide()
@@ -237,6 +238,23 @@ class CommandWindow(QMainWindow):
 
         sim_mode_box.addWidget(self.button_set_sim_mode)
         sim_mode_box.addWidget(self.sim_mode_field)
+
+        flight_mode_box = QHBoxLayout()
+
+        self.button_set_flight_mode = QPushButton("SET CONTROL MODE")
+        self.button_set_flight_mode.setFont(button_font)
+        self.button_set_flight_mode.clicked.connect(lambda: self.command_manager.command__flight_mode(self.__flight_mode))
+        self.button_set_flight_mode.hide()
+
+        self.flight_mode_field = QComboBox()
+        self.flight_mode_field.addItem("AUTONOMOUS")
+        self.flight_mode_field.addItem("MANUAL")
+        self.flight_mode_field.setFont(button_font)
+        self.flight_mode_field.activated.connect(self.flight_mode_field_edited)
+        self.flight_mode_field.hide()
+
+        flight_mode_box.addWidget(self.button_set_flight_mode)
+        flight_mode_box.addWidget(self.flight_mode_field)
 
         self.button_refresh_ports = QPushButton("REFRESH PORTS")
         self.button_refresh_ports.setFont(button_font)
@@ -468,6 +486,7 @@ class CommandWindow(QMainWindow):
         # SETUP buttons
         commands_layout.addLayout(set_time_box)
         commands_layout.addLayout(sim_mode_box)
+        commands_layout.addLayout(flight_mode_box)
         commands_layout.addLayout(team_id_editing_box)
         commands_layout.addLayout(set_gps_box)
         
@@ -538,6 +557,8 @@ class CommandWindow(QMainWindow):
             self.team_id_field_info,
             self.button_set_sim_mode,
             self.sim_mode_field,
+            self.button_set_flight_mode,
+            self.flight_mode_field
         ]
 
         self.buttons_sensor = [
@@ -834,6 +855,9 @@ class CommandWindow(QMainWindow):
     
     def sim_mode_field_edited(self, index):
         self.__sim_mode = self.sim_mode_field.itemText(index)
+
+    def flight_mode_field_edited(self, index):
+        self.__flight_mode = self.flight_mode_field.itemText(index)
         
     def reset_mission(self):
         msg_box = QMessageBox()

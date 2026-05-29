@@ -184,9 +184,9 @@ class DataProcessor(QObject):
             elif "CAMERA2 OFF" in msg:
                 self._graph_ui.update_camera2_status("OFF")
 
-            elif msg_text == "Flight mode auto":
+            elif "Flight mode auto" in msg:
                     self._graph_ui.update_flight_ctrl("Autonomous")
-            elif msg_text == "Flight mode manu":
+            elif "Flight mode manu" in msg:
                 self._graph_ui.update_flight_ctrl("Manual")
 
             row = {field: "" for field in self._csv_fields}
