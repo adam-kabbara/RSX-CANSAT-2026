@@ -62,7 +62,7 @@ public:
 
 	static const uint32_t EEPROM_TOTAL_BYTES       = 131072UL;
  
-    static const uint32_t EEPROM_NUM_RECOVERY_FIELDS = 4UL;
+    static const uint32_t EEPROM_NUM_RECOVERY_FIELDS = 9UL;
     static const uint32_t EEPROM_HEADER_ENTRY_SIZE  = 4UL;   // bytes per size field
     static const uint32_t EEPROM_HEADER_SIZE =
         (EEPROM_NUM_RECOVERY_FIELDS + 1UL) * EEPROM_HEADER_ENTRY_SIZE;  // 20 bytes
@@ -74,7 +74,12 @@ public:
     static const uint32_t EEPROM_ADDR_STATE  = EEPROM_ADDR_ALT   + EEPROM_FIELD_BLOCK_SIZE; // 0x000024
     static const uint32_t EEPROM_ADDR_MODE   = EEPROM_ADDR_STATE + EEPROM_FIELD_BLOCK_SIZE; // 0x000034
     static const uint32_t EEPROM_ADDR_PKTCNT = EEPROM_ADDR_MODE  + EEPROM_FIELD_BLOCK_SIZE; // 0x000044
-    static const uint32_t EEPROM_ADDR_LOG    = EEPROM_ADDR_PKTCNT + EEPROM_FIELD_BLOCK_SIZE;// 0x000054
+	static const uint32_t EEPROM_ADDR_MAXALT      = EEPROM_ADDR_PKTCNT    + EEPROM_FIELD_BLOCK_SIZE; // 0x000054
+	static const uint32_t EEPROM_ADDR_EGGREL      = EEPROM_ADDR_MAXALT    + EEPROM_FIELD_BLOCK_SIZE; // 0x000064
+	static const uint32_t EEPROM_ADDR_WINGREL     = EEPROM_ADDR_EGGREL    + EEPROM_FIELD_BLOCK_SIZE; // 0x000074
+	static const uint32_t EEPROM_ADDR_PROBEREL    = EEPROM_ADDR_WINGREL   + EEPROM_FIELD_BLOCK_SIZE; // 0x000084
+	static const uint32_t EEPROM_ADDR_NOSECONEREL = EEPROM_ADDR_PROBEREL  + EEPROM_FIELD_BLOCK_SIZE; // 0x000094
+	static const uint32_t EEPROM_ADDR_LOG         = EEPROM_ADDR_NOSECONEREL + EEPROM_FIELD_BLOCK_SIZE; // 0x0000A4
     static const uint32_t EEPROM_LOG_MAX     = EEPROM_TOTAL_BYTES - EEPROM_ADDR_LOG;
  
     /* Offsets into the header for each size field */
@@ -83,6 +88,11 @@ public:
     static const uint32_t EEPROM_HDR_IDX_MODE   = 2UL;
     static const uint32_t EEPROM_HDR_IDX_PKTCNT = 3UL;
     static const uint32_t EEPROM_HDR_IDX_LOG    = 4UL;
+	static const uint32_t EEPROM_HDR_IDX_MAXALT      = 5UL;
+	static const uint32_t EEPROM_HDR_IDX_EGGREL      = 6UL;
+	static const uint32_t EEPROM_HDR_IDX_WINGREL     = 7UL;
+	static const uint32_t EEPROM_HDR_IDX_PROBEREL    = 8UL;
+	static const uint32_t EEPROM_HDR_IDX_NOSECONEREL = 9UL;
 
 	SensorManager();
 

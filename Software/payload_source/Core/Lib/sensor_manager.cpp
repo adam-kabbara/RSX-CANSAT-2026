@@ -419,33 +419,69 @@ bool SensorManager::EEPROM_addLogLine(char *buffer, SerialManager &serial)
 
 void SensorManager::EEPROM_updateMaxAlt(float alt)
 {
-	return;
+    char buf[EEPROM_FIELD_BLOCK_SIZE];
+    int written = snprintf(buf, sizeof(buf), "%.4f", static_cast<double>(alt));
+    if (written <= 0) return;
+
+    uint16_t len = static_cast<uint16_t>(strlen(buf));
+    if (EEPROM_writeString(EEPROM_ADDR_MAXALT, buf, len))
+        EEPROM_writeHeaderSize(EEPROM_HDR_IDX_MAXALT, len);
 }
+
+// Release flags store "1" (released) or nothing/0 (not released).
+// A header size of 0 means never written == not released.
 
 void SensorManager::EEPROM_updateEggRel()
 {
-	return;
+    const char val[] = "1";
+    uint16_t len = 1;
+    if (EEPROM_writeString(EEPROM_ADDR_EGGREL, val, len))
+        EEPROM_writeHeaderSize(EEPROM_HDR_IDX_EGGREL, len);
 }
 
 void SensorManager::EEPROM_updateWingRel()
 {
-	return;
+    const char val[] = "1";
+    uint16_t len = 1;
+    if (EEPROM_writeString(EEPROM_ADDR_WINGREL, val, len))
+        EEPROM_writeHeaderSize(EEPROM_HDR_IDX_WINGREL, len);
 }
 
 void SensorManager::EEPROM_updateProbeRel()
 {
-	return;
+    const char val[] = "1";
+    uint16_t len = 1;
+    if (EEPROM_writeString(EEPROM_ADDR_PROBEREL, val, len))
+        EEPROM_writeHeaderSize(EEPROM_HDR_IDX_PROBEREL, len);
 }
 
 void SensorManager::EEPROM_updateNoseconeRel()
 {
-	return;
+    const char val[] = "1";
+    uint16_t len = 1;
+    if (EEPROM_writeString(EEPROM_ADDR_NOSECONEREL, val, len))
+        EEPROM_writeHeaderSize(EEPROM_HDR_IDX_NOSECONEREL, len);
 }
 
 void SensorManager::EEPROM_resetData()
 {
-	// Reset max alt and release fields
-	return;
+	// NOTE: ONLY RESETS MAX ALT AND RELEASE FIELDS
+    uint8_t zeros[EEPROM_FIELD_BLOCK_SIZE] = {0};
+
+    if (eeprom_dev != nullptr)
+    {
+        eeprom_dev->WriteByteArray(EEPROM_ADDR_MAXALT,      zeros, EEPROM_FIELD_BLOCK_SIZE);
+        eeprom_dev->WriteByteArray(EEPROM_ADDR_NOSECONEREL, zeros, EEPROM_FIELD_BLOCK_SIZE);
+        eeprom_dev->WriteByteArray(EEPROM_ADDR_PROBEREL,    zeros, EEPROM_FIELD_BLOCK_SIZE);
+        eeprom_dev->WriteByteArray(EEPROM_ADDR_WINGREL,     zeros, EEPROM_FIELD_BLOCK_SIZE);
+        eeprom_dev->WriteByteArray(EEPROM_ADDR_EGGREL,      zeros, EEPROM_FIELD_BLOCK_SIZE);
+    }
+
+    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_MAXALT,      0UL);
+    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_NOSECONEREL, 0UL);
+    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_PROBEREL,    0UL);
+    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_WINGREL,     0UL);
+    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_EGGREL,      0UL);
 }
 
 struct recovery_data SensorManager::EEPROM_getRecoveryData()
@@ -464,6 +500,10 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 	data.mode = OperatingMode::OPMODE_FLIGHT;
 	data.packet_count = 0;
 	data.max_alt = 0.0;
+	data.nosecone_flag = false;
+	data.probe_flag    = false;
+	data.wing_flag     = false;
+	data.egg_flag      = false;
  
     char buf[EEPROM_FIELD_BLOCK_SIZE];
  
@@ -515,6 +555,23 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
             data.packet_count = parsed;
 		}
     }
+
+	/* ── max_altitude ─────────────────────────────────────── */
+	if (EEPROM_readHeaderSize(EEPROM_HDR_IDX_MAXALT) > 0)
+	{
+		memset(buf, 0, sizeof(buf));
+		EEPROM_readString(EEPROM_ADDR_MAXALT, buf, static_cast<uint16_t>(sizeof(buf)));
+		char *endptr = nullptr;
+		double parsed = strtod(buf, &endptr);
+		if (endptr != buf)
+			data.max_alt = static_cast<float>(parsed);
+	}
+
+	/* ── release flags (header size > 0 == released) ─────── */
+	data.nosecone_flag = (EEPROM_readHeaderSize(EEPROM_HDR_IDX_NOSECONEREL) > 0);
+	data.probe_flag    = (EEPROM_readHeaderSize(EEPROM_HDR_IDX_PROBEREL)    > 0);
+	data.wing_flag     = (EEPROM_readHeaderSize(EEPROM_HDR_IDX_WINGREL)     > 0);
+	data.egg_flag      = (EEPROM_readHeaderSize(EEPROM_HDR_IDX_EGGREL)      > 0);
  
     return data;
 }
