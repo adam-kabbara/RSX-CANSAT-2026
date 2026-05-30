@@ -138,6 +138,7 @@ public:
 	void writeAileronServo(float val);
 	void writeEggServo(float val);
 	void writeMotor(uint8_t dir, uint32_t time_ms);
+	void updateMotor();
 	void stopMotor();
 
 	uint16_t EEPROM_readString(uint32_t start_addr, char *buf, uint16_t max_len);

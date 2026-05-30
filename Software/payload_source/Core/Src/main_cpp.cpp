@@ -109,6 +109,8 @@ extern "C" void main_cpp()
     {
         while(mission_mgr.getOpState() == IDLE)
         { // todo add calibration code
+			sensors.updateMotor();
+
             if(cmd_ready)
             {
             	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
@@ -141,6 +143,8 @@ extern "C" void main_cpp()
 
         while(mission_mgr.getOpState() != IDLE)
         {
+			sensors.updateMotor();
+			
             if(cmd_ready)
             {
             	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
