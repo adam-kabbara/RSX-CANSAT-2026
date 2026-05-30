@@ -9,22 +9,26 @@
 #include "command_manager.hpp"
 #include "drv.hpp"
 
+extern CalibrationState cal_state;
+
 CommandManager::CommandManager()
 {
     // Initialize function map
     using namespace std::placeholders;
-    command_map.emplace("CX", std::bind(&CommandManager::do_cx, this, _1, _2, _3, _4));
-    command_map.emplace("ST", std::bind(&CommandManager::do_st, this, _1, _2, _3, _4));
-    command_map.emplace("RST", std::bind(&CommandManager::do_restart, this, _1, _2, _3, _4));
-    command_map.emplace("TEST", std::bind(&CommandManager::do_give_status, this, _1, _2, _3, _4));
-    command_map.emplace("SIM", std::bind(&CommandManager::do_sim, this, _1, _2, _3, _4));
-    command_map.emplace("SIMP", std::bind(&CommandManager::do_simp, this, _1, _2, _3, _4));
-    command_map.emplace("CAL", std::bind(&CommandManager::do_cal, this, _1, _2, _3, _4));
-    command_map.emplace("MEC", std::bind(&CommandManager::do_mec, this, _1, _2, _3, _4));
-    command_map.emplace("LOG", std::bind(&CommandManager::do_logs, this, _1, _2, _3, _4));
+    command_map.emplace("CX", std::bind(&CommandManager::do_cx, this, _1, _2, _3, _4, _5));
+    command_map.emplace("ST", std::bind(&CommandManager::do_st, this, _1, _2, _3, _4, _5));
+    command_map.emplace("RST", std::bind(&CommandManager::do_restart, this, _1, _2, _3, _4, _5));
+    command_map.emplace("TEST", std::bind(&CommandManager::do_give_status, this, _1, _2, _3, _4, _5));
+    command_map.emplace("SIM", std::bind(&CommandManager::do_sim, this, _1, _2, _3, _4, _5));
+    command_map.emplace("SIMP", std::bind(&CommandManager::do_simp, this, _1, _2, _3, _4, _5));
+    command_map.emplace("CAL", std::bind(&CommandManager::do_cal, this, _1, _2, _3, _4, _5));
+    command_map.emplace("CAL2", std::bind(&CommandManager::do_cal2, this, _1, _2, _3, _4, _5));
+    command_map.emplace("NEXT", std::bind(&CommandManager::do_next, this, _1, _2, _3, _4, _5));
+    command_map.emplace("MEC", std::bind(&CommandManager::do_mec, this, _1, _2, _3, _4, _5));
+    command_map.emplace("LOG", std::bind(&CommandManager::do_logs, this, _1, _2, _3, _4, _5));
 }
 
-uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors)
+uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator)
 {
     // Extract fields from command buffer
 
@@ -99,12 +103,12 @@ uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser,
         ser.sendErrorMsg("COMMAND REJECTED: NOT A COMMAND");
         return 0;
     }
-    iter->second(ser, info, sensors, packet.data);
+    iter->second(ser, info, sensors, calibrator, packet.data);
     return 1;
 }
 
 // Toggle mission telemetry
-void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator, const char *data)
 {
     if(!data)
     {
@@ -152,7 +156,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
     }
 }
 
-void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator, const char *data)
 {
     if(!data)
     {
@@ -189,19 +193,19 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
     }
 }
 
-void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator, const char *data)
 {
   ser.sendInfoDataMsg("CANSAT IS ONLINE.{%s|%s|%s}",
       op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
 } // END: do_give_status
 
-void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator, const char *data)
 {
   ser.sendInfoMsg("Attempting to restart processor!");
   HAL_NVIC_SystemReset();
 } // END: do_restart
 
-void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator, const char *data)
 {
   if(!data)
   {
@@ -290,7 +294,7 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
   }
 } // END: do_sim()
 
-void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator, const char *data)
 {
   if(!data)
   {
@@ -323,7 +327,7 @@ void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorMan
   }
 } // END: do_simp()
 
-void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator, const char *data)
 {
   int ret = sensors.updateBMP();
   if(ret != 0)
@@ -337,7 +341,35 @@ void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorMana
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
 } // END: do_Cal()
 
-void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator, const char *data)
+{
+	//begin calibration
+	calibrator.resetReadings();
+	cal_state = CalibrationState::MAG_RUN;
+} // END: do_Cal()
+
+void CommandManager::do_next(SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator, const char *data)
+{
+	//run last calibration
+	switch(cal_state)
+	{
+		case CalibrationState::IDLE: break; //do nothing
+		case CalibrationState::MAG_RUN:
+			calibrator.calibrateGyro(calibrator.getReadingsX(), calibrator.getReadingsY(), calibrator.getReadingsZ(), calibrator.getReadingsCount());
+			break;
+		case CalibrationState::GYRO_RUN:
+			calibrator.calibrateCompass(calibrator.getReadingsX(), calibrator.getReadingsY(), calibrator.getReadingsZ(), calibrator.getReadingsCount());
+			break;
+		default: //accelerometer faces
+			calibrator.calibrateAccelFace(calibrator.getReadingsX(), calibrator.getReadingsY(), calibrator.getReadingsZ(), calibrator.getReadingsCount(), cal_state);
+			break;
+	}
+	//continue to next calibration
+	calibrator.resetReadings();
+	cal_state = calibrator.calibrationFSM(cal_state);
+}
+
+void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator, const char *data)
 {
   if(!data)
   {
@@ -495,7 +527,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
   }
 }
 
-void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorManager &sensors, SensorCalibration &calibrator, const char *data)
 {
   // Only do this if IDLE
   if(info.getOpState() != IDLE)

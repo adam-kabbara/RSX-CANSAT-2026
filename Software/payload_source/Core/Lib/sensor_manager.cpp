@@ -111,7 +111,40 @@ void SensorManager::updateBNO()
 	BNO085_GetData(&bno_dev);
 }
 
-struct rpy_data SensorManager::getIMUData()
+void SensorManager::getRawGyro(float* data)
+{
+	//get BNO data
+	SensorManager::updateBNO();
+
+	//write BNO data to float array
+	data[0] = 	bno_dev.gyro.x;
+	data[1] = 	-bno_dev.gyro.y;
+	data[2] = 	-bno_dev.gyro.z;
+}
+
+void SensorManager::getRawAccel(float* data)
+{
+	//get BNO data
+	SensorManager::updateBNO();
+
+	//write BNO data to float array
+	data[0] = 	bno_dev.accel.x;
+	data[1] = 	-bno_dev.accel.y;
+	data[2] = 	-bno_dev.accel.z;
+}
+
+void SensorManager::getRawMag(float* data)
+{
+	//get BNO data
+	SensorManager::updateBNO();
+
+	//write BNO data to float array
+	data[0] = 	bno_dev.mag.x;
+	data[1] = 	-bno_dev.mag.y;
+	data[2] = 	-bno_dev.mag.z;
+}
+
+struct rpy_data SensorManager::getIMUData() // deprecated
 {
 	struct rpy_data data;
 	data.gyro_r = bno_dev.gyro.x * (180.0f / M_PI);

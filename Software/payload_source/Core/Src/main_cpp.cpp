@@ -3,6 +3,7 @@
 #include "global_includes.hpp"
 #include "mission_manager.hpp"
 #include "sensor_manager.hpp"
+#include "sensor_calibration.hpp"
 #include "serial_manager.hpp"
 #include "telemetry_manager.hpp"
 #include "command_manager.hpp"
@@ -26,6 +27,7 @@ uint32_t nosecone_rel__payload_rel_timer=0;
 uint32_t wing_servo_timer=0;
 uint32_t tof_timer=0;
 OperatingState update_state(SensorManager &sensors, MissionManager &mgr, OperatingState current_state);
+CalibrationState cal_state = CalibrationState::IDLE;
 
 extern "C" void main_cpp()
 {
@@ -37,6 +39,7 @@ extern "C" void main_cpp()
     TelemetryManager telemetry_mgr;
 
     SensorManager sensors;
+    SensorCalibration calibrator;
 
     Controller pid_controller;
 
@@ -116,11 +119,16 @@ extern "C" void main_cpp()
             	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
             	cmd_ready = 0;
 
-                if(cmd_mgr.processCommand(cmd_buff, serial, mission_mgr, sensors))
+                if(cmd_mgr.processCommand(cmd_buff, serial, mission_mgr, sensors, calibrator))
                 {
                     mission_mgr.setLastCommand(cmd_buff);
                 }
 
+            }
+            else
+            {
+            	//collect relevant data
+            	calibrator.collectReading(cal_state, sensors);
             }
             HAL_Delay(10);
         }
@@ -150,7 +158,7 @@ extern "C" void main_cpp()
             	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
             	cmd_ready = 0;
 
-                if(cmd_mgr.processCommand(cmd_buff, serial, mission_mgr, sensors))
+                if(cmd_mgr.processCommand(cmd_buff, serial, mission_mgr, sensors, calibrator))
                 {
                     mission_mgr.setLastCommand(cmd_buff);
                 }

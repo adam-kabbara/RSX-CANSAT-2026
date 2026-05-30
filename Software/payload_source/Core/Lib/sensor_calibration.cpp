@@ -1,16 +1,17 @@
 #include "sensor_calibration.hpp"
+#include "sensor_manager.hpp"
 #include <algorithm>
 #include <cmath>
 
 // Gyroscope calibration - Simple zero-bias average (Assumes sensor is perfectly still)
-void SensorCalibration::calibrateGyro(const int16_t* rawGyroX, const int16_t* rawGyroY, 
-                                      const int16_t* rawGyroZ, uint16_t numSamples) {
+void SensorCalibration::calibrateGyro(const float* rawGyroX, const float* rawGyroY,
+                                      const float* rawGyroZ, uint16_t numSamples) {
     if (numSamples == 0) return;
     
     double sumX = 0, sumY = 0, sumZ = 0;
-    int16_t minX = rawGyroX[0], maxX = rawGyroX[0];
-    int16_t minY = rawGyroY[0], maxY = rawGyroY[0];
-    int16_t minZ = rawGyroZ[0], maxZ = rawGyroZ[0];
+    float minX = rawGyroX[0], maxX = rawGyroX[0];
+    float minY = rawGyroY[0], maxY = rawGyroY[0];
+    float minZ = rawGyroZ[0], maxZ = rawGyroZ[0];
     
     for (uint16_t i = 0; i < numSamples; i++) {
         sumX += rawGyroX[i];
@@ -37,22 +38,25 @@ void SensorCalibration::calibrateGyro(const int16_t* rawGyroX, const int16_t* ra
 }
 
 
-AccelFace SensorCalibration::faceFSM(AccelFace currentFace) {
+CalibrationState SensorCalibration::calibrationFSM(CalibrationState currentFace) {
     switch (currentFace) {
-        case AccelFace::FACE_XP: return AccelFace::FACE_XN;
-        case AccelFace::FACE_XN: return AccelFace::FACE_YP;
-        case AccelFace::FACE_YP: return AccelFace::FACE_YN;
-        case AccelFace::FACE_YN: return AccelFace::FACE_ZP;
-        case AccelFace::FACE_ZP: return AccelFace::FACE_ZN;
-        case AccelFace::FACE_ZN: return AccelFace::FACE_XP;
-        default: return AccelFace::FACE_XP; // Default to start if invalid
+    	case CalibrationState::IDLE:		return CalibrationState::MAG_RUN;
+    	case CalibrationState::MAG_RUN: 	return CalibrationState::GYRO_RUN;
+    	case CalibrationState::GYRO_RUN:	return CalibrationState::FACE_XP;
+        case CalibrationState::FACE_XP: 	return CalibrationState::FACE_XN;
+        case CalibrationState::FACE_XN: 	return CalibrationState::FACE_YP;
+        case CalibrationState::FACE_YP: 	return CalibrationState::FACE_YN;
+        case CalibrationState::FACE_YN: 	return CalibrationState::FACE_ZP;
+        case CalibrationState::FACE_ZP: 	return CalibrationState::FACE_ZN;
+        case CalibrationState::FACE_ZN: 	return CalibrationState::IDLE;
+        default: return CalibrationState::IDLE; // Default to start if invalid
     }
 }
 
 // Accelerometer multi-face calibration (Calculates true offset/scale via max/min tracking)
-void SensorCalibration::calibrateAccelFace(const int16_t* rawAccelX, const int16_t* rawAccelY, 
-                                           const int16_t* rawAccelZ, uint16_t numSamples,
-                                           AccelFace face) {
+void SensorCalibration::calibrateAccelFace(const float* rawAccelX, const float* rawAccelY,
+                                           const float* rawAccelZ, uint16_t numSamples,
+                                           CalibrationState face) {
     if (numSamples == 0) return;
     
     double sumX = 0, sumY = 0, sumZ = 0;
@@ -69,12 +73,13 @@ void SensorCalibration::calibrateAccelFace(const int16_t* rawAccelX, const int16
     // Internal helper uses range fields to store maximums and minimums temporarily
     // rangeX/Y/Z = positive max, biasX/Y/Z = negative min
     switch (face) {
-        case AccelFace::FACE_XP: accelCalib.rangeX = meanX; break;
-        case AccelFace::FACE_XN: accelCalib.biasX  = meanX; break;
-        case AccelFace::FACE_YP: accelCalib.rangeY = meanY; break;
-        case AccelFace::FACE_YN: accelCalib.biasY  = meanY; break;
-        case AccelFace::FACE_ZP: accelCalib.rangeZ = meanZ; break;
-        case AccelFace::FACE_ZN: accelCalib.biasZ  = meanZ; break;
+        case CalibrationState::FACE_XP: accelCalib.rangeX = meanX; break;
+        case CalibrationState::FACE_XN: accelCalib.biasX  = meanX; break;
+        case CalibrationState::FACE_YP: accelCalib.rangeY = meanY; break;
+        case CalibrationState::FACE_YN: accelCalib.biasY  = meanY; break;
+        case CalibrationState::FACE_ZP: accelCalib.rangeZ = meanZ; break;
+        case CalibrationState::FACE_ZN: accelCalib.biasZ  = meanZ; break;
+        default: return; //quit if state is invalid
     }
     
     // Compute final combined parameters using min/max bounds
@@ -99,13 +104,13 @@ void SensorCalibration::calibrateAccelFace(const int16_t* rawAccelX, const int16
 }
 
 // Compass (Magnetometer) calibration - Uses Midpoint Envelope & Soft-Iron Compensation
-void SensorCalibration::calibrateCompass(const int16_t* rawMagX, const int16_t* rawMagY, 
-                                         const int16_t* rawMagZ, uint16_t numSamples) {
+void SensorCalibration::calibrateCompass(const float* rawMagX, const float* rawMagY,
+                                         const float* rawMagZ, uint16_t numSamples) {
     if (numSamples == 0) return;
     
-    int16_t minX = rawMagX[0], maxX = rawMagX[0];
-    int16_t minY = rawMagY[0], maxY = rawMagY[0];
-    int16_t minZ = rawMagZ[0], maxZ = rawMagZ[0];
+    float minX = rawMagX[0], maxX = rawMagX[0];
+    float minY = rawMagY[0], maxY = rawMagY[0];
+    float minZ = rawMagZ[0], maxZ = rawMagZ[0];
     
     for (uint16_t i = 0; i < numSamples; i++) {
         minX = std::min(minX, rawMagX[i]);
@@ -136,4 +141,81 @@ void SensorCalibration::calibrateCompass(const int16_t* rawMagX, const int16_t* 
     compassCalib.rangeZ = (deltaZ != 0.0f) ? (avgDelta / deltaZ) : 1.0f;
     
     compassCalib.isCalibrated = true;
+}
+
+void SensorCalibration::resetReadings()
+{
+	currentReadings = 0; 	//set number of readings to 0
+	readingIndex = 0;		//ensure new readings start from the first index
+	//set all readings to 0
+	for(int readingIndex = 0; readingIndex < READINGCOUNT; readingIndex++)
+	{
+		calibrationReadingsX[readingIndex] = 0;
+		calibrationReadingsY[readingIndex] = 0;
+		calibrationReadingsZ[readingIndex] = 0;
+	}
+}
+
+int16_t SensorCalibration::getReadingsCount()
+{
+	return currentReadings;
+}
+
+void SensorCalibration::incrementReadingCount()
+{
+	//increment counters
+	currentReadings++;
+	readingIndex = (readingIndex + 1)%READINGCOUNT;
+	//limit currentReadings to array size
+	if(currentReadings > READINGCOUNT)
+	{
+		currentReadings = READINGCOUNT;
+	}
+}
+
+void SensorCalibration::collectReading(CalibrationState calibrationState, SensorManager sensors)
+{
+	switch(calibrationState)
+	{
+		case CalibrationState::IDLE: break; //do nothing
+		case CalibrationState::MAG_RUN: //get magnetometer readings
+			float magData[3];
+			sensors.getRawMag(magData);
+			calibrationReadingsX[readingIndex] = magData[0];
+			calibrationReadingsY[readingIndex] = magData[1];
+			calibrationReadingsZ[readingIndex] = magData[2];
+			incrementReadingCount();
+			break;
+		case CalibrationState::GYRO_RUN: //get gyro readings
+			float gyroData[3];
+			sensors.getRawGyro(gyroData);
+			calibrationReadingsX[readingIndex] = gyroData[0];
+			calibrationReadingsY[readingIndex] = gyroData[1];
+			calibrationReadingsZ[readingIndex] = gyroData[2];
+			incrementReadingCount();
+			break;
+		default: //get accelerometer readings
+			float accelData[3];
+			sensors.getRawAccel(accelData);
+			calibrationReadingsX[readingIndex] = accelData[0];
+			calibrationReadingsY[readingIndex] = accelData[1];
+			calibrationReadingsZ[readingIndex] = accelData[2];
+			incrementReadingCount();
+			break;
+	}
+}
+
+float* SensorCalibration::getReadingsX()
+{
+	return calibrationReadingsX;
+}
+
+float* SensorCalibration::getReadingsY()
+{
+	return calibrationReadingsY;
+}
+
+float* SensorCalibration::getReadingsZ()
+{
+	return calibrationReadingsZ;
 }

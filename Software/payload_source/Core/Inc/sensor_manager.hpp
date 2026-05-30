@@ -115,7 +115,10 @@ public:
 	void BNO_enableRotationVector(int microsec, SerialManager &serial);
 	bool BNO_dataReady();
 	void updateBNO();
-	struct rpy_data getIMUData();
+	void getRawGyro(float* data);
+	void getRawAccel(float* data);
+	void getRawMag(float* data);
+	struct rpy_data getIMUData(); //deprecated
 
 	struct gps_data getGPSData();
 
