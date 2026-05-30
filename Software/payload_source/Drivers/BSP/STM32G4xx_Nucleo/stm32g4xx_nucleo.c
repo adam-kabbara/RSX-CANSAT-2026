@@ -384,7 +384,7 @@ int32_t BSP_COM_Init(COM_TypeDef COM, COM_InitTypeDef *COM_Init)
     /* Init the UART Msp */
     COM1_MspInit(&hcom_uart[COM]);
 #else
-    if(IsComMspCbValid == 0U)
+    if(IsComMspCbValid[COM] == 0U)
     {
       if(BSP_COM_RegisterDefaultMspCallbacks(COM) != BSP_ERROR_NONE)
       {
