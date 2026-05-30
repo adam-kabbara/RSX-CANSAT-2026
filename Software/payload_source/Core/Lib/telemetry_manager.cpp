@@ -6,14 +6,14 @@
 
 #include "telemetry_manager.hpp"
 
-void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mission_info)
+void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mission_info, SerialManager &serial)
 {
 	packet.TEAM_ID_PCKT = TEAM_ID;
 
 	sensors.getRTCTime(packet.MISSION_TIME);
 
 	mission_info.incrPacketCount();
-	sensors.EEPROM_updatePackets(mission_info.getPacketCount());
+	sensors.EEPROM_updatePackets(mission_info.getPacketCount(), serial);
 	packet.PACKET_COUNT = mission_info.getPacketCount();
 
 	strcpy(packet.STATE, op_state_to_string(mission_info.getOpState()));

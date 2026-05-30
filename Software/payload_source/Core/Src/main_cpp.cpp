@@ -69,10 +69,12 @@ extern "C" void main_cpp()
     struct recovery_data recovery = sensors.EEPROM_getRecoveryData();
 
     mission_mgr.setOpState(recovery.state);
+	mission_mgr.setFlightCtrl(AUTONOMOUS); // always start in autonomous mode
 
     if(recovery.state != IDLE)
     {
         serial.sendErrorMsg("Performing recovery as processor was not in IDLE state! Telemetry should resume!");
+		serial.sendErrorMsg("CPL forced into AUTONOMOUS FLIGHT CTRL for recovery.");
         // Get packet count, launch altitude
         mission_mgr.setAltCalibration(recovery.launch_altitude);
         mission_mgr.setOpMode(recovery.mode);
@@ -106,7 +108,7 @@ extern "C" void main_cpp()
     while(1)
     {
         while(mission_mgr.getOpState() == IDLE)
-        {
+        { // todo add calibration code
             if(cmd_ready)
             {
             	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
@@ -152,12 +154,12 @@ extern "C" void main_cpp()
 
             if(send_flag)
             {
-            	telemetry_mgr.sampleSensors(sensors, mission_mgr);
+				telemetry_mgr.sampleSensors(sensors, mission_mgr, serial);
             	telemetry_mgr.build_data_str(send_buff, sizeof(send_buff));
 
             	serial.sendTelemetry(send_buff);
 
-            	if(mission_mgr.logfile_ok() && !sensors.EEPROM_addLogLine(send_buff))
+				if(mission_mgr.logfile_ok() && !sensors.EEPROM_addLogLine(send_buff, serial))
 				{
 					serial.sendErrorMsg("Warning: Unable to add line to logfile!");
 					mission_mgr.disableLogfile();
@@ -195,7 +197,7 @@ extern "C" void main_cpp()
 				OperatingState next_state = update_state(sensors, mission_mgr, mission_mgr.getOpState());
 				if(next_state != mission_mgr.getOpState())
 				{
-					sensors.EEPROM_updateState(next_state);
+					sensors.EEPROM_updateState(next_state, serial);
 					mission_mgr.setOpState(next_state);
 				}
 

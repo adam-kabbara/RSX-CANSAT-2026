@@ -603,11 +603,11 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 
 	HAL_Delay(100);
 
-	servo_nosecone.Init(htim4, TIM_CHANNEL_2, 1000, 2000, 180);
-	servo_container.Init(htim4, TIM_CHANNEL_1, 1000, 2000, 180);
-	servo_elevator.Init(htim3, TIM_CHANNEL_1, 1000, 2000, 180);
-	servo_aileron.Init(htim3, TIM_CHANNEL_2, 1000, 2000, 180);
-	servo_egg.Init(htim3, TIM_CHANNEL_3, 1000, 2000, 180);
+	servo_nosecone.Init(htim4, TIM_CHANNEL_2, 500, 2500, 90, -90);
+	servo_container.Init(htim4, TIM_CHANNEL_1, 500, 2500, 90, -90);
+	servo_elevator.Init(htim3, TIM_CHANNEL_1, 500, 2500, 90, -90);
+	servo_aileron.Init(htim3, TIM_CHANNEL_2, 500, 2500, 90, -90);
+	servo_egg.Init(htim3, TIM_CHANNEL_3, 500, 2500, 90, -90);
 
 	motor.Init(htim2, TIM_CHANNEL_2, wing_dir_port, wing_dir_pin);
 
