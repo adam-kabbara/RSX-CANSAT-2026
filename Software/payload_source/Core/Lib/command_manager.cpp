@@ -8,6 +8,7 @@
 
 #include "command_manager.hpp"
 #include "drv.hpp"
+#include "sensor_calibration.hpp"
 
 CommandManager::CommandManager()
 {
@@ -336,6 +337,43 @@ void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorMana
   sensors.EEPROM_updateAltitude(info.getLaunchAlt(), ser);
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
 } // END: do_Cal()
+
+void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data) // data = gyro
+{
+  if(!data)
+  {
+    ser.sendErrorMsg("COMMAND 'CAL2' REJECTED: DID NOT RECEIVE DATA");
+    return;
+  }
+
+  if (strcmp(data, "GYRO") == 0)
+  {
+    int num_data_points = 250; // vibes
+    float* gyro_raw_data;
+    float* rawGyroX = new float[num_data_points];
+    float* rawGyroY = new float[num_data_points];
+    float* rawGyroZ = new float[num_data_points];
+
+    for (int i=0; i<num_data_points; i++){ 
+      gyro_raw_data = new float[3];
+      sensors.getRawGyro(gyro_raw_data);
+      rawGyroX[i] = gyro_raw_data[0];
+      rawGyroY[i] = gyro_raw_data[1];
+      rawGyroZ[i] = gyro_raw_data[2];
+      delete[] gyro_raw_data;
+    }
+    SensorCalibration calibration;
+    calibration.calibrateGyro(rawGyroX, rawGyroY, rawGyroZ, num_data_points);
+
+    delete[] rawGyroX;
+    delete[] rawGyroY;
+    delete[] rawGyroZ;
+  }
+  else
+  {
+    ser.sendErrorDataMsg("ERROR: UNRECOGNIZED CAL COMMAND: %s", data);
+  }
+} // END: do_Cal2()
 
 void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {

@@ -3,36 +3,21 @@
 #include <cmath>
 
 // Gyroscope calibration - Simple zero-bias average (Assumes sensor is perfectly still)
-void SensorCalibration::calibrateGyro(const int16_t* rawGyroX, const int16_t* rawGyroY, 
-                                      const int16_t* rawGyroZ, uint16_t numSamples) {
+void SensorCalibration::calibrateGyro(const float* rawGyroX, const float* rawGyroY, 
+                                      const float* rawGyroZ, uint16_t numSamples) {
     if (numSamples == 0) return;
-    
+
     double sumX = 0, sumY = 0, sumZ = 0;
-    int16_t minX = rawGyroX[0], maxX = rawGyroX[0];
-    int16_t minY = rawGyroY[0], maxY = rawGyroY[0];
-    int16_t minZ = rawGyroZ[0], maxZ = rawGyroZ[0];
     
     for (uint16_t i = 0; i < numSamples; i++) {
         sumX += rawGyroX[i];
         sumY += rawGyroY[i];
         sumZ += rawGyroZ[i];
-        
-        minX = std::min(minX, rawGyroX[i]);
-        maxX = std::max(maxX, rawGyroX[i]);
-        minY = std::min(minY, rawGyroY[i]);
-        maxY = std::max(maxY, rawGyroY[i]);
-        minZ = std::min(minZ, rawGyroZ[i]);
-        maxZ = std::max(maxZ, rawGyroZ[i]);
     }
     
     gyroCalib.biasX = static_cast<float>(sumX / numSamples);
     gyroCalib.biasY = static_cast<float>(sumY / numSamples);
     gyroCalib.biasZ = static_cast<float>(sumZ / numSamples);
-    
-    gyroCalib.rangeX = static_cast<float>(maxX - minX);
-    gyroCalib.rangeY = static_cast<float>(maxY - minY);
-    gyroCalib.rangeZ = static_cast<float>(maxZ - minZ);
-    
     gyroCalib.isCalibrated = true;
 }
 

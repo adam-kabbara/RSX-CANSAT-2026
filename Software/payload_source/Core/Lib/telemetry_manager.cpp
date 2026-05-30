@@ -39,7 +39,7 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mis
 
 	packet.CURRENT = sensors.getCurrent();
 
-	struct rpy_data gyro_accel_data = sensors.getIMUData();
+	struct rpy_data gyro_accel_data = sensors.getIMUData();//sensors.getCalibratedGyro(); //;
 	
 	packet.GYRO_R = (int)lroundf(gyro_accel_data.gyro_r);
 	packet.GYRO_P = (int)lroundf(gyro_accel_data.gyro_p);

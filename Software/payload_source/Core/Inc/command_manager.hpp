@@ -30,6 +30,8 @@ private:
     void do_mec(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
     void do_logs(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
 
+    void do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
+
 public:
     CommandManager();
 

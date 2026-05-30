@@ -115,6 +115,9 @@ public:
 	void BNO_enableRotationVector(int microsec, SerialManager &serial);
 	bool BNO_dataReady();
 	void updateBNO();
+	void getRawGyro(float* data_out);
+	struct rpy_data getCalibratedGyro(float* calib_bias);
+
 	struct rpy_data getIMUData();
 
 	struct gps_data getGPSData();

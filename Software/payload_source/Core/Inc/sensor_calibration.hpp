@@ -34,8 +34,8 @@ public:
     /**
      * @brief Calibrates the gyroscope assuming it is perfectly static.
      */
-    void calibrateGyro(const int16_t* rawGyroX, const int16_t* rawGyroY, 
-                        const int16_t* rawGyroZ, uint16_t numSamples);
+    void calibrateGyro(const float* rawGyroX, const float* rawGyroY, 
+                                      const float* rawGyroZ, uint16_t numSamples);
 
 
     /**
