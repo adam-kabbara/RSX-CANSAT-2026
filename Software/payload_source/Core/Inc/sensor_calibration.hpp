@@ -37,11 +37,6 @@ public:
     void calibrateGyro(const int16_t* rawGyroX, const int16_t* rawGyroY, 
                         const int16_t* rawGyroZ, uint16_t numSamples);
 
-    /**
-     * @brief Calibrates the accelerometer using a quick average (simple offset).
-     */
-    void calibrateAccel(const int16_t* rawAccelX, const int16_t* rawAccelY, 
-                         const int16_t* rawAccelZ, uint16_t numSamples);
 
     /**
      * @brief Calibrates a single specific face of the accelerometer for multi-position calibration.

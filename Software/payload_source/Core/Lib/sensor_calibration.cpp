@@ -36,41 +36,6 @@ void SensorCalibration::calibrateGyro(const int16_t* rawGyroX, const int16_t* ra
     gyroCalib.isCalibrated = true;
 }
 
-// Accelerometer calibration - Simple zero-bias average (Assumes flat horizontal surface)
-void SensorCalibration::calibrateAccel(const int16_t* rawAccelX, const int16_t* rawAccelY, 
-                                       const int16_t* rawAccelZ, uint16_t numSamples) {
-    if (numSamples == 0) return;
-    
-    double sumX = 0, sumY = 0, sumZ = 0;
-    int16_t minX = rawAccelX[0], maxX = rawAccelX[0];
-    int16_t minY = rawAccelY[0], maxY = rawAccelY[0];
-    int16_t minZ = rawAccelZ[0], maxZ = rawAccelZ[0];
-    
-    for (uint16_t i = 0; i < numSamples; i++) {
-        sumX += rawAccelX[i];
-        sumY += rawAccelY[i];
-        sumZ += rawAccelZ[i];
-        
-        minX = std::min(minX, rawAccelX[i]);
-        maxX = std::max(maxX, rawAccelX[i]);
-        minY = std::min(minY, rawAccelY[i]);
-        maxY = std::max(maxY, rawAccelY[i]);
-        minZ = std::min(minZ, rawAccelZ[i]);
-        maxZ = std::max(maxZ, rawAccelZ[i]);
-    }
-    
-    accelCalib.biasX = static_cast<float>(sumX / numSamples);
-    accelCalib.biasY = static_cast<float>(sumY / numSamples);
-    // Note: Z axis includes gravity (1g) if calibrated flat. 
-    // True bias calibration usually requires 6-position, but keeping your logic intact here:
-    accelCalib.biasZ = static_cast<float>(sumZ / numSamples); 
-    
-    accelCalib.rangeX = static_cast<float>(maxX - minX);
-    accelCalib.rangeY = static_cast<float>(maxY - minY);
-    accelCalib.rangeZ = static_cast<float>(maxZ - minZ);
-    
-    accelCalib.isCalibrated = true;
-}
 
 AccelFace SensorCalibration::faceFSM(AccelFace currentFace) {
     switch (currentFace) {
