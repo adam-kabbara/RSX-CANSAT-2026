@@ -473,6 +473,25 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  ser.sendErrorMsg("ERROR: SERVO COMMAND FORMAT INCORRECT, DID NOT RECEIVE '#|VAL'");
 	  }
   }
+  else if(strcmp(mec, "CAM") == 0)
+  {
+    int cam_id = atoi(val);
+
+    if(cam_id == 0)
+    {
+      sensors.toggleCamera1(); // Triggers RunCam 1 (G_CAM) over PF0
+      ser.sendInfoMsg("Camera 1 (G_CAM) recording state toggled.");
+    }
+    else if(cam_id == 1)
+    {
+      sensors.toggleCamera2(); // Triggers RunCam 2 (PG_CAM) over PF1
+      ser.sendInfoMsg("Camera 2 (PG_CAM) recording state toggled.");
+    }
+    else
+    {
+      ser.sendErrorDataMsg("ERROR: UNRECOGNIZED CAMERA ID: %d", cam_id);
+    }
+  }
   else if(strcmp(mec, "DC") == 0)
   {
 	  int DC_val = atoi(val);

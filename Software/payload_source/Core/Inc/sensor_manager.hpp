@@ -122,6 +122,8 @@ public:
 	struct gps_data getGPSData();
 
 	cam_status getCameraStatus();
+	void toggleCamera1();
+	void toggleCamera2();
 
 	void setRTCTime(uint8_t h, uint8_t m, uint8_t s);
 	void getRTCTime(char time_str[DATA_SIZE]);

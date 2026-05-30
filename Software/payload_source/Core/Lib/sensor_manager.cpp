@@ -179,6 +179,16 @@ cam_status SensorManager::getCameraStatus()
     }
 }
 
+void toggleCamera1()
+{ 
+	cam1_dev.toggleRecording(); 
+}
+
+void toggleCamera2()
+{
+	cam2_dev.toggleRecording();
+}
+
 void SensorManager::setRTCTime(uint8_t h, uint8_t m, uint8_t s)
 {
 	DS1307_SetHour(h);
