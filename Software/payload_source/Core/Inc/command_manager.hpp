@@ -31,6 +31,9 @@ private:
     void do_logs(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
 
     void do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
+    void do_dev(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
+    void do_flight_ctrl(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
+    void do_man(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
 
 public:
     CommandManager();

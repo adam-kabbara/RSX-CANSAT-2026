@@ -241,3 +241,13 @@ void MissionManager::enableLogfile()
 {
     logfile_chk = true;
 }
+
+bool MissionManager::isDevMode()
+{
+    return dev_mode;
+}
+
+void MissionManager::setDevMode(bool enabled)
+{
+    dev_mode = enabled;
+}

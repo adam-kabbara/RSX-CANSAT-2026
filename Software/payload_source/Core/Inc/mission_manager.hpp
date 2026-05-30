@@ -25,6 +25,7 @@ private:
     int SIMP_DATA = 0;
     bool waiting_for_simp = false;
     char last_command[CMD_BUFF_SIZE];
+    bool dev_mode = false;
     bool logfile_chk = true;
     float alt_buffer[ALTITUDE_SMOOTHING_WINDOW] = {0};
     int alt_buffer_idx = 0;
@@ -113,6 +114,10 @@ public:
     void disableLogfile();
 
     void enableLogfile();
+
+    bool isDevMode();
+
+    void setDevMode(bool enabled);
 };
 
 #endif /* INC_MISSION_MANAGER_HPP */

@@ -23,6 +23,9 @@ CommandManager::CommandManager()
     command_map.emplace("CAL", std::bind(&CommandManager::do_cal, this, _1, _2, _3, _4));
     command_map.emplace("MEC", std::bind(&CommandManager::do_mec, this, _1, _2, _3, _4));
     command_map.emplace("LOG", std::bind(&CommandManager::do_logs, this, _1, _2, _3, _4));
+    command_map.emplace("FLIGHT_CTRL", std::bind(&CommandManager::do_flight_ctrl, this, _1, _2, _3, _4));
+    command_map.emplace("JS", std::bind(&CommandManager::do_man, this, _1, _2, _3, _4));
+    command_map.emplace("DEV", std::bind(&CommandManager::do_dev, this, _1, _2, _3, _4));
 }
 
 uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors)
@@ -118,10 +121,10 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
         if(info.getOpState() == IDLE && (info.isAltCalibrated() == true || info.getOpMode() == OPMODE_SIM))
         {
             info.reset_params();
-            sensors.EEPROM_resetData();
+            // sensors.EEPROM_resetData(); // EEPROM disabled
             ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");
             info.setOpState(LAUNCH_PAD);
-            sensors.EEPROM_updateState(LAUNCH_PAD, ser);
+            // sensors.EEPROM_updateState(LAUNCH_PAD, ser); // EEPROM disabled
         }
         else if(info.getOpState() != IDLE)
         {
@@ -137,7 +140,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
         if(info.getOpState() != IDLE)
         {
             info.setOpState(IDLE);
-            sensors.EEPROM_updateState(IDLE, ser);
+            // sensors.EEPROM_updateState(IDLE, ser); // EEPROM disabled
             info.reset_params();
             ser.sendInfoDataMsg("ENDING PAYLOAD TRANSMISSION.{%s|%s|%s}",
               op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
@@ -247,7 +250,7 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setSimStatus(SIM_ON);
           info.setOpMode(OPMODE_SIM);
           info.waitingForSimp();
-          sensors.EEPROM_updateMode(info.getOpMode(), ser);
+          // sensors.EEPROM_updateMode(info.getOpMode(), ser); // EEPROM disabled
           ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE{%s|%s|%s}",
             op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
           break;
@@ -273,7 +276,7 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
         {
           info.setSimStatus(SIM_OFF);
           info.setOpMode(OPMODE_FLIGHT);
-          sensors.EEPROM_updateMode(info.getOpMode(), ser);
+          // sensors.EEPROM_updateMode(info.getOpMode(), ser); // EEPROM disabled
           ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.{%s|%s|%s}",
             op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
           break;
@@ -334,7 +337,7 @@ void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorMana
   }
   ser.sendInfoDataMsg("Getting pressure value: %f", sensors.getPressure());
   info.setAltCalibration(pressure_to_alt(sensors.getPressure()));
-  sensors.EEPROM_updateAltitude(info.getLaunchAlt(), ser);
+  // sensors.EEPROM_updateAltitude(info.getLaunchAlt(), ser); // EEPROM disabled
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
 } // END: do_Cal()
 
@@ -423,8 +426,8 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  sensors.activate_nosecone_release();
 		  if(info.getOpState() != DESCENT)
 		  {
-			  info.setOpState(DESCENT);
-			  sensors.EEPROM_updateState(DESCENT, ser);
+              info.setOpState(DESCENT);
+              // sensors.EEPROM_updateState(DESCENT, ser); // EEPROM disabled
 			  info.nosecone_rel();
 		  }
 	  }
@@ -433,8 +436,8 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  sensors.activate_probe_release();
 		  if(info.getOpState() != PROBE_RELEASE)
 		  {
-			  info.setOpState(PROBE_RELEASE);
-			  sensors.EEPROM_updateState(PROBE_RELEASE, ser);
+              info.setOpState(PROBE_RELEASE);
+              // sensors.EEPROM_updateState(PROBE_RELEASE, ser); // EEPROM disabled
 			  info.probe_rel();
 		  }
 	  }
@@ -443,8 +446,8 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  sensors.activate_wing_deployment();
 		  if(info.getOpState() != PROBE_RELEASE)
 		  {
-			  info.setOpState(PROBE_RELEASE);
-			  sensors.EEPROM_updateState(PROBE_RELEASE, ser);
+              info.setOpState(PROBE_RELEASE);
+              // sensors.EEPROM_updateState(PROBE_RELEASE, ser); // EEPROM disabled
 			  info.wing_rel();
 		  }
 	  }
@@ -453,8 +456,8 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  sensors.activate_egg_release();
 		  if(info.getOpState() != PAYLOAD_RELEASE)
 		  {
-			  info.setOpState(PAYLOAD_RELEASE);
-			  sensors.EEPROM_updateState(PAYLOAD_RELEASE, ser);
+              info.setOpState(PAYLOAD_RELEASE);
+              // sensors.EEPROM_updateState(PAYLOAD_RELEASE, ser); // EEPROM disabled
 			  info.egg_rel();
 		  }
 	  }
@@ -543,4 +546,121 @@ void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorMan
   }
 
   ser.sendLogFile();
+}
+
+void CommandManager::do_dev(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+  if(!data)
+  {
+    ser.sendErrorMsg("COMMAND 'DEV' REJECTED: DID NOT RECEIVE ON/OFF");
+    return;
+  }
+
+  if(strcmp(data, "ON") == 0)
+  {
+    info.setDevMode(true);
+    ser.sendInfoMsg("DEV MODE ACTIVATED.");
+  }
+  else if(strcmp(data, "OFF") == 0)
+  {
+    info.setDevMode(false);
+    info.setFlightCtrl(AUTONOMOUS);
+    ser.sendInfoMsg("DEV MODE DEACTIVATED. FLIGHT CONTROL RESET TO AUTONOMOUS.");
+  }
+  else
+  {
+    ser.sendErrorDataMsg("COMMAND 'DEV' REJECTED: EXPECTED ON or OFF, GOT '%s'", data);
+  }
+}
+
+void CommandManager::do_flight_ctrl(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+  if(!info.isDevMode())
+  {
+    ser.sendErrorMsg("COMMAND 'FLIGHT_CTRL' REJECTED: DEV MODE IS NOT ACTIVE");
+    return;
+  }
+
+  if(!data)
+  {
+    ser.sendErrorMsg("COMMAND 'FLIGHT_CTRL' REJECTED: DID NOT RECEIVE FLIGHTMODE");
+    return;
+  }
+
+  if(strcmp(data, "MANUAL") == 0)
+  {
+    info.setFlightCtrl(MANUAL);
+    ser.sendInfoDataMsg("Flight control set to MANUAL.{%s|%s|%s}",
+      op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
+  }
+  else if(strcmp(data, "AUTONOMOUS") == 0)
+  {
+    info.setFlightCtrl(AUTONOMOUS);
+    ser.sendInfoDataMsg("Flight control set to AUTONOMOUS.{%s|%s|%s}",
+      op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
+  }
+  else
+  {
+    ser.sendErrorDataMsg("COMMAND 'FLIGHT_CTRL' REJECTED: EXPECTED MANUAL or AUTONOMOUS, GOT '%s'", data);
+  }
+}
+
+void CommandManager::do_man(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+  if(!info.isDevMode())
+  {
+    ser.sendErrorMsg("COMMAND 'JS' REJECTED: DEV MODE IS NOT ACTIVE");
+    return;
+  }
+
+  if(info.getFlightCtrl() != MANUAL)
+  {
+    ser.sendErrorMsg("COMMAND 'JS' REJECTED: FLIGHT CONTROL IS NOT IN MANUAL MODE");
+    return;
+  }
+
+  if(!data)
+  {
+    ser.sendErrorMsg("COMMAND 'JS' REJECTED: DID NOT RECEIVE AXIS:VALUE");
+    return;
+  }
+
+  char data_copy[CMD_BUFF_SIZE];
+  strncpy(data_copy, data, CMD_BUFF_SIZE);
+  data_copy[CMD_BUFF_SIZE - 1] = '\0';
+
+  char *sep = strchr(data_copy, ':');
+  if(sep == NULL)
+  {
+    ser.sendErrorMsg("COMMAND 'JS' REJECTED: FORMAT MUST BE AXIS:VALUE (e.g. ROL:0.5)");
+    return;
+  }
+  *sep = '\0';
+  const char *axis = data_copy;
+  float value = atof(sep + 1);
+
+  if(value < -1.0f || value > 1.0f)
+  {
+    ser.sendErrorMsg("COMMAND 'JS' REJECTED: VALUE MUST BE BETWEEN -1 AND 1");
+    return;
+  }
+
+  if(strcmp(axis, "ROL") == 0)
+  {
+    // Map -1 to 1 → elevator range: -50 to 50
+    float angle = -50.0f + value * 100.0f;
+    sensors.writeAileronServo(angle);
+    ser.sendInfoDataMsg("ROL: Aileron servo set to %.2f deg", angle);
+  }
+  else if(strcmp(axis, "PIT") == 0)
+  {
+    // Map -1 to 1 → elevator range: -30 to 50
+    float angle = -30.0f + value * 80.0f;
+    sensors.writeElevatorServo(angle);
+    ser.sendInfoDataMsg("PIT: Elevator servo set to %.2f deg", angle);
+  }
+  else
+  {
+    ser.sendErrorDataMsg("COMMAND 'JS' REJECTED: UNKNOWN AXIS '%s', EXPECTED ROL OR PIT", axis);
+  }
 }

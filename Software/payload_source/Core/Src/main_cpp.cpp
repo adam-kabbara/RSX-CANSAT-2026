@@ -66,42 +66,10 @@ extern "C" void main_cpp()
 
 	sensors.startSensors(serial, &hi2c1, &hspi1, GPIOA, GPIO_PIN_4, &htim2, &htim3, &htim4, SERVO_WING_DIR_GPIO_Port, SERVO_WING_DIR_Pin);
 
-    struct recovery_data recovery = sensors.EEPROM_getRecoveryData();
+    // EEPROM disabled: skip recovery, always start fresh in IDLE
+    mission_mgr.setFlightCtrl(AUTONOMOUS);
+    serial.sendInfoMsg("Setup completed, entering IDLE mode");
 
-    mission_mgr.setOpState(recovery.state);
-	mission_mgr.setFlightCtrl(AUTONOMOUS); // always start in autonomous mode
-
-    if(recovery.state != IDLE)
-    {
-        serial.sendErrorMsg("Performing recovery as processor was not in IDLE state! Telemetry should resume!");
-		serial.sendErrorMsg("CPL forced into AUTONOMOUS FLIGHT CTRL for recovery.");
-        // Get packet count, launch altitude
-        mission_mgr.setAltCalibration(recovery.launch_altitude);
-        mission_mgr.setOpMode(recovery.mode);
-        mission_mgr.setPacketCount(recovery.packet_count);
-        mission_mgr.update_max_alt(recovery.max_alt);
-        if(recovery.nosecone_flag)
-        {
-        	mission_mgr.nosecone_rel();
-        }
-        if(recovery.egg_flag)
-        {
-        	mission_mgr.egg_rel();
-        }
-        if(recovery.probe_flag)
-        {
-        	mission_mgr.probe_rel();
-        }
-        if(recovery.wing_flag)
-        {
-        	mission_mgr.wing_rel();
-        }
-    }
-    else
-    {
-    	serial.sendInfoMsg("Setup completed, entering IDLE mode");
-    }
-	
     char cmd_buff[CMD_BUFF_SIZE];
     char send_buff[DATA_BUFF_SIZE];
 
@@ -109,8 +77,6 @@ extern "C" void main_cpp()
     {
         while(mission_mgr.getOpState() == IDLE)
         { // todo add calibration code
-			sensors.updateMotor();
-
             if(cmd_ready)
             {
             	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
@@ -143,8 +109,6 @@ extern "C" void main_cpp()
 
         while(mission_mgr.getOpState() != IDLE)
         {
-			sensors.updateMotor();
-			
             if(cmd_ready)
             {
             	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
@@ -163,11 +127,11 @@ extern "C" void main_cpp()
 
             	serial.sendTelemetry(send_buff);
 
-				if(mission_mgr.logfile_ok() && !sensors.EEPROM_addLogLine(send_buff, serial))
-				{
-					serial.sendErrorMsg("Warning: Unable to add line to logfile!");
-					mission_mgr.disableLogfile();
-				}
+				// if(mission_mgr.logfile_ok() && !sensors.EEPROM_addLogLine(send_buff, serial))
+				// {
+				// 	serial.sendErrorMsg("Warning: Unable to add line to logfile!");
+				// 	mission_mgr.disableLogfile();
+				// }
 
             	send_flag = 0;
 
@@ -201,7 +165,7 @@ extern "C" void main_cpp()
 				OperatingState next_state = update_state(sensors, mission_mgr, mission_mgr.getOpState());
 				if(next_state != mission_mgr.getOpState())
 				{
-					sensors.EEPROM_updateState(next_state, serial);
+					// sensors.EEPROM_updateState(next_state, serial);
 					mission_mgr.setOpState(next_state);
 				}
 
@@ -234,7 +198,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 			float alt = mgr.calculate_median_alt();
 			if(mgr.update_max_alt(alt))
 			{
-				sensors.EEPROM_updateMaxAlt(alt);
+				// sensors.EEPROM_updateMaxAlt(alt);
 			}
 			if(alt > ASCENT_ALT_THRESHOLD_M)
 			{
@@ -247,7 +211,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 			float alt = mgr.calculate_median_alt();
 			if(mgr.update_max_alt(alt))
 			{
-				sensors.EEPROM_updateMaxAlt(alt);
+				// sensors.EEPROM_updateMaxAlt(alt);
 			}
 			if(mgr.get_max_alt() - alt > DESCENT_FALL_THRESHOLD_M)
 			{
@@ -263,7 +227,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 			float alt = mgr.calculate_median_alt();
 			if(mgr.update_max_alt(alt))
 			{
-				sensors.EEPROM_updateMaxAlt(alt);
+				// sensors.EEPROM_updateMaxAlt(alt);
 			}
 			if(mgr.is_apogee_packet_sent())
 			{
@@ -277,7 +241,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 			{
 				sensors.activate_nosecone_release();
 				mgr.nosecone_rel();
-				sensors.EEPROM_updateNoseconeRel();
+				// sensors.EEPROM_updateNoseconeRel();
 				nosecone_rel__payload_rel_timer = HAL_GetTick();
 				//BNO_enableAccel(50000, serial);
 				//BNO_enableMag(50000, serial);
@@ -288,7 +252,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 			{
 				sensors.activate_probe_release();
 				mgr.probe_rel();
-				sensors.EEPROM_updateProbeRel();
+				// sensors.EEPROM_updateProbeRel();
 				wing_servo_timer = HAL_GetTick();
 				if(mgr.getOpMode() == OPMODE_FLIGHT)
 				{
@@ -308,7 +272,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 				{
 					sensors.activate_wing_deployment();
 					mgr.wing_rel();
-					sensors.EEPROM_updateWingRel();
+					// sensors.EEPROM_updateWingRel();
 				}
 				if(mgr.wing_check())
 				{
@@ -316,7 +280,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 					{
 						sensors.activate_egg_release();
 						mgr.egg_rel();
-						sensors.EEPROM_updateEggRel();
+						// sensors.EEPROM_updateEggRel();
 						new_state = PAYLOAD_RELEASE;
 					}
 				}
@@ -330,7 +294,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 					{
 						sensors.activate_wing_deployment();
 						mgr.wing_rel();
-						sensors.EEPROM_updateWingRel();
+						// sensors.EEPROM_updateWingRel();
 					}
 				}
 				else if(mgr.wing_check())
@@ -340,7 +304,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 					{
 						sensors.activate_egg_release();
 						mgr.egg_rel();
-						sensors.EEPROM_updateEggRel();
+						// sensors.EEPROM_updateEggRel();
 						sensors.stopTof();
 						new_state = PAYLOAD_RELEASE;
 					}
