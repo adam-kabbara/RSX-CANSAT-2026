@@ -111,7 +111,26 @@ void SensorManager::updateBNO()
 	BNO085_GetData(&bno_dev);
 }
 
-struct rpy_data SensorManager::getIMUData()
+void SensorManager::getRawGyro(float* data_out)
+{
+	updateBNO();
+	data_out[0] = bno_dev.gyro.x;
+	data_out[1] = bno_dev.gyro.y;
+	data_out[2] = bno_dev.gyro.z; // need the raw not sensor fusion ones
+}
+
+struct rpy_data SensorManager::getCalibratedGyro(float* calib_bias)
+{
+	float raw[3];
+	getRawGyro(raw);
+	struct rpy_data data;
+	data.gyro_r = raw[0] - calib_bias[0];
+	data.gyro_p = raw[1] - calib_bias[1];
+	data.gyro_y = raw[2] - calib_bias[2];
+	return data;
+}
+
+struct rpy_data SensorManager::getIMUData() // out of date
 {
 	struct rpy_data data;
 	data.gyro_r = bno_dev.gyro.x * (180.0f / M_PI);
@@ -138,7 +157,7 @@ struct rpy_data SensorManager::getIMUData()
 		prev_gyro_y = data.gyro_y;
 		bno_last_t = now;
 	}
-	return data;
+	return data; // garbage collection????
 }
 
 struct gps_data SensorManager::getGPSData()
