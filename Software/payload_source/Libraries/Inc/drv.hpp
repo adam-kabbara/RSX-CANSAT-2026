@@ -23,6 +23,10 @@ private:
 	GPIO_TypeDef       *_port;
 	uint16_t            _pin;
 
+	// non-blocking motor control state
+	uint32_t            _motor_stop_tick;
+	uint8_t             _motor_running;
+
 public:
 
 	DRV();
@@ -34,6 +38,9 @@ public:
 	void motor_run(uint8_t direction, uint32_t time_ms);
 
 	void motor_stop();
+
+	// call periodically from main loop to stop motor when time elapsed
+	void motor_update();
 
 };
 
