@@ -96,6 +96,12 @@ class _JoystickWorker(QThread):
     def stop(self):
         self._running = False
 
+    def set_sensitivity(self, sensitivity: float):
+        self._sensitivity = sensitivity
+
+    def set_update_interval_ms(self, update_interval_ms: int):
+        self._update_interval_ms = update_interval_ms
+
 
 class JoystickManager(QObject):
     """
@@ -134,6 +140,12 @@ class JoystickManager(QObject):
 
     def is_connected(self) -> bool:
         return self._connected
+
+    def set_sensitivity(self, sensitivity: float):
+        self._worker.set_sensitivity(sensitivity)
+
+    def set_update_interval_ms(self, update_interval_ms: int):
+        self._worker.set_update_interval_ms(update_interval_ms)
 
     def stop(self):
         self._worker.stop()

@@ -33,7 +33,7 @@ class AttitudeIndicator(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setMinimumSize(120, 120) # todo, might need tuning for the gnd station screen dims
+        self.setMinimumSize(140, 140) # todo, might need tuning for the gnd station screen dims
         self._roll  = 0.0
         self._pitch = 0.0
         self._yaw   = 0.0
