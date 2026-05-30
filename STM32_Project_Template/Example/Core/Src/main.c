@@ -130,6 +130,20 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint8_t tx = 0xA5;
+  uint8_t rx = 0x00;
+  HAL_StatusTypeDef ret;
+
+  HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_RESET);
+  ret = HAL_SPI_TransmitReceive(&hspi1, &tx, &rx, 1, 100);
+  HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
+
+  printf("Loopback: ret=%d sent=0x%02X got=0x%02X\r\n", ret, tx, rx);
+
+  printf("GPIOA MODER: 0x%08lX\r\n", GPIOA->MODER);
+  printf("GPIOA AFRL:  0x%08lX\r\n", GPIOA->AFR[0]);
+  printf("SPI1 CR1:    0x%08lX\r\n", SPI1->CR1);
+  printf("SPI1 CR2:    0x%08lX\r\n", SPI1->CR2);
   main_cpp();
   while (1)
   {
@@ -254,23 +268,27 @@ static void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   hspi1.Init.CRCPolynomial = 7;
   hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
+
+  hspi1.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
   {
     Error_Handler();
   }
   /* USER CODE BEGIN SPI1_Init 2 */
 
+  hspi1.Instance->CR2 |= SPI_CR2_FRXTH;
   /* USER CODE END SPI1_Init 2 */
 
 }
@@ -405,7 +423,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
   /*Configure GPIO pins : SERVO_WING_DIR_Pin SERVO_WING_PWM_Pin SPI_CS_GPIO_OUT_Pin SERVO_AILERON_Pin
-                           PG_CAM_OUT_Pin G_CAM_OUT_Pin */
+                             PG_CAM_OUT_Pin G_CAM_OUT_Pin */
   GPIO_InitStruct.Pin = SERVO_WING_DIR_Pin|SERVO_WING_PWM_Pin|SPI_CS_GPIO_OUT_Pin|SERVO_AILERON_Pin
                           |PG_CAM_OUT_Pin|G_CAM_OUT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -427,7 +445,16 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
+  /* Explicitly verify PA4 is set as a high-speed Push-Pull Chip Select Output */
+  GPIO_InitTypeDef CS_InitStruct = {0};
+  CS_InitStruct.Pin   = SPI_CS_GPIO_OUT_Pin;
+  CS_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+  CS_InitStruct.Pull  = GPIO_NOPULL;
+  CS_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(SPI_CS_GPIO_OUT_GPIO_Port, &CS_InitStruct);
 
+  /* Force PA4 High to hold the EEPROM in idle state */
+  HAL_GPIO_WritePin(SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, GPIO_PIN_SET);
   /* USER CODE END MX_GPIO_Init_2 */
 }
 

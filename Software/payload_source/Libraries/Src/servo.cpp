@@ -3,7 +3,7 @@
 Servo::Servo(){}
 
 /* ::::::::::::::::: Init ::::::::::::::::: */
-void Servo::Init(TIM_HandleTypeDef *htim, uint32_t channel, uint16_t minPPMPulseWidth, uint16_t maxPPMPulseWidth, float maxAngle)
+void Servo::Init(TIM_HandleTypeDef *htim, uint32_t channel, uint16_t minPPMPulseWidth, uint16_t maxPPMPulseWidth, float maxAngle, float minAngle)
 {
 
 	/* ~~~~~~~~~~~~~~~ PWM timer ~~~~~~~~~~~~~~ */
@@ -14,11 +14,17 @@ void Servo::Init(TIM_HandleTypeDef *htim, uint32_t channel, uint16_t minPPMPulse
 	MinPPMPulseWidth = minPPMPulseWidth;
 	MaxPPMPulseWidth = maxPPMPulseWidth;
 	MaxAngle         = maxAngle;
+	MinAngle         = minAngle;
 
 	/* ~~~~~~~~~~~~~~ Calculation ~~~~~~~~~~~~~ */
-	_angRatio        = ((MaxPPMPulseWidth - MinPPMPulseWidth) / MaxAngle);
+    uint32_t arr = __HAL_TIM_GET_AUTORELOAD(htim);
+    if (MaxPPMPulseWidth > arr) {
+        MaxPPMPulseWidth = (uint16_t)arr;
+    }
 
-	HAL_TIM_PWM_Start(htim, channel);
+    _angRatio = ((float)(MaxPPMPulseWidth - MinPPMPulseWidth) / (MaxAngle - MinAngle));
+
+    HAL_TIM_PWM_Start(htim, channel);
 
 }
 
@@ -28,21 +34,12 @@ void Servo::SetPPMPulseWidth(uint16_t width)
 	__HAL_TIM_SET_COMPARE(_htim, _channel, PPMPulseWidth = width);
 }
 
-void Servo::SetAngle(float ang)
-{
+void Servo::SetAngle(float ang){
+    Angle = ang;
 
-	Angle = ang;
+    if (Angle > MaxAngle) Angle = MaxAngle;
+    if (Angle < MinAngle) Angle = MinAngle;
 
-	if (Angle >= MaxAngle)
-	{
-
-		Angle = MaxAngle;
-		__HAL_TIM_SET_COMPARE(_htim, _channel, (uint32_t)(MinPPMPulseWidth + (_angRatio * Angle) - 1));
-
-	}
-	else
-	{
-		__HAL_TIM_SET_COMPARE(_htim, _channel, (uint32_t)(MinPPMPulseWidth + (_angRatio * Angle)));
-	}
-
+    uint32_t compare = (uint32_t)(MinPPMPulseWidth + (_angRatio * (Angle - MinAngle)));
+    __HAL_TIM_SET_COMPARE(_htim, _channel, compare);
 }

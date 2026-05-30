@@ -28,13 +28,36 @@ class _JoystickWorker(QThread):
     button_pressed    = pyqtSignal(int)
     connected_changed = pyqtSignal(bool)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, sensitivity: float = 0.05, update_interval_ms: int = 20):
+        super().__init__() # todo check if defaults good
         self._running = True
+        self._sensitivity = sensitivity
+        self._update_interval_ms = update_interval_ms
+        self._last_emitted_axis_values = {0: None, 1: None, 2: None}
 
     @staticmethod
     def _dead(v: float) -> float:
         return 0.0 if abs(v) < _DEADZONE else v
+
+    def _try_connect(self):
+        if pygame.joystick.get_count() > 0:
+            joystick = pygame.joystick.Joystick(0)
+            joystick.init()
+            self._last_emitted_axis_values = {0: None, 1: None, 2: None}
+            self.connected_changed.emit(True)
+            return joystick
+        return None
+
+    def _emit_axis_if_needed(self, axis: int, value: float):
+        previous_value = self._last_emitted_axis_values.get(axis)
+        if previous_value is None or abs(value - previous_value) > self._sensitivity:
+            self._last_emitted_axis_values[axis] = value
+            if axis == 0:
+                self.roll_changed.emit(value)
+            elif axis == 1:
+                self.pitch_changed.emit(value)
+            elif axis == 2:
+                self.yaw_changed.emit(value)
 
     def run(self):
         pygame.init()
@@ -46,47 +69,38 @@ class _JoystickWorker(QThread):
 
         pygame.display.set_mode((1, 1))
 
-        js = None
-
-        def try_connect() -> bool:
-            nonlocal js
-            if pygame.joystick.get_count() > 0:
-                js = pygame.joystick.Joystick(0)
-                js.init()
-                self.connected_changed.emit(True)
-                return True
-            return False
-
-        try_connect()
+        js = self._try_connect()
 
         while self._running:
-            pygame.event.pump()
+            latest_axis_values = {}
 
             for event in pygame.event.get():
                 if event.type == pygame.JOYDEVICEADDED:
-                    try_connect()
+                    js = self._try_connect()
                 elif event.type == pygame.JOYDEVICEREMOVED:
                     js = None
+                    self._last_emitted_axis_values = {0: None, 1: None, 2: None}
                     self.connected_changed.emit(False)
                 elif event.type == pygame.JOYBUTTONDOWN:
                     self.button_pressed.emit(event.button)
+                elif event.type == pygame.JOYAXISMOTION and js is not None:
+                    latest_axis_values[event.axis] = self._dead(event.value)
 
-            if js is not None:
-                try:
-                    self.roll_changed.emit(self._dead(js.get_axis(0)))
-                    self.pitch_changed.emit(self._dead(js.get_axis(1)))
-                    yaw = self._dead(js.get_axis(2)) if js.get_numaxes() > 2 else 0.0
-                    self.yaw_changed.emit(yaw)
-                except Exception:
-                    js = None
-                    self.connected_changed.emit(False)
+            for axis, value in latest_axis_values.items():
+                self._emit_axis_if_needed(axis, value)
 
-            self.msleep(20)
+            self.msleep(self._update_interval_ms)
 
         pygame.quit()
 
     def stop(self):
         self._running = False
+
+    def set_sensitivity(self, sensitivity: float):
+        self._sensitivity = sensitivity
+
+    def set_update_interval_ms(self, update_interval_ms: int):
+        self._update_interval_ms = update_interval_ms
 
 
 class JoystickManager(QObject):
@@ -108,11 +122,11 @@ class JoystickManager(QObject):
     button_pressed    = pyqtSignal(int)
     connected_changed = pyqtSignal(bool)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, sensitivity: float = 0.05, update_interval_ms: int = 20):
         super().__init__(parent)
         self._connected = False
 
-        self._worker = _JoystickWorker()
+        self._worker = _JoystickWorker(sensitivity=sensitivity, update_interval_ms=update_interval_ms)
         self._worker.roll_changed.connect(self.roll_changed)
         self._worker.pitch_changed.connect(self.pitch_changed)
         self._worker.yaw_changed.connect(self.yaw_changed)
@@ -126,6 +140,12 @@ class JoystickManager(QObject):
 
     def is_connected(self) -> bool:
         return self._connected
+
+    def set_sensitivity(self, sensitivity: float):
+        self._worker.set_sensitivity(sensitivity)
+
+    def set_update_interval_ms(self, update_interval_ms: int):
+        self._worker.set_update_interval_ms(update_interval_ms)
 
     def stop(self):
         self._worker.stop()

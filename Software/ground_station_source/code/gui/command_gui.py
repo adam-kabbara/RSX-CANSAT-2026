@@ -50,6 +50,8 @@ class CommandWindow(QMainWindow):
         self.__servo_id           = 0 # first option is nosecone by gui default
         self.__servo_val          = -1
         self.__dc_motor_val       = 0
+        self.__joy_sensitivity    = 0.05
+        self.__joy_update_ms      = 20
         self.__gps_lat            = 0.0
         self.__gps_lon            = 0.0
         self.__gps_rad            = 0.0
@@ -320,6 +322,45 @@ class CommandWindow(QMainWindow):
         self.button_test_connection.clicked.connect(self.command_manager.command__check_connection)
         self.button_test_connection.hide()
 
+        joystick_sensitivity_box = QHBoxLayout()
+
+        self.button_set_joystick_sensitivity = QPushButton("SET JOYSTICK SENSITIVITY")
+        self.button_set_joystick_sensitivity.setFont(button_font)
+
+        self.joystick_sensitivity_field = QLineEdit()
+        self.joystick_sensitivity_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
+        self.joystick_sensitivity_field.setStyleSheet(cosmetics.servo_val_stylesheet())
+        self.joystick_sensitivity_field.setValidator(QDoubleValidator(self))
+        self.joystick_sensitivity_field.setText(str(self.__joy_sensitivity))
+        self.joystick_sensitivity_field.setPlaceholderText(f"sensitivity cur={self.__joy_sensitivity}")
+        self.joystick_sensitivity_field.editingFinished.connect(self.joystick_sensitivity_edited)
+        self.button_set_joystick_sensitivity.clicked.connect(lambda: self.command_manager._set_joystick_sensitivity(self.__joy_sensitivity))
+
+        self.button_set_joystick_sensitivity.hide()
+        self.joystick_sensitivity_field.hide()
+
+        joystick_sensitivity_box.addWidget(self.button_set_joystick_sensitivity)
+        joystick_sensitivity_box.addWidget(self.joystick_sensitivity_field)
+
+        joystick_update_box = QHBoxLayout()
+
+        self.button_set_joystick_update_interval = QPushButton("SET JOYSTICK UPDATE")
+        self.button_set_joystick_update_interval.setFont(button_font)
+
+        self.joystick_update_interval_field = QLineEdit()
+        self.joystick_update_interval_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
+        self.joystick_update_interval_field.setStyleSheet(cosmetics.servo_val_stylesheet())
+        self.joystick_update_interval_field.setValidator(QIntValidator(self))
+        self.joystick_update_interval_field.setText(str(self.__joy_update_ms))
+        self.joystick_update_interval_field.editingFinished.connect(self.joystick_update_interval_edited)
+        self.button_set_joystick_update_interval.clicked.connect(lambda: self.command_manager._set_joystick_update_interval(self.__joy_update_ms))
+
+        self.button_set_joystick_update_interval.hide()
+        self.joystick_update_interval_field.hide()
+
+        joystick_update_box.addWidget(self.button_set_joystick_update_interval)
+        joystick_update_box.addWidget(self.joystick_update_interval_field)
+
         ### Program servo
         set_dc_motor_box = QHBoxLayout()
 
@@ -329,8 +370,8 @@ class CommandWindow(QMainWindow):
         self.dc_motor_val_field = QLineEdit()
         self.dc_motor_val_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.dc_motor_val_field.setStyleSheet(cosmetics.servo_val_stylesheet())
-        dc_int_validator = QIntValidator(self)
-        self.dc_motor_val_field.setValidator(dc_int_validator)
+        self.dc_motor_val_field.setValidator(QIntValidator(self))
+        self.dc_motor_val_field.setPlaceholderText("Time motor on is ms ; neg=stow ; pos=deploy")
         self.dc_motor_val_field.editingFinished.connect(self.dc_motor_val_edited)
         self.set_dc_motor_button.clicked.connect(lambda: self.command_manager.command__set_dc(self.__dc_motor_val))
 
@@ -350,13 +391,15 @@ class CommandWindow(QMainWindow):
         self.servo_id_field.addItem("Aileron", 3)
         self.servo_id_field.addItem("Egg", 4)
         self.servo_id_field.setFont(button_font)
+        self.servo_id_field.setPlaceholderText("Select servo")
+        self.servo_id_field.setCurrentIndex(-1)
         self.servo_id_field.activated.connect(self.servo_id_edited)
 
         self.servo_val_field = QLineEdit()
         self.servo_val_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.servo_val_field.setStyleSheet(cosmetics.servo_val_stylesheet())
-        int_validator = QIntValidator(self)
-        self.servo_val_field.setValidator(int_validator)
+        self.servo_val_field.setValidator(QIntValidator(self))
+        self.servo_val_field.setPlaceholderText("Angle (-90 to 90)")
         self.servo_val_field.editingFinished.connect(self.servo_val_edited)
 
         self.program_servo_button = QPushButton(" PROGRAM SERVO ")
@@ -421,8 +464,7 @@ class CommandWindow(QMainWindow):
         self.team_id_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.team_id_field.setMaxLength(9)
         self.team_id_field.setStyleSheet(cosmetics.team_id_stylesheet())
-        int_validator = QIntValidator(self)
-        self.team_id_field.setValidator(int_validator)
+        self.team_id_field.setValidator(QIntValidator(self))
         self.team_id_field.editingFinished.connect(self.team_id_edited)
         self.team_id_field_info = QLabel("Change TEAM ID (ground station)")
         self.team_id_field_info.setFont(button_font)
@@ -471,6 +513,8 @@ class CommandWindow(QMainWindow):
         # ADVANCED buttons
         commands_layout.addWidget(self.button_restart)
         commands_layout.addWidget(self.button_reset_mission)
+        commands_layout.addLayout(joystick_sensitivity_box)
+        commands_layout.addLayout(joystick_update_box)
         commands_layout.addLayout(custom_msg_editing_box)
         
         # SENSORS buttons
@@ -515,6 +559,10 @@ class CommandWindow(QMainWindow):
         self.buttons_adv = [
             self.button_reset_mission,
             self.button_restart,
+            self.button_set_joystick_sensitivity,
+            self.joystick_sensitivity_field,
+            self.button_set_joystick_update_interval,
+            self.joystick_update_interval_field,
             self.button_back,
             self.custom_msg_field,
             self.button_send_custom
@@ -817,6 +865,16 @@ class CommandWindow(QMainWindow):
         self.dc_motor_val_field.clearFocus()
         if self.dc_motor_val_field.text():
             self.__dc_motor_val = int(self.dc_motor_val_field.text())
+
+    def joystick_sensitivity_edited(self):
+        self.joystick_sensitivity_field.clearFocus()
+        if self.joystick_sensitivity_field.text():
+            self.__joy_sensitivity = float(self.joystick_sensitivity_field.text())
+
+    def joystick_update_interval_edited(self):
+        self.joystick_update_interval_field.clearFocus()
+        if self.joystick_update_interval_field.text():
+            self.__joy_update_ms = int(self.joystick_update_interval_field.text())
 
     def gps_lat_edited(self):
         self.gps_lat.clearFocus()

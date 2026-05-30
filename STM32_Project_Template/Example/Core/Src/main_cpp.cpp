@@ -1,3 +1,21 @@
+/**
+ ******************************************************************************
+ * @file           : main_cpp.cpp
+ * @brief          : C++ Entry point & execution test suite for RunCam 4 V2
+ ******************************************************************************
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "stm32g4xx_hal.h"
+extern UART_HandleTypeDef huart1; // RunCam — USART1 @ 115200 (PA9 TX, PA10 RX)
+
+#ifdef __cplusplus
+}
+#endif
+
 #include "main.h"
 
 extern TIM_HandleTypeDef htim1;

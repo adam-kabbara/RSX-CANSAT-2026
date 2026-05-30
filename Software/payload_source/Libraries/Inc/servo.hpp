@@ -35,13 +35,14 @@ public:
 
 	float               Angle;
 	float               MaxAngle;
+	float               MinAngle;
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~ Prototype ~~~~~~~~~~~~~~~~~~~~~~~~~ */
 	/* :::::::::::::: Constructor ::::::::::::: */
 	Servo();
 
 	/* ::::::::::::::::: Init ::::::::::::::::: */
-	void Init(TIM_HandleTypeDef *htim, uint32_t channel, uint16_t minPPMPulseWidth = 1000, uint16_t maxPPMPulseWidth = 2000, float maxAngle = 180.0F);
+	void Init(TIM_HandleTypeDef *htim, uint32_t channel, uint16_t minPPMPulseWidth = 1000, uint16_t maxPPMPulseWidth = 2000, float maxAngle = 180.0F, float minAngle = 0.0F);
 
 	/* ::::::::::::::: Position ::::::::::::::: */
 	void SetPPMPulseWidth(uint16_t Width);
