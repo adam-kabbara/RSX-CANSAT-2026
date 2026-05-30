@@ -263,6 +263,10 @@ class DataProcessor(QObject):
         if data.ACCEL_R is not None and data.ACCEL_P is not None and data.ACCEL_YAW is not None:
             new_accel_data = [data.ACCEL_R, data.ACCEL_P, data.ACCEL_YAW]
             self._graph_ui.update_accel_graph(new_accel_data)
+
+        if data.ACCEL_X is not None and data.ACCEL_Y is not None and data.ACCEL_Z is not None:
+            new_accel_xyz_data = [data.ACCEL_X, data.ACCEL_Y, data.ACCEL_Z]
+            self._graph_ui.update_accel_xyz_graph(new_accel_xyz_data)
    
         if data.GPS_LATITUDE is not None and data.GPS_LONGITUDE is not None:
             self._graph_ui.update_gps_map(data.GPS_LATITUDE, data.GPS_LONGITUDE)
