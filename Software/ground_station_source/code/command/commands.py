@@ -24,6 +24,9 @@ class Commands(QObject):
         self._joy_roll = 0.0
         self._joy_pitch = 0.0
         self._joy_yaw = 0.0
+        self._joy_raw_roll  = 0.0
+        self._joy_raw_pitch = 0.0
+        self._joy_raw_yaw   = 0.0
 
     def _cmd(self, op, val=None):
         if val is None:
@@ -49,9 +52,23 @@ class Commands(QObject):
             self.print_signal.emit("Sent restart signal")
                                     
     def command__write_servo(self, servo_id, servo_val):
-        if servo_id == -1 or servo_val not in range(0, 181):
-            self._serial.error_catch.emit("Enter a servo # and value first")
-        elif self._serial.send_data(self._cmd(op="MEC", val=f"SERVO:{servo_id}|{servo_val}")):
+        if servo_id == -1 or servo_val not in range(-90, 91):
+            self._serial.error_catch.emit("Enter a servo # and value btwn -90 and 90")
+        elif servo_id == 0: # nosecone servo
+            pass
+        elif servo_id == 1: # container servo
+            pass
+        elif servo_id == 2: # elevation servo
+            pass
+        elif servo_id == 3: # aerlon servo
+            if servo_val not in range(-60, 61):
+                self._serial.error_catch.emit("Aileron servo value must be between -60 and 60")
+                return
+        elif servo_id == 4: # egg servo
+            if servo_val not in range(-55, 91):
+                self._serial.error_catch.emit("Egg servo value must be between -55 and 90")
+                return
+        if self._serial.send_data(self._cmd(op="MEC", val=f"SERVO:{servo_id}|{servo_val}")):
             self.print_signal.emit(f"Sent command to program servo {servo_id} to {servo_val}")
 
     def command__set_dc(self, __dc_motor_val):
@@ -132,6 +149,10 @@ class Commands(QObject):
                 return 1
         return 0
     
+    def command__manual_flight_ctrl_data(self, axis, rotation):
+        if self._serial.send_data(self._cmd(op="MAN", val=f"{axis}:{rotation}")):
+            self.print_signal.emit(f"Sent manual flight data {axis}={rotation}")
+    
        # ---- Joystick slots ----
 
     _BUTTON_MEC_MAP = {
@@ -149,17 +170,34 @@ class Commands(QObject):
             self.command__mec_release(mec_id)
 
     def _on_joy_roll(self, v: float):
+        self._joy_raw_roll = v
         self._joy_roll = v * 45.0
         if self._graph_ui is not None:
-            self._graph_ui.update_attitude(self._joy_roll, self._joy_pitch, self._joy_yaw)
+            self._graph_ui.update_joystick_indicator(self._joy_raw_roll, self._joy_raw_pitch)
+        self.command__manual_flight_ctrl_data("ROL", self._joy_raw_roll)
 
     def _on_joy_pitch(self, v: float):
+        self._joy_raw_pitch = v
         self._joy_pitch = -v * 30.0
         if self._graph_ui is not None:
-            self._graph_ui.update_attitude(self._joy_roll, self._joy_pitch, self._joy_yaw)
+            self._graph_ui.update_joystick_indicator(self._joy_raw_roll, self._joy_raw_pitch)
+        self.command__manual_flight_ctrl_data("PIT", self._joy_raw_pitch)
 
     def _on_joy_yaw(self, v: float):
+        self._joy_raw_yaw = v
         self._joy_yaw = (self._joy_yaw + v * 2.0) % 360.0
-        if self._graph_ui is not None:
-            self._graph_ui.update_attitude(self._joy_roll, self._joy_pitch, self._joy_yaw)
+        self.command__manual_flight_ctrl_data("YAW", self._joy_raw_yaw)
 
+    def _set_joystick_sensitivity(self, sensitivity):
+        if self._joystick is None:
+            self.print_signal.emit("No joystick manager available")
+            return
+        self._joystick.set_sensitivity(sensitivity)
+        self.print_signal.emit(f"Updated joystick sensitivity to {sensitivity}")
+
+    def _set_joystick_update_interval(self, update_interval_ms):
+        if self._joystick is None:
+            self.print_signal.emit("No joystick manager available")
+            return
+        self._joystick.set_update_interval_ms(update_interval_ms)
+        self.print_signal.emit(f"Updated joystick update interval to {update_interval_ms} ms")

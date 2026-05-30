@@ -5,6 +5,7 @@ from plotter.plotters import DynamicPlotter, DynamicPlotterMultiLine
 from . import cosmetics
 from .gps_map import GPSMapWidget
 from .attitude_indicator import AttitudeIndicator
+from .joystick_indicator import JoystickIndicator
 import os
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QIcon
@@ -245,12 +246,17 @@ class GraphWindow(QMainWindow):
         state_visual_layout.addLayout(state_grid_layout)
 
         self.attitude_indicator = AttitudeIndicator()
+        self.joystick_indicator = JoystickIndicator()
+
+        attitude_row = QHBoxLayout()
+        attitude_row.addWidget(self.attitude_indicator)
+        attitude_row.addWidget(self.joystick_indicator)
 
         sidebar.addWidget(form_group)
         sidebar.addSpacing(20)
         sidebar.addWidget(state_visual_box)
         sidebar.addSpacing(20)
-        sidebar.addWidget(self.attitude_indicator)
+        sidebar.addLayout(attitude_row)
         sidebar.addStretch()
         sidebar.addWidget(credit_label)
 
@@ -435,6 +441,10 @@ class GraphWindow(QMainWindow):
         self.attitude_indicator.set_roll(roll)
         self.attitude_indicator.set_pitch(pitch)
         self.attitude_indicator.set_yaw(yaw)
+
+    def update_joystick_indicator(self, roll: float, pitch: float):
+        self.joystick_indicator.set_roll(roll)
+        self.joystick_indicator.set_pitch(pitch)
 
     def update_gps_map(self, lat, lon):
         if self._current_state == "LANDED":
