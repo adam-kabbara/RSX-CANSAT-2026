@@ -16,6 +16,7 @@
 #include "VL53L1X_calibration.h"
 #include "INA219.hpp"
 #include "ds1307.hpp"
+#include "eeprom.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,9 +51,36 @@ private:
 	int16_t offset;
 	uint16_t xtalk;
 
+	EEPROMsimple *eeprom_dev = nullptr;
+
 
 
 public:
+
+	static const uint32_t EEPROM_TOTAL_BYTES       = 131072UL;
+ 
+    static const uint32_t EEPROM_NUM_RECOVERY_FIELDS = 4UL;
+    static const uint32_t EEPROM_HEADER_ENTRY_SIZE  = 4UL;   // bytes per size field
+    static const uint32_t EEPROM_HEADER_SIZE =
+        (EEPROM_NUM_RECOVERY_FIELDS + 1UL) * EEPROM_HEADER_ENTRY_SIZE;  // 20 bytes
+ 
+    static const uint32_t EEPROM_FIELD_BLOCK_SIZE  = 16UL;
+
+	/* Starting addresses of each recovery-data block */
+    static const uint32_t EEPROM_ADDR_ALT    = EEPROM_HEADER_SIZE;                          // 0x000014
+    static const uint32_t EEPROM_ADDR_STATE  = EEPROM_ADDR_ALT   + EEPROM_FIELD_BLOCK_SIZE; // 0x000024
+    static const uint32_t EEPROM_ADDR_MODE   = EEPROM_ADDR_STATE + EEPROM_FIELD_BLOCK_SIZE; // 0x000034
+    static const uint32_t EEPROM_ADDR_PKTCNT = EEPROM_ADDR_MODE  + EEPROM_FIELD_BLOCK_SIZE; // 0x000044
+    static const uint32_t EEPROM_ADDR_LOG    = EEPROM_ADDR_PKTCNT + EEPROM_FIELD_BLOCK_SIZE;// 0x000054
+    static const uint32_t EEPROM_LOG_MAX     = EEPROM_TOTAL_BYTES - EEPROM_ADDR_LOG;
+ 
+    /* Offsets into the header for each size field */
+    static const uint32_t EEPROM_HDR_IDX_ALT    = 0UL;
+    static const uint32_t EEPROM_HDR_IDX_STATE  = 1UL;
+    static const uint32_t EEPROM_HDR_IDX_MODE   = 2UL;
+    static const uint32_t EEPROM_HDR_IDX_PKTCNT = 3UL;
+    static const uint32_t EEPROM_HDR_IDX_LOG    = 4UL;
+
 	SensorManager();
 
 	bool checkTof();
@@ -94,14 +122,22 @@ public:
 	void writeAileronServo(float val);
 	void writeEggServo(float val);
 
-	void EEPROM_updateAltitude(float alt);
-	void EEPROM_updateState(OperatingState state);
-	void EEPROM_updateMode(OperatingMode mode);
-	void EEPROM_updatePackets(int count);
-	bool EEPROM_addLogLine(char *buffer);
+	uint16_t EEPROM_readString(uint32_t start_addr, char *buf, uint16_t max_len);
+	bool EEPROM_writeString(uint32_t start_addr, const char *str, uint16_t len);
+	uint32_t EEPROM_readHeaderSize(uint32_t index);
+	void EEPROM_writeHeaderSize(uint32_t index, uint32_t size);
+	// void EEPROM_serialError(const char *msg);
+
+	void EEPROM_updateAltitude(float alt, SerialManager &serial);
+	void EEPROM_updateState(OperatingState state, SerialManager &serial);
+	void EEPROM_updateMode(OperatingMode mode, SerialManager &serial);
+	void EEPROM_updatePackets(int count, SerialManager &serial);
+	bool EEPROM_addLogLine(char *buffer, SerialManager &serial);
 	struct recovery_data EEPROM_getRecoveryData();
+	void EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &serial);
 
 	void startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
+			SPI_HandleTypeDef *hspi_eeprom, GPIO_TypeDef *cs_port, uint16_t cs_pin,
 			TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4);
 };
 

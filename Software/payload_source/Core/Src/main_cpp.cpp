@@ -63,7 +63,7 @@ extern "C" void main_cpp()
 
 	__HAL_RCC_CLEAR_RESET_FLAGS();
 
-	sensors.startSensors(serial, &hi2c1, &htim2, &htim3, &htim4);
+	sensors.startSensors(serial, &hi2c1, &hspi1, GPIOA, GPIO_PIN_4, &htim2, &htim3, &htim4);
 
     struct recovery_data recovery = sensors.EEPROM_getRecoveryData();
 
