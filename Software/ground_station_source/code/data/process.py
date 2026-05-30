@@ -39,17 +39,17 @@ class TelemetryData:
     CAM_STATUS: int
     PACKET_RECV: int
     #ADAM MUST IMPLEMENT FIELDS BELOW
-    FLIGHT_CTRL: str
-    QUATERNION_W: float
-    QUATERNION_X: float
-    QUATERNION_Y: float
-    QUATERNION_Z: float
-    VELOCITY_X: float
-    VELOCITY_Y: float
-    VELOCITY_Z: float
-    ACCEL_X: float
-    ACCEL_Y: float # Y-axis acceleration
-    ACCEL_Z: float
+    FLIGHT_CTRL: str | None
+    QUATERNION_W: float | None
+    QUATERNION_X: float | None
+    QUATERNION_Y: float | None
+    QUATERNION_Z: float | None
+    VELOCITY_X: float | None
+    VELOCITY_Y: float | None
+    VELOCITY_Z: float | None
+    ACCEL_X: float | None
+    ACCEL_Y: float | None # Y-axis acceleration
+    ACCEL_Z: float | None
 
 class DataProcessor(QObject):
 
@@ -340,6 +340,7 @@ class DataProcessor(QObject):
             CMD_ECHO     = self._field(fields, 21),
             CAM_STATUS   = self._parse_int(self._field(fields, 22)),
             PACKET_RECV  = self._graph_ui.get_packet_count(),
+            # ADAM MUST IMPLEMENT FIELDS BELOW Xd
             FLIGHT_CTRL  = self._field(fields, 23),
             QUATERNION_W = self._parse_float(self._field(fields, 24)),
             QUATERNION_X = self._parse_float(self._field(fields, 25)),
