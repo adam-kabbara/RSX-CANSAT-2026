@@ -155,7 +155,28 @@ struct gps_data SensorManager::getGPSData()
 
 cam_status SensorManager::getCameraStatus()
 {
-	return cam_status::CAM1_OFF_CAM2_OFF;
+    bool cam1_on = cam1_dev.getRecordingState();
+	bool cam2_on = cam2_dev.getRecordingState();
+	cam_status status;
+
+    // TODO: add cam2 state
+	// Map CAM1 state to the enum, assuming CAM2 is permanently OFF for now
+    if (cam1_on && cam2_on) 
+	{
+		return cam_status::CAM1_ON_CAM2_ON; // Both cameras are recording
+	} 
+	else if (cam1_on && !cam2_on)
+    {
+        return cam_status::CAM1_ON_CAM2_OFF; // RunCam is recording
+    } 
+	else if (!cam1_on && cam2_on)
+	{
+		return cam_status::CAM1_OFF_CAM2_ON; // PG Cam is recording
+	}
+    else 
+    {
+        return cam_status::CAM1_OFF_CAM2_OFF; // RunCam is idle
+    }
 }
 
 void SensorManager::setRTCTime(uint8_t h, uint8_t m, uint8_t s)
@@ -634,6 +655,9 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	static EEPROMsimple eeprom_storage(hspi_eeprom, cs_port, cs_pin);
 	eeprom_dev = &eeprom_storage;
 
+	cam1_dev.init(GPIOF, GPIO_PIN_0, GPIOB, GPIO_PIN_6);
+	cam2_dev.init(GPIOF, GPIO_PIN_1, GPIOA, GPIO_PIN_8);
+
 	if(!DS1307_Init(hi2c1))
 	{
 		serial.sendErrorMsg("RTC Init failed");
@@ -662,6 +686,13 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	}
 
 	BNO_enableGyro(50000, serial);
+
+	if(!cam1_dev.probeDevice()) {
+        serial.sendErrorMsg("Warning: RunCam Handshake Communication timed out.\r\n");
+    }
+	if(!cam2_dev.probeDevice()) {
+        serial.sendErrorMsg("Warning: RunCam Handshake Communication timed out.\r\n");
+    }
 
 	HAL_Delay(100);
 
