@@ -185,7 +185,7 @@ void SensorManager::activate_egg_release()
 
 void SensorManager::activate_wing_deployment()
 {
-	//
+	// writeMotor(0, 0);
 }
 
 void SensorManager::activate_nosecone_release()
@@ -220,6 +220,16 @@ void SensorManager::writeAileronServo(float val)
 void SensorManager::writeEggServo(float val)
 {
 	servo_egg.SetAngle(val);
+}
+
+void SensorManager::writeMotor(uint8_t dir, uint32_t time_ms)
+{
+	motor.motor_run(dir, time_ms);
+}
+
+void SensorManager::stopMotor()
+{
+	motor.motor_stop();
 }
 
 uint32_t SensorManager::EEPROM_readHeaderSize(uint32_t index)
@@ -407,6 +417,37 @@ bool SensorManager::EEPROM_addLogLine(char *buffer, SerialManager &serial)
     return true;
 }
 
+void SensorManager::EEPROM_updateMaxAlt(float alt)
+{
+	return;
+}
+
+void SensorManager::EEPROM_updateEggRel()
+{
+	return;
+}
+
+void SensorManager::EEPROM_updateWingRel()
+{
+	return;
+}
+
+void SensorManager::EEPROM_updateProbeRel()
+{
+	return;
+}
+
+void SensorManager::EEPROM_updateNoseconeRel()
+{
+	return;
+}
+
+void SensorManager::EEPROM_resetData()
+{
+	// Reset max alt and release fields
+	return;
+}
+
 struct recovery_data SensorManager::EEPROM_getRecoveryData()
 {
 	// struct recovery_data data;
@@ -418,12 +459,11 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 	// return data;
 
 	struct recovery_data data;
- 
-    /* ── Defaults (used when a field has never been written) ── */
-    data.launch_altitude = 0.0f;
-    data.state           = OperatingState::IDLE;
-    data.mode            = OperatingMode::OPMODE_FLIGHT;
-    data.packet_count    = 0;
+	data.launch_altitude = 0.0;
+	data.state = OperatingState::IDLE;
+	data.mode = OperatingMode::OPMODE_FLIGHT;
+	data.packet_count = 0;
+	data.max_alt = 0.0;
  
     char buf[EEPROM_FIELD_BLOCK_SIZE];
  
@@ -522,7 +562,8 @@ void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &seri
 
 void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
 		SPI_HandleTypeDef *hspi_eeprom, GPIO_TypeDef *cs_port, uint16_t cs_pin,
-		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4)
+		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4,
+		GPIO_TypeDef *wing_dir_port, uint16_t wing_dir_pin)
 {
 	/* Start all sensors that need to be started
 	 * Add a delay between each start and send an
@@ -568,8 +609,7 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	servo_aileron.Init(htim3, TIM_CHANNEL_2, 1000, 2000, 180);
 	servo_egg.Init(htim3, TIM_CHANNEL_3, 1000, 2000, 180);
 
-	// TODO
-	// htim2 TIM_CHANNEL_1 and TIM_CHANNEL_2 available for wing driver
+	motor.Init(htim2, TIM_CHANNEL_2, wing_dir_port, wing_dir_pin);
 
 	HAL_Delay(100);
 

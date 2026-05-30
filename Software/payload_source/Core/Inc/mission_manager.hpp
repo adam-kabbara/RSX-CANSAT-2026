@@ -16,6 +16,7 @@ class MissionManager
 private:
 
     OperatingState op_state = OperatingState::IDLE;
+    FlightCtrl flight_ctrl = FlightCtrl::AUTONOMOUS;
     SimModeStatus sim_status = SimModeStatus::SIM_OFF;
     OperatingMode op_mode = OperatingMode::OPMODE_FLIGHT;
     bool ALT_CAL_CHK = false;
@@ -59,7 +60,7 @@ public:
 
     float get_max_alt();
 
-    void update_max_alt(float value);
+    bool update_max_alt(float value);
 
     void update_alt_buffer(float value);
 
@@ -67,11 +68,15 @@ public:
 
     OperatingState getOpState();
 
+    FlightCtrl getFlightCtrl();
+
     SimModeStatus getSimStatus();
 
     OperatingMode getOpMode();
 
     void setOpState(OperatingState state);
+
+    void setFlightCtrl(FlightCtrl ctrl);
 
     void setSimStatus(SimModeStatus status);
 

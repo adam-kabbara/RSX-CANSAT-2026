@@ -1,0 +1,363 @@
+# Four combinations:
+# night_mode = false, high_contrast_mode = false -> day
+# night_mode = true, high_contrast_mode = false -> night
+# night_mode = false, high_contrast_mode = true -> high_contrast
+# night_mode = true, high_contrast_mode = true -> black_high_contrast
+night_mode = true
+high_contrast_mode = false
+
+[windows.live_data]
+resolution = [1600, 900]
+display_mode = "fullscreen"
+
+[windows.command_panel]
+resolution = [1920, 540]
+display_mode = "fullscreen"
+
+[modes.day.logs]
+gui_normal = "black"
+gui_error = "red"
+sat_normal = "black"
+sat_error = "red"
+background = "#dcdcdc"
+overlay_background = "rgba(0, 0, 0, 215)"
+overlay_text = "white"
+
+[modes.day.status]
+init = "GREY"
+red = "RED"
+green = "GREEN"
+blue = "BLUE"
+label_text = "black"
+previous_state = "green"
+current_state = "blue"
+skipped_state = "red"
+next_state = "grey"
+
+[modes.day.inputs]
+background = "#f0f0f0"
+border = "#cccccc"
+focus_border = "#0078d4"
+focus_background = "#ffffff"
+
+[modes.day.graph]
+background = "w"
+axis_text = "black"
+marker_line = "#0000FF"
+marker_label = "yellow"
+marker_value = "white"
+marker_fill = [0, 0, 0, 180]
+marker_border = "y"
+pen_colors = [
+    [255, 0, 0],
+    [0, 255, 0],
+    [0, 0, 255],
+    [144, 144, 144],
+]
+
+[modes.day.palette]
+WindowText = "#000000"
+Button = "#f0f0f0"
+Light = "#ffffff"
+Midlight = "#e3e3e3"
+Dark = "#a0a0a0"
+Mid = "#a0a0a0"
+Text = "#000000"
+BrightText = "#ffffff"
+ButtonText = "#000000"
+Base = "#ffffff"
+Window = "#f0f0f0"
+Shadow = "#696969"
+Highlight = "#0078d7"
+HighlightedText = "#ffffff"
+Link = "#006770"
+LinkVisited = "#00343b"
+AlternateBase = "#e9e7e3"
+ToolTipBase = "#ffffdc"
+ToolTipText = "#000000"
+PlaceholderText = "#000000"
+Accent = "#009faa"
+
+[modes.day.visualization]
+background = "#f6f8fb"
+title = "#111827"
+subtitle = "#4b5563"
+muted = "#9ca3af"
+grid = "#e5e7eb"
+accel = "#2563eb"
+speed = "#059669"
+midline = "#6b7280"
+shadow = [17, 24, 39, 28]
+main_wing_fill = "#e5edf7"
+tailplane_fill = "#dce7f3"
+vertical_fin_fill = "#c9d8e8"
+aircraft_outline = "#111827"
+aircraft_detail = "#64748b"
+fuselage_fill = "#ffffff"
+cockpit_fill = "#bcd7f3"
+cockpit_outline = "#2563eb"
+panel_line = "#94a3b8"
+engine_fill = "#e2e8f0"
+engine_outline = "#475569"
+label = "#374151"
+
+[modes.night.logs]
+gui_normal = "#e5e7eb"
+gui_error = "#ff6b6b"
+sat_normal = "#d1d5db"
+sat_error = "#ff6b6b"
+background = "#111827"
+overlay_background = "rgba(0, 0, 0, 230)"
+overlay_text = "#f9fafb"
+
+[modes.night.status]
+init = "#9ca3af"
+red = "#ff6b6b"
+green = "#34d399"
+blue = "#60a5fa"
+label_text = "#e5e7eb"
+previous_state = "#34d399"
+current_state = "#60a5fa"
+skipped_state = "#ff6b6b"
+next_state = "#9ca3af"
+
+[modes.night.inputs]
+background = "#1f2937"
+border = "#4b5563"
+focus_border = "#60a5fa"
+focus_background = "#111827"
+
+[modes.night.graph]
+background = "#0f172a"
+axis_text = "#e5e7eb"
+marker_line = "#60a5fa"
+marker_label = "#fde68a"
+marker_value = "#f9fafb"
+marker_fill = [0, 0, 0, 210]
+marker_border = "#fde68a"
+pen_colors = [
+    [248, 113, 113],
+    [52, 211, 153],
+    [96, 165, 250],
+    [209, 213, 219],
+]
+
+[modes.night.palette]
+WindowText = "#e5e7eb"
+Button = "#1f2937"
+Light = "#374151"
+Midlight = "#273244"
+Dark = "#030712"
+Mid = "#4b5563"
+Text = "#f9fafb"
+BrightText = "#ffffff"
+ButtonText = "#f9fafb"
+Base = "#111827"
+Window = "#0f172a"
+Shadow = "#000000"
+Highlight = "#2563eb"
+HighlightedText = "#ffffff"
+Link = "#38bdf8"
+LinkVisited = "#93c5fd"
+AlternateBase = "#1f2937"
+ToolTipBase = "#111827"
+ToolTipText = "#f9fafb"
+PlaceholderText = "#9ca3af"
+Accent = "#22d3ee"
+
+[modes.night.visualization]
+background = "#0f172a"
+title = "#f9fafb"
+subtitle = "#cbd5e1"
+muted = "#94a3b8"
+grid = "#334155"
+accel = "#60a5fa"
+speed = "#34d399"
+midline = "#cbd5e1"
+shadow = [0, 0, 0, 80]
+main_wing_fill = "#334155"
+tailplane_fill = "#293548"
+vertical_fin_fill = "#1f2937"
+aircraft_outline = "#e5e7eb"
+aircraft_detail = "#94a3b8"
+fuselage_fill = "#1e293b"
+cockpit_fill = "#164e63"
+cockpit_outline = "#67e8f9"
+panel_line = "#64748b"
+engine_fill = "#334155"
+engine_outline = "#cbd5e1"
+label = "#cbd5e1"
+
+[modes.high_contrast.logs]
+gui_normal = "#000000"
+gui_error = "#b00020"
+sat_normal = "#000000"
+sat_error = "#b00020"
+background = "#ffffff"
+overlay_background = "rgba(0, 0, 0, 255)"
+overlay_text = "#ffffff"
+
+[modes.high_contrast.status]
+init = "#555555"
+red = "#b00020"
+green = "#007000"
+blue = "#003cff"
+label_text = "#000000"
+previous_state = "#007000"
+current_state = "#003cff"
+skipped_state = "#b00020"
+next_state = "#555555"
+
+[modes.high_contrast.inputs]
+background = "#ffffff"
+border = "#000000"
+focus_border = "#003cff"
+focus_background = "#ffffff"
+
+[modes.high_contrast.graph]
+background = "w"
+axis_text = "#000000"
+marker_line = "#003cff"
+marker_label = "#ffff00"
+marker_value = "#ffffff"
+marker_fill = [0, 0, 0, 255]
+marker_border = "#ffff00"
+pen_colors = [
+    [210, 0, 0],
+    [0, 120, 0],
+    [0, 60, 255],
+    [0, 0, 0],
+]
+
+[modes.high_contrast.palette]
+WindowText = "#000000"
+Button = "#ffffff"
+Light = "#ffffff"
+Midlight = "#ffffff"
+Dark = "#000000"
+Mid = "#555555"
+Text = "#000000"
+BrightText = "#ffffff"
+ButtonText = "#000000"
+Base = "#ffffff"
+Window = "#ffffff"
+Shadow = "#000000"
+Highlight = "#003cff"
+HighlightedText = "#ffffff"
+Link = "#003cff"
+LinkVisited = "#4b0082"
+AlternateBase = "#f2f2f2"
+ToolTipBase = "#000000"
+ToolTipText = "#ffffff"
+PlaceholderText = "#555555"
+Accent = "#003cff"
+
+[modes.high_contrast.visualization]
+background = "#ffffff"
+title = "#000000"
+subtitle = "#000000"
+muted = "#555555"
+grid = "#000000"
+accel = "#003cff"
+speed = "#007000"
+midline = "#000000"
+shadow = [0, 0, 0, 90]
+main_wing_fill = "#ffffff"
+tailplane_fill = "#eeeeee"
+vertical_fin_fill = "#dddddd"
+aircraft_outline = "#000000"
+aircraft_detail = "#000000"
+fuselage_fill = "#ffffff"
+cockpit_fill = "#d9ecff"
+cockpit_outline = "#003cff"
+panel_line = "#000000"
+engine_fill = "#ffffff"
+engine_outline = "#000000"
+label = "#000000"
+
+[modes.black_high_contrast.logs]
+gui_normal = "#ffffff"
+gui_error = "#ff4d4d"
+sat_normal = "#ffffff"
+sat_error = "#ff4d4d"
+background = "#000000"
+overlay_background = "rgba(255, 255, 255, 245)"
+overlay_text = "#000000"
+
+[modes.black_high_contrast.status]
+init = "#d0d0d0"
+red = "#ff4d4d"
+green = "#00ff66"
+blue = "#66a3ff"
+label_text = "#ffffff"
+previous_state = "#00ff66"
+current_state = "#66a3ff"
+skipped_state = "#ff4d4d"
+next_state = "#d0d0d0"
+
+[modes.black_high_contrast.inputs]
+background = "#000000"
+border = "#ffffff"
+focus_border = "#ffff00"
+focus_background = "#101010"
+
+[modes.black_high_contrast.graph]
+background = "#000000"
+axis_text = "#ffffff"
+marker_line = "#ffff00"
+marker_label = "#ffff00"
+marker_value = "#ffffff"
+marker_fill = [255, 255, 255, 40]
+marker_border = "#ffff00"
+pen_colors = [
+    [255, 77, 77],
+    [0, 255, 102],
+    [102, 163, 255],
+    [255, 255, 255],
+]
+
+[modes.black_high_contrast.palette]
+WindowText = "#ffffff"
+Button = "#000000"
+Light = "#ffffff"
+Midlight = "#bbbbbb"
+Dark = "#000000"
+Mid = "#ffffff"
+Text = "#ffffff"
+BrightText = "#ffffff"
+ButtonText = "#ffffff"
+Base = "#000000"
+Window = "#000000"
+Shadow = "#ffffff"
+Highlight = "#ffff00"
+HighlightedText = "#000000"
+Link = "#66a3ff"
+LinkVisited = "#ff99ff"
+AlternateBase = "#101010"
+ToolTipBase = "#ffffff"
+ToolTipText = "#000000"
+PlaceholderText = "#d0d0d0"
+Accent = "#ffff00"
+
+[modes.black_high_contrast.visualization]
+background = "#000000"
+title = "#ffffff"
+subtitle = "#ffffff"
+muted = "#d0d0d0"
+grid = "#ffffff"
+accel = "#66a3ff"
+speed = "#00ff66"
+midline = "#ffffff"
+shadow = [255, 255, 255, 45]
+main_wing_fill = "#101010"
+tailplane_fill = "#181818"
+vertical_fin_fill = "#222222"
+aircraft_outline = "#ffffff"
+aircraft_detail = "#ffffff"
+fuselage_fill = "#000000"
+cockpit_fill = "#001f3f"
+cockpit_outline = "#ffff00"
+panel_line = "#ffffff"
+engine_fill = "#000000"
+engine_outline = "#ffffff"
+label = "#ffffff"

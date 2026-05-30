@@ -39,7 +39,6 @@ public:
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~ Prototype ~~~~~~~~~~~~~~~~~~~~~~~~~ */
 	/* :::::::::::::: Constructor ::::::::::::: */
 	Servo();
-	Servo(TIM_HandleTypeDef *htim, uint32_t channel, uint16_t minPPMPulseWidth = 1000, uint16_t maxPPMPulseWidth = 2000, float maxAngle = 180.0F);
 
 	/* ::::::::::::::::: Init ::::::::::::::::: */
 	void Init(TIM_HandleTypeDef *htim, uint32_t channel, uint16_t minPPMPulseWidth = 1000, uint16_t maxPPMPulseWidth = 2000, float maxAngle = 180.0F);

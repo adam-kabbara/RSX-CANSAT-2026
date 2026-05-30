@@ -89,19 +89,19 @@ class DynamicPlotter(BaseDynamicPlotter):
         # Create dashed vertical line
         vline = pg.InfiniteLine(angle=90, movable=False, pen=pg.mkPen(style=Qt.PenStyle.DashLine,
                                                                       width=2,
-                                                                      color= '#0000FF',
+                                                                      color=gui.cosmetics.theme_color("graph", "marker_line", "#0000FF"),
                                                                       cosmetic=True))
         vline.setPos(latest_x)
 
         # Create text label with state name and value
         label = pg.TextItem(
             html=f"""<div style="text-align: center;">
-                        <span style="color: yellow; font-weight: bold; font-size: 12px; font-family: 'Consolas';">{state_name}</span><br>
-                        <span style="color: white; font-size: 10px;">{latest_y:.2f}</span>
+                        <span style="color: {gui.cosmetics.theme_color("graph", "marker_label", "yellow")}; font-weight: bold; font-size: 12px; font-family: 'Consolas';">{state_name}</span><br>
+                        <span style="color: {gui.cosmetics.theme_color("graph", "marker_value", "white")}; font-size: 10px;">{latest_y:.2f}</span>
                     </div>""",
             anchor=(1, 1),
-            fill=pg.mkBrush(0, 0, 0, 180),   # Semi-transparent black background
-            border=pg.mkPen('y', width=1))
+            fill=pg.mkBrush(*gui.cosmetics.theme_rgb("graph", "marker_fill", [0, 0, 0, 180])),
+            border=pg.mkPen(gui.cosmetics.theme_color("graph", "marker_border", "y"), width=1))
 
         label.setPos(latest_x, latest_y)
 

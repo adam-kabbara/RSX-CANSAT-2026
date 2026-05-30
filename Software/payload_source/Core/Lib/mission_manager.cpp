@@ -96,12 +96,14 @@ float MissionManager::get_max_alt()
 	return max_alt;
 }
 
-void MissionManager::update_max_alt(float value)
+bool MissionManager::update_max_alt(float value)
 {
 	if(value > max_alt && value < 1000)
 	{
 		max_alt = value;
+		return true;
 	}
+	return false;
 }
 
 void MissionManager::update_alt_buffer(float value)
@@ -124,6 +126,11 @@ OperatingState MissionManager::getOpState()
     return op_state;
 }
 
+FlightCtrl MissionManager::getFlightCtrl()
+{
+	return flight_ctrl;
+}
+
 SimModeStatus MissionManager::getSimStatus()
 {
     return sim_status;
@@ -137,6 +144,11 @@ OperatingMode MissionManager::getOpMode()
 void MissionManager::setOpState(OperatingState state)
 {
     op_state = state;
+}
+
+void MissionManager::setFlightCtrl(FlightCtrl ctrl)
+{
+	flight_ctrl = ctrl;
 }
 
 void MissionManager::setSimStatus(SimModeStatus status)

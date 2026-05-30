@@ -7,6 +7,7 @@
   */
 
 #include "command_manager.hpp"
+#include "drv.hpp"
 
 CommandManager::CommandManager()
 {
@@ -116,6 +117,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
         if(info.getOpState() == IDLE && (info.isAltCalibrated() == true || info.getOpMode() == OPMODE_SIM))
         {
             info.reset_params();
+            sensors.EEPROM_resetData();
             ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");
             info.setOpState(LAUNCH_PAD);
             sensors.EEPROM_updateState(LAUNCH_PAD, ser);
@@ -136,8 +138,8 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
             info.setOpState(IDLE);
             sensors.EEPROM_updateState(IDLE, ser);
             info.reset_params();
-            ser.sendInfoDataMsg("ENDING PAYLOAD TRANSMISSION.{%s|%s}",
-                op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+            ser.sendInfoDataMsg("ENDING PAYLOAD TRANSMISSION.{%s|%s|%s}",
+              op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
         }
         else
         {
@@ -179,7 +181,7 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
         sensors.setRTCTime(s,m,h);
         char time_str[DATA_SIZE];
         sensors.getRTCTime(time_str);
-        ser.sendInfoDataMsg("Set RTC time to %s", time_str);
+        ser.sendInfoDataMsg("Attempted to set RTC time to %s, got %s", data, time_str);
     }
     else
     {
@@ -189,8 +191,8 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
 
 void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
-  ser.sendInfoDataMsg("CANSAT IS ONLINE.{%s|%s}",
-      op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+  ser.sendInfoDataMsg("CANSAT IS ONLINE.{%s|%s|%s}",
+      op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
 } // END: do_give_status
 
 void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
@@ -245,8 +247,8 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setOpMode(OPMODE_SIM);
           info.waitingForSimp();
           sensors.EEPROM_updateMode(info.getOpMode(), ser);
-          ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE{%s|%s}",
-            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+          ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE{%s|%s|%s}",
+            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
           break;
         }
       case SIM_OFF:
@@ -271,8 +273,8 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setSimStatus(SIM_OFF);
           info.setOpMode(OPMODE_FLIGHT);
           sensors.EEPROM_updateMode(info.getOpMode(), ser);
-          ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.{%s|%s}",
-            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()));
+          ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.{%s|%s|%s}",
+            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
           break;
         }
       case SIM_OFF:
@@ -469,6 +471,22 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 	  else
 	  {
 		  ser.sendErrorMsg("ERROR: SERVO COMMAND FORMAT INCORRECT, DID NOT RECEIVE '#|VAL'");
+	  }
+  }
+  else if(strcmp(mec, "DC") == 0)
+  {
+	  int DC_val = atoi(val);
+	  if(DC_val == 0)
+	  {
+		  sensors.stopMotor();
+		  ser.sendInfoMsg("Motor stopped.");
+	  }
+	  else
+	  {
+		  uint8_t  direction = (DC_val > 0) ? 1 : 0;
+		  uint32_t duration  = (uint32_t)(DC_val > 0 ? DC_val : -DC_val);
+		  sensors.writeMotor(direction, duration);
+		  ser.sendInfoDataMsg("Motor running %s for %lu ms.", direction ? "forward" : "reverse", (unsigned long)duration);
 	  }
   }
   else

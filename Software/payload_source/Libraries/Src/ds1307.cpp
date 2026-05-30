@@ -52,7 +52,7 @@ void DS1307_SetRegByte(uint8_t regAddr, uint8_t val) {
  * @return Value stored in the register, 0 to 255.
  */
 uint8_t DS1307_GetRegByte(uint8_t regAddr) {
-	uint8_t val;
+	uint8_t val = 0;
 	HAL_I2C_Master_Transmit(_ds1307_ui2c, DS1307_I2C_ADDR << 1, &regAddr, 1, DS1307_TIMEOUT);
 	HAL_I2C_Master_Receive(_ds1307_ui2c, DS1307_I2C_ADDR << 1, &val, 1, DS1307_TIMEOUT);
 	return val;

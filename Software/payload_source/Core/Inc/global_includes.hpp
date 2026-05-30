@@ -68,6 +68,11 @@ enum cam_status {
 	CAM1_OFF_CAM2_OFF = 3
 };
 
+enum FlightCtrl {
+	AUTONOMOUS = 0,
+	MANUAL = 1
+};
+
 struct rpy_data {
 	float gyro_r;
 	float gyro_p;
@@ -95,6 +100,11 @@ struct recovery_data {
 	OperatingState state;
 	OperatingMode mode;
 	int packet_count;
+	float max_alt;
+	bool nosecone_flag;
+	bool probe_flag;
+	bool wing_flag;
+	bool egg_flag;
 };
 
 inline const char* op_mode_to_string(OperatingMode mode, int full)
@@ -137,6 +147,16 @@ inline const char* op_state_to_string(OperatingState state)
 	};
 
 	return states[state];
+}
+
+inline const char* flight_ctrl_to_string(FlightCtrl ctrl)
+{
+	if(ctrl == AUTONOMOUS)
+	{
+		return "AUTONOMOUS";
+	}
+
+	return "MANUAL";
 }
 
 inline const float pressure_to_alt(const float pressure)

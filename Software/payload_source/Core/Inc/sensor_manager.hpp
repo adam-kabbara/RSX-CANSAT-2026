@@ -16,6 +16,7 @@
 #include "VL53L1X_calibration.h"
 #include "INA219.hpp"
 #include "ds1307.hpp"
+#include "drv.hpp"
 #include "eeprom.hpp"
 
 #ifdef __cplusplus
@@ -46,6 +47,8 @@ private:
 	Servo servo_elevator;
 	Servo servo_aileron;
 	Servo servo_egg;
+
+	DRV motor;
 
 	uint16_t tof_dev=0x52;
 	int16_t offset;
@@ -121,6 +124,8 @@ public:
 	void writeElevatorServo(float val);
 	void writeAileronServo(float val);
 	void writeEggServo(float val);
+	void writeMotor(uint8_t dir, uint32_t time_ms);
+	void stopMotor();
 
 	uint16_t EEPROM_readString(uint32_t start_addr, char *buf, uint16_t max_len);
 	bool EEPROM_writeString(uint32_t start_addr, const char *str, uint16_t len);
@@ -133,12 +138,19 @@ public:
 	void EEPROM_updateMode(OperatingMode mode, SerialManager &serial);
 	void EEPROM_updatePackets(int count, SerialManager &serial);
 	bool EEPROM_addLogLine(char *buffer, SerialManager &serial);
+	void EEPROM_updateMaxAlt(float alt);
+	void EEPROM_updateEggRel();
+	void EEPROM_updateWingRel();
+	void EEPROM_updateProbeRel();
+	void EEPROM_updateNoseconeRel();
+	void EEPROM_resetData();
 	struct recovery_data EEPROM_getRecoveryData();
 	void EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &serial);
 
 	void startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
 			SPI_HandleTypeDef *hspi_eeprom, GPIO_TypeDef *cs_port, uint16_t cs_pin,
-			TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4);
+			TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4,
+			GPIO_TypeDef *wing_dir_port, uint16_t wing_dir_pin);
 };
 
 #endif /* INC_SENSOR_MANAGER_HPP */
