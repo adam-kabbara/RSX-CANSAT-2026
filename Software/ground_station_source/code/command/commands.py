@@ -49,7 +49,7 @@ class Commands(QObject):
             self.print_signal.emit("Sent restart signal")
                                     
     def command__write_servo(self, servo_id, servo_val):
-        if servo_id == -1 or servo_val not in range(0, 181):
+        if servo_id == -1: #or servo_val not in range(0, 181):
             self._serial.error_catch.emit("Enter a servo # and value first")
         elif self._serial.send_data(self._cmd(op="MEC", val=f"SERVO:{servo_id}|{servo_val}")):
             self.print_signal.emit(f"Sent command to program servo {servo_id} to {servo_val}")
