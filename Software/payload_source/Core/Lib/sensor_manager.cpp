@@ -227,6 +227,11 @@ void SensorManager::writeMotor(uint8_t dir, uint32_t time_ms)
 	motor.motor_run(dir, time_ms);
 }
 
+void SensorManager::updateMotor()
+{
+    motor.motor_update();
+}
+
 void SensorManager::stopMotor()
 {
 	motor.motor_stop();
