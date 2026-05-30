@@ -40,6 +40,7 @@
         var trace = L.polyline([], {color: '#00d4ff', weight: 3, opacity: 0.8});
         var marker;
         var startMarker;
+        var gpsCircle;
         var firstPoint = true;
         var payloadIcon = L.icon({
             iconUrl: 'icon.ico',
@@ -119,8 +120,31 @@
             trace.setLatLngs([]);
             if (marker) { map.removeLayer(marker); marker = null; }
             if (startMarker) { map.removeLayer(startMarker); startMarker = null; }
+            if (gpsCircle) { map.removeLayer(gpsCircle); gpsCircle = null; }
             firstPoint = true;
             map.setView([0, 0], 2);
+        }
+
+        function drawGpsCircle(lat, lon, radius) {
+            if (!map) {
+                initMap(lat, lon, 15);
+            }
+
+            var center = [lat, lon];
+            if (gpsCircle) {
+                map.removeLayer(gpsCircle);
+            }
+
+            gpsCircle = L.circle(center, {
+                radius: radius,
+                color: '#ffd166',
+                weight: 2,
+                fillColor: '#ffd166',
+                fillOpacity: 0.15
+            }).addTo(map);
+
+            gpsCircle.bindPopup("GPS target radius: " + radius + " m");
+            map.fitBounds(gpsCircle.getBounds(), {padding: [20, 20]});
         }
 
         function setZoom(zoom) {
@@ -130,6 +154,7 @@
         window.initMap = initMap;
         window.addPoint = addPoint;
         window.clearMap = clearMap;
+        window.drawGpsCircle = drawGpsCircle;
         window.setZoom = setZoom;
     </script>
 </body>

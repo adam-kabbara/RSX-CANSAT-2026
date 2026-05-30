@@ -75,6 +75,20 @@ class GPSMapWidget(QWidget):
         js_code = f"window.addPoint({lat}, {lon});"
         self._view.page().runJavaScript(js_code)
 
+    @staticmethod
+    def _build_draw_circle_js(lat, lon, radius):
+        if not (-90 <= lat <= 90) or not (-180 <= lon <= 180) or radius <= 0:
+            return None
+        return f"window.drawGpsCircle({lat}, {lon}, {radius});"
+
+    def draw_circle(self, lat, lon, radius):
+        """Draw a single GPS circle overlay and replace the previous one."""
+        js_code = self._build_draw_circle_js(lat, lon, radius)
+        if js_code is None:
+            return False
+        self._view.page().runJavaScript(js_code)
+        return True
+
     def reset(self):
         """Clear all GPS data and reset the map view."""
         self._view.page().runJavaScript("window.clearMap();")
