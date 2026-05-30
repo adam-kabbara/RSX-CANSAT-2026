@@ -39,18 +39,18 @@ class TelemetryData:
     CAM_STATUS: int
     PACKET_RECV: int
     #ADAM MUST IMPLEMENT FIELDS BELOW
-    FLIGHT_CTRL: str
-    QUATERNION_W: float
-    QUATERNION_X: float
-    QUATERNION_Y: float
-    QUATERNION_Z: float
-    VELOCITY_X: float
-    VELOCITY_Y: float
-    VELOCITY_Z: float
-    ACCEL_X: float
-    ACCEL_Y: float
-    ACCEL_Z: float
-
+    #FLIGHT_CTRL: str
+    #QUATERNION_W: float
+    #QUATERNION_X: float
+    #QUATERNION_Y: float
+    #QUATERNION_Z: float
+    #VELOCITY_X: float
+    #VELOCITY_Y: float
+    #VELOCITY_Z: float
+    #ACCEL_X: float
+    #ACCEL_Y: float
+    #ACCEL_Z: float
+#todo
 class DataProcessor(QObject):
 
     log_end_signal = pyqtSignal()
