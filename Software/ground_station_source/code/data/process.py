@@ -29,7 +29,7 @@ class TelemetryData:
     GYRO_Y: float
     ACCEL_R: float
     ACCEL_P: float
-    ACCEL_Y: float
+    ACCEL_YAW: float # Yaw acceleration, originally ACCEL_Y
     GPS_TIME: str
     GPS_ALTITUDE: float
     GPS_LATITUDE: float
@@ -214,10 +214,13 @@ class DataProcessor(QObject):
                 mission_info = "NONE"
             if mission_info != "NONE":
                 msg_text = re.sub(r'{.+?}', '', msg_text).strip()
-                new_mode, new_state, new_flight_ctrl = mission_info.split('|')
-                self._graph_ui.update_mode(new_mode)
-                self._graph_ui.update_state(new_state)
-                self._graph_ui.update_flight_ctrl(new_flight_ctrl)
+                mission_parts = [part.strip() for part in mission_info.split('|')]
+                if len(mission_parts) >= 2:
+                    new_mode, new_state = mission_parts[:2]
+                    self._graph_ui.update_mode(new_mode)
+                    self._graph_ui.update_state(new_state)
+                if len(mission_parts) >= 3:
+                    self._graph_ui.update_flight_ctrl(mission_parts[2])
 
             if msg.startswith("$E"):
                 self.sat_error_signal.emit(f"{msg_text}")
@@ -257,8 +260,8 @@ class DataProcessor(QObject):
             new_gyro_data = [data.GYRO_R, data.GYRO_P, data.GYRO_Y]
             self._graph_ui.update_gyro_graph(new_gyro_data)
 
-        if data.ACCEL_R is not None and data.ACCEL_P is not None and data.ACCEL_Y is not None:
-            new_accel_data = [data.ACCEL_R, data.ACCEL_P, data.ACCEL_Y]
+        if data.ACCEL_R is not None and data.ACCEL_P is not None and data.ACCEL_YAW is not None:
+            new_accel_data = [data.ACCEL_R, data.ACCEL_P, data.ACCEL_YAW]
             self._graph_ui.update_accel_graph(new_accel_data)
    
         if data.GPS_LATITUDE is not None and data.GPS_LONGITUDE is not None:
@@ -328,7 +331,7 @@ class DataProcessor(QObject):
             GYRO_Y       = self._parse_float(self._field(fields, 12)),
             ACCEL_R      = self._parse_float(self._field(fields, 13)),
             ACCEL_P      = self._parse_float(self._field(fields, 14)),
-            ACCEL_Y      = self._parse_float(self._field(fields, 15)),
+            ACCEL_YAW    = self._parse_float(self._field(fields, 15)),
             GPS_TIME     = self._field(fields, 16),
             GPS_ALTITUDE = self._parse_float(self._field(fields, 17)),
             GPS_LATITUDE = self._parse_float(self._field(fields, 18)),
@@ -336,7 +339,19 @@ class DataProcessor(QObject):
             GPS_SATS     = self._field(fields, 20),
             CMD_ECHO     = self._field(fields, 21),
             CAM_STATUS   = self._parse_int(self._field(fields, 22)),
-            PACKET_RECV  = self._graph_ui.get_packet_count()
+            PACKET_RECV  = self._graph_ui.get_packet_count(),
+            # ADAM MUST IMPLEMENT FIELDS BELOW Xd
+            FLIGHT_CTRL  = self._field(fields, 23),
+            QUATERNION_W = self._parse_float(self._field(fields, 24)),
+            QUATERNION_X = self._parse_float(self._field(fields, 25)),
+            QUATERNION_Y = self._parse_float(self._field(fields, 26)),
+            QUATERNION_Z = self._parse_float(self._field(fields, 27)),
+            VELOCITY_X   = self._parse_float(self._field(fields, 28)),
+            VELOCITY_Y   = self._parse_float(self._field(fields, 29)),
+            VELOCITY_Z   = self._parse_float(self._field(fields, 30)),
+            ACCEL_X      = self._parse_float(self._field(fields, 31)),
+            ACCEL_Y      = self._parse_float(self._field(fields, 32)),
+            ACCEL_Z      = self._parse_float(self._field(fields, 33)),
         )
 
         return telemetry_data

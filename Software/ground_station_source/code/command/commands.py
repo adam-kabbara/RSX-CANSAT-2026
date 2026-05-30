@@ -86,6 +86,8 @@ class Commands(QObject):
     def command__set_gps(self, __gps_lat, __gps_lon, __gps_rad):
         if self._serial.send_data(self._cmd(op="GPS", val=(f"{__gps_lat}|{__gps_lon}|{__gps_rad}"))):
             self.print_signal.emit(f"Sent command to set GPS coordinates to LAT:{__gps_lat}, LON:{__gps_lon}, RAD:{__gps_rad}")
+            return True
+        return False
 
     def command__toggle_camera(self, camera_id):
         if self._serial.send_data(self._cmd(op="MEC", val=f"CAM:{camera_id}")):
@@ -152,7 +154,7 @@ class Commands(QObject):
     def command__manual_flight_ctrl_data(self, axis, rotation):
         if self._serial.send_data(self._cmd(op="JS", val=f"{axis}:{rotation}")):
             self.print_signal.emit(f"Sent manual flight data {axis}={rotation}")
-    
+
        # ---- Joystick slots ----
 
     _BUTTON_MEC_MAP = {

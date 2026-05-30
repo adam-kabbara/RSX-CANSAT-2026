@@ -191,7 +191,7 @@ extern "C" void main_cpp()
             		pressure_val = sensors.getPressure();
             	}
 
-            	mission_mgr.update_alt_buffer(pressure_val - mission_mgr.getLaunchAlt());
+            	mission_mgr.update_alt_buffer(pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt());
 
 				if(mission_mgr.getOpState() == DESCENT || mission_mgr.getOpState() == PROBE_RELEASE || mission_mgr.getOpState() == PAYLOAD_RELEASE)
 				{
