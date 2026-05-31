@@ -819,11 +819,6 @@ class CommandWindow(QMainWindow):
             self._graph_ui.set_port_text_closed()
 
     def start_transmission(self):
-        if not self._processor.reset_csv():
-            self.update_gui_log_error("ERROR: CSV WAS NOT ABLE TO OPEN! DETAILS:")
-            self.update_gui_log_error(self._processor.get_csv_error_msg())
-            self.update_gui_log_error("MISSION START ABORTED TO AVOID LOSING TELEMETRY.")
-            return
         if self.command_manager.command__start_mission():
             self._graph_ui.reset_data()
     
