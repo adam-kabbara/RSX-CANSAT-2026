@@ -18,6 +18,7 @@ from PyQt6.QtGui import (
     QFont,
     QIcon,
     QPainter,
+    QPainterPath,
     QPen,
     QPolygonF,
 )
@@ -47,9 +48,9 @@ class PayloadVisualizationCanvas(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents, True)
         self.setCursor(Qt.CursorShape.OpenHandCursor)
 
-        self._roll = math.radians(-6.0)
-        self._pitch = math.radians(10.0)
-        self._yaw = math.radians(-18.0)
+        self._roll = math.radians(-8.0)
+        self._pitch = math.radians(12.0)
+        self._yaw = math.radians(-20.0)
         self._view_yaw = math.radians(0.0)
         self._view_pitch = math.radians(0.0)
         self._drag_sensitivity = 0.006
@@ -246,136 +247,229 @@ class PayloadVisualizationCanvas(QWidget):
         painter.restore()
 
     def _draw_payload_body(self, painter: QPainter, rect):
-        front_z = 1.62
-        rear_z = -1.62
-        rotor_centers = [
-            (-1.28, 0.08, 1.10),
-            (1.28, 0.08, 1.10),
-            (-1.28, 0.08, -1.10),
-            (1.28, 0.08, -1.10),
-        ]
+        front_z = 1.86
+        rear_z = -1.55
 
         painter.save()
 
-        self._draw_quadcopter_shadow(painter, rect, rotor_centers)
-        self._draw_quadcopter_arms(painter, rect, rotor_centers)
-        self._draw_quadcopter_rotors(painter, rect, rotor_centers)
-        self._draw_quadcopter_body(painter, rect)
+        self._draw_payload_shadow(painter, rect)
+        self._draw_payload_tail(painter, rect)
+        self._draw_payload_main_wings(painter, rect)
+        self._draw_payload_fuselage(painter, rect)
+        self._draw_payload_canopy(painter, rect)
+        self._draw_payload_nose_marks(painter, rect)
+        self._draw_payload_highlights(painter, rect)
         self._draw_midline(painter, rect, front_z, rear_z)
 
         painter.restore()
 
+        return self._payload_reference_points(rect)
+
+    def _payload_reference_points(self, rect):
         return {
-            "top_center": self._project(self._rotate((0.0, 0.22, front_z)), rect),
+            "top_center": self._project(self._rotate((0.0, 0.52, 1.18)), rect),
             "center": self._project((0.0, 0.0, 0.0), rect),
+            "nose": self._project(self._rotate((0.0, 0.36, 1.86)), rect),
         }
 
-    def _draw_quadcopter_shadow(self, painter: QPainter, rect, rotor_centers: list[Vector3]):
+    def _draw_payload_shadow(self, painter: QPainter, rect):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QBrush(cosmetics.theme_qcolor("visualization", "shadow", [17, 24, 39, 28])))
 
-        shadow_rotors = [(x, -0.20, z) for x, _, z in rotor_centers]
-        for center in shadow_rotors:
-            painter.drawPolygon(self._rotor_disc(center, 0.44, rect))
-
-        painter.setPen(QPen(cosmetics.theme_qcolor("visualization", "shadow", [17, 24, 39, 34]), 8))
-        for center in shadow_rotors:
-            painter.drawLine(self._point((0.0, -0.20, 0.0), rect), self._point(center, rect))
-
-        body_shadow = [
-            (-0.55, -0.20, 0.36),
-            (0.55, -0.20, 0.36),
-            (0.62, -0.20, -0.28),
-            (0.0, -0.20, -0.58),
-            (-0.62, -0.20, -0.28),
+        left_wing_shadow = [
+            (-0.28, -0.24, 0.34),
+            (-2.42, -0.24, 0.70),
+            (-2.58, -0.24, 0.40),
+            (-0.36, -0.24, 0.08),
         ]
-        painter.setPen(Qt.PenStyle.NoPen)
+        right_wing_shadow = [
+            (0.28, -0.24, 0.34),
+            (2.42, -0.24, 0.70),
+            (2.58, -0.24, 0.40),
+            (0.36, -0.24, 0.08),
+        ]
+        tail_shadow = [
+            (-0.18, -0.24, -1.12),
+            (-1.24, -0.24, -1.48),
+            (-1.10, -0.24, -1.70),
+            (0.18, -0.24, -1.34),
+            (1.10, -0.24, -1.70),
+            (1.24, -0.24, -1.48),
+            (0.18, -0.24, -1.12),
+        ]
+        body_shadow = [
+            (-0.42, -0.24, 1.70),
+            (0.0, -0.24, 1.96),
+            (0.42, -0.24, 1.70),
+            (0.34, -0.24, -1.50),
+            (0.0, -0.24, -1.72),
+            (-0.34, -0.24, -1.50),
+        ]
+
+        painter.drawPolygon(self._polygon(left_wing_shadow, rect))
+        painter.drawPolygon(self._polygon(right_wing_shadow, rect))
+        painter.drawPolygon(self._polygon(tail_shadow, rect))
         painter.drawPolygon(self._polygon(body_shadow, rect))
 
-    def _draw_quadcopter_arms(self, painter: QPainter, rect, rotor_centers: list[Vector3]):
-        painter.setPen(QPen(cosmetics.theme_qcolor("visualization", "aircraft_detail", "#64748b"), 9, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
-        for center in rotor_centers:
-            painter.drawLine(self._point((0.0, 0.03, 0.0), rect), self._point(center, rect))
-
-        painter.setPen(QPen(cosmetics.theme_qcolor("visualization", "aircraft_outline", "#111827"), 3, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
-        for center in rotor_centers:
-            painter.drawLine(self._point((0.0, 0.10, 0.0), rect), self._point(center, rect))
-
-    def _draw_quadcopter_rotors(self, painter: QPainter, rect, rotor_centers: list[Vector3]):
-        for i, center in enumerate(rotor_centers):
-            fill_key = "front_rotor_fill" if center[2] > 0 else "rear_rotor_fill"
-            fill_fallback = "#dbeafe" if center[2] > 0 else "#e2e8f0"
+    def _draw_payload_tail(self, painter: QPainter, rect):
+        left_tail = [
+            (-0.12, 0.10, -1.06),
+            (-1.34, 0.08, -1.48),
+            (-1.16, 0.08, -1.74),
+            (-0.06, 0.12, -1.34),
+        ]
+        right_tail = [
+            (0.12, 0.10, -1.06),
+            (1.34, 0.08, -1.48),
+            (1.16, 0.08, -1.74),
+            (0.06, 0.12, -1.34),
+        ]
+        vertical_fin = [
+            (-0.08, 0.18, -1.02),
+            (0.10, 0.78, -1.38),
+            (0.18, 0.18, -1.68),
+            (-0.06, 0.12, -1.40),
+        ]
+        for surface in (left_tail, right_tail, vertical_fin):
             self._draw_model_polygon(
                 painter,
                 rect,
-                self._rotor_points(center, 0.43),
-                cosmetics.theme_color("visualization", fill_key, fill_fallback),
+                surface,
+                cosmetics.theme_color("visualization", "wing_fill", "#9ca3af"),
                 cosmetics.theme_color("visualization", "aircraft_outline", "#111827"),
                 2,
             )
 
-            blade_angle = math.radians(25 + i * 45)
-            blade_vector = (math.cos(blade_angle) * 0.35, 0.0, math.sin(blade_angle) * 0.35)
-            blade_start = self._add(center, self._scale(blade_vector, -1.0))
-            blade_end = self._add(center, blade_vector)
-            painter.setPen(QPen(cosmetics.theme_qcolor("visualization", "propeller_blade", "#334155"), 4, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
-            painter.drawLine(self._point(blade_start, rect), self._point(blade_end, rect))
-
-            hub_points = self._rotor_points((center[0], center[1] + 0.04, center[2]), 0.12, samples=18)
-            self._draw_model_polygon(
-                painter,
-                rect,
-                hub_points,
-                cosmetics.theme_color("visualization", "rotor_hub_fill", "#ffffff"),
-                cosmetics.theme_color("visualization", "aircraft_outline", "#111827"),
-                1,
-            )
-
-    def _draw_quadcopter_body(self, painter: QPainter, rect):
-        body = [
-            (-0.50, 0.16, 0.38),
-            (0.50, 0.16, 0.38),
-            (0.58, 0.16, -0.24),
-            (0.0, 0.16, -0.58),
-            (-0.58, 0.16, -0.24),
+    def _draw_payload_main_wings(self, painter: QPainter, rect):
+        left_wing = [
+            (-0.20, 0.16, 0.42),
+            (-2.74, 0.10, 0.92),
+            (-2.92, 0.10, 0.56),
+            (-0.30, 0.18, 0.10),
+        ]
+        right_wing = [
+            (0.20, 0.16, 0.42),
+            (2.74, 0.10, 0.92),
+            (2.92, 0.10, 0.56),
+            (0.30, 0.18, 0.10),
         ]
         self._draw_model_polygon(
             painter,
             rect,
-            body,
-            cosmetics.theme_color("visualization", "fuselage_fill", "#ffffff"),
+            left_wing,
+            cosmetics.theme_color("visualization", "wing_fill", "#9ca3af"),
             cosmetics.theme_color("visualization", "aircraft_outline", "#111827"),
             2,
         )
-
-        front_marker = [
-            (-0.17, 0.24, 0.47),
-            (0.17, 0.24, 0.47),
-            (0.0, 0.25, 0.72),
-        ]
         self._draw_model_polygon(
             painter,
             rect,
-            front_marker,
-            cosmetics.theme_color("visualization", "front_marker_fill", "#ef4444"),
+            right_wing,
+            cosmetics.theme_color("visualization", "wing_fill", "#9ca3af"),
+            cosmetics.theme_color("visualization", "aircraft_outline", "#111827"),
+            2,
+        )
+        self._draw_model_polygon(
+            painter,
+            rect,
+            [(-0.34, 0.26, 0.30), (0.34, 0.26, 0.30), (0.22, 0.30, 0.00), (-0.22, 0.30, 0.00)],
+            cosmetics.theme_color("visualization", "panel_fill", "#f8fafc"),
             cosmetics.theme_color("visualization", "aircraft_outline", "#111827"),
             1,
         )
 
-        battery = [
-            (-0.28, 0.25, 0.10),
-            (0.28, 0.25, 0.10),
-            (0.28, 0.25, -0.28),
-            (-0.28, 0.25, -0.28),
+    def _draw_payload_fuselage(self, painter: QPainter, rect):
+        side = QPainterPath()
+        side.moveTo(self._point((-0.34, 0.12, 1.62), rect))
+        side.cubicTo(
+            self._point((-0.28, 0.16, 0.62), rect),
+            self._point((-0.24, 0.14, -0.80), rect),
+            self._point((-0.14, 0.10, -1.48), rect),
+        )
+        side.lineTo(self._point((0.14, 0.10, -1.48), rect))
+        side.cubicTo(
+            self._point((0.24, 0.14, -0.80), rect),
+            self._point((0.28, 0.16, 0.62), rect),
+            self._point((0.34, 0.12, 1.62), rect),
+        )
+        side.cubicTo(
+            self._point((0.18, -0.04, 1.82), rect),
+            self._point((-0.18, -0.04, 1.82), rect),
+            self._point((-0.34, 0.12, 1.62), rect),
+        )
+        painter.setBrush(QBrush(QColor(cosmetics.theme_color("visualization", "side_face_fill", "#e5e7eb"))))
+        painter.setPen(QPen(QColor(cosmetics.theme_color("visualization", "aircraft_outline", "#111827")), 2))
+        painter.drawPath(side)
+
+        top = QPainterPath()
+        top.moveTo(self._point((-0.26, 0.36, 1.58), rect))
+        top.cubicTo(
+            self._point((-0.22, 0.48, 0.70), rect),
+            self._point((-0.20, 0.46, -0.84), rect),
+            self._point((0.0, 0.34, -1.60), rect),
+        )
+        top.cubicTo(
+            self._point((0.20, 0.46, -0.84), rect),
+            self._point((0.22, 0.48, 0.70), rect),
+            self._point((0.26, 0.36, 1.58), rect),
+        )
+        top.cubicTo(
+            self._point((0.14, 0.44, 1.86), rect),
+            self._point((-0.14, 0.44, 1.86), rect),
+            self._point((-0.26, 0.36, 1.58), rect),
+        )
+        painter.setBrush(QBrush(QColor("#ffffff")))
+        painter.setPen(QPen(QColor(cosmetics.theme_color("visualization", "aircraft_outline", "#111827")), 3))
+        painter.drawPath(top)
+
+    def _draw_payload_canopy(self, painter: QPainter, rect):
+        canopy = [
+            (-0.14, 0.56, 0.90),
+            (0.14, 0.56, 0.90),
+            (0.18, 0.50, 0.42),
+            (0.0, 0.44, 0.22),
+            (-0.18, 0.50, 0.42),
         ]
         self._draw_model_polygon(
             painter,
             rect,
-            battery,
+            canopy,
             cosmetics.theme_color("visualization", "cockpit_fill", "#bcd7f3"),
             cosmetics.theme_color("visualization", "cockpit_outline", "#2563eb"),
             1,
         )
+
+        lens_center = self._point((0.0, 0.62, 1.08), rect)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.setPen(QPen(cosmetics.theme_qcolor("visualization", "aircraft_outline", "#111827"), 2))
+        painter.drawEllipse(lens_center, 4, 4)
+
+    def _draw_payload_nose_marks(self, painter: QPainter, rect):
+        ink = QColor("#111827")
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QBrush(ink))
+        painter.drawEllipse(self._point((0.0, 0.48, 1.76), rect), 3, 3)
+        painter.drawEllipse(self._point((0.12, 0.44, 1.42), rect), 2, 2)
+
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.setPen(QPen(ink, 2, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
+        painter.drawLine(self._point((-0.10, 0.46, 1.50), rect), self._point((0.10, 0.46, 1.50), rect))
+
+    def _draw_payload_highlights(self, painter: QPainter, rect):
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.setPen(QPen(cosmetics.theme_qcolor("visualization", "aircraft_detail", "#94a3b8"), 2, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
+
+        body_contour = QPainterPath()
+        body_contour.moveTo(self._point((-0.16, 0.52, 1.24), rect))
+        body_contour.cubicTo(
+            self._point((-0.10, 0.54, 0.58), rect),
+            self._point((-0.08, 0.52, -0.30), rect),
+            self._point((-0.06, 0.42, -1.04), rect),
+        )
+        painter.drawPath(body_contour)
+
+        painter.setPen(QPen(cosmetics.theme_qcolor("visualization", "aircraft_outline", "#111827"), 2, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
+        painter.drawLine(self._point((0.0, 0.55, -0.80), rect), self._point((0.0, 0.52, 1.36), rect))
 
     def _draw_midline(self, painter: QPainter, rect, front_z: float, rear_z: float):
         start = self._project(self._rotate((0.0, 0.30, rear_z - 0.10)), rect)

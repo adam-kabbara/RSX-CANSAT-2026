@@ -2,17 +2,11 @@
 Front end GUI elements for command window
 """
 
-from enum import Enum
 import os
-from . import cosmetics
-from serial.serial import SerialManager
-from serial.joystick import JoystickManager
-from .graph_gui import GraphWindow
-from data.process import DataProcessor
-from data.simp import SimpManager
-from command.commands import Commands
-from PyQt6.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator, QTextCursor
-from PyQt6.QtCore import Qt, QTime, QTimer
+from enum import Enum
+
+from PyQt6.QtCore import Qt, QTimer, QDateTime
+from PyQt6.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator
 from PyQt6.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -28,6 +22,15 @@ from PyQt6.QtWidgets import (
     QMessageBox,
     QApplication, QAbstractItemView, QTableWidget, QTableWidgetItem, QHeaderView
 )
+
+from command.commands import Commands
+from data.process import DataProcessor
+from data.simp import SimpManager
+from serial.joystick import JoystickManager
+from serial.serial import SerialManager
+from . import cosmetics
+from .graph_gui import GraphWindow
+
 
 class CommandButtonGroup(Enum):
     MAIN = 0
@@ -714,7 +717,7 @@ class CommandWindow(QMainWindow):
         self.update_logs(msg, sat_msg = True, color=cosmetics.sat_log_error_color())
 
     def update_logs(self, msg, sat_msg = False, color="black"):
-        time = QTime.currentTime().toString('h:mm AP').replace(' ', '\u00A0')
+        time = QDateTime.currentDateTimeUtc().toString('h:mm AP').replace(' ', '\u00A0')
         msg_item = QTableWidgetItem(f"{msg}")
         msg_item.setForeground(QColor(color))
 

@@ -1,7 +1,7 @@
 """
 Front end GUI elements for graph window
 """
-from plotter.plotters import DynamicPlotter, DynamicPlotterMultiLine
+from plotter.plotters import DynamicPlotter, DynamicPlotterDualAxis, DynamicPlotterMultiLine
 from . import cosmetics
 from .gps_map import GPSMapWidget
 from .attitude_indicator import AttitudeIndicator
@@ -65,18 +65,19 @@ class GraphWindow(QMainWindow):
         graph_grid_layout.setRowStretch(2, 1)
 
         graph_info = [
-            {"title": "Altitude", "lines": 1, "x_unit": "s", "y_unit": "m"},
-            {"title": "Voltage", "lines": 1, "x_unit": "s", "y_unit": "V"},
-            {"title": "Current", "lines": 1, "x_unit": "s", "y_unit": "mA"},
-            {"title": "Gyro RPY", "lines": 3, "x_unit": "s", "y_unit": "deg/s"},
-            {"title": "Accel RPY ", "lines": 3, "x_unit": "s", "y_unit": "deg/s^2"},
-            {"title": "GPS Map", "lines": 0, "x_unit": "s", "y_unit": "m"}
+            {"title": "Altitude", "kind": "single", "x_unit": "s", "y_unit": "m"},
+            {"title": "Voltage / Current", "kind": "dual_axis", "x_unit": "s", "left_y_unit": "V", "right_y_unit": "mA"},
+            {"title": "Acceleration XYZ", "kind": "multi", "lines": 3, "x_unit": "s", "y_unit": "m/s^2"},
+            {"title": "Gyro RPY", "kind": "multi", "lines": 3, "x_unit": "s", "y_unit": "deg/s"},
+            {"title": "Accel RPY ", "kind": "multi", "lines": 3, "x_unit": "s", "y_unit": "deg/s^2"},
+            {"title": "GPS Map", "kind": "map", "x_unit": "s", "y_unit": "m"}
         ]
 
         self.graph_title_to_index = {
             "Altitude": 0,
             "Voltage": 1,
-            "Current": 2,
+            "Current": 1,
+            "AccelXYZ": 2,
             "Gyro": 3,
             "Accel": 4,
             "GPS": 5
@@ -85,18 +86,24 @@ class GraphWindow(QMainWindow):
         # Loop through each graph and create a plot using the plot classes
         for i, entry in enumerate(graph_info):
 
-            if entry["lines"] == 1:
+            if entry["kind"] == "single":
                 plotter = DynamicPlotter(title=entry["title"],
                                          time_window=self._graph_time_window,
                                          x_unit=entry["x_unit"],
                                          y_unit=entry["y_unit"])
-            elif entry["lines"] != 1:
+            elif entry["kind"] == "dual_axis":
+                plotter = DynamicPlotterDualAxis(title=entry["title"],
+                                                 time_window=self._graph_time_window,
+                                                 x_unit=entry["x_unit"],
+                                                 left_y_unit=entry["left_y_unit"],
+                                                 right_y_unit=entry["right_y_unit"])
+            elif entry["kind"] == "multi":
                 plotter = DynamicPlotterMultiLine(title=entry["title"],
                                                   timewindow=self._graph_time_window,
                                                   num_lines=entry["lines"],
                                                   x_unit=entry["x_unit"],
                                                   y_unit=entry["y_unit"])
-            if entry["lines"] != 0:
+            if entry["kind"] != "map":
                 self.plotters.append(plotter)
                 graph_grid_layout.addWidget(plotter.get_graph_object(), i // 2, i % 2)
 
@@ -426,10 +433,21 @@ class GraphWindow(QMainWindow):
         self.plotters[self.graph_title_to_index.get("Altitude")].update_plot(data)
 
     def update_volt_graph(self, data):
-        self.plotters[self.graph_title_to_index.get("Voltage")].update_plot(data)
+        plotter = self.plotters[self.graph_title_to_index.get("Voltage")]
+        if hasattr(plotter, "update_left_plot"):
+            plotter.update_left_plot(data)
+        else:
+            plotter.update_plot(data)
 
     def update_current_graph(self, data):
-        self.plotters[self.graph_title_to_index.get("Current")].update_plot(data)
+        plotter = self.plotters[self.graph_title_to_index.get("Current")]
+        if hasattr(plotter, "update_right_plot"):
+            plotter.update_right_plot(data)
+        else:
+            plotter.update_plot(data)
+
+    def update_accel_xyz_graph(self, data):
+        self.plotters[self.graph_title_to_index.get("AccelXYZ")].update_plot(data)
 
     def update_gyro_graph(self, data):
         self.plotters[self.graph_title_to_index.get("Gyro")].update_plot(data)
