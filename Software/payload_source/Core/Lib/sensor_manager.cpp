@@ -160,6 +160,25 @@ struct rpy_data SensorManager::getIMUData() // out of date
 	return data; // garbage collection????
 }
 
+void SensorManager::getRawAccel(float* data_out)
+{
+	updateBNO();
+	data_out[0] = bno_dev.accel.x;
+	data_out[1] = bno_dev.accel.y;
+	data_out[2] = bno_dev.accel.z; // need the raw not sensor fusion ones
+}
+
+struct rpy_data SensorManager::getCalibratedAccel(float* calib_bias, float* calib_scale)
+{
+	float raw[3];
+	getRawAccel(raw);
+	struct rpy_data data;
+	data.accel_r = (raw[0] - calib_bias[0]) * calib_scale[0];
+	data.accel_p = (raw[1] - calib_bias[1]) * calib_scale[1];
+	data.accel_y = (raw[2] - calib_bias[2]) * calib_scale[2];
+	return data;
+}
+
 struct gps_data SensorManager::getGPSData()
 {
 	struct gps_data data;
@@ -695,7 +714,9 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 		serial.sendErrorMsg("BN0 Init failed");
 	}
 
-	BNO_enableGyro(50000, serial);
+	BNO_enableGyro(5000, serial);
+	BNO_enableAccel(5000, serial);
+	BNO_enableMag(10000, serial);
 
 	HAL_Delay(100);
 

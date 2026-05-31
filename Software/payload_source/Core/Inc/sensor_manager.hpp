@@ -120,6 +120,9 @@ public:
 
 	struct rpy_data getIMUData();
 
+	void getRawAccel(float* data_out);
+	struct rpy_data getCalibratedAccel(float* calib_bias, float* calib_scale);
+
 	struct gps_data getGPSData();
 
 	cam_status getCameraStatus();
