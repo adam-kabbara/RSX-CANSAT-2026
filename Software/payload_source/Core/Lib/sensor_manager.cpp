@@ -653,21 +653,6 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	static EEPROMsimple eeprom_storage(hspi_eeprom, cs_port, cs_pin);
 	eeprom_dev = &eeprom_storage;
 
-	/* Diagnostic: verify SPI reaches the EEPROM before anything else touches I2C.
-	 * Expected status = 0x00 (WIP=0, WEL=0, BP=00) at power-on.
-	 * 0xFF means the SPI peripheral is not responding — most common cause is
-	 * PA4 configured as SPI1_NSS (hardware NSS) in CubeMX instead of plain
-	 * GPIO_Output, which triggers a Mode Fault (MODF) the moment CS is asserted.
-	 * Fix in CubeMX: set SPI NSS = Software, leave PA4 as GPIO_Output. */
-	{
-		uint8_t eeprom_status = eeprom_dev->ReadStatus();
-		if (eeprom_status == 0xFF) {
-			serial.sendErrorMsg("[EEPROM] SPI not responding (0xFF) — check MODF/NSS config and MISO wiring");
-		} else {
-			serial.sendInfoDataMsg("[EEPROM] SPI OK, status=0x%02X (expect 0x00 at power-on)", eeprom_status);
-		}
-	}
-
 	if(!DS1307_Init(hi2c1))
 	{
 		serial.sendErrorMsg("RTC Init failed");
