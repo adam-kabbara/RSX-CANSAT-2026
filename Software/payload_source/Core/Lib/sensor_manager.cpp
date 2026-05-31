@@ -179,12 +179,12 @@ cam_status SensorManager::getCameraStatus()
     }
 }
 
-void toggleCamera1()
+void SensorManager::toggleCamera1()
 { 
 	cam1_dev.toggleRecording(); 
 }
 
-void toggleCamera2()
+void SensorManager::toggleCamera2()
 {
 	cam2_dev.toggleRecording();
 }

@@ -475,14 +475,32 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
   }
   else if(strcmp(mec, "CAM") == 0)
   {
-    int cam_id = atoi(val);
+    // get opstate
+    OperatingState state = info.getOpState();
+    if(state == IDLE or state == LANDED or state == LAUNCH_PAD)
+    {
+      ser.sendErrorMsg("CAMERA CANNOT BE TOGGLED DURING IDLE/LANDED/LAUNCH_PAD STATE.");
+      return;
+    }
+    int cam_id = 0;
 
-    if(cam_id == 0)
+    if(strcmp(val, "1") == 0 || strcmp(val, "CAMERA1") == 0 || strcmp(val, "CAM1") == 0)
+    {
+      cam_id = 1;
+    }
+    else if(strcmp(val, "2") == 0 || strcmp(val, "CAMERA2") == 0 || strcmp(val, "CAM2") == 0)
+    {
+      cam_id = 2;
+    }
+
+    ser.sendInfoDataMsg("Received command to toggle camera %d", cam_id);
+
+    if(cam_id == 1)
     {
       sensors.toggleCamera1(); // Triggers RunCam 1 (G_CAM) over PF0
       ser.sendInfoMsg("Camera 1 (G_CAM) recording state toggled.");
     }
-    else if(cam_id == 1)
+    else if(cam_id == 2)
     {
       sensors.toggleCamera2(); // Triggers RunCam 2 (PG_CAM) over PF1
       ser.sendInfoMsg("Camera 2 (PG_CAM) recording state toggled.");
@@ -490,6 +508,32 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
     else
     {
       ser.sendErrorDataMsg("ERROR: UNRECOGNIZED CAMERA ID: %d", cam_id);
+    }
+  }
+  else if (strcmp(mec, "CAMERA_STATUS") == 0 or strcmp(mec, "CAM1_STAT") == 0 or strcmp(mec, "CAM2_STAT") == 0)
+  {
+    OperatingState state = info.getOpState();
+    if(state == IDLE or state == LANDED or state == LAUNCH_PAD)
+    {
+      ser.sendErrorMsg("Camera status cannot be retrieved during IDLE/LANDED/LAUNCH_PAD state.");
+      return;
+    }
+    cam_status status = sensors.getCameraStatus();
+    if(status == cam_status::CAM1_ON_CAM2_OFF)
+    {
+        ser.sendInfoMsg("Camera 1 (G_CAM) is recording, Camera 2 (PG_CAM) is idle.");
+    }
+    else if(status == cam_status::CAM1_OFF_CAM2_ON)
+    {
+        ser.sendInfoMsg("Camera 1 (G_CAM) is idle, Camera 2 (PG_CAM) is recording.");
+    }
+    else if(status == cam_status::CAM1_ON_CAM2_ON)
+    {
+        ser.sendInfoMsg("Camera 1 (G_CAM) and Camera 2 (PG_CAM) are both recording.");
+    }
+    else
+    {
+        ser.sendInfoMsg("Camera 1 (G_CAM) and Camera 2 (PG_CAM) are both idle.");
     }
   }
   else if(strcmp(mec, "DC") == 0)

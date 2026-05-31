@@ -139,7 +139,7 @@ class PayloadSim(QObject):
         return f"$E MSG:UNKNOWN CX OPTION {val}"
 
     def _handle_mechanism_command(self, val):
-        if val == "CAMERA_STAT:X":
+        if val == "CAMERA_STAT:X" or val == "CAM_STATUS:X":
             return f"$ MSG:{self._camera_status_text()}"
 
         if val == "CAMERA1_STAT:X":
@@ -148,11 +148,11 @@ class PayloadSim(QObject):
         if val == "CAMERA2_STAT:X":
             return f"$ MSG:CAMERA2 {'ON' if self.cam2_active else 'OFF'}"
 
-        if val == "CAMERA1:X":
+        if val == "CAMERA1:X" or val == "CAM1:X":
             self.cam1_active = not self.cam1_active
             return f"$ MSG:CAMERA1 {'ON' if self.cam1_active else 'OFF'}"
 
-        if val == "CAMERA2:X":
+        if val == "CAMERA2:X" or val == "CAM2:X":
             self.cam2_active = not self.cam2_active
             return f"$ MSG:CAMERA2 {'ON' if self.cam2_active else 'OFF'}"
 

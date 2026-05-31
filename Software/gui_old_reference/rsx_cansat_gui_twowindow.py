@@ -897,7 +897,17 @@ class TopWindow(QMainWindow):
             self.update_gui_log(f"Sent command to program {servo_label} to {self.__servo_val}")
 
     def toggle_camera(self):
-        if(self.send_data("CMD,%d,MEC,%s:X" % (self.__TEAM_ID, self.__camera_id))):
+        if self.__camera_id == "CAMERA1":
+            cam_token = "CAM:1"
+        elif self.__camera_id == "CAMERA2":
+            cam_token = "CAM:2"
+        else:
+            # Fallback if it's already an integer index
+            cam_token = f"CAM:{self.__camera_id}"
+
+        payload = "CMD,%d,MEC,%s" % (self._TEAM_ID, cam_token)
+
+        if(self.send_data(payload)):
             self.update_gui_log(f"Sent {self.__camera_id} toggle command")
     
     def force_probe_release(self):
@@ -913,11 +923,14 @@ class TopWindow(QMainWindow):
                 self.update_gui_log(f"Sent force probe release command")
 
     def get_cam_status(self):
-        if(self.send_data("CMD,%d,MEC,CAMERA1_STAT:X" % self.__TEAM_ID)):
-            self.update_gui_log("Requesting CAMERA1 status")
-        time.sleep(1)
-        if(self.send_data("CMD,%d,MEC,CAMERA2_STAT:X" % self.__TEAM_ID)):
-            self.update_gui_log("Requesting CAMERA2 status")
+        if self.send_data("CMD,%d,MEC,CAMERA_STATUS:X" % self.__TEAM_ID):
+            self.update_gui_log("Requesting CAMERA status")
+        # time.sleep(1)
+        # if(self.send_data("CMD,%d,MEC,CAMERA1_STAT:X" % self.__TEAM_ID)):
+        #     self.update_gui_log("Requesting CAMERA1 status")
+        # time.sleep(1)
+        # if(self.send_data("CMD,%d,MEC,CAMERA2_STAT:X" % self.__TEAM_ID)):
+        #     self.update_gui_log("Requesting CAMERA2 status")
 
     def change_sim_mode(self, mode):
         if(self.send_data("CMD,%d,SIM,%s" % (self.__TEAM_ID, mode))):

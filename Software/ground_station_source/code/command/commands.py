@@ -88,12 +88,21 @@ class Commands(QObject):
             self.print_signal.emit(f"Sent command to set GPS coordinates to LAT:{__gps_lat}, LON:{__gps_lon}, RAD:{__gps_rad}")
 
     def command__toggle_camera(self, camera_id):
-        if self._serial.send_data(self._cmd(op="MEC", val=f"CAM:{camera_id}")):
-            self.print_signal.emit(f"Sent Camera {camera_id} toggle command")
+        if self.__camera_id == "CAMERA1":
+            cam_token = "CAM:1"
+        elif self.__camera_id == "CAMERA2":
+            cam_token = "CAM:2"
+        else:
+            # Fallback if it's already an integer index
+            cam_token = f"CAM:{self.__camera_id}"
+
+        if self._serial.send_data(self._cmd(op="MEC", val=f"CAM:{cam_token}")):
+            self.print_signal.emit(f"Sent Camera {cam_token} toggle command")
 
     def command__mec_release(self, mec_id):
         if self._serial.send_data(self._cmd(op="MEC", val=f"REL:{mec_id}")):
-            self.print_signal.emit(f"Sent force {["NOSECONE release", "CPL release", "WING DEPLOYMENT", "EGG release"][mec_id]} command")
+            mec_map = ["NOSECONE release", "CPL release", "WING DEPLOYMENT", "EGG release"]
+        self.print_signal.emit(f"Sent force {mec_map[mec_id]} command")
 
     def command__cam_status(self):
         if self._serial.send_data(self._cmd(op="MEC", val="CAMERA_STATUS:X")):
