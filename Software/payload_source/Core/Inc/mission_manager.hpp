@@ -48,7 +48,7 @@ public:
     void wing_rel();
     void egg_rel();
 
-    bool landed_trigger();
+    bool landed_trigger(bool consecutive_check);
 
     bool is_apogee_packet_sent();
 
@@ -56,7 +56,7 @@ public:
 
     void reset_params();
 
-    bool descent_trigger();
+    bool descent_trigger(bool consecutive_check);
 
     float get_max_alt();
 

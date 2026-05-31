@@ -601,5 +601,5 @@ void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorMan
     return;
   }
 
-  ser.sendLogFile();
+  sensors.EEPROM_replayLog(100, ser);
 }

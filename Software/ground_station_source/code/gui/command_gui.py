@@ -460,21 +460,6 @@ class CommandWindow(QMainWindow):
         self.camera_status_button.clicked.connect(self.command_manager.command__cam_status)
         self.camera_status_button.hide()
 
-        self.team_id_field = QLineEdit()
-        self.team_id_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
-        self.team_id_field.setMaxLength(9)
-        self.team_id_field.setStyleSheet(cosmetics.team_id_stylesheet())
-        self.team_id_field.setValidator(QIntValidator(self))
-        self.team_id_field.editingFinished.connect(self.team_id_edited)
-        self.team_id_field_info = QLabel("Change TEAM ID (ground station)")
-        self.team_id_field_info.setFont(button_font)
-        team_id_editing_box = QHBoxLayout()
-        team_id_editing_box.addWidget(self.team_id_field_info)
-        team_id_editing_box.addWidget(self.team_id_field)
-        self.team_id_field_info.hide()
-        self.team_id_field.hide()
-
-        
         self.custom_msg_field = QLineEdit()
         self.custom_msg_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.custom_msg_field.setMaxLength(50)
@@ -529,7 +514,6 @@ class CommandWindow(QMainWindow):
         commands_layout.addLayout(set_time_box)
         commands_layout.addLayout(sim_mode_box)
         commands_layout.addLayout(flight_ctrl_box)
-        commands_layout.addLayout(team_id_editing_box)
         commands_layout.addLayout(set_gps_box)
         
         # ACTUATION buttons
@@ -597,8 +581,6 @@ class CommandWindow(QMainWindow):
             self.button_back,
             self.button_set_time,
             self.set_time_field,
-            self.team_id_field,
-            self.team_id_field_info,
             self.button_set_sim_mode,
             self.sim_mode_field,
             self.button_set_flight_ctrl,
@@ -849,17 +831,10 @@ class CommandWindow(QMainWindow):
             self._processor.close_csv()
             self.update_gui_log("Telemetry CSV saved.")
 
-    def team_id_edited(self):
-        self.team_id_field.clearFocus()
-        self.__TEAM_ID = int(self.team_id_field.text())
-        self.update_gui_log(f"Updated local TEAM ID to '{self.__TEAM_ID}'")
-
     def custom_msg_edited(self):
         self.custom_msg_field.clearFocus()
         self.__custom_msg = self.custom_msg_field.text()
         self.update_gui_log(f"Custom message set to: '{self.__custom_msg}'")
-
-    
     
     def dc_motor_val_edited(self):
         self.dc_motor_val_field.clearFocus()
