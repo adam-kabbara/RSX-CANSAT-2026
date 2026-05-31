@@ -1,4 +1,4 @@
-//#include "arm_math.h"
+#include "arm_math.h"
 //
 //#define STATE_DIM 15  // Error-state size (Pos, Vel, Att_err, Accel_bias, Gyro_bias)
 //#define QUAT_DIM  4   // Attitude state tracking size
