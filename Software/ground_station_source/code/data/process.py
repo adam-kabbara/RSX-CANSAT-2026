@@ -2,6 +2,7 @@
 Process telemetry data
 """
 import csv
+import math
 import os
 import re
 from dataclasses import dataclass, fields, asdict
@@ -264,6 +265,21 @@ class DataProcessor(QObject):
             new_accel_data = [data.ACCEL_R, data.ACCEL_P, data.ACCEL_YAW]
             self._graph_ui.update_accel_graph(new_accel_data)
 
+        if (
+            data.QUATERNION_W is not None
+            and data.QUATERNION_X is not None
+            and data.QUATERNION_Y is not None
+            and data.QUATERNION_Z is not None
+        ):
+            attitude = self._quaternion_to_euler_degrees(
+                data.QUATERNION_W,
+                data.QUATERNION_X,
+                data.QUATERNION_Y,
+                data.QUATERNION_Z,
+            )
+            if attitude is not None:
+                self._graph_ui.update_attitude(*attitude)
+
         if data.ACCEL_X is not None and data.ACCEL_Y is not None and data.ACCEL_Z is not None:
             new_accel_xyz_data = [data.ACCEL_X, data.ACCEL_Y, data.ACCEL_Z]
             self._graph_ui.update_accel_xyz_graph(new_accel_xyz_data)
@@ -383,3 +399,27 @@ class DataProcessor(QObject):
             return int(float(value))
         except ValueError:
             return None
+
+    def _quaternion_to_euler_degrees(self, w, x, y, z):
+        norm = math.sqrt(w * w + x * x + y * y + z * z)
+        if norm == 0.0:
+            return None
+
+        w /= norm
+        x /= norm
+        y /= norm
+        z /= norm
+
+        sinr_cosp = 2.0 * (w * x + y * z)
+        cosr_cosp = 1.0 - 2.0 * (x * x + y * y)
+        roll = math.degrees(math.atan2(sinr_cosp, cosr_cosp))
+
+        sinp = 2.0 * (w * y - z * x)
+        sinp = max(-1.0, min(1.0, sinp))
+        pitch = math.degrees(math.asin(sinp))
+
+        siny_cosp = 2.0 * (w * z + x * y)
+        cosy_cosp = 1.0 - 2.0 * (y * y + z * z)
+        yaw = math.degrees(math.atan2(siny_cosp, cosy_cosp)) % 360.0
+
+        return roll, pitch, yaw
