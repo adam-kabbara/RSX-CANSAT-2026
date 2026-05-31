@@ -4,10 +4,25 @@ Plots GPS coordinates (latitude vs longitude) in real-time on an interactive map
 """
 
 import os
+from pathlib import Path
+import tomllib
+
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QApplication
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtCore import QUrl, pyqtSlot, QTimer
 
+
+_MAP_CONFIG_PATH = Path(__file__).resolve().parent.parent / "config.toml"
+_DEFAULT_TILE_CHECK_RANGES = {
+    12: range(1141, 1143),
+    13: range(2283, 2285),
+    14: range(4567, 4570),
+    15: range(9135, 9140),
+    16: range(18271, 18280),
+    17: range(36542, 36559),
+    18: range(73085, 73117),
+    19: range(146170, 146234),
+}
 
 
 class GPSMapWidget(QWidget):
@@ -47,7 +62,8 @@ class GPSMapWidget(QWidget):
         if not os.path.exists(tiles_path):
             QTimer.singleShot(100, lambda: self._log_error(f"ERROR: Map tiles not found at {tiles_path}"))
         else:
-            QTimer.singleShot(200, lambda: self._check_specific_tiles(tiles_path))
+            tile_checker_config = self._tile_checker_config()
+            QTimer.singleShot(200, lambda: self._check_specific_tiles(tiles_path, tile_checker_config))
         
         # Load the local HTML file
         self._view.setUrl(QUrl.fromLocalFile(html_path))
@@ -111,18 +127,63 @@ class GPSMapWidget(QWidget):
                 widget.update_gui_log(msg)
                 return
 
-    def _check_specific_tiles(self, tiles_path):
+    @staticmethod
+    def _tile_checker_config():
+        try:
+            with _MAP_CONFIG_PATH.open("rb") as config_file:
+                config = tomllib.load(config_file)
+        except (OSError, tomllib.TOMLDecodeError):
+            return {}
+
+        map_config = config.get("map", {})
+        if not isinstance(map_config, dict):
+            return {}
+
+        tile_checker_config = map_config.get("tile_checker", {})
+        if not isinstance(tile_checker_config, dict):
+            return {}
+        return tile_checker_config
+
+    @staticmethod
+    def _tile_check_enabled(tile_checker_config):
+        enabled = tile_checker_config.get("enabled", True)
+        if not isinstance(enabled, bool):
+            return True
+        return enabled
+
+    @staticmethod
+    def _tile_check_ranges(configured_ranges):
+        if not isinstance(configured_ranges, dict):
+            return _DEFAULT_TILE_CHECK_RANGES
+
+        parsed_ranges = {}
+        for zoom, bounds in configured_ranges.items():
+            if not isinstance(bounds, list) or len(bounds) != 2:
+                return _DEFAULT_TILE_CHECK_RANGES
+            start, stop = bounds
+            if not isinstance(start, int) or not isinstance(stop, int) or stop < start:
+                return _DEFAULT_TILE_CHECK_RANGES
+
+            try:
+                zoom_level = int(zoom)
+            except (TypeError, ValueError):
+                return _DEFAULT_TILE_CHECK_RANGES
+
+            parsed_ranges[zoom_level] = range(start, stop)
+
+        if not parsed_ranges:
+            return _DEFAULT_TILE_CHECK_RANGES
+        return parsed_ranges
+
+    def _check_specific_tiles(self, tiles_path, tile_checker_config=None):
         """Verify that the expected tile directories exist and contain images."""
-        expected_structure = {
-            12: range(1141, 1143),
-            13: range(2283, 2285),
-            14: range(4567, 4570),
-            15: range(9135, 9140),
-            16: range(18271, 18280),
-            17: range(36542, 36559),
-            18: range(73085, 73117),
-            19: range(146170, 146234),
-        }
+        if tile_checker_config is None:
+            tile_checker_config = self._tile_checker_config()
+
+        if not self._tile_check_enabled(tile_checker_config):
+            return
+
+        expected_structure = self._tile_check_ranges(tile_checker_config.get("ranges"))
 
         missing_count = 0
         total_checked = 0
