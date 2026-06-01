@@ -282,7 +282,7 @@ uint32_t SensorManager::EEPROM_readHeaderSize(uint32_t index)
  
 void SensorManager::EEPROM_writeHeaderSize(uint32_t index, uint32_t size)
 {
-    uint32_t addr = index * SensorManager::EEPROM_HEADER_ENTRY_SIZE;
+    uint32_t addr = index * EEPROM_HEADER_ENTRY_SIZE;
 	if (eeprom_dev != nullptr)
 	{
 		eeprom_dev->WriteUnsignedLong(addr, size);
