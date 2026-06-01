@@ -25,7 +25,6 @@ void SerialManager::sendInfoMsg(const char* msg)
     HAL_UART_Transmit(serialPort, (uint8_t*)buffer, (uint16_t)to_send, HAL_MAX_DELAY);
 }
 
-
 void SerialManager::sendErrorDataMsg(const char *format, ...)
 {
 	char buffer[RESP_SIZE];
@@ -56,27 +55,20 @@ void SerialManager::sendTelemetry(char *buff)
 	HAL_UART_Transmit(serialPort, (uint8_t*)buff, strlen(buff), HAL_MAX_DELAY);
 }
 
-void SerialManager::sendLogFile()
+void SerialManager::sendLogBegin()
 {
 	const char *beginMsg = "$LOGFILE:BEGIN\r";
+	HAL_UART_Transmit(serialPort, (uint8_t*)beginMsg, strlen(beginMsg), HAL_MAX_DELAY);
+}
+
+void SerialManager::sendLogEnd()
+{
 	const char *endMsg = "$LOGFILE:END\r";
+	HAL_UART_Transmit(serialPort, (uint8_t*)endMsg, strlen(endMsg), HAL_MAX_DELAY);
+}
 
-    HAL_UART_Transmit(serialPort, (uint8_t*)beginMsg, strlen(beginMsg), HAL_MAX_DELAY);
-    HAL_Delay(500);
-
-    /* TODO: Update with EEPROM code
-    while (fgets(line_buff, sizeof(line_buff), log))
-    {
-    	size_t len = strlen(line_buff);
-    	if (len > 0 && (line_buff[len-1] == '\n' || line_buff[len-1] == '\r')) {
-    		line_buff[len-1] = '\0';
-    	}
-        HAL_UART_Transmit(serialPort, (uint8_t*)line_buff, strlen(line_buff), HAL_MAX_DELAY);
-        HAL_UART_Transmit(serialPort, (uint8_t*)"\r\n", 2, HAL_MAX_DELAY); // println
-        HAL_Delay(500);
-    }
-    */
-
-    HAL_UART_Transmit(serialPort, (uint8_t*)endMsg, strlen(endMsg), HAL_MAX_DELAY);
+void SerialManager::sendLogLine(const char *line)
+{
+    HAL_UART_Transmit(serialPort, (uint8_t*)line, strlen(line), HAL_MAX_DELAY);
 }
 

@@ -166,21 +166,20 @@ def state_title_font():
     return state_title_font
 
 def sidebar_group_box_stylesheet():
-    border = theme_color("palette", "Mid", "#a0a0a0")
-    background = theme_color("palette", "Window", "#f0f0f0")
+    #border = theme_color("palette", "Mid", "#a0a0a0")
+    #background = theme_color("palette", "Window", "#f0f0f0")
     text = theme_color("palette", "WindowText", "#000000")
     return f"""
             QGroupBox {{
-                border: 1px solid {border};
                 margin-top: 12px;
                 padding-top: 10px;
+                background-color: "#e9e9e9"
             }}
 
             QGroupBox::title {{
                 subcontrol-origin: margin;
                 subcontrol-position: top center;
                 padding: 0 8px;
-                background-color: {background};
                 color: {text};
                 font-size: 14pt;
                 font-weight: 600;

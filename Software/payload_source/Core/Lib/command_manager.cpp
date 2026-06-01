@@ -8,6 +8,7 @@
 
 #include "command_manager.hpp"
 #include "drv.hpp"
+#include "sensor_calibration.hpp"
 
 CommandManager::CommandManager()
 {
@@ -22,6 +23,7 @@ CommandManager::CommandManager()
     command_map.emplace("CAL", std::bind(&CommandManager::do_cal, this, _1, _2, _3, _4));
     command_map.emplace("MEC", std::bind(&CommandManager::do_mec, this, _1, _2, _3, _4));
     command_map.emplace("LOG", std::bind(&CommandManager::do_logs, this, _1, _2, _3, _4));
+    command_map.emplace("CAL2", std::bind(&CommandManager::do_cal2, this, _1, _2, _3, _4));
 }
 
 uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors)
@@ -337,6 +339,101 @@ void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorMana
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
 } // END: do_Cal()
 
+void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data) // data = gyro
+{
+  if(!data)
+  {
+    ser.sendErrorMsg("COMMAND 'CAL2' REJECTED: DID NOT RECEIVE DATA");
+    return;
+  }
+
+  if (strcmp(data, "GYRO") == 0)
+  {
+    int num_data_points = 250; // vibes
+    float* gyro_raw_data;
+    float* rawGyroX = new float[num_data_points];
+    float* rawGyroY = new float[num_data_points];
+    float* rawGyroZ = new float[num_data_points];
+    int data_not_ready_count = 0;
+    for (int i=0; i<num_data_points; i++){ 
+      gyro_raw_data = new float[3];
+      if (gyro_raw_data[0] == rawGyroX[i-1] && gyro_raw_data[1] == rawGyroY[i-1] && gyro_raw_data[2] == rawGyroZ[i-1]) {
+        data_not_ready_count++;
+      }
+      sensors.getRawGyro(gyro_raw_data);
+      rawGyroX[i] = gyro_raw_data[0];
+      rawGyroY[i] = gyro_raw_data[1];
+      rawGyroZ[i] = gyro_raw_data[2];
+      delete[] gyro_raw_data;
+      HAL_Delay(5);
+    }
+    ser.sendInfoDataMsg("Data not ready count during gyro calibration: %d out of %d", data_not_ready_count, num_data_points);
+    ser.sendInfoDataMsg("Last readings were X: %f, Y: %f, Z: %f", rawGyroX[num_data_points-1], rawGyroY[num_data_points-1], rawGyroZ[num_data_points-1]);
+    calibration.calibrateGyro(rawGyroX, rawGyroY, rawGyroZ, num_data_points);
+
+    CalibrationData gyroCalib = calibration.getGyroCalib();
+    if (gyroCalib.isCalibrated) {
+      ser.sendInfoDataMsg("Gyro calibrated with biasX: %f, biasY: %f, biasZ: %f", gyroCalib.biasX, gyroCalib.biasY, gyroCalib.biasZ);
+    } else {
+      ser.sendErrorMsg("Gyro calibration failed.");
+    }
+    delete[] rawGyroX;
+    delete[] rawGyroY;
+    delete[] rawGyroZ;
+  }
+  else if (strcmp(data, "ACCE") == 0)
+  {
+    ser.sendInfoMsg("Starting accelerometer calibration. Press Next to begin calibrating X+");
+    currentFace = AccelFace::FACE_XP;
+  }
+  else if (strcmp(data, "NEXT") == 0)
+  {
+    if (currentFace == AccelFace::FACE_ZN) {
+      ser.sendInfoMsg("Accelerometer calibration complete.");
+      return;
+    }
+    else {
+      const int num_data_points = 250; // vibes
+      float* accel_raw_data = new float[3];
+      float *rawAccelX = new float[num_data_points];
+      float *rawAccelY = new float[num_data_points];
+      float *rawAccelZ = new float[num_data_points];
+
+      int data_not_ready_count = 0;
+      for (int i=0; i<num_data_points; i++){ 
+        sensors.getRawAccel(accel_raw_data);
+        rawAccelX[i] = accel_raw_data[0];
+        rawAccelY[i] = accel_raw_data[1];
+        rawAccelZ[i] = accel_raw_data[2];
+        HAL_Delay(5);
+      }
+      ser.sendInfoDataMsg("Data not ready count during accel calibration: %d out of %d", data_not_ready_count, num_data_points);
+      ser.sendInfoDataMsg("Last readings for this face were X: %f, Y: %f, Z: %f", accel_raw_data[0], accel_raw_data[1], accel_raw_data[2]);
+      calibration.calibrateAccelFace(rawAccelX, rawAccelY, rawAccelZ, num_data_points, currentFace);
+      currentFace = calibration.faceFSM(currentFace);
+      CalibrationData accelCalib = calibration.getAccelCalib();
+      if (accelCalib.isCalibrated) {
+        ser.sendInfoDataMsg("Accelerometer Face calibrated with biasX: %f, biasY: %f, biasZ: %f", accelCalib.biasX, accelCalib.biasY, accelCalib.biasZ);
+        ser.sendInfoDataMsg("Accelerometer Face calibrated with rangeX: %f, rangeY: %f, rangeZ: %f", accelCalib.rangeX, accelCalib.rangeY, accelCalib.rangeZ);
+      } else {
+        ser.sendErrorMsg("Accel calibration failed.");
+      }
+      delete[] accel_raw_data;
+      delete[] rawAccelX;
+      delete[] rawAccelY;
+      delete[] rawAccelZ;
+    }
+  }
+  else if (strcmp(data, "COMP") == 0)
+  {
+    ser.sendInfoMsg("Starting compass calibration...");
+  }
+  else
+  {
+    ser.sendErrorDataMsg("ERROR: UNRECOGNIZED CAL COMMAND: %s", data);
+  }
+} // END: do_Cal2()
+
 void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
   if(!data)
@@ -504,5 +601,5 @@ void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorMan
     return;
   }
 
-  ser.sendLogFile();
+  sensors.EEPROM_replayLog(100, ser);
 }

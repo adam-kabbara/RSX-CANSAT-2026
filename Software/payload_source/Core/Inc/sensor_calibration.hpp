@@ -34,15 +34,15 @@ public:
     /**
      * @brief Calibrates the gyroscope assuming it is perfectly static.
      */
-    void calibrateGyro(const int16_t* rawGyroX, const int16_t* rawGyroY, 
-                        const int16_t* rawGyroZ, uint16_t numSamples);
+    void calibrateGyro(const float* rawGyroX, const float* rawGyroY, 
+                                      const float* rawGyroZ, uint16_t numSamples);
 
 
     /**
      * @brief Calibrates a single specific face of the accelerometer for multi-position calibration.
      */
-    void calibrateAccelFace(const int16_t* rawAccelX, const int16_t* rawAccelY, 
-                             const int16_t* rawAccelZ, uint16_t numSamples,
+    void calibrateAccelFace(const float* rawAccelX, const float* rawAccelY, 
+                             const float* rawAccelZ, uint16_t numSamples,
                              AccelFace face);
 
     AccelFace faceFSM(AccelFace currentFace);
@@ -58,10 +58,13 @@ public:
     const CalibrationData& getAccelCalib() const { return accelCalib; }
     const CalibrationData& getCompassCalib() const { return compassCalib; }
 
-private:
+public:
     CalibrationData gyroCalib;
     CalibrationData accelCalib;
     CalibrationData compassCalib;
 };
+
+extern SensorCalibration calibration;
+extern AccelFace currentFace;
 
 #endif // SENSOR_CALIBRATION_HPP
