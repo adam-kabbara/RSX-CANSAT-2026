@@ -306,7 +306,7 @@ class DataProcessor(QObject):
             self._graph_ui.update_attitude(*attitude)
             self._graph_ui.update_quaternion(quaternion_w, data.QUATERNION_X, data.QUATERNION_Y, data.QUATERNION_Z)
 
-        if data.ACCEL_x is not None and data.ACCEL_Y is not None and data.ACCEL_Z is not None:
+        if data.ACCEL_X is not None and data.ACCEL_Y is not None and data.ACCEL_Z is not None:
             self._graph_ui.update_accel_xyz(data.ACCEL_X, data.ACCEL_Y, data.ACCEL_Z)
 
         data_dict = asdict(data)
