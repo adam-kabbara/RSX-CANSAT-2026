@@ -339,8 +339,9 @@ void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorMana
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
 } // END: do_Cal()
 
-void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data) // data = gyro
+void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
+	//begin calibration
   if(!data)
   {
     ser.sendErrorMsg("COMMAND 'CAL2' REJECTED: DID NOT RECEIVE DATA");
@@ -349,90 +350,53 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
 
   if (strcmp(data, "GYRO") == 0)
   {
-    int num_data_points = 250; // vibes
-    float* gyro_raw_data;
-    float* rawGyroX = new float[num_data_points];
-    float* rawGyroY = new float[num_data_points];
-    float* rawGyroZ = new float[num_data_points];
-    int data_not_ready_count = 0;
-    for (int i=0; i<num_data_points; i++){ 
-      gyro_raw_data = new float[3];
-      if (gyro_raw_data[0] == rawGyroX[i-1] && gyro_raw_data[1] == rawGyroY[i-1] && gyro_raw_data[2] == rawGyroZ[i-1]) {
-        data_not_ready_count++;
-      }
-      sensors.getRawGyro(gyro_raw_data);
-      rawGyroX[i] = gyro_raw_data[0];
-      rawGyroY[i] = gyro_raw_data[1];
-      rawGyroZ[i] = gyro_raw_data[2];
-      delete[] gyro_raw_data;
-      HAL_Delay(5);
-    }
-    ser.sendInfoDataMsg("Data not ready count during gyro calibration: %d out of %d", data_not_ready_count, num_data_points);
-    ser.sendInfoDataMsg("Last readings were X: %f, Y: %f, Z: %f", rawGyroX[num_data_points-1], rawGyroY[num_data_points-1], rawGyroZ[num_data_points-1]);
-    calibration.calibrateGyro(rawGyroX, rawGyroY, rawGyroZ, num_data_points);
-
-    CalibrationData gyroCalib = calibration.getGyroCalib();
-    if (gyroCalib.isCalibrated) {
-      ser.sendInfoDataMsg("Gyro calibrated with biasX: %f, biasY: %f, biasZ: %f", gyroCalib.biasX, gyroCalib.biasY, gyroCalib.biasZ);
-    } else {
-      ser.sendErrorMsg("Gyro calibration failed.");
-    }
-    delete[] rawGyroX;
-    delete[] rawGyroY;
-    delete[] rawGyroZ;
+    ser.sendInfoMsg("Starting gyroscope calibration...");
+    cal_state = CalibrationState::GYRO_RUN;
   }
   else if (strcmp(data, "ACCE") == 0)
   {
-    ser.sendInfoMsg("Starting accelerometer calibration. Press Next to begin calibrating X+");
-    currentFace = AccelFace::FACE_XP;
-  }
-  else if (strcmp(data, "NEXT") == 0)
-  {
-    if (currentFace == AccelFace::FACE_ZN) {
-      ser.sendInfoMsg("Accelerometer calibration complete.");
-      return;
-    }
-    else {
-      const int num_data_points = 250; // vibes
-      float* accel_raw_data = new float[3];
-      float *rawAccelX = new float[num_data_points];
-      float *rawAccelY = new float[num_data_points];
-      float *rawAccelZ = new float[num_data_points];
-
-      int data_not_ready_count = 0;
-      for (int i=0; i<num_data_points; i++){ 
-        sensors.getRawAccel(accel_raw_data);
-        rawAccelX[i] = accel_raw_data[0];
-        rawAccelY[i] = accel_raw_data[1];
-        rawAccelZ[i] = accel_raw_data[2];
-        HAL_Delay(5);
-      }
-      ser.sendInfoDataMsg("Data not ready count during accel calibration: %d out of %d", data_not_ready_count, num_data_points);
-      ser.sendInfoDataMsg("Last readings for this face were X: %f, Y: %f, Z: %f", accel_raw_data[0], accel_raw_data[1], accel_raw_data[2]);
-      calibration.calibrateAccelFace(rawAccelX, rawAccelY, rawAccelZ, num_data_points, currentFace);
-      currentFace = calibration.faceFSM(currentFace);
-      CalibrationData accelCalib = calibration.getAccelCalib();
-      if (accelCalib.isCalibrated) {
-        ser.sendInfoDataMsg("Accelerometer Face calibrated with biasX: %f, biasY: %f, biasZ: %f", accelCalib.biasX, accelCalib.biasY, accelCalib.biasZ);
-        ser.sendInfoDataMsg("Accelerometer Face calibrated with rangeX: %f, rangeY: %f, rangeZ: %f", accelCalib.rangeX, accelCalib.rangeY, accelCalib.rangeZ);
-      } else {
-        ser.sendErrorMsg("Accel calibration failed.");
-      }
-      delete[] accel_raw_data;
-      delete[] rawAccelX;
-      delete[] rawAccelY;
-      delete[] rawAccelZ;
-    }
+    ser.sendInfoMsg("Starting accelerometer calibration...");
+    cal_state = CalibrationState::FACE_XP;
   }
   else if (strcmp(data, "COMP") == 0)
   {
     ser.sendInfoMsg("Starting compass calibration...");
+	  cal_state = CalibrationState::MAG_RUN;
+  }
+  else if (strcmp(data, "NEXT") == 0)
+  {
+    switch(cal_state)
+    {
+      case CalibrationState::IDLE: break; //do nothing
+      case CalibrationState::GYRO_RUN: {
+        calibrator.calibrateGyro(calibrator.getReadingsX(), calibrator.getReadingsY(), calibrator.getReadingsZ(), calibrator.getReadingsCount());
+        CalibrationData gyroCalib = calibrator.getGyroCalib();
+        ser.sendInfoDataMsg("Completed calibration for gyro. Bias X: %f, Bias Y: %f, Bias Z: %f", gyroCalib.biasX, gyroCalib.biasY, gyroCalib.biasZ);
+        break;
+      }
+      case CalibrationState::MAG_RUN: {
+        calibrator.calibrateCompass(calibrator.getReadingsX(), calibrator.getReadingsY(), calibrator.getReadingsZ(), calibrator.getReadingsCount());
+        CalibrationData compassCalib = calibrator.getCompassCalib();
+        ser.sendInfoDataMsg("Completed calibration for compass. Bias X: %f, Bias Y: %f, Bias Z: %f, Range X: %f, Range Y: %f, Range Z: %f", compassCalib.biasX, compassCalib.biasY, compassCalib.biasZ, compassCalib.rangeX, compassCalib.rangeY, compassCalib.rangeZ);
+        break;
+      }
+      default: {//accelerometer faces
+        calibrator.calibrateAccelFace(calibrator.getReadingsX(), calibrator.getReadingsY(), calibrator.getReadingsZ(), calibrator.getReadingsCount(), cal_state);
+        CalibrationData accelCalib = calibrator.getAccelCalib();
+        ser.sendInfoDataMsg("Completed calibration for face. Bias X: %f, Bias Y: %f, Bias Z: %f, Range X: %f, Range Y: %f, Range Z: %f", accelCalib.biasX, accelCalib.biasY, accelCalib.biasZ, accelCalib.rangeX, accelCalib.rangeY, accelCalib.rangeZ);
+        break;
+      }
+    }
+    cal_state = calibrator.calibrationFSM(cal_state);
   }
   else
   {
     ser.sendErrorDataMsg("ERROR: UNRECOGNIZED CAL COMMAND: %s", data);
+    return;
   }
-} // END: do_Cal2()
+  calibrator.resetReadings();
+  HAL_Delay(50);
+} // END: do_Cal()
 
 void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
