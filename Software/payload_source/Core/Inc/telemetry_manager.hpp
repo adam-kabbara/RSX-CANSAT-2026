@@ -38,7 +38,6 @@ private:
 		float GPS_LONGITUDE = 0.0;
 		int GPS_SATS = 0;
 		char CMD_ECHO[CMD_BUFF_SIZE] = "";
-		float QUATERNION_W = 0.0;
 		float QUATERNION_X = 0.0;
 		float QUATERNION_Y = 0.0;
 		float QUATERNION_Z = 0.0;

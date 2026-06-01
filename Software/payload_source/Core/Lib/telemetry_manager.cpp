@@ -59,7 +59,6 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mis
 
 	cmd_buff_to_echo(packet.CMD_ECHO, mission_info.getLastCommand());
 
-	packet.QUATERNION_W = 0.0;
 	packet.QUATERNION_X = 0.0;
 	packet.QUATERNION_Y = 0.0;
 	packet.QUATERNION_Z = 0.0;
@@ -106,7 +105,6 @@ void TelemetryManager::build_data_str(char *buff, size_t size)
 		packet.GPS_LONGITUDE,
 		packet.GPS_SATS,
 		packet.CMD_ECHO,
-		packet.QUATERNION_W,
 		packet.QUATERNION_X,
 		packet.QUATERNION_Y,
 		packet.QUATERNION_Z,

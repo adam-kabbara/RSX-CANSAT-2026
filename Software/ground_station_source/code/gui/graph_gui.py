@@ -77,7 +77,7 @@ class GraphWindow(QMainWindow):
             "Altitude": 0,
             "Voltage": 1,
             "Current": 1,
-            "AccelXYZ": 2,
+            "Velocity": 2,
             "Gyro": 3,
             "Accel": 4,
             "GPS": 5
