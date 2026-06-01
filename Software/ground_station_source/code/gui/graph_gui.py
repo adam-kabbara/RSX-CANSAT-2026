@@ -125,7 +125,7 @@ class GraphWindow(QMainWindow):
 
         self.sidebar_fields_data = [
             ("Port", "CLOSED"),
-            ("Alt Calib", "Unknown"),
+            ("Alt Cal", "Unknown"),
             ("Temperature", "0.0 °C"),
             ("Pressure", "0.0 kPa"),
             ("Mode", "Unknown"),
@@ -237,7 +237,7 @@ class GraphWindow(QMainWindow):
         form_group.setStyleSheet(cosmetics.sidebar_group_box_stylesheet())
         form_group.setLayout(live_graph_values)
 
-        state_visual_box = QGroupBox("PAYLOAD STATE")
+        state_visual_box = QGroupBox("Payload State")
         state_visual_box.setFont(cosmetics.log_font())
         state_visual_box.setStyleSheet(cosmetics.sidebar_group_box_stylesheet())
         state_visual_layout = QVBoxLayout(state_visual_box)

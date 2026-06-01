@@ -134,6 +134,7 @@ class DynamicPlotterDualAxis(BaseDynamicPlotter):
         self.plt.showAxis("right")
         self.plt.getAxis("right").setStyle(tickFont=gui.cosmetics.graph_font())
         self.plt.getAxis("right").setLabel(gui.cosmetics.graph_axis(right_y_unit))
+        self.plt.getViewBox().setLimits(xMin=0, xMax=5000, minXRange=5, yMin=-10000, yMax=10000, minYRange=2)
 
         self.right_view = pg.ViewBox()
         self.plt.scene().addItem(self.right_view)
@@ -144,6 +145,12 @@ class DynamicPlotterDualAxis(BaseDynamicPlotter):
         self.plt.getViewBox().sigResized.connect(self._sync_right_view)
         self._sync_right_view()
         self.plt.setXRange(0, 50)
+
+        self.left_label = pg.TextItem("Voltage", anchor=(0, 0.5), color=self.get_pen(0).color())
+        self.right_label = pg.TextItem("Current", anchor=(0, 0.5), color=self.get_pen(1).color())
+
+        self.plt.addItem(self.left_label)
+        self.plt.addItem(self.right_label)
 
     def _sync_right_view(self):
         self.right_view.setGeometry(self.plt.getViewBox().sceneBoundingRect())
@@ -171,6 +178,10 @@ class DynamicPlotterDualAxis(BaseDynamicPlotter):
         self.right_curve.setData(self.x, self.right_y)
         self.plt.setXRange(max(0, self.x[-1] - 50), max(50, self.x[-1]))
         self._sync_right_view()
+
+        latest_x = self.x[-1]
+        self.left_label.setPos(latest_x, self.left_y[-1])
+        self.right_label.setPos(latest_x, self.right_y[-1])
 
     def update_left_plot(self, new_val):
         self._advance_plot(left_value=new_val)
