@@ -90,16 +90,16 @@ class Commands(QObject):
         return False
 
     def command__toggle_camera(self, camera_id):
-        if self.__camera_id == "CAMERA1":
-            cam_token = "CAM:1"
-        elif self.__camera_id == "CAMERA2":
-            cam_token = "CAM:2"
+        if camera_id == "CAMERA1":
+            cam_token = "1"
+        elif camera_id == "CAMERA2":
+            cam_token = "2"
         else:
-            # Fallback if it's already an integer index
-            cam_token = f"CAM:{self.__camera_id}"
-
-        if self._serial.send_data(self._cmd(op="MEC", val=f"CAM:{cam_token}")):
-            self.print_signal.emit(f"Sent Camera {cam_token} toggle command")
+            cam_token = f"1"
+            
+        cam_msg = f"CAM:{cam_token}"
+        if self._serial.send_data(self._cmd(op="MEC", val=cam_msg)):
+            self.print_signal.emit(f"Sent Camera {camera_id} toggle command")
 
     def command__mec_release(self, mec_id):
         if self._serial.send_data(self._cmd(op="MEC", val=f"REL:{mec_id}")):
