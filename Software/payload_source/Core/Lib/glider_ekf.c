@@ -1,3 +1,4 @@
+#include "glider_ekf.h"
 #include "arm_math.h"
 
 #define STATE_DIM 15  // Error-state size (Pos, Vel, Att_err, Accel_bias, Gyro_bias)
@@ -29,6 +30,13 @@ static arm_matrix_instance_f32 FP_mat;
 static arm_matrix_instance_f32 FPF_T_mat;
 
 const float32_t G_ACCEL = 9.81f;
+float home_lat_rad = 0.0f;
+float home_lon_rad = 0.0f;
+float home_alt_m   = 0.0f;
+bool  is_home_set  = false;
+
+const float EARTH_RADIUS = 6378137.0f; // WGS84 Earth equatorial radius in meters
+const float DEG_TO_RAD   = M_PI / 180.0f;
 
 // ============================================================================
 // CORE MATH UTILITIES
@@ -49,6 +57,33 @@ void CPL_IMU_to_NED(float32_t* accel, float32_t* gyro) {
    gyro[0] = -gyro[0];   // Backward to North (Invert Roll)
    gyro[1] = gyro[1];    // Right to East (Pitch same)
    gyro[2] = -gyro[2];   // Up to Down (Invert Yaw)
+}
+
+void convert_gps_to_local_ned(float curr_lat, float curr_lon, float curr_alt, float* current_pos_ne) {
+    // 1. If this is the very first GPS lock, lock this coordinate as (0,0,0) Home
+    if (!is_home_set) {
+        home_lat_rad = curr_lat * DEG_TO_RAD;
+        home_lon_rad = curr_lon * DEG_TO_RAD;
+        home_alt_m   = curr_alt;
+        is_home_set  = true;
+    }
+
+    // 2. Convert current coordinates to radians
+    float curr_lat_rad = curr_lat * DEG_TO_RAD;
+    float curr_lon_rad = curr_lon * DEG_TO_RAD;
+
+    // 3. Calculate coordinate deltas
+    float d_lat = curr_lat_rad - home_lat_rad;
+    float d_lon = curr_lon_rad - home_lon_rad;
+
+    // 4. Flat-Earth Meridian/Prime-Vertical Radius Approximation
+    // Computes meters per radian at your current latitude location
+    float meters_per_rad_lat = EARTH_RADIUS; 
+    float meters_per_rad_lon = EARTH_RADIUS * cosf(home_lat_rad);
+
+    // 5. Output positions in linear meters
+    current_pos_ne[0] = d_lat * meters_per_rad_lat; // Distance North (meters)
+    current_pos_ne[1] = d_lon * meters_per_rad_lon; // Distance East (meters)
 }
 
 // ============================================================================

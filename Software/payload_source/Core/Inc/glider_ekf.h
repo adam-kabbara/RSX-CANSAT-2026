@@ -7,6 +7,11 @@
 extern "C" {
 #endif
 
+extern float home_lat_rad;
+extern float home_lon_rad;
+extern float home_alt_m;
+extern bool  is_home_set;
+
 // ============================================================================
 // PUBLIC FUNCTION DECLARATIONS
 // ============================================================================
