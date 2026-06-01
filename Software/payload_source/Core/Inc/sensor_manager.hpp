@@ -12,8 +12,6 @@
 #include "BMP581.hpp"
 #include "BNO085.hpp"
 #include "servo.hpp"
-#include "VL53L1X_api.h"
-#include "VL53L1X_calibration.h"
 #include "INA219.hpp"
 #include "ds1307.hpp"
 #include "drv.hpp"
@@ -98,12 +96,6 @@ public:
 
 	SensorManager();
 
-	bool checkTof();
-	bool tofValid();
-	uint16_t tofDistReading();
-	void startTof();
-	void stopTof();
-
 	int updateBMP();
 	float getPressure();
 	float getTemp();
@@ -117,7 +109,13 @@ public:
 	void BNO_enableRotationVector(int microsec, SerialManager &serial);
 	bool BNO_dataReady();
 	void updateBNO();
+	void getRawGyro(float* data_out);
+	struct rpy_data getCalibratedGyro(float* calib_bias);
+
 	struct rpy_data getIMUData();
+
+	void getRawAccel(float* data_out);
+	struct rpy_data getCalibratedAccel(float* calib_bias, float* calib_scale);
 
 	struct gps_data getGPSData();
 
@@ -139,8 +137,8 @@ public:
 	void writeAileronServo(float val);
 	void writeEggServo(float val);
 	void writeMotor(uint8_t dir, uint32_t time_ms);
-	void updateMotor();
 	void stopMotor();
+	void updateMotor();
 
 	uint16_t EEPROM_readString(uint32_t start_addr, char *buf, uint16_t max_len);
 	bool EEPROM_writeString(uint32_t start_addr, const char *str, uint16_t len);
@@ -164,8 +162,7 @@ public:
 
 	void startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
 			SPI_HandleTypeDef *hspi_eeprom, GPIO_TypeDef *cs_port, uint16_t cs_pin,
-			TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4,
-			GPIO_TypeDef *wing_dir_port, uint16_t wing_dir_pin);
+			TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4);
 };
 
 #endif /* INC_SENSOR_MANAGER_HPP */

@@ -2,17 +2,11 @@
 Front end GUI elements for command window
 """
 
-from enum import Enum
 import os
-from . import cosmetics
-from serial.serial import SerialManager
-from serial.joystick import JoystickManager
-from .graph_gui import GraphWindow
-from data.process import DataProcessor
-from data.simp import SimpManager
-from command.commands import Commands
-from PyQt6.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator, QTextCursor
-from PyQt6.QtCore import Qt, QTime, QTimer
+from enum import Enum
+
+from PyQt6.QtCore import Qt, QTimer, QDateTime
+from PyQt6.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator
 from PyQt6.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -28,6 +22,15 @@ from PyQt6.QtWidgets import (
     QMessageBox,
     QApplication, QAbstractItemView, QTableWidget, QTableWidgetItem, QHeaderView
 )
+
+from command.commands import Commands
+from data.process import DataProcessor
+from data.simp import SimpManager
+from serial.joystick import JoystickManager
+from serial.serial import SerialManager
+from . import cosmetics
+from .graph_gui import GraphWindow
+
 
 class CommandButtonGroup(Enum):
     MAIN = 0
@@ -228,7 +231,7 @@ class CommandWindow(QMainWindow):
         self.gps_rad.setStyleSheet(cosmetics.team_id_stylesheet())
         self.gps_rad.editingFinished.connect(self.gps_rad_edited)
 
-        self.button_set_gps.clicked.connect(lambda: self.command_manager.command__set_gps(self.__gps_lat, self.__gps_lon, self.__gps_rad))
+        self.button_set_gps.clicked.connect(self.set_gps_coordinates)
         self.button_set_gps.hide()
 
         self.gps_lat.hide()
@@ -460,21 +463,6 @@ class CommandWindow(QMainWindow):
         self.camera_status_button.clicked.connect(self.command_manager.command__cam_status)
         self.camera_status_button.hide()
 
-        self.team_id_field = QLineEdit()
-        self.team_id_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
-        self.team_id_field.setMaxLength(9)
-        self.team_id_field.setStyleSheet(cosmetics.team_id_stylesheet())
-        self.team_id_field.setValidator(QIntValidator(self))
-        self.team_id_field.editingFinished.connect(self.team_id_edited)
-        self.team_id_field_info = QLabel("Change TEAM ID (ground station)")
-        self.team_id_field_info.setFont(button_font)
-        team_id_editing_box = QHBoxLayout()
-        team_id_editing_box.addWidget(self.team_id_field_info)
-        team_id_editing_box.addWidget(self.team_id_field)
-        self.team_id_field_info.hide()
-        self.team_id_field.hide()
-
-        
         self.custom_msg_field = QLineEdit()
         self.custom_msg_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.custom_msg_field.setMaxLength(50)
@@ -529,7 +517,6 @@ class CommandWindow(QMainWindow):
         commands_layout.addLayout(set_time_box)
         commands_layout.addLayout(sim_mode_box)
         commands_layout.addLayout(flight_ctrl_box)
-        commands_layout.addLayout(team_id_editing_box)
         commands_layout.addLayout(set_gps_box)
         
         # ACTUATION buttons
@@ -597,8 +584,6 @@ class CommandWindow(QMainWindow):
             self.button_back,
             self.button_set_time,
             self.set_time_field,
-            self.team_id_field,
-            self.team_id_field_info,
             self.button_set_sim_mode,
             self.sim_mode_field,
             self.button_set_flight_ctrl,
@@ -714,7 +699,7 @@ class CommandWindow(QMainWindow):
         self.update_logs(msg, sat_msg = True, color=cosmetics.sat_log_error_color())
 
     def update_logs(self, msg, sat_msg = False, color="black"):
-        time = QTime.currentTime().toString('h:mm AP').replace(' ', '\u00A0')
+        time = QDateTime.currentDateTimeUtc().toString('h:mm AP').replace(' ', '\u00A0')
         msg_item = QTableWidgetItem(f"{msg}")
         msg_item.setForeground(QColor(color))
 
@@ -834,11 +819,6 @@ class CommandWindow(QMainWindow):
             self._graph_ui.set_port_text_closed()
 
     def start_transmission(self):
-        if not self._processor.reset_csv():
-            self.update_gui_log_error("ERROR: CSV WAS NOT ABLE TO OPEN! DETAILS:")
-            self.update_gui_log_error(self._processor.get_csv_error_msg())
-            self.update_gui_log_error("MISSION START ABORTED TO AVOID LOSING TELEMETRY.")
-            return
         if self.command_manager.command__start_mission():
             self._graph_ui.reset_data()
     
@@ -849,17 +829,10 @@ class CommandWindow(QMainWindow):
             self._processor.close_csv()
             self.update_gui_log("Telemetry CSV saved.")
 
-    def team_id_edited(self):
-        self.team_id_field.clearFocus()
-        self.__TEAM_ID = int(self.team_id_field.text())
-        self.update_gui_log(f"Updated local TEAM ID to '{self.__TEAM_ID}'")
-
     def custom_msg_edited(self):
         self.custom_msg_field.clearFocus()
         self.__custom_msg = self.custom_msg_field.text()
         self.update_gui_log(f"Custom message set to: '{self.__custom_msg}'")
-
-    
     
     def dc_motor_val_edited(self):
         self.dc_motor_val_field.clearFocus()
@@ -890,6 +863,42 @@ class CommandWindow(QMainWindow):
         self.gps_rad.clearFocus()
         if self.gps_rad.text():
             self.__gps_rad = float(self.gps_rad.text())
+
+    def set_gps_coordinates(self):
+        lat_text = self.gps_lat.text().strip()
+        lon_text = self.gps_lon.text().strip()
+        rad_text = self.gps_rad.text().strip()
+
+        if not lat_text or not lon_text or not rad_text:
+            self.update_gui_log_error("ERROR: Enter latitude, longitude, and radius before setting GPS coordinates.")
+            return
+
+        try:
+            lat = float(lat_text)
+            lon = float(lon_text)
+            radius = float(rad_text)
+        except ValueError:
+            self.update_gui_log_error("ERROR: GPS coordinates and radius must be numeric.")
+            return
+
+        if not (-90 <= lat <= 90):
+            self.update_gui_log_error("ERROR: Latitude must be between -90 and 90.")
+            return
+
+        if not (-180 <= lon <= 180):
+            self.update_gui_log_error("ERROR: Longitude must be between -180 and 180.")
+            return
+
+        if radius <= 0:
+            self.update_gui_log_error("ERROR: Radius must be greater than 0.")
+            return
+
+        self.__gps_lat = lat
+        self.__gps_lon = lon
+        self.__gps_rad = radius
+
+        if self.command_manager.command__set_gps(lat, lon, radius):
+            self._graph_ui.draw_gps_circle(lat, lon, radius)
 
     def servo_id_edited(self, index):
         self.__servo_id = self.servo_id_field.itemData(index)

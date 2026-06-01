@@ -15,10 +15,10 @@ class PayloadSim(QObject):
 
     ARM_TIME_S = 2.0
     TAKEOFF_TIME_S = 8.0
-    HOVER_TIME_S = 10.0
-    LOITER_TIME_S = 22.0
+    CLIMBOUT_TIME_S = 10.0
+    CRUISE_TIME_S = 22.0
     LANDING_TIME_S = 10.0
-    HOVER_ALTITUDE_M = 24.0
+    CRUISE_ALTITUDE_M = 24.0
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -215,6 +215,18 @@ class PayloadSim(QObject):
         self.voltage = 12.6
         self.current = 0.0
         self.vertical_velocity = 0.0
+        self.velocity_x = 0.0
+        self.velocity_y = 0.0
+        self.velocity_z = 0.0
+        self.acceleration_x = 0.0
+        self.acceleration_y = 0.0
+        self.acceleration_z = 0.0
+        self._previous_velocity_x = 0.0
+        self._previous_velocity_y = 0.0
+        self._previous_velocity_z = 0.0
+        self.roll_deg = 0.0
+        self.pitch_deg = 0.0
+        self.yaw_deg = 0.0
 
         self.latitude = self.START_LATITUDE
         self.longitude = self.START_LONGITUDE
@@ -263,6 +275,8 @@ class PayloadSim(QObject):
         current_time = time.strftime("%H:%M:%S", time.gmtime())
         mission_time_utc = time.strftime("%H:%M:%S", time.gmtime(self.mission_time))
         cam_status = self._camera_status_bits()
+        flight_ctrl = self._flight_ctrl_mode()
+        quat_w, quat_x, quat_y, quat_z = self._quaternion_values()
 
         telemetry = (
             f"{self._team_id},{mission_time_utc},{self.packet_count},{self.mode},{self.state},"
@@ -271,7 +285,10 @@ class PayloadSim(QObject):
             f"{gyro_r:.1f},{gyro_p:.1f},{gyro_y:.1f},"
             f"{accel_r:.1f},{accel_p:.1f},{accel_y:.1f},"
             f"{current_time},{gps_altitude:.1f},{latitude:.7f},{longitude:.7f},"
-            f"{self.gps_sats},{self.cmd_echo},{cam_status}"
+            f"{self.gps_sats},{self.cmd_echo},{cam_status},"
+            f"{flight_ctrl},{quat_w:.4f},{quat_x:.4f},{quat_y:.4f},{quat_z:.4f},"
+            f"{self.velocity_x:.2f},{self.velocity_y:.2f},{self.velocity_z:.2f},"
+            f"{self.acceleration_x:.2f},{self.acceleration_y:.2f},{self.acceleration_z:.2f}"
         )
 
         self._buffer.append(telemetry)
@@ -284,7 +301,7 @@ class PayloadSim(QObject):
 
         t = self.mission_time
         takeoff_end = self.ARM_TIME_S + self.TAKEOFF_TIME_S
-        landing_start = takeoff_end + self.HOVER_TIME_S + self.LOITER_TIME_S
+        landing_start = takeoff_end + self.CLIMBOUT_TIME_S + self.CRUISE_TIME_S
         landing_end = landing_start + self.LANDING_TIME_S
 
         if t < self.ARM_TIME_S:
@@ -297,12 +314,12 @@ class PayloadSim(QObject):
             progress = self._clamp(ascent_t / self.TAKEOFF_TIME_S, 0.0, 1.0)
             progress = progress * progress * (3.0 - 2.0 * progress)
             self.state = "ASCENT"
-            self.altitude = self.HOVER_ALTITUDE_M * progress
+            self.altitude = self.CRUISE_ALTITUDE_M * progress
             return
 
         if t < landing_start:
             self.state = "APOGEE"
-            self.altitude = self.HOVER_ALTITUDE_M + 0.25 * math.sin(t * 1.8)
+            self.altitude = self.CRUISE_ALTITUDE_M + 0.35 * math.sin(t * 0.7)
             return
 
         if t < landing_end:
@@ -310,7 +327,7 @@ class PayloadSim(QObject):
             progress = self._clamp(landing_t / self.LANDING_TIME_S, 0.0, 1.0)
             progress = progress * progress * (3.0 - 2.0 * progress)
             self.state = "DESCENT"
-            self.altitude = max(0.0, self.HOVER_ALTITUDE_M * (1.0 - progress))
+            self.altitude = max(0.0, self.CRUISE_ALTITUDE_M * (1.0 - progress))
             return
 
         self.altitude = 0.0
@@ -344,6 +361,16 @@ class PayloadSim(QObject):
 
     def _update_gps(self, dt):
         east_speed, north_speed = self._horizontal_speed()
+        self.velocity_x = east_speed
+        self.velocity_y = north_speed
+        self.velocity_z = self.vertical_velocity
+        self.acceleration_x = (self.velocity_x - self._previous_velocity_x) / dt
+        self.acceleration_y = (self.velocity_y - self._previous_velocity_y) / dt
+        self.acceleration_z = (self.velocity_z - self._previous_velocity_z) / dt
+        self._previous_velocity_x = self.velocity_x
+        self._previous_velocity_y = self.velocity_y
+        self._previous_velocity_z = self.velocity_z
+
         self._east_m += east_speed * dt
         self._north_m += north_speed * dt
 
@@ -360,22 +387,22 @@ class PayloadSim(QObject):
 
         if self.state == "ASCENT":
             return (
-                0.10 * math.sin(self.mission_time * 0.9),
-                0.08 * math.cos(self.mission_time * 0.7),
+                1.7 + 0.18 * math.sin(self.mission_time * 0.9),
+                0.20 * math.cos(self.mission_time * 0.7),
             )
 
         if self.state == "APOGEE":
-            loiter_t = max(0.0, self.mission_time - self.ARM_TIME_S - self.TAKEOFF_TIME_S)
+            cruise_t = max(0.0, self.mission_time - self.ARM_TIME_S - self.TAKEOFF_TIME_S)
             return (
-                1.2 * math.cos(loiter_t * 0.35),
-                0.9 * math.sin(loiter_t * 0.35),
+                4.2 + 0.45 * math.cos(cruise_t * 0.22),
+                0.75 * math.sin(cruise_t * 0.22),
             )
 
-        east_correction = self._clamp(-self._east_m * 0.22, -1.6, 1.6)
-        north_correction = self._clamp(-self._north_m * 0.22, -1.6, 1.6)
+        east_correction = self._clamp(-self._east_m * 0.06, -2.0, 2.0)
+        north_correction = self._clamp(-self._north_m * 0.08, -1.2, 1.2)
         return (
-            east_correction + 0.10 * math.sin(self.mission_time * 1.1),
-            north_correction + 0.08 * math.cos(self.mission_time * 0.8),
+            2.1 + east_correction + 0.18 * math.sin(self.mission_time * 1.1),
+            north_correction + 0.14 * math.cos(self.mission_time * 0.8),
         )
 
     def _update_environment(self):
@@ -396,13 +423,13 @@ class PayloadSim(QObject):
         camera_ma = 450.0 * camera_count
 
         if self.state == "LAUNCH_PAD":
-            motor_ma = 620.0 + 110.0 * abs(math.sin(self.packet_count * 0.8))
+            motor_ma = 240.0 + 45.0 * abs(math.sin(self.packet_count * 0.8))
         elif self.state == "ASCENT":
-            motor_ma = 8_800.0 + 550.0 * math.sin(self.packet_count * 0.45)
+            motor_ma = 3_800.0 + 260.0 * math.sin(self.packet_count * 0.45)
         elif self.state == "APOGEE":
-            motor_ma = 5_600.0 + 420.0 * math.sin(self.packet_count * 0.32)
+            motor_ma = 2_250.0 + 180.0 * math.sin(self.packet_count * 0.32)
         elif self.state == "DESCENT":
-            motor_ma = 4_000.0 + 320.0 * math.sin(self.packet_count * 0.38)
+            motor_ma = 1_300.0 + 130.0 * math.sin(self.packet_count * 0.38)
         elif self.state == "LANDED":
             motor_ma = 0.0
         else:
@@ -414,9 +441,10 @@ class PayloadSim(QObject):
 
         camera_sag = 0.08 * camera_count
         aux_sag = 0.03 if aux_spike_ma else 0.0
-        motor_sag = 0.55 * min(1.0, motor_ma / 9_000.0)
+        motor_sag = 0.38 * min(1.0, motor_ma / 4_000.0)
         mission_drain = 0.002 * (self.mission_time / 10.0)
         self.voltage = max(10.8, 12.6 - mission_drain - camera_sag - aux_sag - motor_sag)
+        self._update_attitude()
 
     def _gyro_values(self):
         t = self.mission_time
@@ -488,6 +516,37 @@ class PayloadSim(QObject):
             )
 
         return (0.0, 0.0, 9.8 + vibration)
+
+    def _update_attitude(self):
+        airspeed = math.hypot(self.velocity_x, self.velocity_y)
+        self.pitch_deg = self._clamp(self.vertical_velocity * 3.0, -18.0, 22.0)
+        self.roll_deg = self._clamp(self.velocity_y * 8.0, -24.0, 24.0)
+        if airspeed > 0.2:
+            self.yaw_deg = math.degrees(math.atan2(self.velocity_y, self.velocity_x))
+        elif self.state in ("IDLE", "LAUNCH_PAD", "LANDED"):
+            self.yaw_deg = 0.0
+
+    def _flight_ctrl_mode(self):
+        return "AUTONOMOUS" if self.transmitting else "MANUAL"
+
+    def _quaternion_values(self):
+        roll = math.radians(self.roll_deg)
+        pitch = math.radians(self.pitch_deg)
+        yaw = math.radians(self.yaw_deg)
+
+        cr = math.cos(roll * 0.5)
+        sr = math.sin(roll * 0.5)
+        cp = math.cos(pitch * 0.5)
+        sp = math.sin(pitch * 0.5)
+        cy = math.cos(yaw * 0.5)
+        sy = math.sin(yaw * 0.5)
+
+        return (
+            cr * cp * cy + sr * sp * sy,
+            sr * cp * cy - cr * sp * sy,
+            cr * sp * cy + sr * cp * sy,
+            cr * cp * sy - sr * sp * cy,
+        )
 
     def _camera_status_bits(self):
         return int(self.cam1_active) + (2 * int(self.cam2_active))

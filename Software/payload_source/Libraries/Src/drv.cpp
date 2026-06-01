@@ -1,21 +1,19 @@
 #include "drv.hpp"
-#include "main.h"
+
 DRV::DRV()
-    : _htim(nullptr), _channel(0), _port(nullptr), _pin(0), _motor_stop_tick(0), _motor_running(0)
+    : _htim(nullptr), _channel(0), _motor_stop_tick(0), _motor_running(0)
 {
 }
 
 DRV::DRV(TIM_HandleTypeDef *htim, uint32_t channel)
-    : _htim(htim), _channel(channel), _port(nullptr), _pin(0), _motor_stop_tick(0), _motor_running(0)
+    : _htim(htim), _channel(channel), _motor_stop_tick(0), _motor_running(0)
 {
 }
 
-void DRV::Init(TIM_HandleTypeDef *htim, uint32_t channel, GPIO_TypeDef *port, uint16_t pin)
+void DRV::Init(TIM_HandleTypeDef *htim, uint32_t channel)
 {
     _htim = htim;
     _channel = channel;
-    _port = port;
-    _pin = pin;
 }
 
 void DRV::motor_run(uint8_t direction, uint32_t time_ms)
