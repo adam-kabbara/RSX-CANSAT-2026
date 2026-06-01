@@ -116,11 +116,11 @@ void CommandManager::do_ctrl(SerialManager &ser, MissionManager &info, SensorMan
 		ser.sendErrorMsg("COMMAND 'CTRL' REJECTED: DID NOT RECEIVE ANY MODE");
 		return;
 	}
-	if(strcmp(data, "AUTO"))
+	if(strcmp(data, "AUTO") == 0)
 	{
 		info.setFlightCtrl(FlightCtrl::AUTONOMOUS);
 	}
-	else if(strcmp(data, "MANUAL"))
+	else if(strcmp(data, "MANUAL") == 0)
 	{
 		info.setFlightCtrl(FlightCtrl::MANUAL);
 	}
@@ -194,7 +194,7 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
         sensors.getGPSTime(time_str);
         if(sscanf(time_str, "%d:%d:%d", &h, &m, &s) == 3)
         {
-          sensors.setRTCTime(s,m,h);
+          sensors.setRTCTime(h, m, s);
           sensors.getRTCTime(time_str);
           ser.sendInfoDataMsg("Set RTC time to %s", time_str);
         }
@@ -205,7 +205,7 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
     }
     else if(sscanf(data, "%d:%d:%d", &h, &m, &s) == 3)
     {
-        sensors.setRTCTime(s,m,h);
+        sensors.setRTCTime(h, m, s);
         char time_str[DATA_SIZE];
         sensors.getRTCTime(time_str);
         ser.sendInfoDataMsg("Attempted to set RTC time to %s, got %s", data, time_str);
@@ -390,14 +390,14 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
     int data_not_ready_count = 0;
     for (int i=0; i<num_data_points; i++){ 
       gyro_raw_data = new float[3];
-      if (gyro_raw_data[0] == rawGyroX[i-1] && gyro_raw_data[1] == rawGyroY[i-1] && gyro_raw_data[2] == rawGyroZ[i-1]) {
+      sensors.getRawGyro(gyro_raw_data);
+      if(i > 0 && gyro_raw_data[0] == rawGyroX[i-1] && gyro_raw_data[1] == rawGyroY[i-1] && gyro_raw_data[2] == rawGyroZ[i-1])
+      {
         data_not_ready_count++;
       }
-      sensors.getRawGyro(gyro_raw_data);
       rawGyroX[i] = gyro_raw_data[0];
       rawGyroY[i] = gyro_raw_data[1];
       rawGyroZ[i] = gyro_raw_data[2];
-      delete[] gyro_raw_data;
       HAL_Delay(5);
     }
     ser.sendInfoDataMsg("Data not ready count during gyro calibration: %d out of %d", data_not_ready_count, num_data_points);
@@ -537,6 +537,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  {
 			  info.setOpState(PROBE_RELEASE);
 			  sensors.EEPROM_updateState(PROBE_RELEASE, ser);
+			  info.probe_rel();
 			  info.wing_rel();
 		  }
 	  }

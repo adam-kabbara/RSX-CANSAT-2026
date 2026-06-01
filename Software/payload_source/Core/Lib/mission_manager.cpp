@@ -184,7 +184,10 @@ void MissionManager::setAltCalibration(float alt)
 {
     ALT_CAL_CHK = true;
     launch_altitude = alt;
-    memset(alt_buffer, alt, sizeof(alt_buffer));
+    for(int i = 0; i < ALTITUDE_SMOOTHING_WINDOW; i++)
+    {
+    	alt_buffer[i] = alt;
+    }
 }
 
 float MissionManager::getLaunchAlt()

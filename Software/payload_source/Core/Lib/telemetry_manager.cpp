@@ -31,7 +31,7 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mis
 		packet.PRESSURE = sensors.getPressure()/1000.0;
 	}
 
-	packet.ALTITUDE = pressure_to_alt(sensors.getPressure()) - mission_info.getLaunchAlt();
+	packet.ALTITUDE = packet.PRESSURE - mission_info.getLaunchAlt();
 
 	packet.TEMPERATURE = sensors.getTemp();
 
@@ -82,7 +82,7 @@ void TelemetryManager::build_data_str(char *buff, size_t size)
         "%.1f,%.4f,%.4f,%d,%s,"
         "%.1f,%.1f,%.1f,%.1f,"
         "%.1f,%.1f,%.1f,"
-        "%.1f,%.1f,%.1f,\r",
+        "%.1f,%.1f\r",
 		packet.TEAM_ID_PCKT,
 		packet.MISSION_TIME,
 		packet.PACKET_COUNT,

@@ -594,6 +594,7 @@ void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &seri
     uint32_t log_used = EEPROM_readHeaderSize(EEPROM_HDR_IDX_LOG);
     if (log_used == 0)
 	{
+    	serial.sendLogEnd();
         return;
 	}
  
