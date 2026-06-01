@@ -7,6 +7,7 @@
 #include "telemetry_manager.hpp"
 #include "command_manager.hpp"
 #include "controller.hpp"
+#include "sensor_calibration.hpp"
 
 extern "C" volatile uint8_t send_flag;
 extern "C" volatile uint8_t pvd_flag;
@@ -121,6 +122,21 @@ extern "C" void main_cpp()
                     mission_mgr.setLastCommand(cmd_buff);
                 }
 
+            }
+			else
+            {
+            	//collect relevant data
+            	calibrator.collectReading(cal_state, sensors);
+				int num_readings = calibrator.getReadingsCount();
+				if (num_readings != 0 && num_readings % 50 == 0 && num_readings != READINGCOUNT) {
+					float *accel_raw_data = new float[3];
+					sensors.getRawAccel(accel_raw_data);
+					serial.sendInfoDataMsg("Latest accel data: [%.2f, %.2f, %.2f]", num_readings, accel_raw_data[0], accel_raw_data[1], accel_raw_data[2]);
+					serial.sendInfoDataMsg("Collected %d readings", num_readings);
+					HAL_Delay(100);
+				} else if (num_readings == READINGCOUNT - 1) {
+					serial.sendInfoDataMsg("Collected %d readings, calibration complete", num_readings + 1);
+				}
             }
             HAL_Delay(10);
         }
