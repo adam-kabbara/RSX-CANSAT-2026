@@ -109,7 +109,7 @@ class Commands(QObject):
         if self._joystick is not None and not self._joystick.is_connected():
             self.error_catch.emit("ERROR: No joystick connected, cannot change flight mode")
             return
-        if self._serial.send_data(self._cmd(op="FLIGHT_CTRL", val=mode)):
+        if self._serial.send_data(self._cmd(op="CTRL", val=mode)):
             self.print_signal.emit(f"Sent flight ctrl '{mode}'")
 
     def command__alt_cal(self):

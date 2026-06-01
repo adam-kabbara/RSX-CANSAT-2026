@@ -32,6 +32,10 @@ private:
 
     void do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
 
+    void do_ctrl(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
+
+    void status_update(SerialManager &ser, MissionManager &info);
+
 public:
     CommandManager();
 

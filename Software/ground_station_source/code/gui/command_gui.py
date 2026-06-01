@@ -267,7 +267,7 @@ class CommandWindow(QMainWindow):
         self.button_set_flight_ctrl.hide()
 
         self.flight_ctrl_field = QComboBox()
-        self.flight_ctrl_field.addItem("AUTONOMOUS")
+        self.flight_ctrl_field.addItem("AUTO")
         self.flight_ctrl_field.addItem("MANUAL")
         self.flight_ctrl_field.setFont(button_font)
         self.flight_ctrl_field.activated.connect(self.flight_ctrl_field_edited)

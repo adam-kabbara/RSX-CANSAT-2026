@@ -185,7 +185,7 @@ void SensorManager::getGPSTime(char time_str[DATA_SIZE])
 
 void SensorManager::activate_egg_release()
 {
-	// writeEggServo(0);
+	// writeEggServo(90);
 }
 
 void SensorManager::activate_wing_deployment()

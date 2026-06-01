@@ -10,6 +10,8 @@
 #include "drv.hpp"
 #include "sensor_calibration.hpp"
 
+// TODO: save calibration data in eeprom
+
 CommandManager::CommandManager()
 {
     // Initialize function map
@@ -24,6 +26,7 @@ CommandManager::CommandManager()
     command_map.emplace("MEC", std::bind(&CommandManager::do_mec, this, _1, _2, _3, _4));
     command_map.emplace("LOG", std::bind(&CommandManager::do_logs, this, _1, _2, _3, _4));
     command_map.emplace("CAL2", std::bind(&CommandManager::do_cal2, this, _1, _2, _3, _4));
+    command_map.emplace("CTRL", std::bind(&CommandManager::do_ctrl, this, _1, _2, _3, _4));
 }
 
 uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors)
@@ -103,6 +106,28 @@ uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser,
     }
     iter->second(ser, info, sensors, packet.data);
     return 1;
+}
+
+// Change flight control mode
+void CommandManager::do_ctrl(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+	if(!data)
+	{
+		ser.sendErrorMsg("COMMAND 'CTRL' REJECTED: DID NOT RECEIVE ANY MODE");
+		return;
+	}
+	if(strcmp(data, "AUTO"))
+	{
+		info.setFlightCtrl(FlightCtrl::AUTONOMOUS);
+	}
+	else if(strcmp(data, "MANUAL"))
+	{
+		info.setFlightCtrl(FlightCtrl::MANUAL);
+	}
+	else
+	{
+		ser.sendErrorDataMsg("DATA IS NOT VALID: RECEIVED %s INSTEDA OF AUTO/MANUAL", data);
+	}
 }
 
 // Toggle mission telemetry
@@ -193,9 +218,16 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
 
 void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
-  ser.sendInfoDataMsg("CANSAT IS ONLINE.{%s|%s|%s}",
-      op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
+  ser.sendInfoDataMsg("CANSAT IS ONLINE");
+  status_update(ser, info);
 } // END: do_give_status
+
+void CommandManager::status_update(SerialManager &ser, MissionManager &info)
+{
+	ser.sendInfoDataMsg("{%s|%s|%s|%.1f}",
+			op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()),
+			info.getLaunchAlt());
+}
 
 void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
@@ -249,8 +281,8 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setOpMode(OPMODE_SIM);
           info.waitingForSimp();
           sensors.EEPROM_updateMode(info.getOpMode(), ser);
-          ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE{%s|%s|%s}",
-            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
+          ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE");
+          status_update(ser, info);
           break;
         }
       case SIM_OFF:
@@ -275,8 +307,8 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setSimStatus(SIM_OFF);
           info.setOpMode(OPMODE_FLIGHT);
           sensors.EEPROM_updateMode(info.getOpMode(), ser);
-          ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.{%s|%s|%s}",
-            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
+          ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.");
+          status_update(ser, info);
           break;
         }
       case SIM_OFF:
@@ -337,6 +369,7 @@ void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorMana
   info.setAltCalibration(pressure_to_alt(sensors.getPressure()));
   sensors.EEPROM_updateAltitude(info.getLaunchAlt(), ser);
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
+  status_update(ser, info);
 } // END: do_Cal()
 
 void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data) // data = gyro
