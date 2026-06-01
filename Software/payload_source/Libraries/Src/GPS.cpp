@@ -1,8 +1,8 @@
-#include "ublox_parser.hpp"
+#include "GPS.hpp"
 #include <cstring>
 #include <cstdlib>
 
-void ublox_parse_GNS(char *line, struct gps_data &data) {
+void GPS::ublox_parse_GNS(char *line, struct gps_data &data) {
     char *token;
     int field = 0;
 

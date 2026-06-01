@@ -5,6 +5,10 @@
  */
 
 #include "sensor_manager.hpp"
+#include "serial_manager.hpp"
+
+extern "C" UART_HandleTypeDef huart1;
+SerialManager serial(huart1);
 
 SensorManager::SensorManager()
 {
@@ -154,7 +158,6 @@ void SensorManager::updateGPS()
 
     // Direct buffer extraction via current address reads
     while (HAL_I2C_Master_Receive(gps_hi2c, UBLOX_I2C_ADDR, &rx_byte, 1, 5) == HAL_OK) {
-        
         // Break out immediately if the receiver data stream is resting/empty
         if (rx_byte == 0xFF) {
             break; 
@@ -170,15 +173,17 @@ void SensorManager::updateGPS()
 
         if (rx_byte == '\n') {
             gps_nmea_buffer[gps_buf_idx] = '\0';
+			serial.sendErrorDataMsg("Received NMEA sentence: %s", gps_nmea_buffer);
             
             // Local string safety check
             char parse_scratchpad[100];
             std::strncpy(parse_scratchpad, gps_nmea_buffer, sizeof(parse_scratchpad));
 
             // Only run parsing routine if it contains the GNS fix sentence layout
-            if (std::strstr(parse_scratchpad, "GNS") != nullptr) {
-                ublox_parse_GNS(parse_scratchpad, internal_gps_storage);
-            }
+        gps_parser.ublox_parse_GNS(parse_scratchpad, internal_gps_storage);
+	serial.sendErrorDataMsg("Current GPS Data - Time: %s, Lat: %f, Lon: %f, Alt: %f, Sats: %d", internal_gps_storage.time, internal_gps_storage.latitude, internal_gps_storage.longitude, internal_gps_storage.altitude, internal_gps_storage.sats);
+
+            
             
             gps_buf_idx = 0; 
         }

@@ -16,6 +16,7 @@
 #include "ds1307.hpp"
 #include "drv.hpp"
 #include "eeprom.hpp"
+#include "GPS.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,10 +89,10 @@ private:
 	static const uint32_t EEPROM_HDR_IDX_NOSECONEREL = 9UL;
 
 	I2C_HandleTypeDef *gps_hi2c = nullptr;
+	GPS gps_parser;
 	gps_data internal_gps_storage;
 	char gps_nmea_buffer[100];
 	uint8_t gps_buf_idx = 0; // counter tracking string length
-	static const uint16_t UBLOX_I2C_ADDR = (0x42 << 1);
 
 
 public:
