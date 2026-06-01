@@ -189,7 +189,7 @@ extern "C" void main_cpp()
             	float pressure_val;
             	if(mission_mgr.getOpMode() == OPMODE_SIM)
 				{
-            		pressure_val = mission_mgr.getSimpData()/1000.0;
+            		pressure_val = mission_mgr.getSimpData();
 				}
             	else
             	{
