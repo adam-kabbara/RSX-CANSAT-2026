@@ -677,9 +677,10 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 		serial.sendErrorMsg("BN0 Init failed");
 	}
 
-	BNO_enableGyro(10000, serial);
+	BNO_enableGyro(10000, serial); // read interval in ms
 	BNO_enableAccel(10000, serial);
-	BNO_enableMag(20000, serial);
+	BNO_enableMag(20000, serial); 
+	
 
 	HAL_Delay(100);
 

@@ -152,7 +152,7 @@ class Commands(QObject):
         return 0
     
     def command__manual_flight_ctrl_data(self, axis, rotation):
-        if self._serial.send_data(self._cmd(op="JS", val=f"{axis}:{rotation}")):
+        if self._serial.send_data(self._cmd(op="MAN", val=f"{axis}:{rotation}")):
             self.print_signal.emit(f"Sent manual flight data {axis}={rotation}")
 
        # ---- Joystick slots ----
@@ -176,20 +176,19 @@ class Commands(QObject):
         self._joy_roll = v * 45.0
         if self._graph_ui is not None:
             self._graph_ui.update_joystick_indicator(self._joy_raw_roll, self._joy_raw_pitch)
-        self.command__manual_flight_ctrl_data("ROL", round(self._joy_raw_roll,3))
+        self.command__manual_flight_ctrl_data("ROL", self._joy_raw_roll)
 
     def _on_joy_pitch(self, v: float):
         self._joy_raw_pitch = v
         self._joy_pitch = -v * 30.0
         if self._graph_ui is not None:
             self._graph_ui.update_joystick_indicator(self._joy_raw_roll, self._joy_raw_pitch)
-        self.command__manual_flight_ctrl_data("PIT", round(self._joy_raw_pitch,3))
+        self.command__manual_flight_ctrl_data("PIT", self._joy_raw_pitch)
 
     def _on_joy_yaw(self, v: float):
-        #self._joy_raw_yaw = v
-        #self._joy_yaw = (self._joy_yaw + v * 2.0) % 360.0
-        #self.command__manual_flight_ctrl_data("YAW", round(self._joy_raw_yaw,3))
-        pass
+        self._joy_raw_yaw = v
+        self._joy_yaw = (self._joy_yaw + v * 2.0) % 360.0
+        self.command__manual_flight_ctrl_data("YAW", self._joy_raw_yaw)
 
     def _set_joystick_sensitivity(self, sensitivity):
         if self._joystick is None:

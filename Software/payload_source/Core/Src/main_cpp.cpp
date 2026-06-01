@@ -134,10 +134,63 @@ extern "C" void main_cpp()
 				int num_readings = calibrator.getReadingsCount();
 				if (num_readings != 0 && num_readings % 50 == 0 && num_readings != READINGCOUNT) {
 					float *accel_raw_data = new float[3];
+					float *mag_raw_data = new float[3];
+					float *gyro_raw_data = new float[3];
 					sensors.getRawAccel(accel_raw_data);
-					serial.sendInfoDataMsg("Latest accel data: [%.2f, %.2f, %.2f]", num_readings, accel_raw_data[0], accel_raw_data[1], accel_raw_data[2]);
-					serial.sendInfoDataMsg("Collected %d readings", num_readings);
-					HAL_Delay(100);
+					sensors.getRawMag(mag_raw_data);
+					sensors.getRawGyro(gyro_raw_data);
+					
+					if (cal_state == CalibrationState::FACE_XP)
+					{
+						serial.sendInfoDataMsg("Latest accel data nose down: %.2f", num_readings, accel_raw_data[0]);
+						serial.sendInfoDataMsg("Collected %d readings", num_readings);
+						HAL_Delay(100);
+					}
+					if (cal_state == CalibrationState::FACE_XN)
+					{
+						serial.sendInfoDataMsg("Latest accel data nose up: %.2f", num_readings, accel_raw_data[0]);
+						serial.sendInfoDataMsg("Collected %d readings", num_readings);
+						HAL_Delay(100);
+					}
+					if (cal_state == CalibrationState::FACE_YP)
+					{
+						serial.sendInfoDataMsg("Latest accel data right wing down: %.2f", num_readings, accel_raw_data[1]);
+						serial.sendInfoDataMsg("Collected %d readings", num_readings);
+						HAL_Delay(100);
+					}
+					if (cal_state == CalibrationState::FACE_YN)
+					{
+						serial.sendInfoDataMsg("Latest accel data left wing down: %.2f", num_readings, accel_raw_data[1]);
+						serial.sendInfoDataMsg("Collected %d readings", num_readings);
+						HAL_Delay(100);
+					}
+					if (cal_state == CalibrationState::FACE_ZP)
+					{
+						serial.sendInfoDataMsg("Latest accel data belly down: %.2f", num_readings, accel_raw_data[2]);
+						serial.sendInfoDataMsg("Collected %d readings", num_readings);
+						HAL_Delay(100);
+					}
+					if (cal_state == CalibrationState::FACE_ZN)
+					{
+						serial.sendInfoDataMsg("Latest accel data back down: %.2f", num_readings, accel_raw_data[2]);
+						serial.sendInfoDataMsg("Collected %d readings", num_readings);
+						HAL_Delay(100);
+					}
+					if (cal_state == CalibrationState::MAG_RUN)
+					{
+						serial.sendInfoDataMsg("Latest mag data: %.2f, %.2f, %.2f", num_readings, mag_raw_data[0], mag_raw_data[1], mag_raw_data[2]);
+						serial.sendInfoDataMsg("Collected %d readings", num_readings);
+						HAL_Delay(100);
+					}
+					if (cal_state == CalibrationState::GYRO_RUN)
+					{
+						serial.sendInfoDataMsg("Latest gyro data: %.2f, %.2f, %.2f", num_readings, gyro_raw_data[0], gyro_raw_data[1], gyro_raw_data[2]);
+						serial.sendInfoDataMsg("Collected %d readings", num_readings);
+						HAL_Delay(100);
+					}
+					delete[] accel_raw_data;
+					delete[] mag_raw_data;
+					delete[] gyro_raw_data;
 				} else if (num_readings == READINGCOUNT - 1) {
 					serial.sendInfoDataMsg("Collected %d readings, calibration complete", num_readings + 1);
 				}

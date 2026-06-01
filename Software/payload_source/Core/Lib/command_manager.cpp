@@ -358,7 +358,7 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
     ser.sendInfoMsg("Starting accelerometer calibration...");
     cal_state = CalibrationState::FACE_XP;
   }
-  else if (strcmp(data, "COMP") == 0)
+  else if (strcmp(data, "MAG") == 0)
   {
     ser.sendInfoMsg("Starting compass calibration...");
 	  cal_state = CalibrationState::MAG_RUN;
@@ -383,7 +383,37 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
       default: {//accelerometer faces
         calibrator.calibrateAccelFace(calibrator.getReadingsX(), calibrator.getReadingsY(), calibrator.getReadingsZ(), calibrator.getReadingsCount(), cal_state);
         CalibrationData accelCalib = calibrator.getAccelCalib();
-        ser.sendInfoDataMsg("Completed calibration for face. Bias X: %f, Bias Y: %f, Bias Z: %f, Range X: %f, Range Y: %f, Range Z: %f", accelCalib.biasX, accelCalib.biasY, accelCalib.biasZ, accelCalib.rangeX, accelCalib.rangeY, accelCalib.rangeZ);
+        if (cal_state == CalibrationState::FACE_XP)
+        {
+          ser.sendInfoDataMsg("Completed calibration for accelerometer nose down. Bias: %f, Range: %f", accelCalib.biasX, accelCalib.rangeX);
+          break;
+        }
+        else if (cal_state == CalibrationState::FACE_XN)
+        {
+          ser.sendInfoDataMsg("Completed calibration for accelerometer nose up. Bias: %f, Range: %f", accelCalib.biasX, accelCalib.rangeX);
+          break;
+        }
+        else if (cal_state == CalibrationState::FACE_YP)
+        {
+          ser.sendInfoDataMsg("Completed calibration for accelerometer right wing down. Bias: %f, Range: %f", accelCalib.biasY, accelCalib.rangeY);
+          break;
+        }
+        else if (cal_state == CalibrationState::FACE_YN)
+        {
+          ser.sendInfoDataMsg("Completed calibration for accelerometer left wing down. Bias: %f, Range: %f", accelCalib.biasY, accelCalib.rangeY);
+          break;
+        }
+        else if (cal_state == CalibrationState::FACE_ZP)
+        {
+          ser.sendInfoDataMsg("Completed calibration for accelerometer belly down. Bias: %f, Range: %f", accelCalib.biasZ, accelCalib.rangeZ);
+          break;
+        }
+        else if (cal_state == CalibrationState::FACE_ZN)
+        {
+          ser.sendInfoDataMsg("Completed calibration for accelerometer back down. Bias: %f, Range: %f", accelCalib.biasZ, accelCalib.rangeZ);
+          break;
+        }
+        ser.sendInfoDataMsg("Completed calibration for all faces. Bias X: %f, Bias Y: %f, Bias Z: %f, Range X: %f, Range Y: %f, Range Z: %f", accelCalib.biasX, accelCalib.biasY, accelCalib.biasZ, accelCalib.rangeX, accelCalib.rangeY, accelCalib.rangeZ);
         break;
       }
     }
