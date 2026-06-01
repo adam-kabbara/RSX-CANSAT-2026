@@ -110,6 +110,7 @@ extern "C" void main_cpp()
         while(mission_mgr.getOpState() == IDLE)
         { // todo add calibration code
 			sensors.updateMotor();
+			sensors.updateGPS();
 
             if(cmd_ready)
             {
@@ -144,6 +145,7 @@ extern "C" void main_cpp()
         while(mission_mgr.getOpState() != IDLE)
         {
 			sensors.updateMotor();
+			sensors.updateGPS();
 			
             if(cmd_ready)
             {

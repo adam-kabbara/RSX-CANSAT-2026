@@ -141,17 +141,57 @@ struct rpy_data SensorManager::getIMUData()
 	return data;
 }
 
+void SensorManager::updateGPS()
+{
+    if (gps_hi2c == nullptr) return;
+
+    uint8_t rx_byte = 0;
+
+    // Direct buffer extraction via current address reads
+    while (HAL_I2C_Master_Receive(gps_hi2c, UBLOX_I2C_ADDR, &rx_byte, 1, 5) == HAL_OK) {
+        
+        // Break out immediately if the receiver data stream is resting/empty
+        if (rx_byte == 0xFF) {
+            break; 
+        }
+
+        if (rx_byte == '$') {
+            gps_buf_idx = 0;
+        }
+
+        if (gps_buf_idx < (sizeof(gps_nmea_buffer) - 1)) {
+            gps_nmea_buffer[gps_buf_idx++] = (char)rx_byte;
+        }
+
+        if (rx_byte == '\n') {
+            gps_nmea_buffer[gps_buf_idx] = '\0';
+            
+            // Local string safety check
+            char parse_scratchpad[100];
+            std::strncpy(parse_scratchpad, gps_nmea_buffer, sizeof(parse_scratchpad));
+
+            // Only run parsing routine if it contains the GNS fix sentence layout
+            if (std::strstr(parse_scratchpad, "GNS") != nullptr) {
+                ublox_parse_GNS(parse_scratchpad, internal_gps_storage);
+            }
+            
+            gps_buf_idx = 0; 
+        }
+    }
+}
+
 struct gps_data SensorManager::getGPSData()
 {
-	struct gps_data data;
-	data.altitude = 0.0;
-	data.latitude = 0.0;
-	data.longitude = 0.0;
-	data.sats = 0;
-	char gps_time[DATA_SIZE] = "00:00:00";
-	strcpy(data.time, gps_time);
-	return data;
+	return internal_gps_storage;
 }
+
+void SensorManager::getGPSTime(char time_str[DATA_SIZE])
+{
+	// snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
+	std::strncpy(time_str, internal_gps_storage.time, DATA_SIZE - 1);
+    time_str[DATA_SIZE - 1] = '\0';
+}
+
 
 cam_status SensorManager::getCameraStatus()
 {
@@ -171,11 +211,6 @@ void SensorManager::getRTCTime(char time_str[DATA_SIZE])
 	uint8_t m = DS1307_GetMinute();
 	uint8_t s = DS1307_GetSecond();
 	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", h, m, s);
-}
-
-void SensorManager::getGPSTime(char time_str[DATA_SIZE])
-{
-	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
 }
 
 void SensorManager::activate_egg_release()
@@ -247,7 +282,7 @@ uint32_t SensorManager::EEPROM_readHeaderSize(uint32_t index)
  
 void SensorManager::EEPROM_writeHeaderSize(uint32_t index, uint32_t size)
 {
-    uint32_t addr = index * EEPROM_HEADER_ENTRY_SIZE;
+    uint32_t addr = index * SensorManager::EEPROM_HEADER_ENTRY_SIZE;
 	if (eeprom_dev != nullptr)
 	{
 		eeprom_dev->WriteUnsignedLong(addr, size);
@@ -633,6 +668,12 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 
 	static EEPROMsimple eeprom_storage(hspi_eeprom, cs_port, cs_pin);
 	eeprom_dev = &eeprom_storage;
+
+	// GPS initialization 
+	this->gps_hi2c = hi2c1;
+    
+    std::memset(&internal_gps_storage, 0, sizeof(struct gps_data));
+    std::strcpy(internal_gps_storage.time, "00:00:00");
 
 	if(!DS1307_Init(hi2c1))
 	{
