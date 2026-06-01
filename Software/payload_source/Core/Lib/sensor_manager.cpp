@@ -11,39 +11,6 @@ SensorManager::SensorManager()
 	/* Declare sensors */
 }
 
-void SensorManager::startTof()
-{
-	VL53L1X_StartRanging(tof_dev);
-}
-
-void SensorManager::stopTof()
-{
-	VL53L1X_StopRanging(tof_dev);
-}
-
-bool SensorManager::checkTof()
-{
-	uint8_t data_ready;
-	VL53L1X_CheckForDataReady(tof_dev, &data_ready);
-	return (data_ready == 1);
-}
-
-bool SensorManager::tofValid()
-{
-	uint8_t range_status;
-	VL53L1X_GetRangeStatus(tof_dev, &range_status);
-	VL53L1X_ClearInterrupt(tof_dev); /* clear interrupt has to be called to enable next interrupt*/
-	return (range_status == 0);
-}
-
-uint16_t SensorManager::tofDistReading()
-{
-	uint16_t distance;
-	VL53L1X_GetDistance(tof_dev, &distance);
-	VL53L1X_ClearInterrupt(tof_dev); /* clear interrupt has to be called to enable next interrupt*/
-	return distance;
-}
-
 int SensorManager::updateBMP()
 {
 	return BMP5_SaveConvData(&bmp_dev);
@@ -160,6 +127,25 @@ struct rpy_data SensorManager::getIMUData() // out of date
 	return data; // garbage collection????
 }
 
+void SensorManager::getRawAccel(float* data_out)
+{
+	updateBNO();
+	data_out[0] = bno_dev.accel.x;
+	data_out[1] = bno_dev.accel.y;
+	data_out[2] = bno_dev.accel.z; // need the raw not sensor fusion ones
+}
+
+struct rpy_data SensorManager::getCalibratedAccel(float* calib_bias, float* calib_scale)
+{
+	float raw[3];
+	getRawAccel(raw);
+	struct rpy_data data;
+	data.accel_r = (raw[0] - calib_bias[0]) * calib_scale[0];
+	data.accel_p = (raw[1] - calib_bias[1]) * calib_scale[1];
+	data.accel_y = (raw[2] - calib_bias[2]) * calib_scale[2];
+	return data;
+}
+
 struct gps_data SensorManager::getGPSData()
 {
 	struct gps_data data;
@@ -246,14 +232,14 @@ void SensorManager::writeMotor(uint8_t dir, uint32_t time_ms)
 	motor.motor_run(dir, time_ms);
 }
 
-void SensorManager::updateMotor()
-{
-    motor.motor_update();
-}
-
 void SensorManager::stopMotor()
 {
 	motor.motor_stop();
+}
+
+void SensorManager::updateMotor()
+{
+	motor.motor_update();
 }
 
 uint32_t SensorManager::EEPROM_readHeaderSize(uint32_t index)
@@ -602,6 +588,9 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 
 void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &serial)
 {
+	serial.sendLogBegin();
+	HAL_Delay(500);
+
     uint32_t log_used = EEPROM_readHeaderSize(EEPROM_HDR_IDX_LOG);
     if (log_used == 0)
 	{
@@ -628,7 +617,7 @@ void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &seri
  
             if (line_pos > 0)
             {
-				serial.sendInfoMsg(line_buf); 
+				serial.sendLogLine(line_buf);
                 HAL_Delay(line_delay_ms);
             }
  
@@ -639,12 +628,12 @@ void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &seri
             line_buf[line_pos++] = static_cast<char>(byte);
         }
     }
+    serial.sendLogEnd();
 }
 
 void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
 		SPI_HandleTypeDef *hspi_eeprom, GPIO_TypeDef *cs_port, uint16_t cs_pin,
-		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4,
-		GPIO_TypeDef *wing_dir_port, uint16_t wing_dir_pin)
+		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4)
 {
 	/* Start all sensors that need to be started
 	 * Add a delay between each start and send an
@@ -680,7 +669,9 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 		serial.sendErrorMsg("BN0 Init failed");
 	}
 
-	BNO_enableGyro(50000, serial);
+	BNO_enableGyro(5000, serial);
+	BNO_enableAccel(5000, serial);
+	BNO_enableMag(10000, serial);
 
 	HAL_Delay(100);
 
@@ -690,37 +681,7 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	servo_aileron.Init(htim3, TIM_CHANNEL_2, 500, 2500, 90, -90);
 	servo_egg.Init(htim3, TIM_CHANNEL_3, 500, 2500, 90, -90);
 
-	motor.Init(htim2, TIM_CHANNEL_2, wing_dir_port, wing_dir_pin);
-
-	HAL_Delay(100);
-
-	uint32_t tof_bootup_start = HAL_GetTick();
-	uint8_t tof_sensor_state = 0;
-
-	while(tof_sensor_state == 0)
-	{
-	 	VL53L1X_BootState(tof_dev, &tof_sensor_state);
-	 	HAL_Delay(2);
-	 	if(HAL_GetTick() - tof_bootup_start > 100)
-	 	{
-	 		serial.sendErrorMsg("TOF init failed");
-	 		break;
-	 	}
-	}
-
-	if(tof_sensor_state != 0)
-	{
-		VL53L1X_SensorInit(tof_dev);
-		VL53L1X_SetDistanceMode(tof_dev, 2); /* 1=short, 2=long */
-		VL53L1X_SetTimingBudgetInMs(tof_dev, TOF_TIMING_BUDGET_MS); /* in ms possible values [20, 50, 100, 200, 500] */
-		VL53L1X_SetInterMeasurementInMs(tof_dev, TOF_TIMING_BUDGET_MS); /* in ms, IM must be > = TB */
-		// TODO replace calibrate with set (delete calibrate)
-		VL53L1X_CalibrateOffset(tof_dev, 140, &offset);
-		VL53L1X_CalibrateXtalk(tof_dev, 1000, &xtalk);
-		serial.sendInfoDataMsg("Offset value=%d, xtalk value=%d. Delete these functions and uncomment set functions", offset, xtalk);
-		//VL53L1X_SetOffset(tof_dev, offset);
-		//VL53L1X_SetXtalk(tof_dev, xtalk);
-	}
+	motor.Init(htim2, TIM_CHANNEL_2);
 
 	HAL_Delay(100);
 

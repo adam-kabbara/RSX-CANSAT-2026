@@ -119,6 +119,88 @@ class DynamicPlotter(BaseDynamicPlotter):
         self.last_time = None
         self.clear_markers()
 
+
+class DynamicPlotterDualAxis(BaseDynamicPlotter):
+
+    def __init__(self, title, time_window, x_unit, left_y_unit, right_y_unit):
+        super().__init__(title, time_window, x_unit, left_y_unit)
+        self.left_buffer = deque([0.0] * time_window, maxlen=time_window)
+        self.right_buffer = deque([0.0] * time_window, maxlen=time_window)
+        self.x = np.linspace(0, 0, time_window)
+        self.left_y = np.zeros(time_window, dtype=float)
+        self.right_y = np.zeros(time_window, dtype=float)
+
+        self.left_curve = self.plt.plot(self.x, self.left_y, pen=self.get_pen(0))
+        self.plt.showAxis("right")
+        self.plt.getAxis("right").setStyle(tickFont=gui.cosmetics.graph_font())
+        self.plt.getAxis("right").setLabel(gui.cosmetics.graph_axis(right_y_unit))
+        self.plt.getViewBox().setLimits(xMin=0, xMax=5000, minXRange=5, yMin=-10000, yMax=10000, minYRange=2)
+
+        self.right_view = pg.ViewBox()
+        self.plt.scene().addItem(self.right_view)
+        self.plt.getAxis("right").linkToView(self.right_view)
+        self.right_view.setXLink(self.plt)
+        self.right_curve = pg.PlotCurveItem(self.x, self.right_y, pen=self.get_pen(1))
+        self.right_view.addItem(self.right_curve)
+        self.plt.getViewBox().sigResized.connect(self._sync_right_view)
+        self._sync_right_view()
+        self.plt.setXRange(0, 50)
+
+        self.left_label = pg.TextItem("Voltage", anchor=(0, 0.5), color=self.get_pen(0).color())
+        self.right_label = pg.TextItem("Current", anchor=(0, 0.5), color=self.get_pen(1).color())
+
+        self.plt.addItem(self.left_label)
+        self.plt.addItem(self.right_label)
+
+    def _sync_right_view(self):
+        self.right_view.setGeometry(self.plt.getViewBox().sceneBoundingRect())
+        self.right_view.linkedViewChanged(self.plt.getViewBox(), self.right_view.XAxis)
+
+    def _advance_plot(self, left_value=None, right_value=None):
+        current_time = time.time()
+        time_diff = (current_time - self.last_time) if self.last_time else 0
+        self.last_time = current_time
+
+        if left_value is None:
+            left_value = self.left_buffer[-1]
+        if right_value is None:
+            right_value = self.right_buffer[-1]
+
+        self.left_buffer.append(left_value)
+        self.right_buffer.append(right_value)
+        self.left_y[:] = self.left_buffer
+        self.right_y[:] = self.right_buffer
+
+        self.x = np.roll(self.x, -1)
+        self.x[-1] = self.x[-2] + time_diff
+
+        self.left_curve.setData(self.x, self.left_y)
+        self.right_curve.setData(self.x, self.right_y)
+        self.plt.setXRange(max(0, self.x[-1] - 50), max(50, self.x[-1]))
+        self._sync_right_view()
+
+        latest_x = self.x[-1]
+        self.left_label.setPos(latest_x, self.left_y[-1])
+        self.right_label.setPos(latest_x, self.right_y[-1])
+
+    def update_left_plot(self, new_val):
+        self._advance_plot(left_value=new_val)
+
+    def update_right_plot(self, new_val):
+        self._advance_plot(right_value=new_val)
+
+    def reset_plot(self):
+        self.left_buffer = deque([0.0] * self.timewindow, maxlen=self.timewindow)
+        self.right_buffer = deque([0.0] * self.timewindow, maxlen=self.timewindow)
+        self.x = np.linspace(0, 0, self.timewindow)
+        self.left_y[:] = 0
+        self.right_y[:] = 0
+        self.left_curve.setData(self.x, self.left_y)
+        self.right_curve.setData(self.x, self.right_y)
+        self.last_time = None
+        self.clear_markers()
+        self._sync_right_view()
+
 # Plotting system for graphs with multiple lines
 class DynamicPlotterMultiLine(BaseDynamicPlotter):
     def __init__(self, title, timewindow, num_lines, x_unit, y_unit):

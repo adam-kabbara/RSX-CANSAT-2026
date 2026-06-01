@@ -3,7 +3,7 @@
 # night_mode = true, high_contrast_mode = false -> night
 # night_mode = false, high_contrast_mode = true -> high_contrast
 # night_mode = true, high_contrast_mode = true -> black_high_contrast
-night_mode = true
+night_mode = false
 high_contrast_mode = false
 
 [windows.live_data]
@@ -13,6 +13,19 @@ display_mode = "fullscreen"
 [windows.command_panel]
 resolution = [1920, 540]
 display_mode = "fullscreen"
+
+[map.tile_checker]
+enabled = true
+
+[map.tile_checker.ranges]
+12 = [1141, 1143]
+13 = [2283, 2285]
+14 = [4567, 4570]
+15 = [9135, 9140]
+16 = [18271, 18280]
+17 = [36542, 36559]
+18 = [73085, 73117]
+19 = [146170, 146234]
 
 [modes.day.logs]
 gui_normal = "black"

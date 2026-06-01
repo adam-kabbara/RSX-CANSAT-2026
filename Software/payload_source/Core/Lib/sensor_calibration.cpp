@@ -35,8 +35,8 @@ AccelFace SensorCalibration::faceFSM(AccelFace currentFace) {
 }
 
 // Accelerometer multi-face calibration (Calculates true offset/scale via max/min tracking)
-void SensorCalibration::calibrateAccelFace(const int16_t* rawAccelX, const int16_t* rawAccelY, 
-                                           const int16_t* rawAccelZ, uint16_t numSamples,
+void SensorCalibration::calibrateAccelFace(const float* rawAccelX, const float* rawAccelY, 
+                                           const float* rawAccelZ, uint16_t numSamples,
                                            AccelFace face) {
     if (numSamples == 0) return;
     
@@ -122,3 +122,6 @@ void SensorCalibration::calibrateCompass(const int16_t* rawMagX, const int16_t* 
     
     compassCalib.isCalibrated = true;
 }
+
+SensorCalibration calibration;
+AccelFace currentFace;

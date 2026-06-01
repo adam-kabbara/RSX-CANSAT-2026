@@ -95,7 +95,7 @@ class Commands(QObject):
 
     def command__mec_release(self, mec_id):
         if self._serial.send_data(self._cmd(op="MEC", val=f"REL:{mec_id}")):
-            self.print_signal.emit(f"Sent force {["NOSECONE release", "CPL release", "WING DEPLOYMENT", "EGG release"][mec_id]} command")
+            self.print_signal.emit(f'Sent force {["NOSECONE release", "CPL release", "WING DEPLOYMENT", "EGG release"][mec_id]} command')
 
     def command__cam_status(self):
         if self._serial.send_data(self._cmd(op="MEC", val="CAMERA_STATUS:X")):
