@@ -117,6 +117,7 @@ public:
 	struct rpy_data getIMUData();
 
 	void getGameRotationVector(float* data_out);
+	void getEulerRotationVector(float* data_out);
 
 	void getRawAccel(float* data_out);
 	struct rpy_data getCalibratedAccel(float* calib_bias, float* calib_scale);

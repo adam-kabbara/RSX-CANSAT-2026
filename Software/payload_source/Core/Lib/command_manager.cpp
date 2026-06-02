@@ -382,36 +382,42 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
 
   if (strcmp(data, "GYRO") == 0)
   {
-    int num_data_points = 250; // vibes
-    float* rawGyroX = new float[num_data_points];
-    float* rawGyroY = new float[num_data_points];
-    float* rawGyroZ = new float[num_data_points];
-    int data_not_ready_count = 0;
-    float gyro_raw_data[3];
-    for (int i=0; i<num_data_points; i++){ 
-      sensors.getRawGyro(gyro_raw_data);
-      if(i > 0 && gyro_raw_data[0] == rawGyroX[i-1] && gyro_raw_data[1] == rawGyroY[i-1] && gyro_raw_data[2] == rawGyroZ[i-1])
-      {
-        data_not_ready_count++;
-      }
-      rawGyroX[i] = gyro_raw_data[0];
-      rawGyroY[i] = gyro_raw_data[1];
-      rawGyroZ[i] = gyro_raw_data[2];
-      HAL_Delay(5);
-    }
-    ser.sendInfoDataMsg("Data not ready count during gyro calibration: %d out of %d", data_not_ready_count, num_data_points);
-    ser.sendInfoDataMsg("Last readings were X: %f, Y: %f, Z: %f", rawGyroX[num_data_points-1], rawGyroY[num_data_points-1], rawGyroZ[num_data_points-1]);
-    calibration.calibrateGyro(rawGyroX, rawGyroY, rawGyroZ, num_data_points);
+    // int num_data_points = 250; // vibes
+    // float* rawGyroX = new float[num_data_points];
+    // float* rawGyroY = new float[num_data_points];
+    // float* rawGyroZ = new float[num_data_points];
+    // int data_not_ready_count = 0;
+    // float gyro_raw_data[3];
+    // for (int i=0; i<num_data_points; i++){ 
+    //   sensors.getRawGyro(gyro_raw_data);
+    //   if(i > 0 && gyro_raw_data[0] == rawGyroX[i-1] && gyro_raw_data[1] == rawGyroY[i-1] && gyro_raw_data[2] == rawGyroZ[i-1])
+    //   {
+    //     data_not_ready_count++;
+    //   }
+    //   rawGyroX[i] = gyro_raw_data[0];
+    //   rawGyroY[i] = gyro_raw_data[1];
+    //   rawGyroZ[i] = gyro_raw_data[2];
+    //   HAL_Delay(5);
+    // }
+    // ser.sendInfoDataMsg("Data not ready count during gyro calibration: %d out of %d", data_not_ready_count, num_data_points);
+    // ser.sendInfoDataMsg("Last readings were X: %f, Y: %f, Z: %f", rawGyroX[num_data_points-1], rawGyroY[num_data_points-1], rawGyroZ[num_data_points-1]);
+    // calibration.calibrateGyro(rawGyroX, rawGyroY, rawGyroZ, num_data_points);
 
-    CalibrationData gyroCalib = calibration.getGyroCalib();
-    if (gyroCalib.isCalibrated) {
-      ser.sendInfoDataMsg("Gyro calibrated with biasX: %f, biasY: %f, biasZ: %f", gyroCalib.biasX, gyroCalib.biasY, gyroCalib.biasZ);
-    } else {
-      ser.sendErrorMsg("Gyro calibration failed.");
+    // CalibrationData gyroCalib = calibration.getGyroCalib();
+    // if (gyroCalib.isCalibrated) {
+    //   ser.sendInfoDataMsg("Gyro calibrated with biasX: %f, biasY: %f, biasZ: %f", gyroCalib.biasX, gyroCalib.biasY, gyroCalib.biasZ);
+    // } else {
+    //   ser.sendErrorMsg("Gyro calibration failed.");
+    // }
+    // delete[] rawGyroX;
+    // delete[] rawGyroY;
+    // delete[] rawGyroZ;
+    for (int i=0; i < 300; i++){
+      float attitude_data[4];
+      sensors.getEulerRotationVector(attitude_data);
+      ser.sendInfoDataMsg("Attitude data: Roll: %f, Pitch: %f, Yaw: %f, Accuracy: %f", attitude_data[0], attitude_data[1], attitude_data[2], attitude_data[3]);
+      HAL_Delay(50);
     }
-    delete[] rawGyroX;
-    delete[] rawGyroY;
-    delete[] rawGyroZ;
   }
   else if (strcmp(data, "ACCE") == 0)
   {
@@ -473,7 +479,7 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
     float * rawAccel = new float[4];
     float * rawMag = new float[4];
     int i = 0;
-    while (gyro_acc < 3 || accel_acc < 3 || mag_acc < 3)
+    while (gyro_acc < 2 || accel_acc < 2 || mag_acc < 2)
     {
       sensors.updateBNO();
       sensors.getGameRotationVector(rawRotVec);

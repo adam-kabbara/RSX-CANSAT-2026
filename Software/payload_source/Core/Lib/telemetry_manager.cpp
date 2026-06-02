@@ -43,6 +43,8 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mis
 	packet.CURRENT = sensors.getCurrent();
 
 	struct rpy_data gyro_accel_data = sensors.getIMUData();//sensors.getCalibratedGyro(); //;
+	float rpy_fusion_data[4];
+	//sensors.getGameRotationVector(rpy_fusion_data); -- needed to get RPY attitude data
 	
 	packet.GYRO_R = (int)lroundf(gyro_accel_data.gyro_r);
 	packet.GYRO_P = (int)lroundf(gyro_accel_data.gyro_p);
