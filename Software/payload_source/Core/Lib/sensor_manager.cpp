@@ -5,6 +5,7 @@
  */
 
 #include "sensor_manager.hpp"
+#include <math.h>
 
 SensorManager::SensorManager()
 {
@@ -102,8 +103,30 @@ bool SensorManager::BNO_dataReady()
 	return BNO085_DataReady(&bno_dev);
 }
 
+void SensorManager::rotate_vec3_y_ccw(BNO085_Vec3_t *v, float c, float s)
+{
+    float x = v->x;
+    float z = v->z;
+    v->x =  c * x + s * z;
+    v->z = -s * x + c * z;
+    /* y and accuracy left untouched */
+}
+
+void SensorManager::BNO_RotateY(BNO085_t *bno_dev, float angle_rad)
+{
+    float c = cosf(angle_rad);
+    float s = sinf(angle_rad);
+
+    rotate_vec3_y_ccw(&bno_dev->accel,        c, s);
+    rotate_vec3_y_ccw(&bno_dev->gyro,         c, s);
+    rotate_vec3_y_ccw(&bno_dev->mag,          c, s);
+    rotate_vec3_y_ccw(&bno_dev->linear_accel, c, s);
+    rotate_vec3_y_ccw(&bno_dev->gravity,      c, s);
+}
+
 void SensorManager::updateBNO()
 {
+	BNO_RotateY(&bno_dev, M_PI / 2.0f); // rotate sensor data 90 degrees around Y axis to match CPL's frame of reference
 	BNO085_GetData(&bno_dev);
 }
 

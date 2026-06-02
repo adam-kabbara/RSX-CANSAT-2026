@@ -111,6 +111,8 @@ public:
 	void BNO_disableCalibration(SerialManager &serial);
 	bool BNO_dataReady();
 	void updateBNO();
+	void rotate_vec3_y_ccw(BNO085_Vec3_t *v, float c, float s);
+	void BNO_RotateY(BNO085_t *bno_dev, float angle_rad);
 	void getRawGyro(float* data_out);
 	struct rpy_data getCalibratedGyro(float* calib_bias);
 
