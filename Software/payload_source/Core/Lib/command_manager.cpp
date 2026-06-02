@@ -10,6 +10,8 @@
 #include "drv.hpp"
 #include "sensor_calibration.hpp"
 
+// TODO: save calibration data in eeprom
+
 CommandManager::CommandManager()
 {
     // Initialize function map
@@ -24,6 +26,7 @@ CommandManager::CommandManager()
     command_map.emplace("MEC", std::bind(&CommandManager::do_mec, this, _1, _2, _3, _4));
     command_map.emplace("LOG", std::bind(&CommandManager::do_logs, this, _1, _2, _3, _4));
     command_map.emplace("CAL2", std::bind(&CommandManager::do_cal2, this, _1, _2, _3, _4));
+    command_map.emplace("CTRL", std::bind(&CommandManager::do_ctrl, this, _1, _2, _3, _4));
 }
 
 uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors)
@@ -105,6 +108,28 @@ uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser,
     return 1;
 }
 
+// Change flight control mode
+void CommandManager::do_ctrl(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+	if(!data)
+	{
+		ser.sendErrorMsg("COMMAND 'CTRL' REJECTED: DID NOT RECEIVE ANY MODE");
+		return;
+	}
+	if(strcmp(data, "AUTO") == 0)
+	{
+		info.setFlightCtrl(FlightCtrl::AUTONOMOUS);
+	}
+	else if(strcmp(data, "MANUAL") == 0)
+	{
+		info.setFlightCtrl(FlightCtrl::MANUAL);
+	}
+	else
+	{
+		ser.sendErrorDataMsg("DATA IS NOT VALID: RECEIVED %s INSTEDA OF AUTO/MANUAL", data);
+	}
+}
+
 // Toggle mission telemetry
 void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
@@ -169,7 +194,7 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
         sensors.getGPSTime(time_str);
         if(sscanf(time_str, "%d:%d:%d", &h, &m, &s) == 3)
         {
-          sensors.setRTCTime(s,m,h);
+          sensors.setRTCTime(h, m, s);
           sensors.getRTCTime(time_str);
           ser.sendInfoDataMsg("Set RTC time to %s", time_str);
         }
@@ -180,7 +205,7 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
     }
     else if(sscanf(data, "%d:%d:%d", &h, &m, &s) == 3)
     {
-        sensors.setRTCTime(s,m,h);
+        sensors.setRTCTime(h, m, s);
         char time_str[DATA_SIZE];
         sensors.getRTCTime(time_str);
         ser.sendInfoDataMsg("Attempted to set RTC time to %s, got %s", data, time_str);
@@ -193,9 +218,16 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
 
 void CommandManager::do_give_status(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
-  ser.sendInfoDataMsg("CANSAT IS ONLINE.{%s|%s|%s}",
-      op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
+  ser.sendInfoDataMsg("CANSAT IS ONLINE");
+  status_update(ser, info);
 } // END: do_give_status
+
+void CommandManager::status_update(SerialManager &ser, MissionManager &info)
+{
+	ser.sendInfoDataMsg("{%s|%s|%s|%.1f}",
+			op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()),
+			info.getLaunchAlt());
+}
 
 void CommandManager::do_restart(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
@@ -249,8 +281,8 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setOpMode(OPMODE_SIM);
           info.waitingForSimp();
           sensors.EEPROM_updateMode(info.getOpMode(), ser);
-          ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE{%s|%s|%s}",
-            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
+          ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE");
+          status_update(ser, info);
           break;
         }
       case SIM_OFF:
@@ -275,8 +307,8 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setSimStatus(SIM_OFF);
           info.setOpMode(OPMODE_FLIGHT);
           sensors.EEPROM_updateMode(info.getOpMode(), ser);
-          ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.{%s|%s|%s}",
-            op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
+          ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.");
+          status_update(ser, info);
           break;
         }
       case SIM_OFF:
@@ -306,7 +338,7 @@ void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorMan
     int pressure;
     if(sscanf(data, "%d", &pressure) == 1)
     {
-      float alt = pressure_to_alt(pressure/100.0);
+      float alt = pressure_to_alt(pressure);
       if(info.isWaitingSimp())
       {
           info.setAltCalibration(alt);
@@ -337,6 +369,7 @@ void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorMana
   info.setAltCalibration(pressure_to_alt(sensors.getPressure()));
   sensors.EEPROM_updateAltitude(info.getLaunchAlt(), ser);
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
+  status_update(ser, info);
 } // END: do_Cal()
 
 void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data) // data = gyro
@@ -349,37 +382,42 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
 
   if (strcmp(data, "GYRO") == 0)
   {
-    int num_data_points = 250; // vibes
-    float* gyro_raw_data;
-    float* rawGyroX = new float[num_data_points];
-    float* rawGyroY = new float[num_data_points];
-    float* rawGyroZ = new float[num_data_points];
-    int data_not_ready_count = 0;
-    for (int i=0; i<num_data_points; i++){ 
-      gyro_raw_data = new float[3];
-      if (gyro_raw_data[0] == rawGyroX[i-1] && gyro_raw_data[1] == rawGyroY[i-1] && gyro_raw_data[2] == rawGyroZ[i-1]) {
-        data_not_ready_count++;
-      }
-      sensors.getRawGyro(gyro_raw_data);
-      rawGyroX[i] = gyro_raw_data[0];
-      rawGyroY[i] = gyro_raw_data[1];
-      rawGyroZ[i] = gyro_raw_data[2];
-      delete[] gyro_raw_data;
-      HAL_Delay(5);
-    }
-    ser.sendInfoDataMsg("Data not ready count during gyro calibration: %d out of %d", data_not_ready_count, num_data_points);
-    ser.sendInfoDataMsg("Last readings were X: %f, Y: %f, Z: %f", rawGyroX[num_data_points-1], rawGyroY[num_data_points-1], rawGyroZ[num_data_points-1]);
-    calibration.calibrateGyro(rawGyroX, rawGyroY, rawGyroZ, num_data_points);
+    // int num_data_points = 250; // vibes
+    // float* rawGyroX = new float[num_data_points];
+    // float* rawGyroY = new float[num_data_points];
+    // float* rawGyroZ = new float[num_data_points];
+    // int data_not_ready_count = 0;
+    // float gyro_raw_data[3];
+    // for (int i=0; i<num_data_points; i++){ 
+    //   sensors.getRawGyro(gyro_raw_data);
+    //   if(i > 0 && gyro_raw_data[0] == rawGyroX[i-1] && gyro_raw_data[1] == rawGyroY[i-1] && gyro_raw_data[2] == rawGyroZ[i-1])
+    //   {
+    //     data_not_ready_count++;
+    //   }
+    //   rawGyroX[i] = gyro_raw_data[0];
+    //   rawGyroY[i] = gyro_raw_data[1];
+    //   rawGyroZ[i] = gyro_raw_data[2];
+    //   HAL_Delay(5);
+    // }
+    // ser.sendInfoDataMsg("Data not ready count during gyro calibration: %d out of %d", data_not_ready_count, num_data_points);
+    // ser.sendInfoDataMsg("Last readings were X: %f, Y: %f, Z: %f", rawGyroX[num_data_points-1], rawGyroY[num_data_points-1], rawGyroZ[num_data_points-1]);
+    // calibration.calibrateGyro(rawGyroX, rawGyroY, rawGyroZ, num_data_points);
 
-    CalibrationData gyroCalib = calibration.getGyroCalib();
-    if (gyroCalib.isCalibrated) {
-      ser.sendInfoDataMsg("Gyro calibrated with biasX: %f, biasY: %f, biasZ: %f", gyroCalib.biasX, gyroCalib.biasY, gyroCalib.biasZ);
-    } else {
-      ser.sendErrorMsg("Gyro calibration failed.");
+    // CalibrationData gyroCalib = calibration.getGyroCalib();
+    // if (gyroCalib.isCalibrated) {
+    //   ser.sendInfoDataMsg("Gyro calibrated with biasX: %f, biasY: %f, biasZ: %f", gyroCalib.biasX, gyroCalib.biasY, gyroCalib.biasZ);
+    // } else {
+    //   ser.sendErrorMsg("Gyro calibration failed.");
+    // }
+    // delete[] rawGyroX;
+    // delete[] rawGyroY;
+    // delete[] rawGyroZ;
+    for (int i=0; i < 300; i++){
+      float attitude_data[4];
+      sensors.getEulerRotationVector(attitude_data);
+      ser.sendInfoDataMsg("Attitude data: Roll: %f, Pitch: %f, Yaw: %f, Accuracy: %f", attitude_data[0], attitude_data[1], attitude_data[2], attitude_data[3]);
+      HAL_Delay(50);
     }
-    delete[] rawGyroX;
-    delete[] rawGyroY;
-    delete[] rawGyroZ;
   }
   else if (strcmp(data, "ACCE") == 0)
   {
@@ -394,7 +432,7 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
     }
     else {
       const int num_data_points = 250; // vibes
-      float* accel_raw_data = new float[3];
+      float* accel_raw_data = new float[4];
       float *rawAccelX = new float[num_data_points];
       float *rawAccelY = new float[num_data_points];
       float *rawAccelZ = new float[num_data_points];
@@ -402,9 +440,17 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
       int data_not_ready_count = 0;
       for (int i=0; i<num_data_points; i++){ 
         sensors.getRawAccel(accel_raw_data);
+        float accel_mag = sqrt(pow(accel_raw_data[0], 2) + pow(accel_raw_data[1], 2) + pow(accel_raw_data[2], 2));
+        if (10.8 < accel_mag || accel_mag < 9.0)
+        {
+          data_not_ready_count++;
+        }
         rawAccelX[i] = accel_raw_data[0];
         rawAccelY[i] = accel_raw_data[1];
         rawAccelZ[i] = accel_raw_data[2];
+        if (i % 50 == 0) {
+          ser.sendInfoDataMsg("Sample %d, accuracy: %f", i, accel_raw_data[3]);
+        }
         HAL_Delay(5);
       }
       ser.sendInfoDataMsg("Data not ready count during accel calibration: %d out of %d", data_not_ready_count, num_data_points);
@@ -424,9 +470,35 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
       delete[] rawAccelZ;
     }
   }
-  else if (strcmp(data, "COMP") == 0)
+  else if (strcmp(data, "MAG") == 0)
   {
-    ser.sendInfoMsg("Starting compass calibration...");
+    ser.sendInfoMsg("Starting auto calibration...");
+    sensors.BNO_calibrate(ser);
+    int gyro_acc, accel_acc, mag_acc = 0;
+    float * rawRotVec = new float[5];
+    float * rawAccel = new float[4];
+    float * rawMag = new float[4];
+    int i = 0;
+    while (gyro_acc < 2 || accel_acc < 2 || mag_acc < 2)
+    {
+      sensors.updateBNO();
+      sensors.getGameRotationVector(rawRotVec);
+      sensors.getRawAccel(rawAccel);
+      sensors.getRawMag(rawMag);
+      gyro_acc = (int)rawRotVec[4];
+      accel_acc = (int)rawAccel[3];
+      mag_acc = (int)rawMag[3];
+      if (i % 100 == 0) {
+        ser.sendInfoDataMsg("Current calibration accuracy - Gyro: %d, Accel: %d, Mag: %d", gyro_acc, accel_acc, mag_acc);
+      }
+      HAL_Delay(50);
+    }
+    ser.sendInfoMsg("Calibration complete!");
+    sensors.BNO_saveCalibration(ser);
+    sensors.BNO_disableCalibration(ser);
+    delete[] rawRotVec;
+    delete[] rawAccel;
+    delete[] rawMag;
   }
   else
   {
@@ -504,6 +576,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  {
 			  info.setOpState(PROBE_RELEASE);
 			  sensors.EEPROM_updateState(PROBE_RELEASE, ser);
+			  info.probe_rel();
 			  info.wing_rel();
 		  }
 	  }
@@ -601,5 +674,5 @@ void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorMan
     return;
   }
 
-  ser.sendLogFile();
+  sensors.EEPROM_replayLog(100, ser);
 }

@@ -38,7 +38,15 @@ private:
 		float GPS_LONGITUDE = 0.0;
 		int GPS_SATS = 0;
 		char CMD_ECHO[CMD_BUFF_SIZE] = "";
-		int CAMERA_STATUS = 0;
+		float QUATERNION_X = 0.0;
+		float QUATERNION_Y = 0.0;
+		float QUATERNION_Z = 0.0;
+		float VELOCITY_X = 0.0;
+		float VELOCITY_Y = 0.0;
+		float VELOCITY_Z = 0.0;
+		float ACCEL_XX = 0.0;
+		float ACCEL_YY = 0.0;
+		float ACCEL_ZZ = 0.0;
 	};
 
 	struct transmission_packet packet;

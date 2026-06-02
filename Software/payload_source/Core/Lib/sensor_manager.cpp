@@ -5,43 +5,11 @@
  */
 
 #include "sensor_manager.hpp"
+#include <math.h>
 
 SensorManager::SensorManager()
 {
 	/* Declare sensors */
-}
-
-void SensorManager::startTof()
-{
-	VL53L1X_StartRanging(tof_dev);
-}
-
-void SensorManager::stopTof()
-{
-	VL53L1X_StopRanging(tof_dev);
-}
-
-bool SensorManager::checkTof()
-{
-	uint8_t data_ready;
-	VL53L1X_CheckForDataReady(tof_dev, &data_ready);
-	return (data_ready == 1);
-}
-
-bool SensorManager::tofValid()
-{
-	uint8_t range_status;
-	VL53L1X_GetRangeStatus(tof_dev, &range_status);
-	VL53L1X_ClearInterrupt(tof_dev); /* clear interrupt has to be called to enable next interrupt*/
-	return (range_status == 0);
-}
-
-uint16_t SensorManager::tofDistReading()
-{
-	uint16_t distance;
-	VL53L1X_GetDistance(tof_dev, &distance);
-	VL53L1X_ClearInterrupt(tof_dev); /* clear interrupt has to be called to enable next interrupt*/
-	return distance;
 }
 
 int SensorManager::updateBMP()
@@ -101,13 +69,64 @@ void SensorManager::BNO_enableRotationVector(int microsec, SerialManager &serial
 	}
 }
 
+void SensorManager::BNO_enableGameRotationVector(int microsec, SerialManager &serial)
+{
+	if(BNO085_EnableGameRotationVector(&bno_dev, microsec) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO GAME ROTATION VECTOR ENABLE DID NOT RETURN OK STATUS");
+	}
+}
+
+void SensorManager::BNO_calibrate(SerialManager &serial){
+	if (BNO085_Calibrate(&bno_dev, 7) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO AUTO CALIBRATION START FAILED");
+	}
+}
+
+void SensorManager::BNO_disableCalibration(SerialManager &serial){
+	if (BNO085_DisableCalibration(&bno_dev) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO AUTO CALIBRATION DISABLE FAILED");
+	}
+}
+
+void SensorManager::BNO_saveCalibration(SerialManager &serial){
+	if (BNO085_SaveCalibration(&bno_dev) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO SAVE CALIBRATION FAILED");
+	}
+}
+
 bool SensorManager::BNO_dataReady()
 {
 	return BNO085_DataReady(&bno_dev);
 }
 
+void SensorManager::rotate_vec3_y_ccw(BNO085_Vec3_t *v, float c, float s)
+{
+    float x = v->x;
+    float z = v->z;
+    v->x =  c * x + s * z;
+    v->z = -s * x + c * z;
+    /* y and accuracy left untouched */
+}
+
+void SensorManager::BNO_RotateY(BNO085_t *bno_dev, float angle_rad)
+{
+    float c = cosf(angle_rad);
+    float s = sinf(angle_rad);
+
+    rotate_vec3_y_ccw(&bno_dev->accel,        c, s);
+    rotate_vec3_y_ccw(&bno_dev->gyro,         c, s);
+    rotate_vec3_y_ccw(&bno_dev->mag,          c, s);
+    rotate_vec3_y_ccw(&bno_dev->linear_accel, c, s);
+    rotate_vec3_y_ccw(&bno_dev->gravity,      c, s);
+}
+
 void SensorManager::updateBNO()
 {
+	BNO_RotateY(&bno_dev, M_PI / 2.0f); // rotate sensor data 90 degrees around Y axis to match CPL's frame of reference
 	BNO085_GetData(&bno_dev);
 }
 
@@ -117,6 +136,7 @@ void SensorManager::getRawGyro(float* data_out)
 	data_out[0] = bno_dev.gyro.x;
 	data_out[1] = bno_dev.gyro.y;
 	data_out[2] = bno_dev.gyro.z; // need the raw not sensor fusion ones
+	data_out[3] = bno_dev.gyro.accuracy;
 }
 
 struct rpy_data SensorManager::getCalibratedGyro(float* calib_bias)
@@ -130,6 +150,25 @@ struct rpy_data SensorManager::getCalibratedGyro(float* calib_bias)
 	return data;
 }
 
+void SensorManager::getGameRotationVector(float* data_out)
+{
+	updateBNO();
+	data_out[0] = bno_dev.quat.real;
+	data_out[1] = bno_dev.quat.i;
+	data_out[2] = bno_dev.quat.j;
+	data_out[3] = bno_dev.quat.k;
+	data_out[4] = bno_dev.quat_accuracy;
+}
+
+
+void SensorManager::getEulerRotationVector(float* data_out)
+{
+	updateBNO();
+	data_out[0] = bno_dev.euler.roll;
+	data_out[1] = bno_dev.euler.pitch;
+	data_out[2] = bno_dev.euler.yaw;
+	data_out[3] = bno_dev.quat_accuracy;
+}
 struct rpy_data SensorManager::getIMUData() // out of date
 {
 	struct rpy_data data;
@@ -166,6 +205,7 @@ void SensorManager::getRawAccel(float* data_out)
 	data_out[0] = bno_dev.accel.x;
 	data_out[1] = bno_dev.accel.y;
 	data_out[2] = bno_dev.accel.z; // need the raw not sensor fusion ones
+	data_out[3] = bno_dev.accel.accuracy;
 }
 
 struct rpy_data SensorManager::getCalibratedAccel(float* calib_bias, float* calib_scale)
@@ -177,6 +217,15 @@ struct rpy_data SensorManager::getCalibratedAccel(float* calib_bias, float* cali
 	data.accel_p = (raw[1] - calib_bias[1]) * calib_scale[1];
 	data.accel_y = (raw[2] - calib_bias[2]) * calib_scale[2];
 	return data;
+}
+
+void SensorManager::getRawMag(float* data_out)
+{
+	updateBNO();
+	data_out[0] = bno_dev.mag.x;
+	data_out[1] = bno_dev.mag.y;
+	data_out[2] = bno_dev.mag.z; // need the raw not sensor fusion ones
+	data_out[3] = bno_dev.mag.accuracy;
 }
 
 struct gps_data SensorManager::getGPSData()
@@ -218,7 +267,7 @@ void SensorManager::getGPSTime(char time_str[DATA_SIZE])
 
 void SensorManager::activate_egg_release()
 {
-	// writeEggServo(0);
+	// writeEggServo(90);
 }
 
 void SensorManager::activate_wing_deployment()
@@ -265,14 +314,14 @@ void SensorManager::writeMotor(uint8_t dir, uint32_t time_ms)
 	motor.motor_run(dir, time_ms);
 }
 
-void SensorManager::updateMotor()
-{
-    motor.motor_update();
-}
-
 void SensorManager::stopMotor()
 {
 	motor.motor_stop();
+}
+
+void SensorManager::updateMotor()
+{
+	motor.motor_update();
 }
 
 uint32_t SensorManager::EEPROM_readHeaderSize(uint32_t index)
@@ -621,9 +670,13 @@ struct recovery_data SensorManager::EEPROM_getRecoveryData()
 
 void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &serial)
 {
+	serial.sendLogBegin();
+	HAL_Delay(500);
+
     uint32_t log_used = EEPROM_readHeaderSize(EEPROM_HDR_IDX_LOG);
     if (log_used == 0)
 	{
+    	serial.sendLogEnd();
         return;
 	}
  
@@ -647,7 +700,7 @@ void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &seri
  
             if (line_pos > 0)
             {
-				serial.sendInfoMsg(line_buf); 
+				serial.sendLogLine(line_buf);
                 HAL_Delay(line_delay_ms);
             }
  
@@ -658,12 +711,12 @@ void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &seri
             line_buf[line_pos++] = static_cast<char>(byte);
         }
     }
+    serial.sendLogEnd();
 }
 
 void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
 		SPI_HandleTypeDef *hspi_eeprom, GPIO_TypeDef *cs_port, uint16_t cs_pin,
-		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4,
-		GPIO_TypeDef *wing_dir_port, uint16_t wing_dir_pin)
+		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4)
 {
 	/* Start all sensors that need to be started
 	 * Add a delay between each start and send an
@@ -671,21 +724,6 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 
 	static EEPROMsimple eeprom_storage(hspi_eeprom, cs_port, cs_pin);
 	eeprom_dev = &eeprom_storage;
-
-	/* Diagnostic: verify SPI reaches the EEPROM before anything else touches I2C.
-	 * Expected status = 0x00 (WIP=0, WEL=0, BP=00) at power-on.
-	 * 0xFF means the SPI peripheral is not responding — most common cause is
-	 * PA4 configured as SPI1_NSS (hardware NSS) in CubeMX instead of plain
-	 * GPIO_Output, which triggers a Mode Fault (MODF) the moment CS is asserted.
-	 * Fix in CubeMX: set SPI NSS = Software, leave PA4 as GPIO_Output. */
-	{
-		uint8_t eeprom_status = eeprom_dev->ReadStatus();
-		if (eeprom_status == 0xFF) {
-			serial.sendErrorMsg("[EEPROM] SPI not responding (0xFF) — check MODF/NSS config and MISO wiring");
-		} else {
-			serial.sendInfoDataMsg("[EEPROM] SPI OK, status=0x%02X (expect 0x00 at power-on)", eeprom_status);
-		}
-	}
 
 	if(!DS1307_Init(hi2c1))
 	{
@@ -717,6 +755,7 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	BNO_enableGyro(5000, serial);
 	BNO_enableAccel(5000, serial);
 	BNO_enableMag(10000, serial);
+	BNO_enableRotationVector(10000, serial);
 
 	HAL_Delay(100);
 
@@ -726,37 +765,7 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	servo_aileron.Init(htim3, TIM_CHANNEL_2, 500, 2500, 90, -90);
 	servo_egg.Init(htim3, TIM_CHANNEL_3, 500, 2500, 90, -90);
 
-	motor.Init(htim2, TIM_CHANNEL_2, wing_dir_port, wing_dir_pin);
-
-	HAL_Delay(100);
-
-	uint32_t tof_bootup_start = HAL_GetTick();
-	uint8_t tof_sensor_state = 0;
-
-	while(tof_sensor_state == 0)
-	{
-	 	VL53L1X_BootState(tof_dev, &tof_sensor_state);
-	 	HAL_Delay(2);
-	 	if(HAL_GetTick() - tof_bootup_start > 100)
-	 	{
-	 		serial.sendErrorMsg("TOF init failed");
-	 		break;
-	 	}
-	}
-
-	if(tof_sensor_state != 0)
-	{
-		VL53L1X_SensorInit(tof_dev);
-		VL53L1X_SetDistanceMode(tof_dev, 2); /* 1=short, 2=long */
-		VL53L1X_SetTimingBudgetInMs(tof_dev, TOF_TIMING_BUDGET_MS); /* in ms possible values [20, 50, 100, 200, 500] */
-		VL53L1X_SetInterMeasurementInMs(tof_dev, TOF_TIMING_BUDGET_MS); /* in ms, IM must be > = TB */
-		// TODO replace calibrate with set (delete calibrate)
-		VL53L1X_CalibrateOffset(tof_dev, 140, &offset);
-		VL53L1X_CalibrateXtalk(tof_dev, 1000, &xtalk);
-		serial.sendInfoDataMsg("Offset value=%d, xtalk value=%d. Delete these functions and uncomment set functions", offset, xtalk);
-		//VL53L1X_SetOffset(tof_dev, offset);
-		//VL53L1X_SetXtalk(tof_dev, xtalk);
-	}
+	motor.Init(htim2, TIM_CHANNEL_2);
 
 	HAL_Delay(100);
 

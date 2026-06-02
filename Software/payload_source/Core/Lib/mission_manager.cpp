@@ -66,29 +66,44 @@ void MissionManager::reset_params()
 	nosecone_flag = false;
 	probe_flag = false;
 	egg_flag = false;
+	wing_flag = false;
 	landed_trigger_count = 0;
 }
 
-bool MissionManager::landed_trigger()
+bool MissionManager::landed_trigger(bool consecutive_check)
 {
-	if(landed_trigger_count < 3)
+	if(consecutive_check)
 	{
 		landed_trigger_count++;
-		return false;
+		if(landed_trigger_count >= 3)
+		{
+			return true;
+		}
+	}
+	else
+	{
+		landed_trigger_count = 0;
 	}
 
-	return true;
+	return false;
 }
 
-bool MissionManager::descent_trigger()
+bool MissionManager::descent_trigger(bool consecutive_check)
 {
-	if(descent_trigger_count < 3)
+	if(consecutive_check)
 	{
 		descent_trigger_count++;
-		return false;
+		if(descent_trigger_count >= 3)
+		{
+			return true;
+		}
+	}
+	else
+	{
+		descent_trigger_count = 0;
 	}
 
-	return true;
+	return false;
 }
 
 float MissionManager::get_max_alt()
@@ -170,6 +185,10 @@ void MissionManager::setAltCalibration(float alt)
 {
     ALT_CAL_CHK = true;
     launch_altitude = alt;
+    for(int i = 0; i < ALTITUDE_SMOOTHING_WINDOW; i++)
+    {
+    	alt_buffer[i] = alt;
+    }
 }
 
 float MissionManager::getLaunchAlt()

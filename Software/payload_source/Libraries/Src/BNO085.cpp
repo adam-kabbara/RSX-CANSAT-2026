@@ -254,6 +254,26 @@ BNO085_Status_t BNO085_SaveCalibration(BNO085_t *bno) {
 }
 
 /**
+ * @brief Disable the onboard background calibration routine for all sensors
+ */
+BNO085_Status_t BNO085_DisableCalibration(BNO085_t *bno) {
+    if(!bno) { return BNO085_ERROR; }
+    
+    memset(shtpData, 0, 12);
+    shtpData[0] = SHTP_REPORT_COMMAND_REQUEST;
+    shtpData[1] = bno->sequence_number[CHANNEL_CONTROL]++;
+    shtpData[2] = COMMAND_ME_CALIBRATE;
+    
+    // Bytes 3-5 are the sub-parameters (P0, P1, P2) for the calibration command.
+    // Setting them all to 0 disables calibration for Accelerometer, Gyroscope, and Magnetometer.
+    shtpData[3] = 0; // P0: Accel (Bit 0), Gyro (Bit 1), Mag (Bit 2) -> 0 disables all
+    shtpData[4] = 0; // P1: Planar Accelerometer -> 0 disables
+    shtpData[5] = 0; // P2: Reserved / On-table calibration -> 0 disables
+    
+    return BNO085_SendPacket(bno, CHANNEL_CONTROL, 12);
+}
+
+/**
  * 	@brief Request Product ID
  */
 BNO085_Status_t BNO085_GetProductID(BNO085_t *bno) {
@@ -501,6 +521,8 @@ static bool BNO085_ParseReport(BNO085_t *bno, uint8_t *rpt) {
 			bno->quat.k        = BNO085_QToFloat((int16_t)BNO085_GetU16(&rpt[8]),  14);
 			bno->quat.real     = BNO085_QToFloat((int16_t)BNO085_GetU16(&rpt[10]), 14);
 			bno->quat.accuracy = BNO085_QToFloat((int16_t)BNO085_GetU16(&rpt[12]), 12);
+
+			bno->quat_accuracy = status;
 			BNO085_QuaternionToEuler(&bno->quat, &bno->euler);
 			return true;
 

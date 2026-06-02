@@ -1,4 +1,4 @@
-#include <drv.hpp>
+#include "drv.hpp"
 #include "main.h"
 #include "global_includes.hpp"
 #include "mission_manager.hpp"
@@ -22,9 +22,9 @@ extern "C" I2C_HandleTypeDef hi2c1;
 extern "C" volatile char rx_buff[128];
 extern "C" volatile uint8_t cmd_ready;
 
-uint32_t nosecone_rel__payload_rel_timer=0;
-uint32_t wing_servo_timer=0;
-uint32_t tof_timer=0;
+uint32_t nosecone_rel__payload_rel_timer = 0;
+uint32_t wing_servo_timer = 0;
+uint32_t egg_timer = 0;
 OperatingState update_state(SensorManager &sensors, MissionManager &mgr, OperatingState current_state);
 
 extern "C" void main_cpp()
@@ -64,7 +64,7 @@ extern "C" void main_cpp()
 
 	__HAL_RCC_CLEAR_RESET_FLAGS();
 
-	sensors.startSensors(serial, &hi2c1, &hspi1, GPIOA, GPIO_PIN_4, &htim2, &htim3, &htim4, SERVO_WING_DIR_GPIO_Port, SERVO_WING_DIR_Pin);
+	sensors.startSensors(serial, &hi2c1, &hspi1, SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, &htim2, &htim3, &htim4);
 
     struct recovery_data recovery = sensors.EEPROM_getRecoveryData();
 
@@ -96,12 +96,17 @@ extern "C" void main_cpp()
         {
         	mission_mgr.wing_rel();
         }
+
+        // Reset the timers
+        nosecone_rel__payload_rel_timer = HAL_GetTick();
+        wing_servo_timer = HAL_GetTick();
+        egg_timer = HAL_GetTick();
     }
     else
     {
     	serial.sendInfoMsg("Setup completed, entering IDLE mode");
     }
-	
+
     char cmd_buff[CMD_BUFF_SIZE];
     char send_buff[DATA_BUFF_SIZE];
 
@@ -109,7 +114,6 @@ extern "C" void main_cpp()
     {
         while(mission_mgr.getOpState() == IDLE)
         { // todo add calibration code
-			sensors.updateMotor();
 
             if(cmd_ready)
             {
@@ -123,6 +127,9 @@ extern "C" void main_cpp()
 
             }
             HAL_Delay(10);
+
+            // TODO: look into one pulse again
+            sensors.updateMotor();
         }
 
         if(mission_mgr.getOpMode() == OPMODE_SIM)
@@ -143,8 +150,6 @@ extern "C" void main_cpp()
 
         while(mission_mgr.getOpState() != IDLE)
         {
-			sensors.updateMotor();
-			
             if(cmd_ready)
             {
             	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
@@ -171,7 +176,7 @@ extern "C" void main_cpp()
 
             	send_flag = 0;
 
-            	if(mission_mgr.getOpState() == ASCENT)
+            	if(mission_mgr.getOpState() == APOGEE)
             	{
             		mission_mgr.apogee_packet_sent();
             	}
@@ -184,7 +189,7 @@ extern "C" void main_cpp()
             	float pressure_val;
             	if(mission_mgr.getOpMode() == OPMODE_SIM)
 				{
-            		pressure_val = mission_mgr.getSimpData()/1000.0;
+            		pressure_val = mission_mgr.getSimpData();
 				}
             	else
             	{
@@ -212,6 +217,8 @@ extern "C" void main_cpp()
             {
             	sensors.updateBNO();
             }
+
+            sensors.updateMotor();
         }
 
         HAL_TIM_Base_Stop_IT(&htim1);
@@ -249,12 +256,10 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 			{
 				sensors.EEPROM_updateMaxAlt(alt);
 			}
-			if(mgr.get_max_alt() - alt > DESCENT_FALL_THRESHOLD_M)
+			bool threshold_check = mgr.get_max_alt() - alt > DESCENT_FALL_THRESHOLD_M;
+			if(mgr.descent_trigger(threshold_check))
 			{
-				if(mgr.descent_trigger())
-				{
-					new_state = APOGEE;
-				}
+				new_state = APOGEE;
 			}
 			break;
 		}
@@ -279,9 +284,6 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 				mgr.nosecone_rel();
 				sensors.EEPROM_updateNoseconeRel();
 				nosecone_rel__payload_rel_timer = HAL_GetTick();
-				//BNO_enableAccel(50000, serial);
-				//BNO_enableMag(50000, serial);
-				//BNO_enableRotationVector(50000, serial);
 			}
 
 			if(!mgr.probe_check() && mgr.calculate_median_alt() <= mgr.get_max_alt() * 0.80 && (HAL_GetTick()-nosecone_rel__payload_rel_timer>=1000))
@@ -292,9 +294,12 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 				wing_servo_timer = HAL_GetTick();
 				if(mgr.getOpMode() == OPMODE_FLIGHT)
 				{
-					tof_timer = HAL_GetTick();
-					sensors.startTof();
+					egg_timer = HAL_GetTick();
 				}
+			}
+
+			if(mgr.probe_check())
+			{
 				new_state = PROBE_RELEASE;
 			}
 
@@ -312,19 +317,21 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 				}
 				if(mgr.wing_check())
 				{
-					if(mgr.calculate_median_alt() < EGG_ALT_THRESHOLD_MM && !mgr.egg_check())
+					if(mgr.calculate_median_alt() < EGG_ALT_THRESHOLD_M && !mgr.egg_check())
 					{
 						sensors.activate_egg_release();
 						mgr.egg_rel();
 						sensors.EEPROM_updateEggRel();
-						new_state = PAYLOAD_RELEASE;
 					}
 				}
+				if(mgr.egg_check())
+				{
+					new_state = PAYLOAD_RELEASE;
+				}
 			}
-			else if(HAL_GetTick()-tof_timer>=TOF_TIMING_BUDGET_MS && sensors.checkTof())
+			else
 			{
-				tof_timer = HAL_GetTick();
-				if(!sensors.tofValid())
+				if(HAL_GetTick()-egg_timer>=EGG_TIMING_BUDGET_MS && mgr.calculate_median_alt() < mgr.get_max_alt() * 0.77)
 				{
 					if(!mgr.wing_check())
 					{
@@ -333,30 +340,31 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 						sensors.EEPROM_updateWingRel();
 					}
 				}
-				else if(mgr.wing_check())
+
+				if(mgr.wing_check())
 				{
-					uint16_t dist = sensors.tofDistReading();
-					if(dist < EGG_ALT_THRESHOLD_MM && !mgr.egg_check())
+					float alt = mgr.calculate_median_alt();
+					if(alt < EGG_ALT_THRESHOLD_M && !mgr.egg_check())
 					{
 						sensors.activate_egg_release();
 						mgr.egg_rel();
 						sensors.EEPROM_updateEggRel();
-						sensors.stopTof();
-						new_state = PAYLOAD_RELEASE;
 					}
+				}
+				if(mgr.egg_check())
+				{
+					new_state = PAYLOAD_RELEASE;
 				}
 			}
 			break;
 		}
 
 		case PAYLOAD_RELEASE: {
-			if(mgr.calculate_median_alt() < LANDED_THRESHOLD_M)
+			bool threshold_check = mgr.calculate_median_alt() < LANDED_THRESHOLD_M;
+			if(mgr.landed_trigger(threshold_check))
 			{
-				if(mgr.landed_trigger())
-				{
-					new_state = LANDED;
-					HAL_TIM_Base_Stop_IT(&htim8);
-				}
+				new_state = LANDED;
+				HAL_TIM_Base_Stop_IT(&htim8);
 			}
 			break;
 		}
