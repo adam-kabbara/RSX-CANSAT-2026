@@ -20,7 +20,6 @@ bool INA219setup(double maxCurrent, double shuntResistance, uint16_t overwriteCa
 {
 	//check if I2C is ready
 	if(HAL_I2C_IsDeviceReady(&hi2c1, INA219_DEFAULT_ADDR<<1, 10, 100) != 0x00){return false;}
-	printf("Found device!\n\r");
 	//calibration
 	uint16_t cal = overwriteCalibrationValue;
 
@@ -29,7 +28,6 @@ bool INA219setup(double maxCurrent, double shuntResistance, uint16_t overwriteCa
 		cal = 0.04096/(currentLSB*shuntResistance);
 		currentLSB = 0.04096/(cal*shuntResistance); //correct LSB for truncation error
 	}
-	printf("cal: %d, clsb: %f \n\r", cal, currentLSB);
 	//write to calibration register
 
 	uint8_t* caldata = (uint8_t*)&cal;
@@ -38,7 +36,6 @@ bool INA219setup(double maxCurrent, double shuntResistance, uint16_t overwriteCa
 	//check for errors
 	if(successful != 0x0)
 	{
-		printf("error: %d", successful);
 		return false;
 	}
 	return true;
@@ -67,9 +64,7 @@ double INA219getCurrent()
 	uint8_t data[2];
 	HAL_I2C_Mem_Read(&hi2c1, INA219_DEFAULT_ADDR<<1, 0x04, 1, data, 2, 100);
 
-	uint16_t currentReg = (data[0]<<8)|data[1];
-
-	printf("creg: %d\n\r",currentReg);
+	int16_t currentReg = (int16_t)((data[0]<<8)|data[1]);
 
 	double current = currentReg*currentLSB;
 	return current;
@@ -92,9 +87,8 @@ double INA219getShuntVoltage()
 	uint8_t data[2];
 	HAL_I2C_Mem_Read(&hi2c1, INA219_DEFAULT_ADDR<<1, 0x01, 1, data, 2, 100);
 
-	uint16_t voltReg = (data[0]<<8)|data[1];
+	int16_t voltReg = (int16_t)((data[0]<<8)|data[1]);
 
-	printf("sreg: %d\n\r",voltReg);
 	double shuntLSB = 0.00001;
 	double voltage = voltReg*shuntLSB;
 	return voltage;

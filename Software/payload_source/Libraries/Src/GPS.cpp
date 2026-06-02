@@ -19,17 +19,6 @@ static int nmea_split(char *line, char **f, int maxf) {
     return n;
 }
 
-static bool nmea_checksum_ok(char *line) {
-    if (line[0] != '$') return false;
-    char *star = strchr(line, '*');
-    if (!star) return false;
-    uint8_t cs = 0;
-    for (char *p = line + 1; p < star; ++p) cs ^= (uint8_t)*p;
-    uint8_t given = (uint8_t)strtol(star + 1, nullptr, 16);
-    *star = '\0';
-    return cs == given;
-}
-
 static double nmea_coord(const char *s, char hemi) {
     if (s[0] == '\0') return NAN;
     double raw = atof(s);
@@ -177,12 +166,9 @@ void GPS::ublox_parse_GGA(char *line, struct gps_data &data) {
 
 // $xxVTG,cogTrue,T,cogMag,M,sogKnots,N,sogKmh,K,posMode
 void GPS::parse_VTG(char *line, gps_data &d) {
-    char *f[12];
+	char *f[12];
     int n = nmea_split(line, f, 12);
     if (n < 8) return;
-    bool got = false;
-    char *f[12];
-    if (nmea_split(line, f, 12) < 8) return;
     if (f[1][0]) d.cog_true  = fopt(f[1]);
     if (f[5][0]) d.sog_knots = fopt(f[5]);
     if (f[7][0]) { d.sog_kmh = fopt(f[7]); d.sog_ms = d.sog_kmh / 3.6f; d.data_ready = true; }

@@ -62,6 +62,16 @@ void EEPROMsimple::SetMode(SPI_HandleTypeDef *hspi,
  *  Private helpers
  * ═══════════════════════════════════════════════════════ */
 
+bool EEPROMsimple::_waitForReady(uint32_t timeout_ms)
+{
+	uint32_t start = HAL_GetTick();
+	while(ReadStatus() & EEPROM_WIP_BIT)
+	{
+		if((HAL_GetTick() - start) > timeout_ms) return false;
+	}
+	return true;
+}
+
 inline void EEPROMsimple::_csLow()
 {
     HAL_GPIO_WritePin(_csPort, _csPin, GPIO_PIN_RESET);
@@ -98,6 +108,8 @@ void EEPROMsimple::_writeRaw(uint32_t address, uint8_t *buf, uint16_t len)
     uint16_t totalLen = 4 + len;
     if (totalLen > EEPROM_MAX_BUF_BYTES) return;
 
+    _waitForReady(EEPROM_WRITE_DELAY_MS);
+
     uint8_t txBuf[EEPROM_MAX_BUF_BYTES] = {0};
     uint8_t rxBuf[EEPROM_MAX_BUF_BYTES] = {0}; // Dummy storage for clean full-duplex clearing
 
@@ -116,7 +128,6 @@ void EEPROMsimple::_writeRaw(uint32_t address, uint8_t *buf, uint16_t len)
     HAL_SPI_TransmitReceive(_hspi, txBuf, rxBuf, totalLen, EEPROM_SPI_TIMEOUT);
     _csHigh();
 
-    HAL_Delay(EEPROM_WRITE_DELAY_MS);
 }
 
 /* Low-level read: READ opcode → address → receive data */
@@ -127,6 +138,8 @@ void EEPROMsimple::_readRaw(uint32_t address, uint8_t *buf, uint16_t len)
     
     // Safety check to avoid overrunning our temporary heap/stack arrays
     if (totalLen > EEPROM_MAX_BUF_BYTES) return;
+
+    _waitForReady(EEPROM_WRITE_DELAY_MS);
 
     uint8_t txBuf[EEPROM_MAX_BUF_BYTES] = {0};
     uint8_t rxBuf[EEPROM_MAX_BUF_BYTES] = {0};

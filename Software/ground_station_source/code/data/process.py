@@ -159,6 +159,7 @@ class DataProcessor(QObject):
                 self._write_to_log = 0
                 self.close_logfile()
                 self.log_end_signal.emit()
+            return
         else:
             if not msg.strip():
                 return
@@ -213,8 +214,7 @@ class DataProcessor(QObject):
                     self._graph_ui.update_state(new_state)
                     self._graph_ui.update_flight_ctrl(new_ctrl)
                     self._graph_ui.update_alt_cal_status(new_alt_cal)
-
-            if msg.startswith("$E"):
+            elif msg.startswith("$E"):
                 self.sat_error_signal.emit(f"{msg_text}")
             else:
                 self.sat_resp_signal.emit(f"{msg_text}")
@@ -340,15 +340,15 @@ class DataProcessor(QObject):
             GPS_SATS     = self._field(fields, 20),
             CMD_ECHO     = self._field(fields, 21),
             PACKET_RECV  = self._graph_ui.get_packet_count(),
-            QUATERNION_X = self._parse_float(self._field(fields, 23)),
-            QUATERNION_Y = self._parse_float(self._field(fields, 24)),
-            QUATERNION_Z = self._parse_float(self._field(fields, 25)),
-            VELOCITY_X   = self._parse_float(self._field(fields, 26)),
-            VELOCITY_Y   = self._parse_float(self._field(fields, 27)),
-            VELOCITY_Z   = self._parse_float(self._field(fields, 28)),
-            ACCEL_X      = self._parse_float(self._field(fields, 29)),
-            ACCEL_Y      = self._parse_float(self._field(fields, 30)),
-            ACCEL_Z      = self._parse_float(self._field(fields, 31)),
+            QUATERNION_X = self._parse_float(self._field(fields, 22)),
+            QUATERNION_Y = self._parse_float(self._field(fields, 23)),
+            QUATERNION_Z = self._parse_float(self._field(fields, 24)),
+            VELOCITY_X   = self._parse_float(self._field(fields, 25)),
+            VELOCITY_Y   = self._parse_float(self._field(fields, 26)),
+            VELOCITY_Z   = self._parse_float(self._field(fields, 27)),
+            ACCEL_X      = self._parse_float(self._field(fields, 28)),
+            ACCEL_Y      = self._parse_float(self._field(fields, 29)),
+            ACCEL_Z      = self._parse_float(self._field(fields, 30))
         )
 
         return telemetry_data

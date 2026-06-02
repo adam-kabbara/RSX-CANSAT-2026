@@ -130,7 +130,6 @@ extern "C" void main_cpp()
             }
             HAL_Delay(10);
 
-            // TODO: look into one pulse again
             sensors.updateMotor();
         }
 
@@ -173,9 +172,9 @@ extern "C" void main_cpp()
 
             	serial.sendTelemetry(send_buff);
 
-				if(mission_mgr.logfile_ok() && !sensors.EEPROM_addLogLine(send_buff, serial))
+				if(mission_mgr.logfile_ok() && !sensors.EEPROM_addLogLine(send_buff))
 				{
-					serial.sendErrorMsg("Warning: Unable to add line to logfile!");
+					serial.sendErrorMsg("Warning: Unable to add line to logfile, disabling logfile writes!");
 					mission_mgr.disableLogfile();
 				}
 
@@ -189,8 +188,6 @@ extern "C" void main_cpp()
 
             if(update_flag)
             {
-            	sensors.updateBMP();
-
             	float pressure_val;
             	if(mission_mgr.getOpMode() == OPMODE_SIM)
 				{
@@ -198,6 +195,7 @@ extern "C" void main_cpp()
 				}
             	else
             	{
+            		sensors.updateBMP();
             		pressure_val = sensors.getPressure();
             	}
 
@@ -211,7 +209,7 @@ extern "C" void main_cpp()
 				OperatingState next_state = update_state(sensors, mission_mgr, mission_mgr.getOpState());
 				if(next_state != mission_mgr.getOpState())
 				{
-					sensors.EEPROM_updateState(next_state, serial);
+					sensors.EEPROM_updateState(next_state);
 					mission_mgr.setOpState(next_state);
 				}
 
@@ -244,10 +242,6 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 	{
 		case LAUNCH_PAD: {
 			float alt = mgr.calculate_median_alt();
-			if(mgr.update_max_alt(alt))
-			{
-				sensors.EEPROM_updateMaxAlt(alt);
-			}
 			if(alt > ASCENT_ALT_THRESHOLD_M)
 			{
 				new_state = ASCENT;
@@ -349,7 +343,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 				if(mgr.wing_check())
 				{
 					float alt = mgr.calculate_median_alt();
-					if(alt < EGG_ALT_THRESHOLD_M && !mgr.egg_check())
+					if(alt < (EGG_ALT_THRESHOLD_M + mgr.getEggAlt()) && !mgr.egg_check())
 					{
 						sensors.activate_egg_release();
 						mgr.egg_rel();

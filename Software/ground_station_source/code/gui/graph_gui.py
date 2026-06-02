@@ -65,12 +65,15 @@ class GraphWindow(QMainWindow):
         graph_grid_layout.setRowStretch(2, 1)
 
         graph_info = [
-            {"title": "Altitude", "kind": "single", "x_unit": "s", "y_unit": "m"},
-            {"title": "Voltage / Current", "kind": "dual_axis", "x_unit": "s", "left_y_unit": "V", "right_y_unit": "mA"},
-            {"title": "Velocity", "kind": "multi", "lines": 3, "x_unit": "s", "y_unit": "m/s^2"},
-            {"title": "Gyro RPY", "kind": "multi", "lines": 3, "x_unit": "s", "y_unit": "deg/s"},
-            {"title": "Accel RPY ", "kind": "multi", "lines": 3, "x_unit": "s", "y_unit": "deg/s^2"},
-            {"title": "GPS Map", "kind": "map", "x_unit": "s", "y_unit": "m"}
+            {"title": "Altitude", "type": "single", "x_unit": "s", "y_unit": "m"},
+            {"title": "Voltage / Current", "type": "dual_axis", "x_unit": "s", "left_y_unit": "V", "right_y_unit": "mA"},
+            {"title": "Velocity", "type": "multi", "lines": 3, "x_unit": "s", "y_unit": "m/s^2",  "label_one": "X", "label_two": "Y",
+             "label_three": "Z", "timescale": 30},
+            {"title": "Gyro RPY", "type": "multi", "lines": 3, "x_unit": "s", "y_unit": "deg/s", "label_one": "R", "label_two": "P",
+             "label_three": "Y",  "timescale": 30},
+            {"title": "Accel RPY ", "type": "multi", "lines": 3, "x_unit": "s", "y_unit": "deg/s^2", "label_one": "R", "label_two": "P",
+             "label_three": "Y",  "timescale": 30},
+            {"title": "GPS Map", "type": "map", "x_unit": "s", "y_unit": "m"}
         ]
 
         self.graph_title_to_index = {
@@ -86,24 +89,28 @@ class GraphWindow(QMainWindow):
         # Loop through each graph and create a plot using the plot classes
         for i, entry in enumerate(graph_info):
 
-            if entry["kind"] == "single":
+            if entry["type"] == "single":
                 plotter = DynamicPlotter(title=entry["title"],
                                          time_window=self._graph_time_window,
                                          x_unit=entry["x_unit"],
                                          y_unit=entry["y_unit"])
-            elif entry["kind"] == "dual_axis":
+            elif entry["type"] == "dual_axis":
                 plotter = DynamicPlotterDualAxis(title=entry["title"],
                                                  time_window=self._graph_time_window,
                                                  x_unit=entry["x_unit"],
                                                  left_y_unit=entry["left_y_unit"],
                                                  right_y_unit=entry["right_y_unit"])
-            elif entry["kind"] == "multi":
+            elif entry["type"] == "multi":
                 plotter = DynamicPlotterMultiLine(title=entry["title"],
                                                   timewindow=self._graph_time_window,
                                                   num_lines=entry["lines"],
                                                   x_unit=entry["x_unit"],
-                                                  y_unit=entry["y_unit"])
-            if entry["kind"] != "map":
+                                                  y_unit=entry["y_unit"],
+                                                  label_one=entry["label_one"],
+                                                  label_two=entry["label_two"],
+                                                  label_three=entry["label_three"],
+                                                  timescale=entry["timescale"])
+            if entry["type"] != "map":
                 self.plotters.append(plotter)
                 graph_grid_layout.addWidget(plotter.get_graph_object(), i // 2, i % 2)
 
@@ -307,11 +314,11 @@ class GraphWindow(QMainWindow):
             cosmetics.data_status_blue(str(val)) + " kPa")
         
     def update_quaternion(self, w, x, y, z):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Quaternion")].setText(
             cosmetics.data_status_blue(f"{w}|{x}|{y}|{z}"))
         
     def update_accel_xyz(self, x, y, z):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Accel XYZ")].setText(
             cosmetics.data_status_blue(f"{x}|{y}|{z}"))
 
     # State updates
