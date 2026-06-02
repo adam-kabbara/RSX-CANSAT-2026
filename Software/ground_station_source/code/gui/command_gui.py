@@ -210,6 +210,8 @@ class CommandWindow(QMainWindow):
         set_gps_box = QHBoxLayout()
         self.button_set_gps = QPushButton("SET GPS COOR")
         self.button_set_gps.setFont(button_font)
+        self.button_set_gps.clicked.connect(self.set_gps_coordinates)
+        self.button_set_gps.hide()
 
         self.gps_lat = QLineEdit()
         self.gps_lat.setPlaceholderText("Latitude")
@@ -230,9 +232,6 @@ class CommandWindow(QMainWindow):
         self.gps_rad.setValidator(QDoubleValidator())
         self.gps_rad.setStyleSheet(cosmetics.team_id_stylesheet())
         self.gps_rad.editingFinished.connect(self.gps_rad_edited)
-
-        self.button_set_gps.clicked.connect(self.set_gps_coordinates)
-        self.button_set_gps.hide()
 
         self.gps_lat.hide()
         self.gps_lon.hide()
