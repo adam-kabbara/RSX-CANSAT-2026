@@ -1,6 +1,4 @@
-#include "glider_ekf.hpp"
-#include "global_includes.hpp"
-#include "arm_math.h"
+#include "glider_ekf.h"
 
 #define STATE_DIM 12  // Error-state size (Pos, Vel, Att_err, Accel_bias)
 #define QUAT_DIM  4   // Attitude state tracking size
@@ -336,7 +334,7 @@ void glider_ekf_update_bno_quaternion(float32_t* bno_q, float32_t r_noise) {
     float32_t qw_b = bno_q[0], qx_b = bno_q[1], qy_b = bno_q[2], qz_b = bno_q[3];
 
     // Compute error quaternion: q_error = q_ekf^-1 * q_bno
-    float32_t qe_w =  qw_e*qw_b + qx_e*qx_b + qy_e*qy_b + qz_e*qz_b;
+    //float32_t qe_w =  qw_e*qw_b + qx_e*qx_b + qy_e*qy_b + qz_e*qz_b;
     float32_t qe_x =  qw_e*qx_b - qx_e*qw_b - qy_e*qz_b + qz_e*qy_b;
     float32_t qe_y =  qw_e*qy_b + qx_e*qz_b - qy_e*qw_b - qz_e*qx_b;
     float32_t qe_z =  qw_e*qz_b - qx_e*qy_b + qy_e*qx_b - qz_e*qw_b;
@@ -393,21 +391,21 @@ void glider_ekf_update_baro(float32_t baro_alt, float32_t r_noise) {
    execute_scalar_update(2, innovation, r_noise); // State index 2 = Down Position
 }
 
-void ekf_gps_update(struct gps_data* gps) {
+void ekf_gps_update(double lat, double lon, float alt, float sog_ms, float cog_true, float rms_range) {
    // Convert GPS lat/lon to local NED coordinates
    float32_t current_pos_ne[2];
-   convert_gps_to_local_ned(gps->latitude, gps->longitude, gps->altitude, current_pos_ne);
+   convert_gps_to_local_ned(lat, lon, alt, current_pos_ne);
 
    // GPS velocity is already in NED frame (assuming it was parsed that way)
 
    float32_t gps_vel_ned[2];
-   gps_vel_ned[0] = gps->sog_ms * cosf(gps->cog_true * DEG_TO_RAD); // North Velocity
-   gps_vel_ned[1] = gps->sog_ms * sinf(gps->cog_true * DEG_TO_RAD); // East Velocity
+   gps_vel_ned[0] = sog_ms * cosf(cog_true * DEG_TO_RAD); // North Velocity
+   gps_vel_ned[1] = sog_ms * sinf(cog_true * DEG_TO_RAD); // East Velocity
 
 
 
    // Call the EKF GPS update with appropriate noise parameters (these would be tuned based on GPS specs)
-   glider_ekf_update_gps(current_pos_ne, gps_vel_ned, gps->rms_range, gps->rms_range * 2.0f); // Example noise values
+   glider_ekf_update_gps(current_pos_ne, gps_vel_ned, rms_range, rms_range * 2.0f); // Example noise values
 }
 
 // Call when GPS pulls a structural coordinate parse update (Sequential cascading execution)

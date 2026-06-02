@@ -1,8 +1,13 @@
 #ifndef GLIDER_EKF_H_
 #define GLIDER_EKF_H_
 
-#include "arm_math.h"
-#include "global_includes.hpp"
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
+#include <arm_math.h>
+#include <stdbool.h>
+#include <math.h>
 
 extern float home_lat_rad;
 extern float home_lon_rad;
@@ -43,7 +48,7 @@ void glider_ekf_update_bno_quaternion(float32_t* bno_q, float32_t r_noise);
  */
 void glider_ekf_update_baro(float32_t baro_alt, float32_t r_noise);
 
-void ekf_gps_update(struct gps_data* gps);
+void ekf_gps_update(double lat, double lon, float alt, float sog_ms, float cog_true, float rms_range);
 
 /**
  * @brief Asynchronous correction step using GPS data.
@@ -61,5 +66,8 @@ void glider_ekf_update_gps(const float32_t* gps_pos_ne, const float32_t* gps_vel
  */
 void glider_ekf_update_compass(float32_t compass_yaw_rad, float32_t r_noise);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GLIDER_EKF_H_ */

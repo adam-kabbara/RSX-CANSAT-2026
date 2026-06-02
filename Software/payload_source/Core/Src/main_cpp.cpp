@@ -1,3 +1,4 @@
+#include "glider_ekf.h"
 #include "drv.hpp"
 #include "main.h"
 #include "global_includes.hpp"
@@ -7,7 +8,6 @@
 #include "telemetry_manager.hpp"
 #include "command_manager.hpp"
 #include "controller.hpp"
-#include "glider_ekf.hpp"
 
 extern "C" volatile uint8_t send_flag;
 extern "C" volatile uint8_t pvd_flag;
@@ -171,6 +171,7 @@ extern "C" void main_cpp()
 
             if(send_flag)
             {
+            	/*
 				float pos[3];
 				float vel[3];
 				float x_q[4];
@@ -181,6 +182,7 @@ extern "C" void main_cpp()
 				float rpy[3];
 				quat_to_rpy(x_q, rpy);
 				serial.sendInfoDataMsg("EKF State: RPY (%.3f, %.3f, %.3f)", rpy[0], rpy[1], rpy[2]);
+				*/
 				telemetry_mgr.sampleSensors(sensors, mission_mgr, serial);
             	telemetry_mgr.build_data_str(send_buff, sizeof(send_buff));
 
@@ -251,7 +253,7 @@ extern "C" void main_cpp()
 			if(gps_data.data_ready)
 			{
 				gps_data.data_ready = false;
-				ekf_gps_update(&gps_data);
+				ekf_gps_update(gps_data.latitude, gps_data.longitude, gps_data.altitude, gps_data.sog_ms, gps_data.cog_true, gps_data.rms_range);
 			}
 
             sensors.updateMotor();

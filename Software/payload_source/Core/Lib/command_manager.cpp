@@ -644,4 +644,6 @@ void CommandManager::do_gps(SerialManager &ser, MissionManager &info, SensorMana
 		return;
 	}
 
+	//TODO: Finish
+
 }
