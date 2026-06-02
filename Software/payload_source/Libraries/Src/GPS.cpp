@@ -41,7 +41,7 @@
 //     }
 // }
 
-double nmeaToDecimalDegrees(const char* token) {
+double GPS::nmeaToDecimalDegrees(const char* token) {
     if (token == NULL || token[0] == '\0') return NAN;
     double raw = std::atof(token);
     int degrees = (int)(raw / 100);
