@@ -1,4 +1,7 @@
 #include "runcam.hpp"
+#include "serial_manager.hpp"
+
+extern SerialManager serial;
 
 RunCam::RunCam() : tx_port(nullptr), tx_pin(0), rx_port(nullptr), rx_pin(0), is_recording(false) {}
 
@@ -68,7 +71,7 @@ void RunCam::bitBangWriteByte(uint8_t byte)
 {
     // START BIT (Drop Low)
     tx_port->BSRR = (tx_pin << 16); 
-    delay_us(8);
+    delay_us(9);
     __NOP(); __NOP(); __NOP();
 
     // 8 DATA BITS (LSB first)
@@ -76,13 +79,13 @@ void RunCam::bitBangWriteByte(uint8_t byte)
     {
         if (byte & (1 << i)) tx_port->BSRR = tx_pin;          // HIGH
         else                 tx_port->BSRR = (tx_pin << 16);  // LOW
-        delay_us(8);
+        delay_us(9);
         __NOP(); __NOP(); __NOP();
     }
 
     // STOP BIT (Return HIGH)
     tx_port->BSRR = tx_pin; 
-    delay_us(8);
+    delay_us(9);
 }
 
 uint8_t RunCam::bitBangReadByte() 
@@ -90,9 +93,13 @@ uint8_t RunCam::bitBangReadByte()
     uint8_t byte = 0;
     uint32_t timeout = 80000; 
 
-    while ((rx_port->IDR & rx_pin) != 0) 
+    while ((rx_port->IDR & rx_pin) != 0)
     {
-        if (--timeout == 0) return 0x00; 
+        if (--timeout == 0)
+        {
+            serial.sendErrorMsg("[RunCam] bitBangReadByte: timeout — RX line never went LOW (no start bit)");
+            return 0x00;
+        }
     }
 
     delay_us(4); 
@@ -100,11 +107,11 @@ uint8_t RunCam::bitBangReadByte()
 
     for (int i = 0; i < 8; i++) 
     {
-        delay_us(8); 
+        delay_us(9); 
         __NOP(); __NOP(); __NOP();
         if ((rx_port->IDR & rx_pin) != 0) byte |= (1 << i); 
     }
-    delay_us(8);
+    delay_us(9);
     return byte;
 }
 
@@ -121,11 +128,13 @@ bool RunCam::probeDevice()
 {
     uint8_t packet[3] = {0xCC, 0x00, 0x00};
     packet[2] = compound_crc(packet, 2);
-    
+
+    serial.sendInfoDataMsg("[RunCam] probeDevice: RX idle state=%d (expect 1)", (rx_port->IDR & rx_pin) ? 1 : 0);
+    serial.sendInfoDataMsg("[RunCam] probeDevice: sending handshake {0x%02X, 0x%02X, 0x%02X}", packet[0], packet[1], packet[2]);
     sendPacket(packet, 3);
-    
-    // Check if the camera returns a valid structural response header
+
     uint8_t sync_byte = bitBangReadByte();
+    serial.sendInfoDataMsg("[RunCam] probeDevice: got response byte 0x%02X (expect 0xCC)", sync_byte);
     return (sync_byte == 0xCC);
 }
 
@@ -133,7 +142,9 @@ void RunCam::toggleRecording()
 {
     uint8_t packet[4] = {0xCC, 0x01, 0x01, 0x00};
     packet[3] = compound_crc(packet, 3);
-    
+
+    serial.sendInfoDataMsg("[RunCam] toggleRecording: sending {0x%02X, 0x%02X, 0x%02X, 0x%02X}", packet[0], packet[1], packet[2], packet[3]);
     sendPacket(packet, 4);
-    is_recording = !is_recording; // Local state tracking
+    is_recording = !is_recording;
+    serial.sendInfoDataMsg("[RunCam] toggleRecording: done, is_recording=%d", (int)is_recording);
 }

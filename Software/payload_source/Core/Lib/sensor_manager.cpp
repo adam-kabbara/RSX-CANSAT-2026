@@ -5,6 +5,10 @@
  */
 
 #include "sensor_manager.hpp"
+#include "serial_manager.hpp"
+extern "C" UART_HandleTypeDef huart1;
+
+SerialManager serial(huart1); // for debugging purposes, remove later
 
 SensorManager::SensorManager()
 {
@@ -186,11 +190,13 @@ cam_status SensorManager::getCameraStatus()
 
 void SensorManager::toggleCamera1()
 { 
+	serial.sendInfoMsg("Toggling Camera 1 (G_CAM) recording state...HEREEEEE");
 	cam1_dev.toggleRecording(); 
 }
 
 void SensorManager::toggleCamera2()
 {
+	serial.sendInfoMsg("Toggling Camera 2 (PG_CAM) recording state...IAM HERE");
 	cam2_dev.toggleRecording();
 }
 
@@ -674,6 +680,7 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	eeprom_dev = &eeprom_storage;
 
 	cam1_dev.init(GPIOF, GPIO_PIN_0, GPIOB, GPIO_PIN_6);
+	HAL_Delay(500);
 	cam2_dev.init(GPIOF, GPIO_PIN_1, GPIOA, GPIO_PIN_8);
 
 	/* Diagnostic: verify SPI reaches the EEPROM before anything else touches I2C.
@@ -723,10 +730,10 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	BNO_enableMag(10000, serial);
 
 	if(!cam1_dev.probeDevice()) {
-        serial.sendErrorMsg("Warning: RunCam Handshake Communication timed out.\r\n");
+        serial.sendErrorMsg("Warning: RunCam 1 Handshake Communication timed out.\r\n");
     }
 	if(!cam2_dev.probeDevice()) {
-        serial.sendErrorMsg("Warning: RunCam Handshake Communication timed out.\r\n");
+        serial.sendErrorMsg("Warning: RunCam 2 Handshake Communication timed out.\r\n");
     }
 
 	HAL_Delay(100);
