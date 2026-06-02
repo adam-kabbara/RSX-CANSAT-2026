@@ -128,7 +128,6 @@
            in the used linker script.
   
  */
-#ifndef __cplusplus  // <--- ADD THIS
 __STATIC_FORCEINLINE __NO_RETURN void __cmsis_start(void)
 {
   extern void _start(void) __NO_RETURN;
@@ -163,7 +162,6 @@ __STATIC_FORCEINLINE __NO_RETURN void __cmsis_start(void)
  
   _start();
 }
-#endif
   
 #define __PROGRAM_START           __cmsis_start
 #endif
