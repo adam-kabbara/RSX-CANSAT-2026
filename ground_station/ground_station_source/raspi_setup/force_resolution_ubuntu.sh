@@ -28,7 +28,7 @@ if [ -z "$HDMI_OUTPUT" ]; then
 fi
 
 # define custom mode 
-xrandr --newmode "1600x900_65.00"  129.50  1600 1696 1864 2128  900 903 908 937 -hsync +vsync>>"$LOGFILE"
+xrandr --newmode "1280x960_60.00"  102.25  1280 1376 1488 1728  960 963 968 992 -hsync +vsync>>"$LOGFILE"
 # add it to HDMI
-xrandr --addmode "$HDMI_OUTPUT" "1600x900_65.00" 2>/dev/null
-xrandr --output "$HDMI_OUTPUT" --mode "1600x900_65.00" --primary
+xrandr --addmode "$HDMI_OUTPUT" "1280x960_60.00" 2>/dev/null
+xrandr --output "$HDMI_OUTPUT" --mode "1280x960_60.00" --primary
