@@ -12,7 +12,7 @@
 #ifndef EEPROM_SIMPLE_H
 #define EEPROM_SIMPLE_H
 
-#include "stm32g4xx_hal.h"   // Replace xxxx with your STM32 family, e.g. stm32f4xx_hal.h
+#include "stm32g4xx_hal.h" 
 
 /* ---------- 25LC1024 SPI opcodes ---------- */
 #define EEPROM_WRITE   0x02

@@ -16,6 +16,7 @@
 #include "ds1307.hpp"
 #include "drv.hpp"
 #include "eeprom.hpp"
+#include "GPS.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,14 +54,9 @@ private:
 	uint16_t xtalk;
 
 	EEPROMsimple *eeprom_dev = nullptr;
-
-
-
-public:
-
-	static const uint32_t EEPROM_TOTAL_BYTES       = 131072UL;
+	static const uint32_t EEPROM_TOTAL_BYTES       = 131072UL; // priv
  
-    static const uint32_t EEPROM_NUM_RECOVERY_FIELDS = 9UL;
+    static const uint32_t EEPROM_NUM_RECOVERY_FIELDS = 9UL; // priv
     static const uint32_t EEPROM_HEADER_ENTRY_SIZE  = 4UL;   // bytes per size field
     static const uint32_t EEPROM_HEADER_SIZE =
         (EEPROM_NUM_RECOVERY_FIELDS + 1UL) * EEPROM_HEADER_ENTRY_SIZE;  // 20 bytes
@@ -91,6 +87,15 @@ public:
 	static const uint32_t EEPROM_HDR_IDX_WINGREL     = 7UL;
 	static const uint32_t EEPROM_HDR_IDX_PROBEREL    = 8UL;
 	static const uint32_t EEPROM_HDR_IDX_NOSECONEREL = 9UL;
+
+	I2C_HandleTypeDef *gps_hi2c = nullptr;
+	GPS gps_parser;
+	gps_data internal_gps_storage;
+	char gps_nmea_buffer[100];
+	uint8_t gps_buf_idx = 0; // counter tracking string length
+
+
+public:
 
 	SensorManager();
 
@@ -126,6 +131,7 @@ public:
 
 	void getRawMag(float* data_out);
 
+	void updateGPS();
 	struct gps_data getGPSData();
 
 	cam_status getCameraStatus();
