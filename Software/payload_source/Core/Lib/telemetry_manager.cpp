@@ -22,16 +22,19 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mis
 
 	sensors.updateBMP();
 
+	float pressure;
 	if(mission_info.getOpMode() == OPMODE_SIM)
 	{
-		packet.PRESSURE = mission_info.getSimpData()/1000.0;
+		pressure = mission_info.getSimpData();
 	}
 	else
 	{
-		packet.PRESSURE = sensors.getPressure()/1000.0;
+		pressure = sensors.getPressure();
 	}
 
-	packet.ALTITUDE = packet.PRESSURE - mission_info.getLaunchAlt();
+	packet.PRESSURE = pressure/1000.0;
+
+	packet.ALTITUDE = pressure_to_alt(pressure) - mission_info.getLaunchAlt();
 
 	packet.TEMPERATURE = sensors.getTemp();
 

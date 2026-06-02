@@ -69,6 +69,35 @@ void SensorManager::BNO_enableRotationVector(int microsec, SerialManager &serial
 	}
 }
 
+void SensorManager::BNO_enableGameRotationVector(int microsec, SerialManager &serial)
+{
+	if(BNO085_EnableGameRotationVector(&bno_dev, microsec) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO GAME ROTATION VECTOR ENABLE DID NOT RETURN OK STATUS");
+	}
+}
+
+void SensorManager::BNO_calibrate(SerialManager &serial){
+	if (BNO085_Calibrate(&bno_dev, 7) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO AUTO CALIBRATION START FAILED");
+	}
+}
+
+void SensorManager::BNO_disableCalibration(SerialManager &serial){
+	if (BNO085_DisableCalibration(&bno_dev) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO AUTO CALIBRATION DISABLE FAILED");
+	}
+}
+
+void SensorManager::BNO_saveCalibration(SerialManager &serial){
+	if (BNO085_SaveCalibration(&bno_dev) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO SAVE CALIBRATION FAILED");
+	}
+}
+
 bool SensorManager::BNO_dataReady()
 {
 	return BNO085_DataReady(&bno_dev);
@@ -107,6 +136,7 @@ void SensorManager::getRawGyro(float* data_out)
 	data_out[0] = bno_dev.gyro.x;
 	data_out[1] = bno_dev.gyro.y;
 	data_out[2] = bno_dev.gyro.z; // need the raw not sensor fusion ones
+	data_out[3] = bno_dev.gyro.accuracy;
 }
 
 struct rpy_data SensorManager::getCalibratedGyro(float* calib_bias)
@@ -118,6 +148,16 @@ struct rpy_data SensorManager::getCalibratedGyro(float* calib_bias)
 	data.gyro_p = raw[1] - calib_bias[1];
 	data.gyro_y = raw[2] - calib_bias[2];
 	return data;
+}
+
+void SensorManager::getGameRotationVector(float* data_out)
+{
+	updateBNO();
+	data_out[0] = bno_dev.quat.real;
+	data_out[1] = bno_dev.quat.i;
+	data_out[2] = bno_dev.quat.j;
+	data_out[3] = bno_dev.quat.k;
+	data_out[4] = bno_dev.quat_accuracy;
 }
 
 struct rpy_data SensorManager::getIMUData() // out of date
@@ -156,6 +196,7 @@ void SensorManager::getRawAccel(float* data_out)
 	data_out[0] = bno_dev.accel.x;
 	data_out[1] = bno_dev.accel.y;
 	data_out[2] = bno_dev.accel.z; // need the raw not sensor fusion ones
+	data_out[3] = bno_dev.accel.accuracy;
 }
 
 struct rpy_data SensorManager::getCalibratedAccel(float* calib_bias, float* calib_scale)
@@ -167,6 +208,15 @@ struct rpy_data SensorManager::getCalibratedAccel(float* calib_bias, float* cali
 	data.accel_p = (raw[1] - calib_bias[1]) * calib_scale[1];
 	data.accel_y = (raw[2] - calib_bias[2]) * calib_scale[2];
 	return data;
+}
+
+void SensorManager::getRawMag(float* data_out)
+{
+	updateBNO();
+	data_out[0] = bno_dev.mag.x;
+	data_out[1] = bno_dev.mag.y;
+	data_out[2] = bno_dev.mag.z; // need the raw not sensor fusion ones
+	data_out[3] = bno_dev.mag.accuracy;
 }
 
 struct gps_data SensorManager::getGPSData()
@@ -696,6 +746,7 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	BNO_enableGyro(5000, serial);
 	BNO_enableAccel(5000, serial);
 	BNO_enableMag(10000, serial);
+	BNO_enableGameRotationVector(10000, serial);
 
 	HAL_Delay(100);
 
