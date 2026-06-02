@@ -88,11 +88,27 @@ struct bar_data {
 };
 
 struct gps_data {
-	char time[DATA_SIZE];
-	float altitude;
-	float latitude;
-	float longitude;
-	int sats;
+    char    time[DATA_SIZE];   // UTC, "hhmmss.ss"
+    double  latitude;          // decimal degrees, +N / -S   (double, not float)
+    double  longitude;         // decimal degrees, +E / -W
+    char    ns, ew;            // raw hemisphere chars
+    char    pos_mode[8];       // GNS field 6: one char per constellation (N/A/D/F/R...)
+    uint8_t sats;              // numSV
+    float   hdop;
+    float   altitude;          // m above MSL
+    float   geoid_sep;         // m
+    float   diff_age;          // s   (NAN if absent)
+    int     diff_station;
+    char    nav_status;        // NMEA 4.10 nav status
+
+    // --- GST: error statistics, all metres ---
+    float   rms_range;
+    float   std_major, std_minor, orient;   // error ellipse: axes (m), orientation (deg)
+    float   std_lat, std_lon, std_alt;       // per-axis 1-sigma error (m)
+
+    // --- GSA ---
+    float   pdop, vdop;
+    char    fix_type;          // '1' none, '2' 2D, '3' 3D
 };
 
 struct recovery_data {

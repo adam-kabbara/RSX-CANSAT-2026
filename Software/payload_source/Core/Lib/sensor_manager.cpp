@@ -188,6 +188,19 @@ void SensorManager::updateGPS()
             gps_buf_idx = 0; 
         }
     }
+
+	if (internal_gps_storage.fix_quality > 0) {
+		char ln[128];
+		int len = snprintf(ln, sizeof ln,
+			"GPS q%u sats%u hdop%.1f lat%.6f lon%.6f alt%.1f\r\n",
+			internal_gps_storage.fix_quality,
+			internal_gps_storage.sats,
+			(double)internal_gps_storage.hdop,
+			internal_gps_storage.latitude,
+			internal_gps_storage.longitude,
+			(double)internal_gps_storage.altitude);
+		HAL_UART_Transmit(&your_huart, (uint8_t*)ln, (uint16_t)len, 50); // BLOCKING
+	}
 }
 
 struct gps_data SensorManager::getGPSData()
