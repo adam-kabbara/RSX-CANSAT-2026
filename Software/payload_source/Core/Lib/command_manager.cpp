@@ -390,11 +390,11 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
     int data_not_ready_count = 0;
     for (int i=0; i<num_data_points; i++){ 
       gyro_raw_data = new float[3];
-      sensors.getRawGyro(gyro_raw_data);
-      if(i > 0 && gyro_raw_data[0] == rawGyroX[i-1] && gyro_raw_data[1] == rawGyroY[i-1] && gyro_raw_data[2] == rawGyroZ[i-1])
+      if(!sensors.BNO_dataReady())
       {
         data_not_ready_count++;
       }
+      sensors.getRawGyro(gyro_raw_data);
       rawGyroX[i] = gyro_raw_data[0];
       rawGyroY[i] = gyro_raw_data[1];
       rawGyroZ[i] = gyro_raw_data[2];
