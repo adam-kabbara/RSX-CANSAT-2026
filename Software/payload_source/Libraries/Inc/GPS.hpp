@@ -11,7 +11,6 @@
 class GPS {
     public:
         static double nmeaToDecimalDegrees(const char* token);
-        static void parse_nmea(char *line, struct gps_data &data);
         static void ublox_parse_GGA(char *line, struct gps_data &data);
         static void ublox_parse_GNS(char *line, struct gps_data &data);
         static void ublox_parse_RMC(char *line, struct gps_data &data);
@@ -20,6 +19,7 @@ class GPS {
         static void parse_GNS(char *line, struct gps_data &data);
         static void parse_GST(char *line, struct gps_data &data);
         static void parse_GSA(char *line, struct gps_data &data);
+        static void parse_VTG(char *line, struct gps_data &data);
 };
 
 #endif /* __cplusplus */

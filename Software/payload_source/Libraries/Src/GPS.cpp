@@ -38,8 +38,12 @@ static double nmea_coord(const char *s, char hemi) {
     return (hemi == 'S' || hemi == 'W') ? -dec : dec;
 }
 
-static void nmea_assign_coord(double &dest, const char *s, char hemi) {
-    if (s[0] != '\0') dest = nmea_coord(s, hemi);
+static bool nmea_assign_coord(double &dest, const char *s, char hemi) {
+    if (s[0] != '\0') {
+        dest = nmea_coord(s, hemi);
+        return true;
+    }
+    return false;
 }
 
 static inline float fopt(const char *s) { return s[0] ? (float)atof(s) : NAN; }
@@ -54,6 +58,7 @@ void GPS::ublox_parse(char *line, struct gps_data &data) {
     else if (strncmp(type, "GLL", 3) == 0) ublox_parse_GLL(line, data);
     else if (strncmp(type, "GST", 3) == 0) parse_GST(line, data);
     else if (strncmp(type, "GSA", 3) == 0) parse_GSA(line, data);
+    else if (!strncmp(type, "VTG", 3)) parse_VTG(line, data);
 }
 
 void GPS::parse_GNS(char *line, gps_data &d) {
@@ -62,8 +67,9 @@ void GPS::parse_GNS(char *line, gps_data &d) {
     if (n < 10) return;
     strncpy(d.time, f[1], DATA_SIZE - 1); d.time[DATA_SIZE - 1] = '\0';
     d.ns = f[3][0]; d.ew = f[5][0];
-    nmea_assign_coord(d.latitude,  f[2], d.ns);
-    nmea_assign_coord(d.longitude, f[4], d.ew);
+    bool got = false;
+    got |= nmea_assign_coord(d.latitude,  f[2], d.ns);
+    got |= nmea_assign_coord(d.longitude, f[4], d.ew);
     strncpy(d.pos_mode, f[6], sizeof d.pos_mode - 1);
     d.pos_mode[sizeof d.pos_mode - 1] = '\0';
     d.sats     = (uint8_t)atoi(f[7]);
@@ -73,6 +79,7 @@ void GPS::parse_GNS(char *line, gps_data &d) {
     if (n > 11) d.diff_age     = fopt(f[11]);
     if (n > 12) d.diff_station = atoi(f[12]);
     if (n > 13) d.nav_status   = f[13][0];
+    if (got) d.data_ready = true;
 }
 
 // $xxGST,time,rms,stdMaj,stdMin,orient,stdLat,stdLon,stdAlt
@@ -98,15 +105,6 @@ void GPS::parse_GSA(char *line, gps_data &d) {
     d.vdop = fopt(f[17]);
 }
 
-void GPS::parse_nmea(char *line, gps_data &d) {
-    if (line[1] == 'P') return;          // skip proprietary $P... (different layout)
-    if (!nmea_checksum_ok(line)) return; // also strips the checksum
-    const char *type = line + 3;         // "$" + 2-char talker, then 3-char type
-    if      (!strncmp(type, "GNS", 3)) parse_GNS(line, d);
-    else if (!strncmp(type, "GST", 3)) parse_GST(line, d);
-    else if (!strncmp(type, "GSA", 3)) parse_GSA(line, d);
-}
-
 // $GPGLL,lat,N/S,lon,E/W,time,status*cs
 //   0     1   2   3   4    5     6
 void GPS::ublox_parse_GLL(char *line, struct gps_data &data) {
@@ -114,10 +112,12 @@ void GPS::ublox_parse_GLL(char *line, struct gps_data &data) {
     if (nmea_split(line, f, 8) < 6) return;
     data.ns = f[2][0]; 
     data.ew = f[4][0];
-    nmea_assign_coord(data.latitude,  f[1], data.ns);
-    nmea_assign_coord(data.longitude, f[3], data.ew);
+    bool got = false;
+    got |= nmea_assign_coord(data.latitude,  f[1], data.ns);
+    got |= nmea_assign_coord(data.longitude, f[3], data.ew);
     strncpy(data.time, f[5], DATA_SIZE - 1); 
     data.time[DATA_SIZE - 1] = '\0';
+    if (got) data.data_ready = true;
 }
 
 
@@ -129,11 +129,13 @@ void GPS::ublox_parse_GNS(char *line, struct gps_data &data) {
     strncpy(data.time, f[1], DATA_SIZE - 1);
     data.time[DATA_SIZE - 1] = '\0';
     data.ns = f[3][0]; data.ew = f[5][0];
-    nmea_assign_coord(data.latitude,  f[2], data.ns);
-    nmea_assign_coord(data.longitude, f[4], data.ew);
+    bool got = false;
+    got |= nmea_assign_coord(data.latitude,  f[2], data.ns);
+    got |= nmea_assign_coord(data.longitude, f[4], data.ew);
     data.sats = (uint8_t)atoi(f[7]);
     data.hdop = fopt(f[8]);
     data.altitude = fopt(f[9]);
+    if (got) data.data_ready = true;
 }
 
 
@@ -146,8 +148,12 @@ void GPS::ublox_parse_RMC(char *line, struct gps_data &data) {
     data.time[DATA_SIZE - 1] = '\0';
     if (f[2][0] == 'A') {
         data.ns = f[4][0]; data.ew = f[6][0];
-        nmea_assign_coord(data.latitude,  f[3], data.ns);
-        nmea_assign_coord(data.longitude, f[5], data.ew);
+        bool got = false;
+        got |= nmea_assign_coord(data.latitude,  f[3], data.ns);
+        got |= nmea_assign_coord(data.longitude, f[5], data.ew);
+        if (f[7][0]) { data.sog_knots = fopt(f[7]); data.sog_ms = data.sog_knots * 0.514444f; got = true; }
+        if (f[8][0]) data.cog_true = fopt(f[8]);
+        if (got) data.data_ready = true;
     }
 }
 
@@ -160,9 +166,24 @@ void GPS::ublox_parse_GGA(char *line, struct gps_data &data) {
     strncpy(data.time, f[1], DATA_SIZE - 1);
     data.time[DATA_SIZE - 1] = '\0';
     data.ns = f[3][0]; data.ew = f[5][0];
-    nmea_assign_coord(data.latitude,  f[2], data.ns);
-    nmea_assign_coord(data.longitude, f[4], data.ew);
+    bool got = false;
+    got |= nmea_assign_coord(data.latitude,  f[2], data.ns);
+    got |= nmea_assign_coord(data.longitude, f[4], data.ew);
     data.sats = (uint8_t)atoi(f[7]);
     data.hdop = fopt(f[8]);
     data.altitude = fopt(f[9]);
+    if (got) data.data_ready = true;
+}
+
+// $xxVTG,cogTrue,T,cogMag,M,sogKnots,N,sogKmh,K,posMode
+void GPS::parse_VTG(char *line, gps_data &d) {
+    char *f[12];
+    int n = nmea_split(line, f, 12);
+    if (n < 8) return;
+    bool got = false;
+    char *f[12];
+    if (nmea_split(line, f, 12) < 8) return;
+    if (f[1][0]) d.cog_true  = fopt(f[1]);
+    if (f[5][0]) d.sog_knots = fopt(f[5]);
+    if (f[7][0]) { d.sog_kmh = fopt(f[7]); d.sog_ms = d.sog_kmh / 3.6f; d.data_ready = true; }
 }

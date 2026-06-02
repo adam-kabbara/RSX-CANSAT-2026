@@ -111,6 +111,14 @@ struct gps_data {
 	// --- GSA ---
 	float   pdop, vdop;
 	char    fix_type;          // '1' none, '2' 2D, '3' 3D
+
+	// VTG / RMC — horizontal velocity
+	float cog_true  = 0.0f;   // course over ground, deg true (0..360)
+	float sog_knots = 0.0f;   // speed over ground, knots
+	float sog_kmh   = 0.0f;   // km/h
+	float sog_ms    = 0.0f;   // m/s (derived, the one you'll probably use)
+
+	bool data_ready = false; // set to true when lat, lon, velocity
 };
 
 struct recovery_data {
