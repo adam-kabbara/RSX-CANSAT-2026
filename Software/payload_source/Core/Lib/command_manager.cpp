@@ -7,8 +7,6 @@
   */
 
 #include "command_manager.hpp"
-#include "drv.hpp"
-#include "sensor_calibration.hpp"
 
 CommandManager::CommandManager()
 {
@@ -191,12 +189,14 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
     if(strcmp(data, "GPS") == 0)
     {
         char time_str[DATA_SIZE];
+        char rtc_time_str[DATA_SIZE];
+        sensors.updateGPS();
         sensors.getGPSTime(time_str);
         if(sscanf(time_str, "%d:%d:%d", &h, &m, &s) == 3)
         {
           sensors.setRTCTime(h, m, s);
-          sensors.getRTCTime(time_str);
-          ser.sendInfoDataMsg("Set RTC time to %s", time_str);
+          sensors.getRTCTime(rtc_time_str);
+          ser.sendInfoDataMsg("Got GPS time %s, RTC set to %s", time_str, rtc_time_str);
         }
         else
         {
@@ -372,7 +372,7 @@ void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorMana
   status_update(ser, info);
 } // END: do_Cal()
 
-void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data) // data = gyro
+void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
 {
   if(!data)
   {
@@ -380,91 +380,22 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
     return;
   }
 
-  if (strcmp(data, "GYRO") == 0)
+  if(strcmp(data, "MAG") == 0)
   {
-    int num_data_points = 250; // vibes
-    float* rawGyroX = new float[num_data_points];
-    float* rawGyroY = new float[num_data_points];
-    float* rawGyroZ = new float[num_data_points];
-    int data_not_ready_count = 0;
-    float gyro_raw_data[3];
-    for (int i=0; i<num_data_points; i++){ 
-      if(!sensors.BNO_dataReady())
-      {
-        data_not_ready_count++;
-      }
-      sensors.getRawGyro(gyro_raw_data);
-      rawGyroX[i] = gyro_raw_data[0];
-      rawGyroY[i] = gyro_raw_data[1];
-      rawGyroZ[i] = gyro_raw_data[2];
-      HAL_Delay(5);
-    }
-    ser.sendInfoDataMsg("Data not ready count during gyro calibration: %d out of %d", data_not_ready_count, num_data_points);
-    ser.sendInfoDataMsg("Last readings were X: %f, Y: %f, Z: %f", rawGyroX[num_data_points-1], rawGyroY[num_data_points-1], rawGyroZ[num_data_points-1]);
-    calibration.calibrateGyro(rawGyroX, rawGyroY, rawGyroZ, num_data_points);
 
-    CalibrationData gyroCalib = calibration.getGyroCalib();
-    if (gyroCalib.isCalibrated) {
-      ser.sendInfoDataMsg("Gyro calibrated with biasX: %f, biasY: %f, biasZ: %f", gyroCalib.biasX, gyroCalib.biasY, gyroCalib.biasZ);
-    } else {
-      ser.sendErrorMsg("Gyro calibration failed.");
-    }
-    delete[] rawGyroX;
-    delete[] rawGyroY;
-    delete[] rawGyroZ;
   }
-  else if (strcmp(data, "ACCE") == 0)
+  else if(strcmp(data, "EGG") == 0)
   {
-    ser.sendInfoMsg("Starting accelerometer calibration. Press Next to begin calibrating X+");
-    currentFace = AccelFace::FACE_XP;
+	  sensors.updateBMP();
+	  info.setEggAlt(pressure_to_alt(sensors.getPressure()));
+	  ser.sendInfoDataMsg("Set egg altitude to %f", info.getEggAlt());
   }
-  else if (strcmp(data, "NEXT") == 0)
+  else if(strcmp(data, "EGG2") == 0)
   {
-    if (currentFace == AccelFace::FACE_ZN) {
-      ser.sendInfoMsg("Accelerometer calibration complete.");
-      return;
-    }
-    else {
-      const int num_data_points = 250; // vibes
-      float* accel_raw_data = new float[4];
-      float *rawAccelX = new float[num_data_points];
-      float *rawAccelY = new float[num_data_points];
-      float *rawAccelZ = new float[num_data_points];
-
-      int data_not_ready_count = 0;
-      for (int i=0; i<num_data_points; i++){ 
-        sensors.getRawAccel(accel_raw_data);
-        float accel_mag = sqrt(pow(accel_raw_data[0], 2) + pow(accel_raw_data[1], 2) + pow(accel_raw_data[2], 2));
-        if (10.8 < accel_mag || accel_mag < 9.0)
-        {
-          data_not_ready_count++;
-        }
-        rawAccelX[i] = accel_raw_data[0];
-        rawAccelY[i] = accel_raw_data[1];
-        rawAccelZ[i] = accel_raw_data[2];
-        if (i % 50 == 0) {
-          ser.sendInfoDataMsg("Sample %d, accuracy: %f", i, accel_raw_data[3]);
-        }
-        HAL_Delay(5);
-      }
-      ser.sendInfoDataMsg("Data not ready count during accel calibration: %d out of %d", data_not_ready_count, num_data_points);
-      ser.sendInfoDataMsg("Last readings for this face were X: %f, Y: %f, Z: %f", accel_raw_data[0], accel_raw_data[1], accel_raw_data[2]);
-      calibration.calibrateAccelFace(rawAccelX, rawAccelY, rawAccelZ, num_data_points, currentFace);
-      currentFace = calibration.faceFSM(currentFace);
-      CalibrationData accelCalib = calibration.getAccelCalib();
-      if (accelCalib.isCalibrated) {
-        ser.sendInfoDataMsg("Accelerometer Face calibrated with biasX: %f, biasY: %f, biasZ: %f", accelCalib.biasX, accelCalib.biasY, accelCalib.biasZ);
-        ser.sendInfoDataMsg("Accelerometer Face calibrated with rangeX: %f, rangeY: %f, rangeZ: %f", accelCalib.rangeX, accelCalib.rangeY, accelCalib.rangeZ);
-      } else {
-        ser.sendErrorMsg("Accel calibration failed.");
-      }
-      delete[] accel_raw_data;
-      delete[] rawAccelX;
-      delete[] rawAccelY;
-      delete[] rawAccelZ;
-    }
+	  info.setEggAlt(0.0);
+	  ser.sendInfoDataMsg("Erased egg altitude to %f", info.getEggAlt());
   }
-  else if (strcmp(data, "MAG") == 0)
+  else if (strcmp(data, "BNO") == 0)
   {
     ser.sendInfoMsg("Starting auto calibration...");
     sensors.BNO_calibrate(ser);
@@ -473,7 +404,8 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
     float * rawAccel = new float[4];
     float * rawMag = new float[4];
     int i = 0;
-    while (gyro_acc < 3 || accel_acc < 3 || mag_acc < 3)
+    uint32_t timeout = HAL_GetTick();
+    while ((gyro_acc < 3 || accel_acc < 3 || mag_acc < 3) && HAL_GetTick() - timeout < 30000)
     {
       sensors.updateBNO();
       sensors.getGameRotationVector(rawRotVec);

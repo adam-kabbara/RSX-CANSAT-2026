@@ -343,7 +343,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 				if(mgr.wing_check())
 				{
 					float alt = mgr.calculate_median_alt();
-					if(alt < EGG_ALT_THRESHOLD_M && !mgr.egg_check())
+					if(alt < (EGG_ALT_THRESHOLD_M + mgr.getEggAlt()) && !mgr.egg_check())
 					{
 						sensors.activate_egg_release();
 						mgr.egg_rel();

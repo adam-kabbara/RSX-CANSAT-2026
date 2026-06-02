@@ -136,7 +136,6 @@ void SensorManager::updateBNO()
 
 void SensorManager::getRawGyro(float* data_out)
 {
-	updateBNO();
 	data_out[0] = bno_dev.gyro.x;
 	data_out[1] = bno_dev.gyro.y;
 	data_out[2] = bno_dev.gyro.z; // need the raw not sensor fusion ones
@@ -156,7 +155,6 @@ struct rpy_data SensorManager::getCalibratedGyro(float* calib_bias)
 
 void SensorManager::getGameRotationVector(float* data_out)
 {
-	updateBNO();
 	data_out[0] = bno_dev.quat.real;
 	data_out[1] = bno_dev.quat.i;
 	data_out[2] = bno_dev.quat.j;
@@ -196,7 +194,6 @@ struct rpy_data SensorManager::getIMUData() // out of date
 
 void SensorManager::getRawAccel(float* data_out)
 {
-	updateBNO();
 	data_out[0] = bno_dev.accel.x;
 	data_out[1] = bno_dev.accel.y;
 	data_out[2] = bno_dev.accel.z; // need the raw not sensor fusion ones
@@ -216,7 +213,6 @@ struct rpy_data SensorManager::getCalibratedAccel(float* calib_bias, float* cali
 
 void SensorManager::getRawMag(float* data_out)
 {
-	updateBNO();
 	data_out[0] = bno_dev.mag.x;
 	data_out[1] = bno_dev.mag.y;
 	data_out[2] = bno_dev.mag.z; // need the raw not sensor fusion ones
@@ -253,8 +249,6 @@ void SensorManager::updateGPS()
 
             // Only run parsing routine if it contains the GNS fix sentence layout
         	gps_parser.ublox_parse(parse_scratchpad, internal_gps_storage);
-
-            
             
             gps_buf_idx = 0; 
         }
@@ -262,7 +256,7 @@ void SensorManager::updateGPS()
 
 	if (internal_gps_storage.fix_quality > 0) {
 		char ln[128];
-		int len = snprintf(ln, sizeof ln,
+		snprintf(ln, sizeof ln,
 			"GPS q%u sats%u hdop%.1f lat%.6f lon%.6f alt%.1f\r\n",
 			internal_gps_storage.fix_quality,
 			internal_gps_storage.sats,
@@ -280,9 +274,17 @@ struct gps_data SensorManager::getGPSData()
 
 void SensorManager::getGPSTime(char time_str[DATA_SIZE])
 {
-	// snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
-	std::strncpy(time_str, internal_gps_storage.time, DATA_SIZE - 1);
-    time_str[DATA_SIZE - 1] = '\0';
+	const char *t = internal_gps_storage.time;
+
+	if(strlen(t) >= 6)
+	{
+		snprintf(time_str, DATA_SIZE, "%c%c:%c%c:%c%c",
+				t[0], t[1], t[2], t[3], t[4], t[5]);
+	}
+	else
+	{
+		snprintf(time_str, DATA_SIZE, "00:00:00");
+	}
 }
 
 
@@ -581,24 +583,6 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	 * Add a delay between each start and send an
 	 * info message */
 
-	static EEPROMsimple eeprom_storage(hspi_eeprom, cs_port, cs_pin);
-	eeprom_dev = &eeprom_storage;
-
-	/* Diagnostic: verify SPI reaches the EEPROM before anything else touches I2C.
-	 * Expected status = 0x00 (WIP=0, WEL=0, BP=00) at power-on.
-	 * 0xFF means the SPI peripheral is not responding — most common cause is
-	 * PA4 configured as SPI1_NSS (hardware NSS) in CubeMX instead of plain
-	 * GPIO_Output, which triggers a Mode Fault (MODF) the moment CS is asserted.
-	 * Fix in CubeMX: set SPI NSS = Software, leave PA4 as GPIO_Output. */
-	{
-		uint8_t eeprom_status = eeprom_dev->ReadStatus();
-		if (eeprom_status == 0xFF) {
-			serial.sendErrorMsg("[EEPROM] SPI not responding (0xFF) — check MODF/NSS config and MISO wiring");
-		} else {
-			serial.sendInfoDataMsg("[EEPROM] SPI OK, status=0x%02X (expect 0x00 at power-on)", eeprom_status);
-		}
-	}
-
 	// GPS initialization 
 	this->gps_hi2c = hi2c1;
     
@@ -640,6 +624,15 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	HAL_Delay(100);
 
 	EEPROM_Init();
+	// TODO: constructor?
+	static EEPROMsimple eeprom_storage(hspi_eeprom, cs_port, cs_pin);
+	eeprom_dev = &eeprom_storage;
+
+	uint8_t eeprom_status = eeprom_dev->ReadStatus();
+	if (eeprom_status == 0xFF)
+	{
+		serial.sendErrorMsg("[EEPROM] SPI not responding (0xFF) — check MODF/NSS config and MISO wiring");
+	}
 
 	HAL_Delay(100);
 

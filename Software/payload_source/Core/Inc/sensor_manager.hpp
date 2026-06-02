@@ -73,6 +73,12 @@ private:
 	void EEPROM_Init();
 	void EEPROM_saveRecovery();
 
+	I2C_HandleTypeDef *gps_hi2c = nullptr;
+	GPS gps_parser;
+	gps_data internal_gps_storage;
+	char gps_nmea_buffer[100];
+	uint8_t gps_buf_idx = 0; // counter tracking string length
+
 public:
 
 	SensorManager();

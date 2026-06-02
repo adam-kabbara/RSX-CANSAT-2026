@@ -68,6 +68,7 @@ void MissionManager::reset_params()
 	egg_flag = false;
 	wing_flag = false;
 	landed_trigger_count = 0;
+	egg_alt_cal = 0.0f;
 }
 
 void MissionManager::init_params()
@@ -205,6 +206,16 @@ void MissionManager::setAltCalibration(float alt)
     {
     	alt_buffer[i] = 0.0f;
     }
+}
+
+void MissionManager::setEggAlt(float alt)
+{
+	egg_alt_cal = alt;
+}
+
+float MissionManager::getEggAlt()
+{
+	return egg_alt_cal;
 }
 
 float MissionManager::getLaunchAlt()

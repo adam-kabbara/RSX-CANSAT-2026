@@ -36,6 +36,7 @@ private:
     bool wing_flag = false;
     bool egg_flag = false;
     int landed_trigger_count = 0;
+    float egg_alt_cal = 0.0f;
 
 public:
 
@@ -88,6 +89,10 @@ public:
     void setAltCalibration(float alt);
 
     float getLaunchAlt();
+
+    void setEggAlt(float alt);
+
+    float getEggAlt();
 
     void setPacketCount(int count);
 

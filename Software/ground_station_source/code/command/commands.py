@@ -80,7 +80,19 @@ class Commands(QObject):
             self.print_signal.emit(f"Sent custom message: {__custom_msg}")
 
     def command__cal(self, cal_type: str):
-        if self._serial.send_data(self._cmd(op="CAL2", val=cal_type)):
+        if cal_type == "BNO":
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Icon.Warning)
+            msg_box.setWindowTitle("CONFIRM: CALIBRATE BNO")
+            msg_box.setText("THIS WILL RESET SAVED BNO CALIBRATION!")
+            msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            msg_box.setDefaultButton(QMessageBox.StandardButton.No)
+
+            response = msg_box.exec()
+            if response == QMessageBox.StandardButton.Yes:
+                if self._serial.send_data(self._cmd(op="CAL2", val=cal_type)):
+                    self.print_signal.emit(f"Sent {cal_type} calibration command")
+        elif self._serial.send_data(self._cmd(op="CAL2", val=cal_type)):
             self.print_signal.emit(f"Sent {cal_type} calibration command")
 
     def command__set_gps(self, __gps_lat, __gps_lon, __gps_rad):
