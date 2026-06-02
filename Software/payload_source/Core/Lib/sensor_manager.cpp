@@ -173,7 +173,7 @@ void SensorManager::updateGPS()
 
         if (rx_byte == '\n') {
             gps_nmea_buffer[gps_buf_idx] = '\0';
-			serial.sendErrorDataMsg("Received NMEA sentence: %s", gps_nmea_buffer);
+			// serial.sendErrorDataMsg("Received NMEA sentence: %s", gps_nmea_buffer);
             
             // Local string safety check
             char parse_scratchpad[100];
@@ -181,7 +181,7 @@ void SensorManager::updateGPS()
 
             // Only run parsing routine if it contains the GNS fix sentence layout
         	gps_parser.ublox_parse(parse_scratchpad, internal_gps_storage);
-			serial.sendErrorDataMsg("Current GPS Data - Time: %s, Lat: %f, Lon: %f, Alt: %f, Sats: %d", internal_gps_storage.time, internal_gps_storage.latitude, internal_gps_storage.longitude, internal_gps_storage.altitude, internal_gps_storage.sats);
+			// serial.sendErrorDataMsg("Current GPS Data - Time: %s, Lat: %f, Lon: %f, Alt: %f, Sats: %d", internal_gps_storage.time, internal_gps_storage.latitude, internal_gps_storage.longitude, internal_gps_storage.altitude, internal_gps_storage.sats);
 
             
             
@@ -199,7 +199,7 @@ void SensorManager::updateGPS()
 			internal_gps_storage.latitude,
 			internal_gps_storage.longitude,
 			(double)internal_gps_storage.altitude);
-		HAL_UART_Transmit(&your_huart, (uint8_t*)ln, (uint16_t)len, 50); // BLOCKING
+		serial.sendInfoDataMsg("%s", ln);
 	}
 }
 
