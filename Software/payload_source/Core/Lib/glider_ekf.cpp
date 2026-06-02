@@ -1,14 +1,15 @@
-#include "glider_ekf.h"
+#include "glider_ekf.hpp"
+#include "global_includes.hpp"
 #include "arm_math.h"
 
-#define STATE_DIM 15  // Error-state size (Pos, Vel, Att_err, Accel_bias, Gyro_bias)
+#define STATE_DIM 12  // Error-state size (Pos, Vel, Att_err, Accel_bias)
 #define QUAT_DIM  4   // Attitude state tracking size
 
 // ============================================================================
 // GLOBAL STATE MEMORY (Static allocation to prevent stack overflow)
 // ============================================================================
 // State vectors
-static float32_t x_pos_vel_biases[11]; // Pos(3), Vel(3), Accel_Bias(3), Gyro_Bias(2) (Yaw/Pitch/Roll parsed separately)
+static float32_t x_pos_vel_biases[9]; // Pos(3), Vel(3), Accel_Bias(3), Gyro_Bias(2) (Yaw/Pitch/Roll parsed separately)
 static float32_t x_q[QUAT_DIM] = {1.0f, 0.0f, 0.0f, 0.0f}; // Identity Quaternion
 
 // Covariance Matrices
@@ -113,7 +114,7 @@ void glider_ekf_init(void) {
 // ============================================================================
 // 1. MOTION MODEL UPDATE (High Rate: Call at IMU rate, e.g., 100Hz)
 // ============================================================================
-void glider_ekf_predict(const float32_t* raw_accel, const float32_t* raw_gyro, float32_t dt) {
+void glider_ekf_predict(float32_t* raw_accel, float32_t* raw_gyro, float32_t dt) {
     // Convert IMU readings to NED frame
     CPL_IMU_to_NED(raw_accel, raw_gyro);
    // Unbias IMU values
@@ -177,13 +178,63 @@ void glider_ekf_predict(const float32_t* raw_accel, const float32_t* raw_gyro, f
 }
 
 // ============================================================================
+// SIMPLIFIED MOTION MODEL UPDATE (High Rate: Call at Accelerometer rate)
+// ============================================================================
+void glider_ekf_predict_bno_mode(float32_t* raw_accel, float32_t dt) {
+    // Unbias accelerometer values
+    float32_t accel[3] = { 
+        raw_accel[0] - x_pos_vel_biases[6], 
+        raw_accel[1] - x_pos_vel_biases[7], 
+        raw_accel[2] - x_pos_vel_biases[8] 
+    };
+
+    // 1. Propagate Position: p = p + v*dt
+    x_pos_vel_biases[0] += x_pos_vel_biases[3] * dt;
+    x_pos_vel_biases[1] += x_pos_vel_biases[4] * dt;
+    x_pos_vel_biases[2] += x_pos_vel_biases[5] * dt;
+
+    // 2. Propagate Velocity using the current orientation matrix
+    float32_t R[9];
+    quaternion_to_rotation_matrix(x_q, R);
+    
+    float32_t accel_ned[3];
+    accel_ned[0] = R[0]*accel[0] + R[1]*accel[1] + R[2]*accel[2];
+    accel_ned[1] = R[3]*accel[0] + R[4]*accel[1] + R[5]*accel[2];
+    accel_ned[2] = R[6]*accel[0] + R[7]*accel[1] + R[8]*accel[2] + G_ACCEL;
+
+    x_pos_vel_biases[3] += accel_ned[0] * dt;
+    x_pos_vel_biases[4] += accel_ned[1] * dt;
+    x_pos_vel_biases[5] += accel_ned[2] * dt;
+
+    // 3. Simplified Transition Jacobian F (Attitude propagation terms removed)
+    for(int i = 0; i < STATE_DIM * STATE_DIM; i++) F_data[i] = 0.0f;
+    for(int i = 0; i < STATE_DIM; i++) F_data[i * STATE_DIM + i] = 1.0f;
+
+    F_data[0*STATE_DIM + 3] = dt; F_data[1*STATE_DIM + 4] = dt; F_data[2*STATE_DIM + 5] = dt; // dPos/dVel
+    
+    for(int i=0; i<3; i++) {
+        for(int j=0; j<3; j++) {
+            F_data[(3+i)*STATE_DIM + (9+j)] = -R[i*3 + j] * dt; // dVel/dAccelBias
+        }
+    }
+
+    // Covariance Propagation: P = F*P*F_T + Q
+    arm_mat_trans_f32(&F_mat, &F_T_mat);
+    arm_mat_mult_f32(&F_mat, &P_mat, &FP_mat);
+    arm_mat_mult_f32(&FP_mat, &F_T_mat, &FPF_T_mat);
+    arm_mat_add_f32(&FPF_T_mat, &Q_mat, &P_mat);
+}
+
+
+
+// ============================================================================
 // 2. SCALAR SENSOR UPDATE (High Efficiency: Matrix Inversion Free)
 // ============================================================================
-// Applies a singular scalar measurement update to the 15-state covariance
+// Applies a singular scalar measurement update to the 12-state covariance
 static void execute_scalar_update(uint8_t state_index, float32_t innovation, float32_t r_noise) {
    float32_t PH_T[STATE_DIM];
    
-   // Extract column from P corresponding to the updated state element (since H is sparse vector)
+   // Extract column from P corresponding to the updated state element
    for(int i = 0; i < STATE_DIM; i++) {
        PH_T[i] = P_data[i * STATE_DIM + state_index];
    }
@@ -194,7 +245,7 @@ static void execute_scalar_update(uint8_t state_index, float32_t innovation, flo
    if (S == 0.0f) return; // Prevent zero division safety check
    float32_t S_inv = 1.0f / S; 
 
-   // Compute Kalman Gain K (15x1 vector) and update states concurrently
+   // Compute Kalman Gain K (12x1 vector) and update states concurrently
    float32_t K[STATE_DIM];
    float32_t dx[STATE_DIM];
    for(int i = 0; i < STATE_DIM; i++) {
@@ -203,10 +254,11 @@ static void execute_scalar_update(uint8_t state_index, float32_t innovation, flo
    }
 
    // Inject dx error-state directly back into global states
-   x_pos_vel_biases[0] += dx[0]; x_pos_vel_biases[1] += dx[1]; x_pos_vel_biases[2] += dx[2]; // Pos
-   x_pos_vel_biases[3] += dx[3]; x_pos_vel_biases[4] += dx[4]; x_pos_vel_biases[5] += dx[5]; // Vel
+   x_pos_vel_biases[0] += dx[0]; x_pos_vel_biases[1] += dx[1]; x_pos_vel_biases[2] += dx[2]; // Pos (Indices 0, 1, 2)
+   x_pos_vel_biases[3] += dx[3]; x_pos_vel_biases[4] += dx[4]; x_pos_vel_biases[5] += dx[5]; // Vel (Indices 3, 4, 5)
    
    // Correct attitude quaternion using small-angle error state approximation
+   // Error states: dx[6] = roll error, dx[7] = pitch error, dx[8] = yaw error
    float32_t qw = x_q[0], qx = x_q[1], qy = x_q[2], qz = x_q[3];
    x_q[0] += 0.5f * (-qx*dx[6] - qy*dx[7] - qz*dx[8]);
    x_q[1] += 0.5f * ( qw*dx[6] - qz*dx[7] + qy*dx[8]);
@@ -218,12 +270,14 @@ static void execute_scalar_update(uint8_t state_index, float32_t innovation, flo
    arm_sqrt_f32(sum, &norm);
    x_q[0] /= norm; x_q[1] /= norm; x_q[2] /= norm; x_q[3] /= norm;
 
-   // Correct Biases
-   x_pos_vel_biases[6] += dx[9];  x_pos_vel_biases[7] += dx[10]; x_pos_vel_biases[8] += dx[11];  // Accel Bias
-   x_pos_vel_biases[9] += dx[12]; x_pos_vel_biases[10] += dx[13]; // Gyro Bias
+   // Correct Accelerometer Biases (Indices 9, 10, 11 of the 12-state dx vector)
+   x_pos_vel_biases[6] += dx[9];  // Accel Bias X
+   x_pos_vel_biases[7] += dx[10]; // Accel Bias Y
+   x_pos_vel_biases[8] += dx[11]; // Accel Bias Z
+
+   // --- Gyro Bias Update Deleted Here ---
 
    // Update Covariance Matrix: P = P - K*H*P
-   // Equivalent to: P_new[i][j] = P_old[i][j] - K[i] * P_old[state_index][j]
    for(int i = 0; i < STATE_DIM; i++) {
        for(int j = 0; j < STATE_DIM; j++) {
            P_data[i * STATE_DIM + j] -= K[i] * P_data[state_index * STATE_DIM + j];
@@ -231,6 +285,34 @@ static void execute_scalar_update(uint8_t state_index, float32_t innovation, flo
    }
 }
 
+// ============================================================================
+// SENSOR UPDATE: BNO085 ORIENTATION
+// ============================================================================
+void glider_ekf_update_bno_quaternion(float32_t* bno_q, float32_t r_noise) {
+    // bno_q vector format: [qw, qx, qy, qz]
+
+    // Calculate quaternion innovation (difference between EKF quaternion and BNO quaternion)
+    // Represented as small-angle errors across Roll (index 6), Pitch (index 7), and Yaw (index 8)
+    float32_t qw_e = x_q[0], qx_e = x_q[1], qy_e = x_q[2], qz_e = x_q[3];
+    float32_t qw_b = bno_q[0], qx_b = bno_q[1], qy_b = bno_q[2], qz_b = bno_q[3];
+
+    // Compute error quaternion: q_error = q_ekf^-1 * q_bno
+    float32_t qe_w =  qw_e*qw_b + qx_e*qx_b + qy_e*qy_b + qz_e*qz_b;
+    float32_t qe_x =  qw_e*qx_b - qx_e*qw_b - qy_e*qz_b + qz_e*qy_b;
+    float32_t qe_y =  qw_e*qy_b + qx_e*qz_b - qy_e*qw_b - qz_e*qx_b;
+    float32_t qe_z =  qw_e*qz_b - qx_e*qy_b + qy_e*qx_b - qz_e*qw_b;
+
+    // Convert small-angle error quaternion component straight to localized error-states
+    // q_error approx maps to [1, 0.5*dx, 0.5*dy, 0.5*dz]
+    float32_t roll_innovation  = 2.0f * qe_x;
+    float32_t pitch_innovation = 2.0f * qe_y;
+    float32_t yaw_innovation   = 2.0f * qe_z;
+
+    // Cleanly execute scalar updates across all three orientation axes
+    execute_scalar_update(6, roll_innovation,  r_noise);
+    execute_scalar_update(7, pitch_innovation, r_noise);
+    execute_scalar_update(8, yaw_innovation,   r_noise);
+}
 // ============================================================================
 // 4. SENSOR UPDATE: MAGNETIC COMPASS (Yaw / Heading)
 // ============================================================================
@@ -272,11 +354,28 @@ void glider_ekf_update_baro(float32_t baro_alt, float32_t r_noise) {
    execute_scalar_update(2, innovation, r_noise); // State index 2 = Down Position
 }
 
+void ekf_gps_update(struct gps_data* gps) {
+   // Convert GPS lat/lon to local NED coordinates
+   float32_t current_pos_ne[2];
+   convert_gps_to_local_ned(gps->latitude, gps->longitude, gps->altitude, current_pos_ne);
+
+   // GPS velocity is already in NED frame (assuming it was parsed that way)
+
+   float32_t gps_vel_ned[2];
+   gps_vel_ned[0] = gps->sog_ms * cosf(gps->cog_true * DEG_TO_RAD); // North Velocity
+   gps_vel_ned[1] = gps->sog_ms * sinf(gps->cog_true * DEG_TO_RAD); // East Velocity
+
+
+
+   // Call the EKF GPS update with appropriate noise parameters (these would be tuned based on GPS specs)
+   glider_ekf_update_gps(current_pos_ne, gps_vel_ned, gps->rms_range, gps->rms_range * 2.0f); // Example noise values
+}
+
 // Call when GPS pulls a structural coordinate parse update (Sequential cascading execution)
 void glider_ekf_update_gps(const float32_t* gps_pos_ne, const float32_t* gps_vel_ned, float32_t r_pos, float32_t r_vel) {
    execute_scalar_update(0, gps_pos_ne[0]  - x_pos_vel_biases[0], r_pos); // Update North Pos
    execute_scalar_update(1, gps_pos_ne[1]  - x_pos_vel_biases[1], r_pos); // Update East Pos
    execute_scalar_update(3, gps_vel_ned[0] - x_pos_vel_biases[3], r_vel); // Update North Vel
    execute_scalar_update(4, gps_vel_ned[1] - x_pos_vel_biases[4], r_vel); // Update East Vel
-   execute_scalar_update(5, gps_vel_ned[2] - x_pos_vel_biases[5], r_vel); // Update Down Vel
+   //execute_scalar_update(5, gps_vel_ned[2] - x_pos_vel_biases[5], r_vel); // Update Down Vel
 }

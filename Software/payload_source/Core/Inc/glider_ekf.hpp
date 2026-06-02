@@ -2,10 +2,7 @@
 #define GLIDER_EKF_H_
 
 #include "arm_math.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "global_includes.hpp"
 
 extern float home_lat_rad;
 extern float home_lon_rad;
@@ -28,7 +25,11 @@ void glider_ekf_init(void);
  * @param raw_gyro  Pointer to a 3-element float array containing [wx, wy, wz] in rad/s.
  * @param dt        The time delta since the last IMU sample in seconds (e.g., 0.01f for 100Hz).
  */
-void glider_ekf_predict(const float32_t* raw_accel, const float32_t* raw_gyro, float32_t dt);
+void glider_ekf_predict(float32_t* raw_accel, float32_t* raw_gyro, float32_t dt);
+
+void glider_ekf_predict_bno_mode(float32_t* raw_accel, float32_t dt);
+
+void glider_ekf_update_bno_quaternion(float32_t* bno_q, float32_t r_noise);
 
 /**
  * @brief Asynchronous correction step using Barometer data.
@@ -36,6 +37,8 @@ void glider_ekf_predict(const float32_t* raw_accel, const float32_t* raw_gyro, f
  * @param r_noise  The measurement noise variance of the barometer (from datasheet/tuning).
  */
 void glider_ekf_update_baro(float32_t baro_alt, float32_t r_noise);
+
+void ekf_gps_update(struct gps_data* gps);
 
 /**
  * @brief Asynchronous correction step using GPS data.
@@ -53,8 +56,5 @@ void glider_ekf_update_gps(const float32_t* gps_pos_ne, const float32_t* gps_vel
  */
 void glider_ekf_update_compass(float32_t compass_yaw_rad, float32_t r_noise);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* GLIDER_EKF_H_ */

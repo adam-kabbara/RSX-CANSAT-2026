@@ -7,6 +7,7 @@
 #include "telemetry_manager.hpp"
 #include "command_manager.hpp"
 #include "controller.hpp"
+#include "glider_ekf.hpp"
 
 extern "C" volatile uint8_t send_flag;
 extern "C" volatile uint8_t pvd_flag;
@@ -25,6 +26,7 @@ extern "C" volatile uint8_t cmd_ready;
 uint32_t nosecone_rel__payload_rel_timer = 0;
 uint32_t wing_servo_timer = 0;
 uint32_t egg_timer = 0;
+uint32_t bno_update_timer = 0;
 OperatingState update_state(SensorManager &sensors, MissionManager &mgr, OperatingState current_state);
 
 extern "C" void main_cpp()
@@ -65,6 +67,8 @@ extern "C" void main_cpp()
 	__HAL_RCC_CLEAR_RESET_FLAGS();
 
 	sensors.startSensors(serial, &hi2c1, &hspi1, SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, &htim2, &htim3, &htim4);
+
+	glider_ekf_init();
 
     struct recovery_data recovery = sensors.EEPROM_getRecoveryData();
 
@@ -202,6 +206,7 @@ extern "C" void main_cpp()
             	}
 
             	mission_mgr.update_alt_buffer(pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt());
+				glider_ekf_update_baro(pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt(), 1.0f);
 
 				if(mission_mgr.getOpState() == DESCENT || mission_mgr.getOpState() == PROBE_RELEASE || mission_mgr.getOpState() == PAYLOAD_RELEASE)
 				{
@@ -221,7 +226,25 @@ extern "C" void main_cpp()
             if(sensors.BNO_dataReady())
             {
             	sensors.updateBNO();
+				float raw_accel[3];
+				sensors.getRawAccel(raw_accel);
+				uint32_t current_time = HAL_GetTick();
+				float dt = (current_time - bno_update_timer) / 1000.0f;
+				if(dt <= 0) dt = 0.02f; // sanity check
+				bno_update_timer = current_time;
+				glider_ekf_predict_bno_mode(raw_accel, dt);
+
+				float bno_quat[5];
+				sensors.getGameRotationVector(bno_quat);
+				glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
             }
+
+			struct gps_data gps_data = sensors.getGPSData();
+			if(gps_data.data_ready)
+			{
+				gps_data.data_ready = false;
+				ekf_gps_update(&gps_data);
+			}
 
             sensors.updateMotor();
         }

@@ -181,7 +181,6 @@ void GPS::parse_VTG(char *line, gps_data &d) {
     int n = nmea_split(line, f, 12);
     if (n < 8) return;
     bool got = false;
-    char *f[12];
     if (nmea_split(line, f, 12) < 8) return;
     if (f[1][0]) d.cog_true  = fopt(f[1]);
     if (f[5][0]) d.sog_knots = fopt(f[5]);
