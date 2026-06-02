@@ -11,7 +11,13 @@
 
 class GPS {
     public:
+        void ublox_parse_GGA(char *line, struct gps_data &data);
         void ublox_parse_GNS(char *line, struct gps_data &data);
+        void ublox_parse_RMC(char *line, struct gps_data &data);
+        void ublox_parse_GLL(char *line, struct gps_data &data);
+        double nmeaToDecimalDegrees(const char* token);
+        void ublox_parse(char *line, struct gps_data &data);
+
 };
 
 #endif /* __cplusplus */
