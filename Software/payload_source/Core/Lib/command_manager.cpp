@@ -427,7 +427,7 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
     }
     else {
       const int num_data_points = 250; // vibes
-      float* accel_raw_data = new float[3];
+      float* accel_raw_data = new float[4];
       float *rawAccelX = new float[num_data_points];
       float *rawAccelY = new float[num_data_points];
       float *rawAccelZ = new float[num_data_points];
@@ -435,9 +435,17 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
       int data_not_ready_count = 0;
       for (int i=0; i<num_data_points; i++){ 
         sensors.getRawAccel(accel_raw_data);
+        float accel_mag = sqrt(pow(accel_raw_data[0], 2) + pow(accel_raw_data[1], 2) + pow(accel_raw_data[2], 2));
+        if (10.8 < accel_mag || accel_mag < 9.0)
+        {
+          data_not_ready_count++;
+        }
         rawAccelX[i] = accel_raw_data[0];
         rawAccelY[i] = accel_raw_data[1];
         rawAccelZ[i] = accel_raw_data[2];
+        if (i % 50 == 0) {
+          ser.sendInfoDataMsg("Sample %d, accuracy: %f", i, accel_raw_data[3]);
+        }
         HAL_Delay(5);
       }
       ser.sendInfoDataMsg("Data not ready count during accel calibration: %d out of %d", data_not_ready_count, num_data_points);
@@ -457,9 +465,35 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
       delete[] rawAccelZ;
     }
   }
-  else if (strcmp(data, "COMP") == 0)
+  else if (strcmp(data, "MAG") == 0)
   {
-    ser.sendInfoMsg("Starting compass calibration...");
+    ser.sendInfoMsg("Starting auto calibration...");
+    sensors.BNO_calibrate(ser);
+    int gyro_acc, accel_acc, mag_acc = 0;
+    float * rawRotVec = new float[5];
+    float * rawAccel = new float[4];
+    float * rawMag = new float[4];
+    int i = 0;
+    while (gyro_acc < 3 || accel_acc < 3 || mag_acc < 3)
+    {
+      sensors.updateBNO();
+      sensors.getGameRotationVector(rawRotVec);
+      sensors.getRawAccel(rawAccel);
+      sensors.getRawMag(rawMag);
+      gyro_acc = (int)rawRotVec[4];
+      accel_acc = (int)rawAccel[3];
+      mag_acc = (int)rawMag[3];
+      if (i % 100 == 0) {
+        ser.sendInfoDataMsg("Current calibration accuracy - Gyro: %d, Accel: %d, Mag: %d", gyro_acc, accel_acc, mag_acc);
+      }
+      HAL_Delay(50);
+    }
+    ser.sendInfoMsg("Calibration complete!");
+    sensors.BNO_saveCalibration(ser);
+    sensors.BNO_disableCalibration(ser);
+    delete[] rawRotVec;
+    delete[] rawAccel;
+    delete[] rawMag;
   }
   else
   {

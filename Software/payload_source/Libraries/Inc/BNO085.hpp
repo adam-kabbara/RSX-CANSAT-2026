@@ -167,6 +167,8 @@ typedef struct {
 	BNO085_Quaternion_t	quat;
 	BNO085_Euler_t		euler;
 
+	uint8_t			quat_accuracy;		// Separate field for easier access to rotation vector accuracy
+
 	BNO085_ProductID_t	product_id;
 
 	uint16_t	packet_length;
@@ -206,6 +208,7 @@ void BNO085_QuaternionToEuler(BNO085_Quaternion_t *quat, BNO085_Euler_t *euler);
 
 // Calibration / configuration
 BNO085_Status_t BNO085_Calibrate(BNO085_t *bno, uint8_t sensor);
+BNO085_Status_t BNO085_DisableCalibration(BNO085_t *bno);
 BNO085_Status_t BNO085_SaveCalibration(BNO085_t *bno);
 BNO085_Status_t BNO085_GetProductID(BNO085_t *bno);
 BNO085_Status_t BNO085_Tare(BNO085_t *bno, uint8_t axis_sel, uint8_t rotation_vector_basis);

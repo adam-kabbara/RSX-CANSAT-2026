@@ -105,6 +105,10 @@ public:
 	void BNO_enableAccel(int microsec, SerialManager &serial);
 	void BNO_enableMag(int microsec, SerialManager &serial);
 	void BNO_enableRotationVector(int microsec, SerialManager &serial);
+	void BNO_enableGameRotationVector(int microsec, SerialManager &serial);
+	void BNO_calibrate(SerialManager &serial);
+	void BNO_saveCalibration(SerialManager &serial);
+	void BNO_disableCalibration(SerialManager &serial);
 	bool BNO_dataReady();
 	void updateBNO();
 	void getRawGyro(float* data_out);
@@ -112,8 +116,12 @@ public:
 
 	struct rpy_data getIMUData();
 
+	void getGameRotationVector(float* data_out);
+
 	void getRawAccel(float* data_out);
 	struct rpy_data getCalibratedAccel(float* calib_bias, float* calib_scale);
+
+	void getRawMag(float* data_out);
 
 	struct gps_data getGPSData();
 
