@@ -210,6 +210,8 @@ class CommandWindow(QMainWindow):
         set_gps_box = QHBoxLayout()
         self.button_set_gps = QPushButton("SET GPS COOR")
         self.button_set_gps.setFont(button_font)
+        self.button_set_gps.clicked.connect(self.set_gps_coordinates)
+        self.button_set_gps.hide()
 
         self.gps_lat = QLineEdit()
         self.gps_lat.setPlaceholderText("Latitude")
@@ -230,9 +232,6 @@ class CommandWindow(QMainWindow):
         self.gps_rad.setValidator(QDoubleValidator())
         self.gps_rad.setStyleSheet(cosmetics.team_id_stylesheet())
         self.gps_rad.editingFinished.connect(self.gps_rad_edited)
-
-        self.button_set_gps.clicked.connect(self.set_gps_coordinates)
-        self.button_set_gps.hide()
 
         self.gps_lat.hide()
         self.gps_lon.hide()
@@ -294,36 +293,31 @@ class CommandWindow(QMainWindow):
         self.button_altitude_cal.setFont(button_font)
         self.button_altitude_cal.clicked.connect(self.command_manager.command__alt_cal)
         self.button_altitude_cal.hide()
-
-        self.button_accel_cal = QPushButton("CALIBRATE ACCELERATION")
-        self.button_accel_cal.setFont(button_font)
-        self.button_accel_cal.clicked.connect(lambda: self.command_manager.command__cal("ACCE"))
-        self.button_accel_cal.hide()
-
-        self.button_tof_cal = QPushButton("CALIBRATE ToF")
-        self.button_tof_cal.setFont(button_font)
-        self.button_tof_cal.clicked.connect(lambda: self.command_manager.command__cal("TOF"))
-        self.button_tof_cal.hide()
-
-        self.button_mag_cal = QPushButton("CALIBRATE MAGNETIC")
+        
+        self.button_mag_cal = QPushButton("CALIBRATE MAGNETOMETER")
         self.button_mag_cal.setFont(button_font)
         self.button_mag_cal.clicked.connect(lambda: self.command_manager.command__cal("MAG"))
         self.button_mag_cal.hide()
 
-        self.button_gyro_cal = QPushButton("CALIBRATE GYRO")
-        self.button_gyro_cal.setFont(button_font)
-        self.button_gyro_cal.clicked.connect(lambda: self.command_manager.command__cal("GYRO"))
-        self.button_gyro_cal.hide()
+        self.button_bno_cal = QPushButton("CALIBRATE BNO")
+        self.button_bno_cal.setFont(button_font)
+        self.button_bno_cal.clicked.connect(lambda: self.command_manager.command__cal("BNO"))
+        self.button_bno_cal.hide()
 
-        self.button_next_cal_step = QPushButton("NEXT CALIBRATION STEP")
-        self.button_next_cal_step.setFont(button_font)
-        self.button_next_cal_step.clicked.connect(lambda: self.command_manager.command__cal("NEXT"))
-        self.button_next_cal_step.hide()
+        self.button_egg_cal = QPushButton("CALIBRATE LANDING ALTITUDE")
+        self.button_egg_cal.setFont(button_font)
+        self.button_egg_cal.clicked.connect(lambda: self.command_manager.command__cal("EGG"))
+        self.button_egg_cal.hide()
 
         self.button_test_connection = QPushButton("CHECK CONNECTION")
         self.button_test_connection.setFont(button_font)
         self.button_test_connection.clicked.connect(self.command_manager.command__check_connection)
         self.button_test_connection.hide()
+
+        self.button_egg_reset = QPushButton("ERASE LANDING ALTITUDE")
+        self.button_egg_reset.setFont(button_font)
+        self.button_egg_reset.clicked.connect(lambda: self.command_manager.command__cal("EGG2"))
+        self.button_egg_reset.hide()
 
         joystick_sensitivity_box = QHBoxLayout()
 
@@ -507,11 +501,10 @@ class CommandWindow(QMainWindow):
         
         # SENSORS buttons
         commands_layout.addWidget(self.button_altitude_cal)
-        commands_layout.addWidget(self.button_accel_cal)
-        commands_layout.addWidget(self.button_tof_cal)
+        commands_layout.addWidget(self.button_bno_cal)
         commands_layout.addWidget(self.button_mag_cal)
-        commands_layout.addWidget(self.button_gyro_cal)
-        commands_layout.addWidget(self.button_next_cal_step)
+        commands_layout.addWidget(self.button_egg_cal)
+        commands_layout.addWidget(self.button_egg_reset)
         
         # SETUP buttons
         commands_layout.addLayout(set_time_box)
@@ -593,11 +586,10 @@ class CommandWindow(QMainWindow):
         self.buttons_sensor = [
             self.button_back,
             self.button_altitude_cal,
-            self.button_accel_cal,
-            self.button_tof_cal,
+            self.button_bno_cal,
             self.button_mag_cal,
-            self.button_gyro_cal,
-            self.button_next_cal_step
+            self.button_egg_cal,
+            self.button_egg_reset,
         ]
 
         self.buttons_connection = [

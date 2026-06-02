@@ -29,10 +29,9 @@ private:
     void do_cal(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
     void do_mec(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
     void do_logs(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
-
     void do_cal2(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
-
     void do_ctrl(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
+    void do_gps(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data);
 
     void status_update(SerialManager &ser, MissionManager &info);
 
