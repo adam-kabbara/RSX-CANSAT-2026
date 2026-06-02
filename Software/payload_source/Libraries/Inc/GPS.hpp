@@ -10,21 +10,19 @@
 #define UBLOX_REG_DATA_STREAM  0xFF
 
 class GPS {
-    private:
-        double nmeaToDecimalDegrees(const char* token);
-        static void parse_nmea(char *line, struct gps_data &data);
-
     public:
-        void ublox_parse_GGA(char *line, struct gps_data &data);
-        void ublox_parse_GNS(char *line, struct gps_data &data);
-        void ublox_parse_RMC(char *line, struct gps_data &data);
-        void ublox_parse_GLL(char *line, struct gps_data &data);
+        static double nmeaToDecimalDegrees(const char* token);
+    
         void ublox_parse(char *line, struct gps_data &data);
-
-        static void parse_GNS(char *line, struct gps_data &data);
-        static void parse_GST(char *line, struct gps_data &data);
-        static void parse_GSA(char *line, struct gps_data &data);
-
+        void ublox_parse_GGA(char *line, struct gps_data &data);
+        void ublox_parse_RMC(char *line, struct gps_data &data);
+        void ublox_parse_GNS(char *line, struct gps_data &data);
+        void ublox_parse_GLL(char *line, struct gps_data &data);
+    
+        void parse_nmea(char *line, gps_data &d);
+        void parse_GNS(char *line, gps_data &d);
+        void parse_GST(char *line, gps_data &d);
+        void parse_GSA(char *line, gps_data &d);
 };
 
 #endif /* __cplusplus */
