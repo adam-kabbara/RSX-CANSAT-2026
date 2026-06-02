@@ -172,6 +172,16 @@ extern "C" void main_cpp()
 
             if(send_flag)
             {
+				float pos[3];
+				float vel[3];
+				float x_q[4];
+				ekf_get_pos(pos);
+				ekf_get_vel(vel);
+				ekf_get_quaternion(x_q);
+				serial.sendInfoDataMsg("EKF State: NED Position (%.1f, %.1f, %.1f), Velocity (%.1f, %.1f, %.1f)", pos[0], pos[1], pos[2], vel[0], vel[1], vel[2]);
+				float rpy[3];
+				quat_to_rpy(x_q, rpy);
+				serial.sendInfoDataMsg("EKF State: RPY (%.3f, %.3f, %.3f)", rpy[0], rpy[1], rpy[2]);
 				telemetry_mgr.sampleSensors(sensors, mission_mgr, serial);
             	telemetry_mgr.build_data_str(send_buff, sizeof(send_buff));
 

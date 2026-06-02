@@ -87,6 +87,45 @@ void convert_gps_to_local_ned(float curr_lat, float curr_lon, float curr_alt, fl
     current_pos_ne[1] = d_lon * meters_per_rad_lon; // Distance East (meters)
 }
 
+void quat_to_rpy(const float32_t* q, float32_t* rpy) {
+    float32_t qw = q[0], qx = q[1], qy = q[2], qz = q[3];
+    // Roll (phi)
+    float32_t sinr_cosp = 2.0f * (qw * qx + qy * qz);
+    float32_t cosr_cosp = 1.0f - 2.0f * (qx * qx + qy * qy);
+    rpy[0] = atan2f(sinr_cosp, cosr_cosp);
+
+    // Pitch (theta)
+    float32_t sinp = 2.0f * (qw * qy - qz * qx);
+    if (fabsf(sinp) >= 1)
+        rpy[1] = copysignf(M_PI / 2.0f, sinp); // Use 90 degrees if out of range
+    else
+        rpy[1] = asinf(sinp);
+
+    // Yaw (psi)
+    float32_t siny_cosp = 2.0f * (qw * qz + qx * qy);
+    float32_t cosy_cosp = 1.0f - 2.0f * (qy * qy + qz * qz);
+    rpy[2] = atan2f(siny_cosp, cosy_cosp);
+}
+
+void ekf_get_pos(float32_t* pos_out) {
+    pos_out[0] = x_pos_vel_biases[0]; // North
+    pos_out[1] = x_pos_vel_biases[1]; // East
+    pos_out[2] = x_pos_vel_biases[2]; // Down
+}
+
+void ekf_get_vel(float32_t* vel_out) {
+    vel_out[0] = x_pos_vel_biases[3]; // North
+    vel_out[1] = x_pos_vel_biases[4]; // East
+    vel_out[2] = x_pos_vel_biases[5]; // Down
+}
+
+void ekf_get_quaternion(float32_t* quat_out) {
+    quat_out[0] = x_q[0];
+    quat_out[1] = x_q[1];
+    quat_out[2] = x_q[2];
+    quat_out[3] = x_q[3];
+}
+
 // ============================================================================
 // INITIALIZATION
 // ============================================================================

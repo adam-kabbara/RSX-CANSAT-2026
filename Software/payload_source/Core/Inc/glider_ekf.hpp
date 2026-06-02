@@ -9,6 +9,11 @@ extern float home_lon_rad;
 extern float home_alt_m;
 extern bool  is_home_set;
 
+void quat_to_rpy(const float32_t* q, float32_t* rpy);
+void ekf_get_pos(float32_t* pos_out);
+void ekf_get_vel(float32_t* vel_out);
+void ekf_get_quaternion(float32_t* quat_out);
+
 // ============================================================================
 // PUBLIC FUNCTION DECLARATIONS
 // ============================================================================
