@@ -70,6 +70,22 @@ void MissionManager::reset_params()
 	landed_trigger_count = 0;
 }
 
+void MissionManager::init_params()
+{
+	packet_count = 0;
+	SIMP_DATA = 0;
+	memset(alt_buffer, 0, sizeof(alt_buffer));
+	alt_buffer_idx = 0;
+	max_alt = 0.0;
+	descent_trigger_count = 0;
+	apogee_flag = false;
+	nosecone_flag = false;
+	probe_flag = false;
+	egg_flag = false;
+	wing_flag = false;
+	landed_trigger_count = 0;
+}
+
 bool MissionManager::landed_trigger(bool consecutive_check)
 {
 	if(consecutive_check)
@@ -187,7 +203,7 @@ void MissionManager::setAltCalibration(float alt)
     launch_altitude = alt;
     for(int i = 0; i < ALTITUDE_SMOOTHING_WINDOW; i++)
     {
-    	alt_buffer[i] = alt;
+    	alt_buffer[i] = 0.0f;
     }
 }
 

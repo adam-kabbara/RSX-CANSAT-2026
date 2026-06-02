@@ -10,8 +10,6 @@
 #include "drv.hpp"
 #include "sensor_calibration.hpp"
 
-// TODO: save calibration data in eeprom
-
 CommandManager::CommandManager()
 {
     // Initialize function map
@@ -143,11 +141,13 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
     {
         if(info.getOpState() == IDLE && (info.isAltCalibrated() == true || info.getOpMode() == OPMODE_SIM))
         {
-            info.reset_params();
             sensors.EEPROM_resetData();
+            info.init_params();
             ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");
             info.setOpState(LAUNCH_PAD);
-            sensors.EEPROM_updateState(LAUNCH_PAD, ser);
+            sensors.EEPROM_updateState(LAUNCH_PAD);
+            status_update(ser, info);
+            sensors.EEPROM_resetLog();
         }
         else if(info.getOpState() != IDLE)
         {
@@ -163,7 +163,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
         if(info.getOpState() != IDLE)
         {
             info.setOpState(IDLE);
-            sensors.EEPROM_updateState(IDLE, ser);
+            sensors.EEPROM_updateState(IDLE);
             info.reset_params();
             ser.sendInfoDataMsg("ENDING PAYLOAD TRANSMISSION.{%s|%s|%s}",
               op_mode_to_string(info.getOpMode(), 1), op_state_to_string(info.getOpState()), flight_ctrl_to_string(info.getFlightCtrl()));
@@ -280,7 +280,7 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
           info.setSimStatus(SIM_ON);
           info.setOpMode(OPMODE_SIM);
           info.waitingForSimp();
-          sensors.EEPROM_updateMode(info.getOpMode(), ser);
+          sensors.EEPROM_updateMode(info.getOpMode());
           ser.sendInfoDataMsg("SIMULATION MODE IS ACTIVE");
           status_update(ser, info);
           break;
@@ -306,7 +306,7 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
         {
           info.setSimStatus(SIM_OFF);
           info.setOpMode(OPMODE_FLIGHT);
-          sensors.EEPROM_updateMode(info.getOpMode(), ser);
+          sensors.EEPROM_updateMode(info.getOpMode());
           ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.");
           status_update(ser, info);
           break;
@@ -367,7 +367,7 @@ void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorMana
   }
   ser.sendInfoDataMsg("Getting pressure value: %f", sensors.getPressure());
   info.setAltCalibration(pressure_to_alt(sensors.getPressure()));
-  sensors.EEPROM_updateAltitude(info.getLaunchAlt(), ser);
+  sensors.EEPROM_updateAltitude(info.getLaunchAlt());
   ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
   status_update(ser, info);
 } // END: do_Cal()
@@ -549,7 +549,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  if(info.getOpState() != DESCENT)
 		  {
 			  info.setOpState(DESCENT);
-			  sensors.EEPROM_updateState(DESCENT, ser);
+			  sensors.EEPROM_updateState(DESCENT);
 			  info.nosecone_rel();
 		  }
 	  }
@@ -559,7 +559,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  if(info.getOpState() != PROBE_RELEASE)
 		  {
 			  info.setOpState(PROBE_RELEASE);
-			  sensors.EEPROM_updateState(PROBE_RELEASE, ser);
+			  sensors.EEPROM_updateState(PROBE_RELEASE);
 			  info.probe_rel();
 		  }
 	  }
@@ -569,7 +569,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  if(info.getOpState() != PROBE_RELEASE)
 		  {
 			  info.setOpState(PROBE_RELEASE);
-			  sensors.EEPROM_updateState(PROBE_RELEASE, ser);
+			  sensors.EEPROM_updateState(PROBE_RELEASE);
 			  info.probe_rel();
 			  info.wing_rel();
 		  }
@@ -580,7 +580,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  if(info.getOpState() != PAYLOAD_RELEASE)
 		  {
 			  info.setOpState(PAYLOAD_RELEASE);
-			  sensors.EEPROM_updateState(PAYLOAD_RELEASE, ser);
+			  sensors.EEPROM_updateState(PAYLOAD_RELEASE);
 			  info.egg_rel();
 		  }
 	  }

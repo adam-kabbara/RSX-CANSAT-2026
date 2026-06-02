@@ -11,9 +11,12 @@ Usage:
 """
 
 import os
+import warnings
 
 os.environ.setdefault("SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS", "1")
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
 
 import pygame
 from PyQt6.QtCore import QObject, QThread, pyqtSignal

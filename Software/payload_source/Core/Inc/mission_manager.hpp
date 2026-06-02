@@ -55,6 +55,7 @@ public:
     void apogee_packet_sent();
 
     void reset_params();
+    void init_params();
 
     bool descent_trigger(bool consecutive_check);
 

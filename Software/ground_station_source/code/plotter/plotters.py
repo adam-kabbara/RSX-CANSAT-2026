@@ -62,7 +62,7 @@ class DynamicPlotter(BaseDynamicPlotter):
         self.y = np.zeros(self.data_buffer.maxlen, dtype=float)
         self.curve = self.plt.plot(self.x, self.y, pen=self.get_pen(0))
         #self.plt.getViewBox().setLimits(xMin=-5, xMax=5000, minXRange=5, yMin=-10000, yMax=10000, minYRange=2)
-        self.plt.setXRange(0, 50)
+        #self.plt.setXRange(0, 50)
     def update_plot(self, new_val):
 
         current_time = time.time()
@@ -78,7 +78,7 @@ class DynamicPlotter(BaseDynamicPlotter):
         self.x[-1] = self.x[-2] + time_diff
 
         self.curve.setData(self.x, self.y)
-        self.plt.setXRange(max(0, self.x[-1] - 50), max(50, self.x[-1]))
+        #self.plt.setXRange(max(0, self.x[-1] - 50), max(50, self.x[-1]))
 
     def add_state_marker(self, state_name):
         if len(self.x) == 0: return
@@ -149,8 +149,14 @@ class DynamicPlotterDualAxis(BaseDynamicPlotter):
         self.left_label = pg.TextItem("Voltage", anchor=(0, 0.5), color=self.get_pen(0).color())
         self.right_label = pg.TextItem("Current", anchor=(0, 0.5), color=self.get_pen(1).color())
 
-        self.plt.addItem(self.left_label)
-        self.plt.addItem(self.right_label)
+        self.plt.addItem(self.left_label, ignoreBounds=True)
+        self.right_view.addItem(self.right_label, ignoreBounds=True)
+
+        self.plt.getViewBox().setYRange(-5, 5)
+        self.plt.getViewBox().disableAutoRange(axis=pg.ViewBox.YAxis)
+
+        self.right_view.setYRange(-0.6, 0.6)
+        self.right_view.disableAutoRange(axis=pg.ViewBox.YAxis)
 
     def _sync_right_view(self):
         self.right_view.setGeometry(self.plt.getViewBox().sceneBoundingRect())
@@ -203,9 +209,10 @@ class DynamicPlotterDualAxis(BaseDynamicPlotter):
 
 # Plotting system for graphs with multiple lines
 class DynamicPlotterMultiLine(BaseDynamicPlotter):
-    def __init__(self, title, timewindow, num_lines, x_unit, y_unit):
+    def __init__(self, title, timewindow, num_lines, x_unit, y_unit, label_one, label_two, label_three, timescale):
         super().__init__(title, timewindow, x_unit, y_unit)
         self.num_lines = num_lines
+        self.timescale = timescale
         self.databuffer = [deque([0.0] * timewindow, maxlen=timewindow) for _ in range(num_lines)]
         self.x = np.linspace(0, 0, timewindow)
         self.y = np.zeros(shape=(self.num_lines, timewindow), dtype=float)
@@ -214,8 +221,9 @@ class DynamicPlotterMultiLine(BaseDynamicPlotter):
             self.plt.plot(self.x, self.y[i], pen=self.get_pen(self.base_line_color_idx + i))
             for i in range(self.num_lines)
         ]
+        self.plt.setXRange(0, self.timescale)
 
-        label_names = ["R/X", "P/Y", "Y/Z"]
+        label_names = [label_one, label_two, label_three]
         self.labels = []
 
         for i in range(min(self.num_lines, 3)):
@@ -243,6 +251,8 @@ class DynamicPlotterMultiLine(BaseDynamicPlotter):
 
         for i in range(self.num_lines):
             self.curve[i].setData(self.x, self.y[i])
+
+        self.plt.setXRange(max(0, self.x[-1] - self.timescale), max(self.timescale, self.x[-1]))
 
         # Update only the first 3 labels
         for i in range(min(self.num_lines, 3)):
