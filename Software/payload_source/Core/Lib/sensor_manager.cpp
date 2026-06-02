@@ -6,6 +6,10 @@
 
 #include "sensor_manager.hpp"
 #include <math.h>
+#include "serial_manager.hpp"
+
+extern "C" UART_HandleTypeDef huart1;
+SerialManager serial(huart1);
 
 SensorManager::SensorManager()
 {
@@ -219,17 +223,68 @@ void SensorManager::getRawMag(float* data_out)
 	data_out[3] = bno_dev.mag.accuracy;
 }
 
+void SensorManager::updateGPS()
+{
+    if (gps_hi2c == nullptr) return;
+
+    uint8_t rx_byte = 0;
+
+    // Direct buffer extraction via current address reads
+    while (HAL_I2C_Master_Receive(gps_hi2c, UBLOX_I2C_ADDR, &rx_byte, 1, 5) == HAL_OK) {
+        // Break out immediately if the receiver data stream is resting/empty
+        if (rx_byte == 0xFF) {
+            break; 
+        }
+
+        if (rx_byte == '$') {
+            gps_buf_idx = 0;
+        }
+
+        if (gps_buf_idx < (sizeof(gps_nmea_buffer) - 1)) {
+            gps_nmea_buffer[gps_buf_idx++] = (char)rx_byte;
+        }
+
+        if (rx_byte == '\n') {
+            gps_nmea_buffer[gps_buf_idx] = '\0';
+            
+            // Local string safety check
+            char parse_scratchpad[100];
+            std::strncpy(parse_scratchpad, gps_nmea_buffer, sizeof(parse_scratchpad));
+
+            // Only run parsing routine if it contains the GNS fix sentence layout
+        	gps_parser.ublox_parse(parse_scratchpad, internal_gps_storage);
+
+            
+            
+            gps_buf_idx = 0; 
+        }
+    }
+
+	if (internal_gps_storage.fix_quality > 0) {
+		char ln[128];
+		int len = snprintf(ln, sizeof ln,
+			"GPS q%u sats%u hdop%.1f lat%.6f lon%.6f alt%.1f\r\n",
+			internal_gps_storage.fix_quality,
+			internal_gps_storage.sats,
+			(double)internal_gps_storage.hdop,
+			internal_gps_storage.latitude,
+			internal_gps_storage.longitude,
+			(double)internal_gps_storage.altitude);
+	}
+}
+
 struct gps_data SensorManager::getGPSData()
 {
-	struct gps_data data;
-	data.altitude = 0.0;
-	data.latitude = 0.0;
-	data.longitude = 0.0;
-	data.sats = 0;
-	char gps_time[DATA_SIZE] = "00:00:00";
-	strcpy(data.time, gps_time);
-	return data;
+	return internal_gps_storage;
 }
+
+void SensorManager::getGPSTime(char time_str[DATA_SIZE])
+{
+	// snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
+	std::strncpy(time_str, internal_gps_storage.time, DATA_SIZE - 1);
+    time_str[DATA_SIZE - 1] = '\0';
+}
+
 
 cam_status SensorManager::getCameraStatus()
 {
@@ -249,11 +304,6 @@ void SensorManager::getRTCTime(char time_str[DATA_SIZE])
 	uint8_t m = DS1307_GetMinute();
 	uint8_t s = DS1307_GetSecond();
 	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", h, m, s);
-}
-
-void SensorManager::getGPSTime(char time_str[DATA_SIZE])
-{
-	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
 }
 
 void SensorManager::activate_egg_release()
@@ -715,6 +765,27 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 
 	static EEPROMsimple eeprom_storage(hspi_eeprom, cs_port, cs_pin);
 	eeprom_dev = &eeprom_storage;
+
+	/* Diagnostic: verify SPI reaches the EEPROM before anything else touches I2C.
+	 * Expected status = 0x00 (WIP=0, WEL=0, BP=00) at power-on.
+	 * 0xFF means the SPI peripheral is not responding — most common cause is
+	 * PA4 configured as SPI1_NSS (hardware NSS) in CubeMX instead of plain
+	 * GPIO_Output, which triggers a Mode Fault (MODF) the moment CS is asserted.
+	 * Fix in CubeMX: set SPI NSS = Software, leave PA4 as GPIO_Output. */
+	{
+		uint8_t eeprom_status = eeprom_dev->ReadStatus();
+		if (eeprom_status == 0xFF) {
+			serial.sendErrorMsg("[EEPROM] SPI not responding (0xFF) — check MODF/NSS config and MISO wiring");
+		} else {
+			serial.sendInfoDataMsg("[EEPROM] SPI OK, status=0x%02X (expect 0x00 at power-on)", eeprom_status);
+		}
+	}
+
+	// GPS initialization 
+	this->gps_hi2c = hi2c1;
+    
+    std::memset(&internal_gps_storage, 0, sizeof(struct gps_data));
+    std::strcpy(internal_gps_storage.time, "00:00:00");
 
 	if(!DS1307_Init(hi2c1))
 	{
