@@ -338,7 +338,7 @@ void CommandManager::do_simp(SerialManager &ser, MissionManager &info, SensorMan
     int pressure;
     if(sscanf(data, "%d", &pressure) == 1)
     {
-      float alt = pressure_to_alt(pressure/100.0);
+      float alt = pressure_to_alt(pressure);
       if(info.isWaitingSimp())
       {
           info.setAltCalibration(alt);
@@ -383,13 +383,12 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
   if (strcmp(data, "GYRO") == 0)
   {
     int num_data_points = 250; // vibes
-    float* gyro_raw_data;
     float* rawGyroX = new float[num_data_points];
     float* rawGyroY = new float[num_data_points];
     float* rawGyroZ = new float[num_data_points];
     int data_not_ready_count = 0;
+    float gyro_raw_data[3];
     for (int i=0; i<num_data_points; i++){ 
-      gyro_raw_data = new float[3];
       sensors.getRawGyro(gyro_raw_data);
       if(i > 0 && gyro_raw_data[0] == rawGyroX[i-1] && gyro_raw_data[1] == rawGyroY[i-1] && gyro_raw_data[2] == rawGyroZ[i-1])
       {

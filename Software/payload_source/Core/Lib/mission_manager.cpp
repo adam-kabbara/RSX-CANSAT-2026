@@ -66,6 +66,7 @@ void MissionManager::reset_params()
 	nosecone_flag = false;
 	probe_flag = false;
 	egg_flag = false;
+	wing_flag = false;
 	landed_trigger_count = 0;
 }
 
