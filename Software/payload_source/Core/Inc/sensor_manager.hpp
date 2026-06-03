@@ -57,7 +57,9 @@ private:
 	EEPROMsimple *eeprom_dev = nullptr;
 
 	RunCam cam1_dev; // g cam (pf0 for tx, pb6 for rx)
-	RunCam cam2_dev; // pg cam (pf1 for tx, pa8 for rx)	recovery_data recovery_cache;
+	RunCam cam2_dev; // pg cam (pf1 for tx, pa8 for rx)	
+	
+	recovery_data recovery_cache;
 
 	uint32_t eeprom_log_len = 0;
 
