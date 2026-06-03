@@ -692,6 +692,9 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 		serial.sendErrorMsg("[EEPROM] SPI not responding (0xFF) — check MODF/NSS config and MISO wiring");
 	}
 
+	cam1_dev.init(G_CAM_OUT_GPIO_Port, G_CAM_OUT_Pin, G_CAM_IN_GPIO_Port, G_CAM_IN_Pin);
+	cam2_dev.init(PG_CAM_OUT_GPIO_Port, PG_CAM_OUT_Pin, PG_CAM_IN_GPIO_Port, PG_CAM_IN_Pin);
+
 	if(!cam1_dev.probeDevice()) {
         serial.sendErrorMsg("Warning: RunCam 1 Handshake Communication timed out.\r\n");
     }

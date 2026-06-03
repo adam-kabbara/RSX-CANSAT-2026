@@ -676,7 +676,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOF, G_CAM_OUT_Pin|PG_CAM_OUT_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOF, G_CAM_OUT_Pin|PG_CAM_OUT_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, SERVO_WING_DIR_Pin|SERVO_WING_PWM_Pin|SPI_CS_GPIO_OUT_Pin, GPIO_PIN_RESET);

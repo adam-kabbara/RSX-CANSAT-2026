@@ -572,12 +572,12 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
   else if(strcmp(mec, "CAM") == 0)
   {
     // get opstate
-    OperatingState state = info.getOpState();
-    if(state == IDLE or state == LANDED or state == LAUNCH_PAD)
-    {
-      ser.sendErrorMsg("CAMERA CANNOT BE TOGGLED DURING IDLE/LANDED/LAUNCH_PAD STATE.");
-      return;
-    }
+    // OperatingState state = info.getOpState();
+    // if(state == IDLE or state == LANDED or state == LAUNCH_PAD)
+    // {
+    //   ser.sendErrorMsg("CAMERA CANNOT BE TOGGLED DURING IDLE/LANDED/LAUNCH_PAD STATE.");
+    //   return;
+    // }
     int cam_id = 0;
 
     if(strcmp(val, "1") == 0 || strcmp(val, "CAMERA1") == 0 || strcmp(val, "CAM1") == 0)
