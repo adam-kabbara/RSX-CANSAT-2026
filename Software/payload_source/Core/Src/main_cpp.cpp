@@ -171,7 +171,7 @@ extern "C" void main_cpp()
 
             if(send_flag)
             {
-            	/*
+            	
 				float pos[3];
 				float vel[3];
 				float x_q[4];
@@ -179,10 +179,13 @@ extern "C" void main_cpp()
 				ekf_get_vel(vel);
 				ekf_get_quaternion(x_q);
 				serial.sendInfoDataMsg("EKF State: NED Position (%.1f, %.1f, %.1f), Velocity (%.1f, %.1f, %.1f)", pos[0], pos[1], pos[2], vel[0], vel[1], vel[2]);
+				float raw_accel[4];
+				sensors.getLinearAccel(raw_accel);
+				serial.sendInfoDataMsg("Linear Accel: (%.3f, %.3f, %.3f) m/s^2, Accuracy: %d", raw_accel[0], raw_accel[1], raw_accel[2], (int)raw_accel[3]);
 				float rpy[3];
 				quat_to_rpy(x_q, rpy);
 				serial.sendInfoDataMsg("EKF State: RPY (%.3f, %.3f, %.3f)", rpy[0], rpy[1], rpy[2]);
-				*/
+				
 				telemetry_mgr.sampleSensors(sensors, mission_mgr, serial);
             	telemetry_mgr.build_data_str(send_buff, sizeof(send_buff));
 
@@ -236,16 +239,16 @@ extern "C" void main_cpp()
             if(sensors.BNO_dataReady())
             {
             	sensors.updateBNO();
-				float raw_accel[3];
-				sensors.getRawAccel(raw_accel);
+				float raw_accel[4];
+				sensors.getLinearAccel(raw_accel);
 				uint32_t current_time = HAL_GetTick();
 				float dt = (current_time - bno_update_timer) / 1000.0f;
 				if(dt <= 0) dt = 0.02f; // sanity check
 				bno_update_timer = current_time;
-				glider_ekf_predict_bno_mode(raw_accel, dt);
-
 				float bno_quat[5];
 				sensors.getGameRotationVector(bno_quat);
+				CPL_IMU_to_NED(raw_accel, bno_quat);
+				glider_ekf_predict_bno_mode(raw_accel, dt);
 				glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
             }
 

@@ -47,15 +47,13 @@ static void quaternion_to_rotation_matrix(const float32_t* q, float32_t* R) {
    R[6] = 2.0f*(qx*qz - qw*qy);        R[7] = 2.0f*(qy*qz + qw*qx);        R[8] = 1.0f - 2.0f*(qx*qx + qy*qy);
 }
 
-void CPL_IMU_to_NED(float32_t* accel, float32_t* gyro) {
+void CPL_IMU_to_NED(float32_t* accel, float32_t* quat) {
    // IMU is mounted with X backward, Y right, Z up
    // NED frame: X North, Y East, Z Down
    accel[0] = -accel[0]; // Backward to North
-   accel[1] = accel[1];  // Right to East
    accel[2] = -accel[2]; // Up to Down
-   gyro[0] = -gyro[0];   // Backward to North (Invert Roll)
-   gyro[1] = gyro[1];    // Right to East (Pitch same)
-   gyro[2] = -gyro[2];   // Up to Down (Invert Yaw)
+   quat[1] = -quat[1];   // Backward to North (Invert Roll)
+   quat[3] = -quat[3];   // Up to Down (Invert Yaw)
 }
 
 void convert_gps_to_local_ned(float curr_lat, float curr_lon, float curr_alt, float* current_pos_ne) {
@@ -217,45 +215,53 @@ void glider_ekf_predict(float32_t* raw_accel, float32_t* raw_gyro, float32_t dt)
 // ============================================================================
 // SIMPLIFIED MOTION MODEL UPDATE (High Rate: Call at Accelerometer rate)
 // ============================================================================
-void glider_ekf_predict_bno_mode(float32_t* raw_accel, float32_t dt) {
-    // Unbias accelerometer values
+void glider_ekf_predict_bno_mode(float32_t* bno_linear_accel, float32_t dt) {
+    
+    // 1. Unbias the BNO085 linear acceleration values using EKF tracked biases
     float32_t accel[3] = { 
-        raw_accel[0] - x_pos_vel_biases[6], 
-        raw_accel[1] - x_pos_vel_biases[7], 
-        raw_accel[2] - x_pos_vel_biases[8] 
+        bno_linear_accel[0] - x_pos_vel_biases[6], 
+        bno_linear_accel[1] - x_pos_vel_biases[7], 
+        bno_linear_accel[2] - x_pos_vel_biases[8] 
     };
 
-    // 1. Propagate Position: p = p + v*dt
-    x_pos_vel_biases[0] += x_pos_vel_biases[3] * dt;
-    x_pos_vel_biases[1] += x_pos_vel_biases[4] * dt;
-    x_pos_vel_biases[2] += x_pos_vel_biases[5] * dt;
-
-    // 2. Propagate Velocity using the current orientation matrix
+    // 2. Rotate the acceleration from Body Frame to Local NED Navigation Frame
     float32_t R[9];
     quaternion_to_rotation_matrix(x_q, R);
     
     float32_t accel_ned[3];
-    accel_ned[0] = R[0]*accel[0] + R[1]*accel[1] + R[2]*accel[2];
-    accel_ned[1] = R[3]*accel[0] + R[4]*accel[1] + R[5]*accel[2];
-    accel_ned[2] = R[6]*accel[0] + R[7]*accel[1] + R[8]*accel[2] + G_ACCEL;
+    accel_ned[0] = R[0]*accel[0] + R[1]*accel[1] + R[2]*accel[2]; // True North Accel
+    accel_ned[1] = R[3]*accel[0] + R[4]*accel[1] + R[5]*accel[2]; // True East Accel
+    accel_ned[2] = R[6]*accel[0] + R[7]*accel[1] + R[8]*accel[2]; // True Down Accel
 
-    x_pos_vel_biases[3] += accel_ned[0] * dt;
-    x_pos_vel_biases[4] += accel_ned[1] * dt;
-    x_pos_vel_biases[5] += accel_ned[2] * dt;
+    // 3. INTEGRATION STEP: Semi-Implicit Euler (Velocity First)
+    // First, calculate the brand-new velocities
+    x_pos_vel_biases[3] += accel_ned[0] * dt; // Vel North
+    x_pos_vel_biases[4] += accel_ned[1] * dt; // Vel East
+    x_pos_vel_biases[5] += accel_ned[2] * dt; // Vel Down
 
-    // 3. Simplified Transition Jacobian F (Attitude propagation terms removed)
+    // Next, update positions using those newly updated velocities
+    x_pos_vel_biases[0] += x_pos_vel_biases[3] * dt; // Pos North
+    x_pos_vel_biases[1] += x_pos_vel_biases[4] * dt; // Pos East
+    x_pos_vel_biases[2] += x_pos_vel_biases[5] * dt; // Pos Down
+
+    // 4. CLEAN JACOBIAN F MATRIX (12x12)
+    // Clear out any old cross-talk math completely
     for(int i = 0; i < STATE_DIM * STATE_DIM; i++) F_data[i] = 0.0f;
-    for(int i = 0; i < STATE_DIM; i++) F_data[i * STATE_DIM + i] = 1.0f;
+    for(int i = 0; i < STATE_DIM; i++) F_data[i * STATE_DIM + i] = 1.0f; // Identity Base
 
-    F_data[0*STATE_DIM + 3] = dt; F_data[1*STATE_DIM + 4] = dt; F_data[2*STATE_DIM + 5] = dt; // dPos/dVel
+    // Map Kinematics: dPos / dVel = dt
+    F_data[0*STATE_DIM + 3] = dt; // dPosN / dVelN
+    F_data[1*STATE_DIM + 4] = dt; // dPosE / dVelE
+    F_data[2*STATE_DIM + 5] = dt; // dPosD / dVelD
     
-    for(int i=0; i<3; i++) {
-        for(int j=0; j<3; j++) {
-            F_data[(3+i)*STATE_DIM + (9+j)] = -R[i*3 + j] * dt; // dVel/dAccelBias
+    // Map Kinematics: dVel / dAccelBias = -R * dt
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            F_data[(3 + i)*STATE_DIM + (9 + j)] = -R[i*3 + j] * dt;
         }
     }
 
-    // Covariance Propagation: P = F*P*F_T + Q
+    // 5. MATRIX MATHEMATICS EXECUTION (CMSIS-DSP)
     arm_mat_trans_f32(&F_mat, &F_T_mat);
     arm_mat_mult_f32(&F_mat, &P_mat, &FP_mat);
     arm_mat_mult_f32(&FP_mat, &F_T_mat, &FPF_T_mat);

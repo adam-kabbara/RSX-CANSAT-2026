@@ -19,6 +19,8 @@ void ekf_get_pos(float32_t* pos_out);
 void ekf_get_vel(float32_t* vel_out);
 void ekf_get_quaternion(float32_t* quat_out);
 
+void CPL_IMU_to_NED(float32_t* accel, float32_t* quat);
+
 // ============================================================================
 // PUBLIC FUNCTION DECLARATIONS
 // ============================================================================
