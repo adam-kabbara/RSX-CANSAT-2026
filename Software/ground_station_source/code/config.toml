@@ -15,7 +15,7 @@ resolution = [1920, 540]
 display_mode = "fullscreen"
 
 [map.tile_checker]
-enabled = true
+enabled = false
 
 [map.tile_checker.ranges]
 12 = [1141, 1143]

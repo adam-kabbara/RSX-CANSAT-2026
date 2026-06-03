@@ -1,3 +1,4 @@
+#include "glider_ekf.h"
 #include "drv.hpp"
 #include "main.h"
 #include "global_includes.hpp"
@@ -25,6 +26,7 @@ extern "C" volatile uint8_t cmd_ready;
 uint32_t nosecone_rel__payload_rel_timer = 0;
 uint32_t wing_servo_timer = 0;
 uint32_t egg_timer = 0;
+uint32_t bno_update_timer = 0;
 OperatingState update_state(SensorManager &sensors, MissionManager &mgr, OperatingState current_state);
 
 extern "C" void main_cpp()
@@ -66,6 +68,8 @@ extern "C" void main_cpp()
 
 	sensors.startSensors(serial, &hi2c1, &hspi1, SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, &htim2, &htim3, &htim4);
 
+	glider_ekf_init();
+
     struct recovery_data recovery = sensors.EEPROM_getRecoveryData();
 
     mission_mgr.setOpState(recovery.state);
@@ -106,14 +110,20 @@ extern "C" void main_cpp()
     {
     	serial.sendInfoMsg("Setup completed, entering IDLE mode");
     }
-	
+
     char cmd_buff[CMD_BUFF_SIZE];
     char send_buff[DATA_BUFF_SIZE];
 
     while(1)
     {
         while(mission_mgr.getOpState() == IDLE)
-        { // todo add calibration code
+        {
+			sensors.updateGPS();
+			if(sensors.BNO_dataReady())
+			{
+				sensors.updateBNO();
+			}
+			sensors.updateMotor();
 
             if(cmd_ready)
             {
@@ -127,9 +137,6 @@ extern "C" void main_cpp()
 
             }
             HAL_Delay(10);
-
-            // TODO: look into one pulse again
-            sensors.updateMotor();
         }
 
         if(mission_mgr.getOpMode() == OPMODE_SIM)
@@ -139,7 +146,25 @@ extern "C" void main_cpp()
             // Wait until first simulation packet is received
             while(mission_mgr.getOpMode() == OPMODE_SIM && mission_mgr.isWaitingSimp())
             {
-                HAL_Delay(100);
+            	if(cmd_ready)
+				{
+					memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
+					cmd_ready = 0;
+
+					if(cmd_mgr.processCommand(cmd_buff, serial, mission_mgr, sensors))
+					{
+						mission_mgr.setLastCommand(cmd_buff);
+					}
+
+				}
+				HAL_Delay(10);
+
+				sensors.updateGPS();
+				if(sensors.BNO_dataReady())
+				{
+					sensors.updateBNO();
+				}
+				sensors.updateMotor();
             }
         }
 
@@ -150,6 +175,9 @@ extern "C" void main_cpp()
 
         while(mission_mgr.getOpState() != IDLE)
         {
+			sensors.updateMotor();
+			sensors.updateGPS();
+			
             if(cmd_ready)
             {
             	memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
@@ -163,14 +191,29 @@ extern "C" void main_cpp()
 
             if(send_flag)
             {
+            	
+				float pos[3];
+				float vel[3];
+				float x_q[4];
+				ekf_get_pos(pos);
+				ekf_get_vel(vel);
+				ekf_get_quaternion(x_q);
+				serial.sendInfoDataMsg("EKF State: NED Position (%.1f, %.1f, %.1f), Velocity (%.1f, %.1f, %.1f)", pos[0], pos[1], pos[2], vel[0], vel[1], vel[2]);
+				float raw_accel[4];
+				sensors.getLinearAccel(raw_accel);
+				serial.sendInfoDataMsg("Linear Accel: (%.3f, %.3f, %.3f) m/s^2, Accuracy: %d", raw_accel[0], raw_accel[1], raw_accel[2], (int)raw_accel[3]);
+				float rpy[3];
+				quat_to_rpy(x_q, rpy);
+				serial.sendInfoDataMsg("EKF State: RPY (%.3f, %.3f, %.3f)", rpy[0], rpy[1], rpy[2]);
+				
 				telemetry_mgr.sampleSensors(sensors, mission_mgr, serial);
             	telemetry_mgr.build_data_str(send_buff, sizeof(send_buff));
 
             	serial.sendTelemetry(send_buff);
 
-				if(mission_mgr.logfile_ok() && !sensors.EEPROM_addLogLine(send_buff, serial))
+				if(mission_mgr.logfile_ok() && !sensors.EEPROM_addLogLine(send_buff))
 				{
-					serial.sendErrorMsg("Warning: Unable to add line to logfile!");
+					serial.sendErrorMsg("Warning: Unable to add line to logfile, disabling logfile writes!");
 					mission_mgr.disableLogfile();
 				}
 
@@ -184,19 +227,19 @@ extern "C" void main_cpp()
 
             if(update_flag)
             {
-            	sensors.updateBMP();
-
             	float pressure_val;
             	if(mission_mgr.getOpMode() == OPMODE_SIM)
 				{
-            		pressure_val = mission_mgr.getSimpData()/1000.0;
+            		pressure_val = mission_mgr.getSimpData();
 				}
             	else
             	{
+            		sensors.updateBMP();
             		pressure_val = sensors.getPressure();
             	}
 
             	mission_mgr.update_alt_buffer(pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt());
+				glider_ekf_update_baro(pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt(), 1.0f);
 
 				if(mission_mgr.getOpState() == DESCENT || mission_mgr.getOpState() == PROBE_RELEASE || mission_mgr.getOpState() == PAYLOAD_RELEASE)
 				{
@@ -206,7 +249,7 @@ extern "C" void main_cpp()
 				OperatingState next_state = update_state(sensors, mission_mgr, mission_mgr.getOpState());
 				if(next_state != mission_mgr.getOpState())
 				{
-					sensors.EEPROM_updateState(next_state, serial);
+					sensors.EEPROM_updateState(next_state);
 					mission_mgr.setOpState(next_state);
 				}
 
@@ -216,7 +259,25 @@ extern "C" void main_cpp()
             if(sensors.BNO_dataReady())
             {
             	sensors.updateBNO();
+				float raw_accel[4];
+				sensors.getLinearAccel(raw_accel);
+				uint32_t current_time = HAL_GetTick();
+				float dt = (current_time - bno_update_timer) / 1000.0f;
+				if(dt <= 0) dt = 0.02f; // sanity check
+				bno_update_timer = current_time;
+				float bno_quat[5];
+				sensors.getGameRotationVector(bno_quat);
+				CPL_IMU_to_NED(raw_accel, bno_quat);
+				glider_ekf_predict_bno_mode(raw_accel, dt);
+				glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
             }
+
+			struct gps_data gps_data = sensors.getGPSData();
+			if(gps_data.data_ready)
+			{
+				gps_data.data_ready = false;
+				ekf_gps_update(gps_data.latitude, gps_data.longitude, gps_data.altitude, gps_data.sog_ms, gps_data.cog_true, gps_data.rms_range);
+			}
 
             sensors.updateMotor();
         }
@@ -239,10 +300,6 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 	{
 		case LAUNCH_PAD: {
 			float alt = mgr.calculate_median_alt();
-			if(mgr.update_max_alt(alt))
-			{
-				sensors.EEPROM_updateMaxAlt(alt);
-			}
 			if(alt > ASCENT_ALT_THRESHOLD_M)
 			{
 				new_state = ASCENT;
@@ -344,7 +401,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 				if(mgr.wing_check())
 				{
 					float alt = mgr.calculate_median_alt();
-					if(alt < EGG_ALT_THRESHOLD_M && !mgr.egg_check())
+					if(alt < (EGG_ALT_THRESHOLD_M + mgr.getEggAlt()) && !mgr.egg_check())
 					{
 						sensors.activate_egg_release();
 						mgr.egg_rel();

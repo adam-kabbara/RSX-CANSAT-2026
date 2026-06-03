@@ -36,6 +36,7 @@ private:
     bool wing_flag = false;
     bool egg_flag = false;
     int landed_trigger_count = 0;
+    float egg_alt_cal = 0.0f;
 
 public:
 
@@ -55,6 +56,7 @@ public:
     void apogee_packet_sent();
 
     void reset_params();
+    void init_params();
 
     bool descent_trigger(bool consecutive_check);
 
@@ -87,6 +89,10 @@ public:
     void setAltCalibration(float alt);
 
     float getLaunchAlt();
+
+    void setEggAlt(float alt);
+
+    float getEggAlt();
 
     void setPacketCount(int count);
 

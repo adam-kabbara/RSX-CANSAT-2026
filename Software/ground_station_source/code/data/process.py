@@ -37,11 +37,7 @@ class TelemetryData:
     GPS_LONGITUDE: float
     GPS_SATS: str
     CMD_ECHO: str
-    CAM_STATUS: int
     PACKET_RECV: int
-    #ADAM MUST IMPLEMENT FIELDS BELOW
-    FLIGHT_CTRL: str | None
-    QUATERNION_W: float | None
     QUATERNION_X: float | None
     QUATERNION_Y: float | None
     QUATERNION_Z: float | None
@@ -49,7 +45,7 @@ class TelemetryData:
     VELOCITY_Y: float | None
     VELOCITY_Z: float | None
     ACCEL_X: float | None
-    ACCEL_Y: float | None # Y-axis acceleration
+    ACCEL_Y: float | None
     ACCEL_Z: float | None
 
 class DataProcessor(QObject):
@@ -163,6 +159,7 @@ class DataProcessor(QObject):
                 self._write_to_log = 0
                 self.close_logfile()
                 self.log_end_signal.emit()
+            return
         else:
             if not msg.strip():
                 return
@@ -197,11 +194,6 @@ class DataProcessor(QObject):
             elif "CAMERA2 OFF" in msg:
                 self._graph_ui.update_camera2_status("OFF")
 
-            elif "Flight ctrl auto" in msg:
-                    self._graph_ui.update_flight_ctrl("AUTONOMOUS")
-            elif "Flight ctrl manu" in msg:
-                self._graph_ui.update_flight_ctrl("MANUAL")
-
             row = {field: "" for field in self._csv_fields}
             row["CMD_ECHO"] = msg
             self._write_csv_row(row)
@@ -216,14 +208,13 @@ class DataProcessor(QObject):
             if mission_info != "NONE":
                 msg_text = re.sub(r'{.+?}', '', msg_text).strip()
                 mission_parts = [part.strip() for part in mission_info.split('|')]
-                if len(mission_parts) >= 2:
-                    new_mode, new_state = mission_parts[:2]
+                if len(mission_parts) >= 4:
+                    new_mode, new_state, new_ctrl, new_alt_cal = mission_parts[:4]
                     self._graph_ui.update_mode(new_mode)
                     self._graph_ui.update_state(new_state)
-                if len(mission_parts) >= 3:
-                    self._graph_ui.update_flight_ctrl(mission_parts[2])
-
-            if msg.startswith("$E"):
+                    self._graph_ui.update_flight_ctrl(new_ctrl)
+                    self._graph_ui.update_alt_cal_status(new_alt_cal)
+            elif msg.startswith("$E"):
                 self.sat_error_signal.emit(f"{msg_text}")
             else:
                 self.sat_resp_signal.emit(f"{msg_text}")
@@ -265,24 +256,9 @@ class DataProcessor(QObject):
             new_accel_data = [data.ACCEL_R, data.ACCEL_P, data.ACCEL_YAW]
             self._graph_ui.update_accel_graph(new_accel_data)
 
-        if (
-            data.QUATERNION_W is not None
-            and data.QUATERNION_X is not None
-            and data.QUATERNION_Y is not None
-            and data.QUATERNION_Z is not None
-        ):
-            attitude = self._quaternion_to_euler_degrees(
-                data.QUATERNION_W,
-                data.QUATERNION_X,
-                data.QUATERNION_Y,
-                data.QUATERNION_Z,
-            )
-            if attitude is not None:
-                self._graph_ui.update_attitude(*attitude)
-
-        if data.ACCEL_X is not None and data.ACCEL_Y is not None and data.ACCEL_Z is not None:
-            new_accel_xyz_data = [data.ACCEL_X, data.ACCEL_Y, data.ACCEL_Z]
-            self._graph_ui.update_accel_xyz_graph(new_accel_xyz_data)
+        if data.VELOCITY_X is not None and data.VELOCITY_Y is not None and data.VELOCITY_Z is not None:
+            new_velocity_data = [data.ACCEL_X, data.ACCEL_Y, data.ACCEL_Z]
+            self._graph_ui.update_velocity_graph(new_velocity_data)
    
         if data.GPS_LATITUDE is not None and data.GPS_LONGITUDE is not None:
             self._graph_ui.update_gps_map(data.GPS_LATITUDE, data.GPS_LONGITUDE)
@@ -315,18 +291,23 @@ class DataProcessor(QObject):
         if data.CMD_ECHO is not None:
             self._graph_ui.update_cmd_echo(data.CMD_ECHO)
 
-        if data.CAM_STATUS is not None:
-            # CAMERA1 status
-            if data.CAM_STATUS == 3 or data.CAM_STATUS == 1:
-                self._graph_ui.update_camera1_status("ON")
-            else:
-                self._graph_ui.update_camera1_status("OFF")
-            
-            # CAMERA2 status
-            if data.CAM_STATUS == 3 or data.CAM_STATUS == 2:
-                self._graph_ui.update_camera2_status("ON")
-            else:
-                self._graph_ui.update_camera2_status("OFF")
+        if (
+            data.QUATERNION_X is not None
+            and data.QUATERNION_Y is not None
+            and data.QUATERNION_Z is not None
+        ):
+            quaternion_w = self._quaternion_w(data.QUATERNION_X, data.QUATERNION_Y, data.QUATERNION_Z)
+            attitude = self._quaternion_to_euler_degrees(
+                quaternion_w,
+                data.QUATERNION_X,
+                data.QUATERNION_Y,
+                data.QUATERNION_Z,
+            )
+            self._graph_ui.update_attitude(*attitude)
+            self._graph_ui.update_quaternion(quaternion_w, data.QUATERNION_X, data.QUATERNION_Y, data.QUATERNION_Z)
+
+        if data.ACCEL_X is not None and data.ACCEL_Y is not None and data.ACCEL_Z is not None:
+            self._graph_ui.update_accel_xyz(data.ACCEL_X, data.ACCEL_Y, data.ACCEL_Z)
 
         data_dict = asdict(data)
         self._write_csv_row(data_dict)
@@ -358,20 +339,16 @@ class DataProcessor(QObject):
             GPS_LONGITUDE= self._parse_float(self._field(fields, 19)),
             GPS_SATS     = self._field(fields, 20),
             CMD_ECHO     = self._field(fields, 21),
-            CAM_STATUS   = self._parse_int(self._field(fields, 22)),
             PACKET_RECV  = self._graph_ui.get_packet_count(),
-            # ADAM MUST IMPLEMENT FIELDS BELOW Xd
-            FLIGHT_CTRL  = self._field(fields, 23),
-            QUATERNION_W = self._parse_float(self._field(fields, 24)),
-            QUATERNION_X = self._parse_float(self._field(fields, 25)),
-            QUATERNION_Y = self._parse_float(self._field(fields, 26)),
-            QUATERNION_Z = self._parse_float(self._field(fields, 27)),
-            VELOCITY_X   = self._parse_float(self._field(fields, 28)),
-            VELOCITY_Y   = self._parse_float(self._field(fields, 29)),
-            VELOCITY_Z   = self._parse_float(self._field(fields, 30)),
-            ACCEL_X      = self._parse_float(self._field(fields, 31)),
-            ACCEL_Y      = self._parse_float(self._field(fields, 32)),
-            ACCEL_Z      = self._parse_float(self._field(fields, 33)),
+            QUATERNION_X = self._parse_float(self._field(fields, 22)),
+            QUATERNION_Y = self._parse_float(self._field(fields, 23)),
+            QUATERNION_Z = self._parse_float(self._field(fields, 24)),
+            VELOCITY_X   = self._parse_float(self._field(fields, 25)),
+            VELOCITY_Y   = self._parse_float(self._field(fields, 26)),
+            VELOCITY_Z   = self._parse_float(self._field(fields, 27)),
+            ACCEL_X      = self._parse_float(self._field(fields, 28)),
+            ACCEL_Y      = self._parse_float(self._field(fields, 29)),
+            ACCEL_Z      = self._parse_float(self._field(fields, 30))
         )
 
         return telemetry_data
@@ -399,6 +376,9 @@ class DataProcessor(QObject):
             return int(float(value))
         except ValueError:
             return None
+        
+    def _quaternion_w(self, x, y, z):
+        return math.sqrt(max(0.0, 1.0 - (x * x + y * y + z * z)))
 
     def _quaternion_to_euler_degrees(self, w, x, y, z):
         norm = math.sqrt(w * w + x * x + y * y + z * z)

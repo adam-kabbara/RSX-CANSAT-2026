@@ -66,6 +66,24 @@ void MissionManager::reset_params()
 	nosecone_flag = false;
 	probe_flag = false;
 	egg_flag = false;
+	wing_flag = false;
+	landed_trigger_count = 0;
+	egg_alt_cal = 0.0f;
+}
+
+void MissionManager::init_params()
+{
+	packet_count = 0;
+	SIMP_DATA = 0;
+	memset(alt_buffer, 0, sizeof(alt_buffer));
+	alt_buffer_idx = 0;
+	max_alt = 0.0;
+	descent_trigger_count = 0;
+	apogee_flag = false;
+	nosecone_flag = false;
+	probe_flag = false;
+	egg_flag = false;
+	wing_flag = false;
 	landed_trigger_count = 0;
 }
 
@@ -184,7 +202,20 @@ void MissionManager::setAltCalibration(float alt)
 {
     ALT_CAL_CHK = true;
     launch_altitude = alt;
-    memset(alt_buffer, alt, sizeof(alt_buffer));
+    for(int i = 0; i < ALTITUDE_SMOOTHING_WINDOW; i++)
+    {
+    	alt_buffer[i] = 0.0f;
+    }
+}
+
+void MissionManager::setEggAlt(float alt)
+{
+	egg_alt_cal = alt;
+}
+
+float MissionManager::getEggAlt()
+{
+	return egg_alt_cal;
 }
 
 float MissionManager::getLaunchAlt()
@@ -209,12 +240,12 @@ void MissionManager::incrPacketCount()
 
 void MissionManager::waitingForSimp()
 {
-    waiting_for_simp = 1;
+    waiting_for_simp = true;
 }
 
 void MissionManager::simpRecv()
 {
-    waiting_for_simp = 0;
+    waiting_for_simp = false;
 }
 
 bool MissionManager::isWaitingSimp()

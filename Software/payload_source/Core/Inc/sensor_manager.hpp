@@ -17,6 +17,7 @@
 #include "drv.hpp"
 #include "eeprom.hpp"
 #include "runcam.hpp"
+#include "GPS.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,43 +57,31 @@ private:
 	EEPROMsimple *eeprom_dev = nullptr;
 
 	RunCam cam1_dev; // g cam (pf0 for tx, pb6 for rx)
-	RunCam cam2_dev; // pg cam (pf1 for tx, pa8 for rx)
+	RunCam cam2_dev; // pg cam (pf1 for tx, pa8 for rx)	recovery_data recovery_cache;
+
+	uint32_t eeprom_log_len = 0;
+
+	static const uint8_t  EEPROM_MAGIC             = 0xA5;
+	static const uint32_t EEPROM_PAGE_SIZE         = 256UL;
+	static const uint32_t EEPROM_TOTAL_BYTES       = 131072UL;
+	static const uint32_t EEPROM_ADDR_RECOVERY     = 0UL;
+	static const uint32_t EEPROM_ADDR_LOG_LEN      = 64UL;
+	static const uint32_t EEPROM_ADDR_LOG          = 68UL;
+	static const uint32_t EEPROM_LOG_MAX           = EEPROM_TOTAL_BYTES - EEPROM_ADDR_LOG;
+
+	void EEPROM_writeBytes(uint32_t addr, const uint8_t *data, uint32_t len);
+	uint32_t EEPROM_readLogLen();
+	void EEPROM_writeLogLen(uint32_t len);
+	void EEPROM_Init();
+	void EEPROM_saveRecovery();
+
+	I2C_HandleTypeDef *gps_hi2c = nullptr;
+	GPS gps_parser;
+	gps_data internal_gps_storage;
+	char gps_nmea_buffer[100];
+	uint8_t gps_buf_idx = 0; // counter tracking string length
 
 public:
-
-	static const uint32_t EEPROM_TOTAL_BYTES       = 131072UL;
- 
-    static const uint32_t EEPROM_NUM_RECOVERY_FIELDS = 9UL;
-    static const uint32_t EEPROM_HEADER_ENTRY_SIZE  = 4UL;   // bytes per size field
-    static const uint32_t EEPROM_HEADER_SIZE =
-        (EEPROM_NUM_RECOVERY_FIELDS + 1UL) * EEPROM_HEADER_ENTRY_SIZE;  // 20 bytes
- 
-    static const uint32_t EEPROM_FIELD_BLOCK_SIZE  = 16UL;
-
-	/* Starting addresses of each recovery-data block */
-    static const uint32_t EEPROM_ADDR_ALT    = EEPROM_HEADER_SIZE;                          // 0x000014
-    static const uint32_t EEPROM_ADDR_STATE  = EEPROM_ADDR_ALT   + EEPROM_FIELD_BLOCK_SIZE; // 0x000024
-    static const uint32_t EEPROM_ADDR_MODE   = EEPROM_ADDR_STATE + EEPROM_FIELD_BLOCK_SIZE; // 0x000034
-    static const uint32_t EEPROM_ADDR_PKTCNT = EEPROM_ADDR_MODE  + EEPROM_FIELD_BLOCK_SIZE; // 0x000044
-	static const uint32_t EEPROM_ADDR_MAXALT      = EEPROM_ADDR_PKTCNT    + EEPROM_FIELD_BLOCK_SIZE; // 0x000054
-	static const uint32_t EEPROM_ADDR_EGGREL      = EEPROM_ADDR_MAXALT    + EEPROM_FIELD_BLOCK_SIZE; // 0x000064
-	static const uint32_t EEPROM_ADDR_WINGREL     = EEPROM_ADDR_EGGREL    + EEPROM_FIELD_BLOCK_SIZE; // 0x000074
-	static const uint32_t EEPROM_ADDR_PROBEREL    = EEPROM_ADDR_WINGREL   + EEPROM_FIELD_BLOCK_SIZE; // 0x000084
-	static const uint32_t EEPROM_ADDR_NOSECONEREL = EEPROM_ADDR_PROBEREL  + EEPROM_FIELD_BLOCK_SIZE; // 0x000094
-	static const uint32_t EEPROM_ADDR_LOG         = EEPROM_ADDR_NOSECONEREL + EEPROM_FIELD_BLOCK_SIZE; // 0x0000A4
-    static const uint32_t EEPROM_LOG_MAX     = EEPROM_TOTAL_BYTES - EEPROM_ADDR_LOG;
- 
-    /* Offsets into the header for each size field */
-    static const uint32_t EEPROM_HDR_IDX_ALT    = 0UL;
-    static const uint32_t EEPROM_HDR_IDX_STATE  = 1UL;
-    static const uint32_t EEPROM_HDR_IDX_MODE   = 2UL;
-    static const uint32_t EEPROM_HDR_IDX_PKTCNT = 3UL;
-    static const uint32_t EEPROM_HDR_IDX_LOG    = 4UL;
-	static const uint32_t EEPROM_HDR_IDX_MAXALT      = 5UL;
-	static const uint32_t EEPROM_HDR_IDX_EGGREL      = 6UL;
-	static const uint32_t EEPROM_HDR_IDX_WINGREL     = 7UL;
-	static const uint32_t EEPROM_HDR_IDX_PROBEREL    = 8UL;
-	static const uint32_t EEPROM_HDR_IDX_NOSECONEREL = 9UL;
 
 	SensorManager();
 
@@ -105,18 +94,32 @@ public:
 
 	void BNO_enableGyro(int microsec, SerialManager &serial);
 	void BNO_enableAccel(int microsec, SerialManager &serial);
+	void BNO_enableLinearAcceleration(int microsec, SerialManager &serial);
 	void BNO_enableMag(int microsec, SerialManager &serial);
 	void BNO_enableRotationVector(int microsec, SerialManager &serial);
+	void BNO_enableGameRotationVector(int microsec, SerialManager &serial);
+	void BNO_calibrate(SerialManager &serial);
+	void BNO_saveCalibration(SerialManager &serial);
+	void BNO_disableCalibration(SerialManager &serial);
 	bool BNO_dataReady();
 	void updateBNO();
+	void rotate_vec3_y_ccw(BNO085_Vec3_t *v, float c, float s);
+	void BNO_RotateY(BNO085_t *bno_dev, float angle_rad);
 	void getRawGyro(float* data_out);
 	struct rpy_data getCalibratedGyro(float* calib_bias);
 
 	struct rpy_data getIMUData();
 
+	void getGameRotationVector(float* data_out);
+	void getEulerRotationVector(float* data_out);
+
 	void getRawAccel(float* data_out);
+	void getLinearAccel(float* data_out);
 	struct rpy_data getCalibratedAccel(float* calib_bias, float* calib_scale);
 
+	void getRawMag(float* data_out);
+
+	void updateGPS();
 	struct gps_data getGPSData();
 
 	cam_status getCameraStatus();
@@ -140,17 +143,11 @@ public:
 	void stopMotor();
 	void updateMotor();
 
-	uint16_t EEPROM_readString(uint32_t start_addr, char *buf, uint16_t max_len);
-	bool EEPROM_writeString(uint32_t start_addr, const char *str, uint16_t len);
-	uint32_t EEPROM_readHeaderSize(uint32_t index);
-	void EEPROM_writeHeaderSize(uint32_t index, uint32_t size);
-	// void EEPROM_serialError(const char *msg);
-
-	void EEPROM_updateAltitude(float alt, SerialManager &serial);
-	void EEPROM_updateState(OperatingState state, SerialManager &serial);
-	void EEPROM_updateMode(OperatingMode mode, SerialManager &serial);
-	void EEPROM_updatePackets(int count, SerialManager &serial);
-	bool EEPROM_addLogLine(char *buffer, SerialManager &serial);
+	void EEPROM_resetLog();
+	void EEPROM_updateAltitude(float alt);
+	void EEPROM_updateState(OperatingState state);
+	void EEPROM_updateMode(OperatingMode mode);
+	void EEPROM_updatePackets(int count);
 	void EEPROM_updateMaxAlt(float alt);
 	void EEPROM_updateEggRel();
 	void EEPROM_updateWingRel();
@@ -158,6 +155,7 @@ public:
 	void EEPROM_updateNoseconeRel();
 	void EEPROM_resetData();
 	struct recovery_data EEPROM_getRecoveryData();
+	bool EEPROM_addLogLine(char *buffer);
 	void EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &serial);
 
 	void startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,

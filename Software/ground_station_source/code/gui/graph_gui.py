@@ -65,19 +65,22 @@ class GraphWindow(QMainWindow):
         graph_grid_layout.setRowStretch(2, 1)
 
         graph_info = [
-            {"title": "Altitude", "kind": "single", "x_unit": "s", "y_unit": "m"},
-            {"title": "Voltage / Current", "kind": "dual_axis", "x_unit": "s", "left_y_unit": "V", "right_y_unit": "mA"},
-            {"title": "Acceleration XYZ", "kind": "multi", "lines": 3, "x_unit": "s", "y_unit": "m/s^2"},
-            {"title": "Gyro RPY", "kind": "multi", "lines": 3, "x_unit": "s", "y_unit": "deg/s"},
-            {"title": "Accel RPY ", "kind": "multi", "lines": 3, "x_unit": "s", "y_unit": "deg/s^2"},
-            {"title": "GPS Map", "kind": "map", "x_unit": "s", "y_unit": "m"}
+            {"title": "Altitude", "type": "single", "x_unit": "s", "y_unit": "m"},
+            {"title": "Voltage / Current", "type": "dual_axis", "x_unit": "s", "left_y_unit": "V", "right_y_unit": "mA"},
+            {"title": "Velocity", "type": "multi", "lines": 3, "x_unit": "s", "y_unit": "m/s^2",  "label_one": "X", "label_two": "Y",
+             "label_three": "Z", "timescale": 30},
+            {"title": "Gyro RPY", "type": "multi", "lines": 3, "x_unit": "s", "y_unit": "deg/s", "label_one": "R", "label_two": "P",
+             "label_three": "Y",  "timescale": 30},
+            {"title": "Accel RPY ", "type": "multi", "lines": 3, "x_unit": "s", "y_unit": "deg/s^2", "label_one": "R", "label_two": "P",
+             "label_three": "Y",  "timescale": 30},
+            {"title": "GPS Map", "type": "map", "x_unit": "s", "y_unit": "m"}
         ]
 
         self.graph_title_to_index = {
             "Altitude": 0,
             "Voltage": 1,
             "Current": 1,
-            "AccelXYZ": 2,
+            "Velocity": 2,
             "Gyro": 3,
             "Accel": 4,
             "GPS": 5
@@ -86,24 +89,28 @@ class GraphWindow(QMainWindow):
         # Loop through each graph and create a plot using the plot classes
         for i, entry in enumerate(graph_info):
 
-            if entry["kind"] == "single":
+            if entry["type"] == "single":
                 plotter = DynamicPlotter(title=entry["title"],
                                          time_window=self._graph_time_window,
                                          x_unit=entry["x_unit"],
                                          y_unit=entry["y_unit"])
-            elif entry["kind"] == "dual_axis":
+            elif entry["type"] == "dual_axis":
                 plotter = DynamicPlotterDualAxis(title=entry["title"],
                                                  time_window=self._graph_time_window,
                                                  x_unit=entry["x_unit"],
                                                  left_y_unit=entry["left_y_unit"],
                                                  right_y_unit=entry["right_y_unit"])
-            elif entry["kind"] == "multi":
+            elif entry["type"] == "multi":
                 plotter = DynamicPlotterMultiLine(title=entry["title"],
                                                   timewindow=self._graph_time_window,
                                                   num_lines=entry["lines"],
                                                   x_unit=entry["x_unit"],
-                                                  y_unit=entry["y_unit"])
-            if entry["kind"] != "map":
+                                                  y_unit=entry["y_unit"],
+                                                  label_one=entry["label_one"],
+                                                  label_two=entry["label_two"],
+                                                  label_three=entry["label_three"],
+                                                  timescale=entry["timescale"])
+            if entry["type"] != "map":
                 self.plotters.append(plotter)
                 graph_grid_layout.addWidget(plotter.get_graph_object(), i // 2, i % 2)
 
@@ -125,20 +132,22 @@ class GraphWindow(QMainWindow):
 
         self.sidebar_fields_data = [
             ("Port", "CLOSED"),
+            ("Mode", "Unknown"),
+            ("Flight Ctrl", "Unknown"),
+            ("Joystick", "Disconnected"),
             ("Alt Cal", "Unknown"),
             ("Temperature", "0.0 °C"),
             ("Pressure", "0.0 kPa"),
-            ("Mode", "Unknown"),
             ("Mission Time", "00:00:00"),
             ("Packets", "0/0"),
             ("Satellites", "0"),
             ("Camera 1", "Unknown"),
             ("Camera 2", "Unknown"),
+            ("Accel XYZ", "0|0|0"),
+            ("Quaternion", "0|0|0|0"),
             ("GPS Altitude", "0.0 m"),
             ("GPS Time", "00:00:00"),
-            ("CMD ECHO", "N/A"),
-            ("Flight Ctrl", "AUTONOMOUS"),
-            ("Joystick", "Disconnected")
+            ("CMD ECHO", "N/A")
         ]
 
         self.sidebar_data_labels = []
@@ -213,13 +222,7 @@ class GraphWindow(QMainWindow):
 
             # Create the field label and data label
             field_label = QLabel(f"{field_name}:")
-            if field_name == "Flight Ctrl":
-                if field_value == "MANUAL":
-                    data_label = QLabel(cosmetics.data_status_red(field_value))
-                else:
-                    data_label = QLabel(cosmetics.data_status_blue(field_value))
-            else:
-                data_label = QLabel(cosmetics.data_status_init_color(field_value))
+            data_label = QLabel(cosmetics.data_status_init_color(field_value))
 
             # Set fonts
             field_label.setFont(cosmetics.sidebar_field_font())
@@ -290,9 +293,7 @@ class GraphWindow(QMainWindow):
         for name, val in self.sidebar_fields_data:
             if name == "Port":
                 continue
-            if name == "Flight Ctrl":
-                self.update_flight_ctrl(val)
-            else:
+            else:   
                 self.sidebar_data_labels[self.sidebar_data_dict.get(name)].setText(cosmetics.data_status_init_color(val))
 
     def update_packet_count(self):
@@ -304,9 +305,6 @@ class GraphWindow(QMainWindow):
     def get_packet_count(self):
         return self._packets_recv
 
-    def update_cal_status(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Calibration")].setText(cosmetics.data_status_blue(str))
-
     def update_temp(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Temperature")].setText(
             cosmetics.data_status_blue(str(val)) + " °C")
@@ -314,6 +312,14 @@ class GraphWindow(QMainWindow):
     def update_pressure(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(
             cosmetics.data_status_blue(str(val)) + " kPa")
+        
+    def update_quaternion(self, w, x, y, z):
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Quaternion")].setText(
+            cosmetics.data_status_blue(f"{w}|{x}|{y}|{z}"))
+        
+    def update_accel_xyz(self, x, y, z):
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Accel XYZ")].setText(
+            cosmetics.data_status_blue(f"{x}|{y}|{z}"))
 
     # State updates
     def update_state(self, state_str):
@@ -427,6 +433,12 @@ class GraphWindow(QMainWindow):
         else:
             self.sidebar_data_labels[self.sidebar_data_dict.get("Joystick")].setText(cosmetics.data_status_red("Disconnected"))
 
+    def update_alt_cal_status(self, val):
+        if val == 0.0:
+            self.sidebar_data_labels[self.sidebar_data_dict.get("Alt Cal")].setText(cosmetics.data_status_red("WAITING"))
+        else:
+            self.sidebar_data_labels[self.sidebar_data_dict.get("Alt Cal")].setText(cosmetics.data_status_green(str(val)))
+
     def update_alt_graph(self, data):
         if self._current_state == "LANDED":
             return
@@ -446,8 +458,8 @@ class GraphWindow(QMainWindow):
         else:
             plotter.update_plot(data)
 
-    def update_accel_xyz_graph(self, data):
-        self.plotters[self.graph_title_to_index.get("AccelXYZ")].update_plot(data)
+    def update_velocity_graph(self, data):
+        self.plotters[self.graph_title_to_index.get("Velocity")].update_plot(data)
 
     def update_gyro_graph(self, data):
         self.plotters[self.graph_title_to_index.get("Gyro")].update_plot(data)

@@ -5,10 +5,11 @@
  */
 
 #include "sensor_manager.hpp"
+#include <math.h>
 #include "serial_manager.hpp"
-extern "C" UART_HandleTypeDef huart1;
 
-SerialManager serial(huart1); // for debugging purposes, remove later
+extern "C" UART_HandleTypeDef huart1;
+SerialManager serial(huart1);
 
 SensorManager::SensorManager()
 {
@@ -56,6 +57,14 @@ void SensorManager::BNO_enableAccel(int microsec, SerialManager &serial)
 	}
 }
 
+void SensorManager::BNO_enableLinearAcceleration(int microsec, SerialManager &serial)
+{
+	if(BNO085_EnableLinearAcceleration(&bno_dev, microsec) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO LINEAR ACCELERATION ENABLE DID NOT RETURN OK STATUS");
+	}
+}
+
 void SensorManager::BNO_enableMag(int microsec, SerialManager &serial)
 {
 	if(BNO085_EnableMagnetometer(&bno_dev, microsec) != BNO085_OK)
@@ -72,22 +81,73 @@ void SensorManager::BNO_enableRotationVector(int microsec, SerialManager &serial
 	}
 }
 
+void SensorManager::BNO_enableGameRotationVector(int microsec, SerialManager &serial)
+{
+	if(BNO085_EnableGameRotationVector(&bno_dev, microsec) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO GAME ROTATION VECTOR ENABLE DID NOT RETURN OK STATUS");
+	}
+}
+
+void SensorManager::BNO_calibrate(SerialManager &serial){
+	if (BNO085_Calibrate(&bno_dev, 7) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO AUTO CALIBRATION START FAILED");
+	}
+}
+
+void SensorManager::BNO_disableCalibration(SerialManager &serial){
+	if (BNO085_DisableCalibration(&bno_dev) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO AUTO CALIBRATION DISABLE FAILED");
+	}
+}
+
+void SensorManager::BNO_saveCalibration(SerialManager &serial){
+	if (BNO085_SaveCalibration(&bno_dev) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO SAVE CALIBRATION FAILED");
+	}
+}
+
 bool SensorManager::BNO_dataReady()
 {
 	return BNO085_DataReady(&bno_dev);
 }
 
+void SensorManager::rotate_vec3_y_ccw(BNO085_Vec3_t *v, float c, float s)
+{
+    float x = v->x;
+    float z = v->z;
+    v->x =  c * x + s * z;
+    v->z = -s * x + c * z;
+    /* y and accuracy left untouched */
+}
+
+void SensorManager::BNO_RotateY(BNO085_t *bno_dev, float angle_rad)
+{
+    float c = cosf(angle_rad);
+    float s = sinf(angle_rad);
+
+    rotate_vec3_y_ccw(&bno_dev->accel,        c, s);
+    rotate_vec3_y_ccw(&bno_dev->gyro,         c, s);
+    rotate_vec3_y_ccw(&bno_dev->mag,          c, s);
+    rotate_vec3_y_ccw(&bno_dev->linear_accel, c, s);
+    rotate_vec3_y_ccw(&bno_dev->gravity,      c, s);
+}
+
 void SensorManager::updateBNO()
 {
+	BNO_RotateY(&bno_dev, M_PI / 2.0f); // rotate sensor data 90 degrees around Y axis to match CPL's frame of reference
 	BNO085_GetData(&bno_dev);
 }
 
 void SensorManager::getRawGyro(float* data_out)
 {
-	updateBNO();
 	data_out[0] = bno_dev.gyro.x;
 	data_out[1] = bno_dev.gyro.y;
 	data_out[2] = bno_dev.gyro.z; // need the raw not sensor fusion ones
+	data_out[3] = bno_dev.gyro.accuracy;
 }
 
 struct rpy_data SensorManager::getCalibratedGyro(float* calib_bias)
@@ -101,11 +161,28 @@ struct rpy_data SensorManager::getCalibratedGyro(float* calib_bias)
 	return data;
 }
 
+void SensorManager::getGameRotationVector(float* data_out)
+{
+	data_out[0] = bno_dev.quat.real;
+	data_out[1] = bno_dev.quat.i;
+	data_out[2] = bno_dev.quat.j;
+	data_out[3] = bno_dev.quat.k;
+	data_out[4] = bno_dev.quat_accuracy;
+}
+
+
+void SensorManager::getEulerRotationVector(float* data_out)
+{
+	data_out[0] = bno_dev.euler.roll;
+	data_out[1] = bno_dev.euler.pitch;
+	data_out[2] = bno_dev.euler.yaw;
+	data_out[3] = bno_dev.quat_accuracy;
+}
 struct rpy_data SensorManager::getIMUData() // out of date
 {
 	struct rpy_data data;
-	data.gyro_r = bno_dev.gyro.x * (180.0f / M_PI);
-	data.gyro_p = -bno_dev.gyro.y * (180.0f / M_PI);
+	data.gyro_r = -bno_dev.gyro.x * (180.0f / M_PI);
+	data.gyro_p = bno_dev.gyro.y * (180.0f / M_PI);
 	data.gyro_y = -bno_dev.gyro.z * (180.0f / M_PI);
 	// no idea if this is correct
 	if(bno_last_t == 0.0)
@@ -133,10 +210,18 @@ struct rpy_data SensorManager::getIMUData() // out of date
 
 void SensorManager::getRawAccel(float* data_out)
 {
-	updateBNO();
 	data_out[0] = bno_dev.accel.x;
 	data_out[1] = bno_dev.accel.y;
 	data_out[2] = bno_dev.accel.z; // need the raw not sensor fusion ones
+	data_out[3] = bno_dev.accel.accuracy;
+}
+
+void SensorManager::getLinearAccel(float* data_out)
+{
+	data_out[0] = bno_dev.linear_accel.x;
+	data_out[1] = bno_dev.linear_accel.y;
+	data_out[2] = bno_dev.linear_accel.z; // need the raw not sensor fusion ones
+	data_out[3] = bno_dev.linear_accel.accuracy;
 }
 
 struct rpy_data SensorManager::getCalibratedAccel(float* calib_bias, float* calib_scale)
@@ -150,17 +235,82 @@ struct rpy_data SensorManager::getCalibratedAccel(float* calib_bias, float* cali
 	return data;
 }
 
+void SensorManager::getRawMag(float* data_out)
+{
+	data_out[0] = bno_dev.mag.x;
+	data_out[1] = bno_dev.mag.y;
+	data_out[2] = bno_dev.mag.z; // need the raw not sensor fusion ones
+	data_out[3] = bno_dev.mag.accuracy;
+}
+
+void SensorManager::updateGPS()
+{
+    if (gps_hi2c == nullptr) return;
+
+    uint8_t rx_byte = 0;
+
+    // Direct buffer extraction via current address reads
+    while (HAL_I2C_Master_Receive(gps_hi2c, UBLOX_I2C_ADDR, &rx_byte, 1, 5) == HAL_OK) {
+        // Break out immediately if the receiver data stream is resting/empty
+        if (rx_byte == 0xFF) {
+            break; 
+        }
+
+        if (rx_byte == '$') {
+            gps_buf_idx = 0;
+        }
+
+        if (gps_buf_idx < (sizeof(gps_nmea_buffer) - 1)) {
+            gps_nmea_buffer[gps_buf_idx++] = (char)rx_byte;
+        }
+
+        if (rx_byte == '\n') {
+            gps_nmea_buffer[gps_buf_idx] = '\0';
+            
+            // Local string safety check
+            char parse_scratchpad[100];
+            std::strncpy(parse_scratchpad, gps_nmea_buffer, sizeof(parse_scratchpad));
+
+            // Only run parsing routine if it contains the GNS fix sentence layout
+        	gps_parser.ublox_parse(parse_scratchpad, internal_gps_storage);
+            
+            gps_buf_idx = 0; 
+        }
+    }
+
+	if (internal_gps_storage.fix_quality > 0) {
+		char ln[128];
+		snprintf(ln, sizeof ln,
+			"GPS q%u sats%u hdop%.1f lat%.6f lon%.6f alt%.1f\r\n",
+			internal_gps_storage.fix_quality,
+			internal_gps_storage.sats,
+			(double)internal_gps_storage.hdop,
+			internal_gps_storage.latitude,
+			internal_gps_storage.longitude,
+			(double)internal_gps_storage.altitude);
+	}
+}
+
 struct gps_data SensorManager::getGPSData()
 {
-	struct gps_data data;
-	data.altitude = 0.0;
-	data.latitude = 0.0;
-	data.longitude = 0.0;
-	data.sats = 0;
-	char gps_time[DATA_SIZE] = "00:00:00";
-	strcpy(data.time, gps_time);
-	return data;
+	return internal_gps_storage;
 }
+
+void SensorManager::getGPSTime(char time_str[DATA_SIZE])
+{
+	const char *t = internal_gps_storage.time;
+
+	if(strlen(t) >= 6)
+	{
+		snprintf(time_str, DATA_SIZE, "%c%c:%c%c:%c%c",
+				t[0], t[1], t[2], t[3], t[4], t[5]);
+	}
+	else
+	{
+		snprintf(time_str, DATA_SIZE, "00:00:00");
+	}
+}
+
 
 cam_status SensorManager::getCameraStatus()
 {
@@ -215,14 +365,9 @@ void SensorManager::getRTCTime(char time_str[DATA_SIZE])
 	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", h, m, s);
 }
 
-void SensorManager::getGPSTime(char time_str[DATA_SIZE])
-{
-	snprintf(time_str, DATA_SIZE, "%02d:%02d:%02d", 0, 0, 0);
-}
-
 void SensorManager::activate_egg_release()
 {
-	// writeEggServo(0);
+	// writeEggServo(90);
 }
 
 void SensorManager::activate_wing_deployment()
@@ -279,348 +424,172 @@ void SensorManager::updateMotor()
 	motor.motor_update();
 }
 
-uint32_t SensorManager::EEPROM_readHeaderSize(uint32_t index)
+void SensorManager::EEPROM_writeBytes(uint32_t addr, const uint8_t *data, uint32_t len)
 {
-    /* Each size is stored as a raw uint32_t (4 bytes, big-endian via
-     * ReadUnsignedLong) at address  index * 4  within the header block. */
-    uint32_t addr = index * EEPROM_HEADER_ENTRY_SIZE;
-	return (eeprom_dev != nullptr) ? eeprom_dev->ReadUnsignedLong(addr) : 0UL;
-}
- 
-void SensorManager::EEPROM_writeHeaderSize(uint32_t index, uint32_t size)
-{
-    uint32_t addr = index * EEPROM_HEADER_ENTRY_SIZE;
-	if (eeprom_dev != nullptr)
+	if (eeprom_dev == nullptr) return;
+
+	// Write over multiple pages (256)
+	while(len > 0)
 	{
-		eeprom_dev->WriteUnsignedLong(addr, size);
+		uint32_t space = EEPROM_PAGE_SIZE - (addr % EEPROM_PAGE_SIZE);
+		uint32_t chunk = (len < space) ? len : space;
+		eeprom_dev->WriteByteArray(addr, const_cast<uint8_t*>(data), static_cast<uint16_t>(chunk));
+		addr += chunk;
+		data += chunk;
+		len  -= chunk;
 	}
 }
 
-uint16_t SensorManager::EEPROM_readString(uint32_t start_addr, char *buf, uint16_t max_len)
+void SensorManager::EEPROM_saveRecovery()
 {
-    if (buf == nullptr || max_len == 0)
-	{
-        return 0;
-	}
- 
-    /* Read raw bytes then null-terminate. */
-	if (eeprom_dev == nullptr)
-	{
-		buf[0] = '\0';
-		return 0;
-	}
+	if (eeprom_dev == nullptr) return;
 
-	eeprom_dev->ReadByteArray(start_addr, reinterpret_cast<uint8_t *>(buf), max_len);
-    buf[max_len - 1] = '\0';   // safety terminator
+	uint8_t buf[1 + sizeof(recovery_data)];
+	buf[0] = EEPROM_MAGIC; // Mark data as saved
+	memcpy(&buf[1], &recovery_cache, sizeof(recovery_data));
 
-    for (uint16_t i = 0; i < max_len - 1; i++)
-    {
-        if (buf[i] < 0x20 || buf[i] > 0x7E)
-        {
-            buf[i] = '\0';
-            break;
-        }
-    }
- 
-    /* Return length of the string actually stored. */
-    return static_cast<uint16_t>(strlen(buf));
+	EEPROM_writeBytes(EEPROM_ADDR_RECOVERY, buf, sizeof(buf));
 }
 
-bool SensorManager::EEPROM_writeString(uint32_t start_addr, const char *str, uint16_t len)
+uint32_t SensorManager::EEPROM_readLogLen()
 {
-    if (str == nullptr || len == 0)
-	{
-        return false;
-	}
- 
-	if (eeprom_dev == nullptr)
-	{
-		return false;
-	}
+	if (eeprom_dev == nullptr) return 0;
 
-	eeprom_dev->WriteByteArray(start_addr, reinterpret_cast<uint8_t *>(const_cast<char *>(str)), len);
-    return true;
+	uint8_t buff[4] = {0};
+
+	eeprom_dev->ReadByteArray(EEPROM_ADDR_LOG_LEN, buff, 4);
+
+	return static_cast<uint32_t>(buff[0])          |
+			(static_cast<uint32_t>(buff[1]) << 8)  |
+			(static_cast<uint32_t>(buff[2]) << 16) |
+			(static_cast<uint32_t>(buff[3]) << 24);
 }
 
-// void SensorManager::EEPROM_serialError(const char *msg)
-// {
-// 	serial.sendErrorMsg(msg);
-// }
-
-void SensorManager::EEPROM_updateAltitude(float alt, SerialManager &serial)
+void SensorManager::EEPROM_writeLogLen(uint32_t len)
 {
-	char buf[EEPROM_FIELD_BLOCK_SIZE];
-    int written = snprintf(buf, sizeof(buf), "%.4f", static_cast<double>(alt));
-    if (written <= 0)
-    {
-        serial.sendErrorMsg("[EEPROM] ERR: altitude format failed\r\n");
-        return;
-    }
- 
-    uint16_t len = static_cast<uint16_t>(strlen(buf));
-    if (!EEPROM_writeString(EEPROM_ADDR_ALT, buf, len))
-    {
-        serial.sendErrorMsg("[EEPROM] ERR: altitude write failed\r\n");
-        return;
-    }
- 
-    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_ALT, len);
+	uint8_t buff[4] = {
+			static_cast<uint8_t>(len),
+			static_cast<uint8_t>(len >> 8),
+			static_cast<uint8_t>(len >> 16),
+			static_cast<uint8_t>(len >> 24)
+	};
+	EEPROM_writeBytes(EEPROM_ADDR_LOG_LEN, buff, 4);
 }
 
-void SensorManager::EEPROM_updateState(OperatingState state, SerialManager &serial)
+void SensorManager::EEPROM_updateAltitude(float alt)
 {
-	char buf[EEPROM_FIELD_BLOCK_SIZE];
-    int written = snprintf(buf, sizeof(buf), "%d", static_cast<int>(state));
-    if (written <= 0)
-    {
-        serial.sendErrorMsg("[EEPROM] ERR: state format failed\r\n");
-        return;
-    }
- 
-    uint16_t len = static_cast<uint16_t>(strlen(buf));
-    if (!EEPROM_writeString(EEPROM_ADDR_STATE, buf, len))
-    {
-        serial.sendErrorMsg("[EEPROM] ERR: state write failed\r\n");
-        return;
-    }
- 
-    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_STATE, len);
+	recovery_cache.launch_altitude = alt;
+	EEPROM_saveRecovery();
 }
 
-void SensorManager::EEPROM_updateMode(OperatingMode mode, SerialManager &serial)
+void SensorManager::EEPROM_updateState(OperatingState state)
 {
-	char buf[EEPROM_FIELD_BLOCK_SIZE];
-    int written = snprintf(buf, sizeof(buf), "%d", static_cast<int>(mode));
-    if (written <= 0)
-    {
-        serial.sendErrorMsg("[EEPROM] ERR: mode format failed\r\n");
-        return;
-    }
- 
-    uint16_t len = static_cast<uint16_t>(strlen(buf));
-    if (!EEPROM_writeString(EEPROM_ADDR_MODE, buf, len))
-    {
-        serial.sendErrorMsg("[EEPROM] ERR: mode write failed\r\n");
-        return;
-    }
- 
-    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_MODE, len);
+	recovery_cache.state = state;
+	EEPROM_saveRecovery();
 }
 
-void SensorManager::EEPROM_updatePackets(int count, SerialManager &serial)
+void SensorManager::EEPROM_updateMode(OperatingMode mode)
 {
-	char buf[EEPROM_FIELD_BLOCK_SIZE];
-    int written = snprintf(buf, sizeof(buf), "%d", count);
-    if (written <= 0)
-    {
-        serial.sendErrorMsg("[EEPROM] ERR: packet_count format failed\r\n");
-        return;
-    }
- 
-    uint16_t len = static_cast<uint16_t>(strlen(buf));
-    if (!EEPROM_writeString(EEPROM_ADDR_PKTCNT, buf, len))
-    {
-        serial.sendErrorMsg("[EEPROM] ERR: packet_count write failed\r\n");
-        return;
-    }
- 
-    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_PKTCNT, len);
+	recovery_cache.mode = mode;
+	EEPROM_saveRecovery();
 }
 
-bool SensorManager::EEPROM_addLogLine(char *buffer, SerialManager &serial)
+void SensorManager::EEPROM_updatePackets(int count)
 {
-	if (buffer == nullptr)
-	{
-        return false;
-	}
- 
-    uint32_t log_used = EEPROM_readHeaderSize(EEPROM_HDR_IDX_LOG);
-    uint16_t line_len = static_cast<uint16_t>(strlen(buffer));
- 
-    /* +1 for the '\r' delimiter */
-    uint32_t needed = static_cast<uint32_t>(line_len) + 1UL;
- 
-    if (log_used + needed > EEPROM_LOG_MAX)
-    {
-        serial.sendErrorMsg("[EEPROM] ERR: log block full\r\n");
-        return false;
-    }
- 
-    uint32_t write_addr = EEPROM_ADDR_LOG + log_used;
- 
-    /* Write the line content */
-    EEPROM_writeString(write_addr, buffer, line_len);
- 
-    /* Append '\r' delimiter */
-    char delim = '\r';
-	if (eeprom_dev != nullptr)
-	{
-		eeprom_dev->WriteByte(write_addr + line_len, static_cast<uint8_t>(delim));
-	}
- 
-    /* Update log size in header */
-    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_LOG, log_used + needed);
- 
-    return true;
+	recovery_cache.packet_count = count;
 }
 
 void SensorManager::EEPROM_updateMaxAlt(float alt)
 {
-    char buf[EEPROM_FIELD_BLOCK_SIZE];
-    int written = snprintf(buf, sizeof(buf), "%.4f", static_cast<double>(alt));
-    if (written <= 0) return;
-
-    uint16_t len = static_cast<uint16_t>(strlen(buf));
-    if (EEPROM_writeString(EEPROM_ADDR_MAXALT, buf, len))
-        EEPROM_writeHeaderSize(EEPROM_HDR_IDX_MAXALT, len);
+    recovery_cache.max_alt = alt;
 }
-
-// Release flags store "1" (released) or nothing/0 (not released).
-// A header size of 0 means never written == not released.
 
 void SensorManager::EEPROM_updateEggRel()
 {
-    const char val[] = "1";
-    uint16_t len = 1;
-    if (EEPROM_writeString(EEPROM_ADDR_EGGREL, val, len))
-        EEPROM_writeHeaderSize(EEPROM_HDR_IDX_EGGREL, len);
+    recovery_cache.egg_flag = true;
+    EEPROM_saveRecovery();
 }
 
 void SensorManager::EEPROM_updateWingRel()
 {
-    const char val[] = "1";
-    uint16_t len = 1;
-    if (EEPROM_writeString(EEPROM_ADDR_WINGREL, val, len))
-        EEPROM_writeHeaderSize(EEPROM_HDR_IDX_WINGREL, len);
+    recovery_cache.wing_flag = true;
+    EEPROM_saveRecovery();
 }
 
 void SensorManager::EEPROM_updateProbeRel()
 {
-    const char val[] = "1";
-    uint16_t len = 1;
-    if (EEPROM_writeString(EEPROM_ADDR_PROBEREL, val, len))
-        EEPROM_writeHeaderSize(EEPROM_HDR_IDX_PROBEREL, len);
+    recovery_cache.probe_flag = true;
+    EEPROM_saveRecovery();
 }
 
 void SensorManager::EEPROM_updateNoseconeRel()
 {
-    const char val[] = "1";
-    uint16_t len = 1;
-    if (EEPROM_writeString(EEPROM_ADDR_NOSECONEREL, val, len))
-        EEPROM_writeHeaderSize(EEPROM_HDR_IDX_NOSECONEREL, len);
+    recovery_cache.nosecone_flag = true;
+    EEPROM_saveRecovery();
 }
 
 void SensorManager::EEPROM_resetData()
 {
-	// NOTE: ONLY RESETS MAX ALT AND RELEASE FIELDS
-    uint8_t zeros[EEPROM_FIELD_BLOCK_SIZE] = {0};
+	recovery_cache.egg_flag = false;
+	recovery_cache.wing_flag = false;
+	recovery_cache.probe_flag = false;
+	recovery_cache.nosecone_flag = false;
+	recovery_cache.max_alt = 0.0f;
+	EEPROM_saveRecovery();
+}
 
-    if (eeprom_dev != nullptr)
-    {
-        eeprom_dev->WriteByteArray(EEPROM_ADDR_MAXALT,      zeros, EEPROM_FIELD_BLOCK_SIZE);
-        eeprom_dev->WriteByteArray(EEPROM_ADDR_NOSECONEREL, zeros, EEPROM_FIELD_BLOCK_SIZE);
-        eeprom_dev->WriteByteArray(EEPROM_ADDR_PROBEREL,    zeros, EEPROM_FIELD_BLOCK_SIZE);
-        eeprom_dev->WriteByteArray(EEPROM_ADDR_WINGREL,     zeros, EEPROM_FIELD_BLOCK_SIZE);
-        eeprom_dev->WriteByteArray(EEPROM_ADDR_EGGREL,      zeros, EEPROM_FIELD_BLOCK_SIZE);
-    }
-
-    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_MAXALT,      0UL);
-    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_NOSECONEREL, 0UL);
-    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_PROBEREL,    0UL);
-    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_WINGREL,     0UL);
-    EEPROM_writeHeaderSize(EEPROM_HDR_IDX_EGGREL,      0UL);
+void SensorManager::EEPROM_resetLog()
+{
+	eeprom_log_len = 0;
 }
 
 struct recovery_data SensorManager::EEPROM_getRecoveryData()
 {
-	// struct recovery_data data;
-	// data.launch_altitude = 0.0;
-	// data.state = OperatingState::IDLE;
-	// data.mode = OperatingMode::OPMODE_FLIGHT;
-	// data.packet_count = 0;
+	recovery_cache.launch_altitude = 0.0;
+	recovery_cache.state           = OperatingState::IDLE;
+	recovery_cache.mode            = OperatingMode::OPMODE_FLIGHT;
+	recovery_cache.packet_count    = 0;
+	recovery_cache.max_alt         = 0.0;
+	recovery_cache.nosecone_flag   = false;
+	recovery_cache.probe_flag      = false;
+	recovery_cache.wing_flag       = false;
+	recovery_cache.egg_flag        = false;
 
-	// return data;
+	if(eeprom_dev == nullptr) return recovery_cache;
+ 
+    uint8_t buff[1 + sizeof(recovery_data)];
 
-	struct recovery_data data;
-	data.launch_altitude = 0.0;
-	data.state = OperatingState::IDLE;
-	data.mode = OperatingMode::OPMODE_FLIGHT;
-	data.packet_count = 0;
-	data.max_alt = 0.0;
-	data.nosecone_flag = false;
-	data.probe_flag    = false;
-	data.wing_flag     = false;
-	data.egg_flag      = false;
- 
-    char buf[EEPROM_FIELD_BLOCK_SIZE];
- 
-    /* ── launch_altitude ──────────────────────────────────── */
-    if (EEPROM_readHeaderSize(EEPROM_HDR_IDX_ALT) > 0)
+    eeprom_dev->ReadByteArray(EEPROM_ADDR_RECOVERY, buff, sizeof(buff));
+
+    // Check data was written
+    if(buff[0] == EEPROM_MAGIC)
     {
-        memset(buf, 0, sizeof(buf));
-        EEPROM_readString(EEPROM_ADDR_ALT, buf, static_cast<uint16_t>(sizeof(buf)));
-        char *endptr = nullptr;
-        double parsed = strtod(buf, &endptr);
-        if (endptr != buf)  // at least one character was consumed
-        {
-            data.launch_altitude = static_cast<float>(parsed);
-        }
-    }
- 
-    /* ── state ────────────────────────────────────────────── */
-    if (EEPROM_readHeaderSize(EEPROM_HDR_IDX_STATE) > 0)
-    {
-        memset(buf, 0, sizeof(buf));
-        EEPROM_readString(EEPROM_ADDR_STATE, buf, static_cast<uint16_t>(sizeof(buf)));
-        int parsed = 0;
-        if (sscanf(buf, "%d", &parsed) == 1) 
-		{
-            data.state = static_cast<OperatingState>(parsed);
-		}
-    }
- 
-    /* ── mode ─────────────────────────────────────────────── */
-    if (EEPROM_readHeaderSize(EEPROM_HDR_IDX_MODE) > 0)
-    {
-        memset(buf, 0, sizeof(buf));
-        EEPROM_readString(EEPROM_ADDR_MODE, buf, static_cast<uint16_t>(sizeof(buf)));
-        int parsed = 0;
-        if (sscanf(buf, "%d", &parsed) == 1)
-		{
-            data.mode = static_cast<OperatingMode>(parsed);
-		}
-    }
- 
-    /* ── packet_count ─────────────────────────────────────── */
-    if (EEPROM_readHeaderSize(EEPROM_HDR_IDX_PKTCNT) > 0)
-    {
-        memset(buf, 0, sizeof(buf));
-        EEPROM_readString(EEPROM_ADDR_PKTCNT, buf, static_cast<uint16_t>(sizeof(buf)));
-        int parsed = 0;
-        if (sscanf(buf, "%d", &parsed) == 1)
-		{
-            data.packet_count = parsed;
-		}
+    	memcpy(&recovery_cache, &buff[1], sizeof(recovery_data));
     }
 
-	/* ── max_altitude ─────────────────────────────────────── */
-	if (EEPROM_readHeaderSize(EEPROM_HDR_IDX_MAXALT) > 0)
-	{
-		memset(buf, 0, sizeof(buf));
-		EEPROM_readString(EEPROM_ADDR_MAXALT, buf, static_cast<uint16_t>(sizeof(buf)));
-		char *endptr = nullptr;
-		double parsed = strtod(buf, &endptr);
-		if (endptr != buf)
-			data.max_alt = static_cast<float>(parsed);
-	}
+    return recovery_cache;
+}
 
-	/* ── release flags (header size > 0 == released) ─────── */
-	data.nosecone_flag = (EEPROM_readHeaderSize(EEPROM_HDR_IDX_NOSECONEREL) > 0);
-	data.probe_flag    = (EEPROM_readHeaderSize(EEPROM_HDR_IDX_PROBEREL)    > 0);
-	data.wing_flag     = (EEPROM_readHeaderSize(EEPROM_HDR_IDX_WINGREL)     > 0);
-	data.egg_flag      = (EEPROM_readHeaderSize(EEPROM_HDR_IDX_EGGREL)      > 0);
- 
-    return data;
+void SensorManager::EEPROM_Init()
+{
+	eeprom_log_len = EEPROM_readLogLen();
+	if(eeprom_log_len > EEPROM_LOG_MAX) eeprom_log_len = 0;
+}
+
+bool SensorManager::EEPROM_addLogLine(char *buffer)
+{
+	if(buffer == nullptr || eeprom_dev == nullptr) return false;
+
+	uint16_t line_len = static_cast<uint16_t>(strlen(buffer));
+
+	if(eeprom_log_len + line_len > EEPROM_LOG_MAX) return false;
+
+	EEPROM_writeBytes(EEPROM_ADDR_LOG + eeprom_log_len, reinterpret_cast<const uint8_t *>(buffer), line_len);
+
+	eeprom_log_len += line_len;
+
+	EEPROM_writeLogLen(eeprom_log_len);
+	return true;
 }
 
 void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &serial)
@@ -628,26 +597,20 @@ void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &seri
 	serial.sendLogBegin();
 	HAL_Delay(500);
 
-    uint32_t log_used = EEPROM_readHeaderSize(EEPROM_HDR_IDX_LOG);
-    if (log_used == 0)
+	if(eeprom_dev == nullptr || eeprom_log_len == 0)
 	{
+    	serial.sendLogEnd();
         return;
 	}
  
-    /* Reusable line buffer – sized to SENTENCE_SIZE from global_includes */
-    char line_buf[SENTENCE_SIZE];
+    char line_buf[DATA_BUFF_SIZE];
     uint16_t line_pos = 0;
  
-    for (uint32_t offset = 0; offset < log_used; offset++)
+    for (uint32_t offset = 0; offset < eeprom_log_len; offset++)
     {
-		if (eeprom_dev == nullptr)
-		{
-			return;
-		}
-
 		uint8_t byte = eeprom_dev->ReadByte(EEPROM_ADDR_LOG + offset);
  
-        if (byte == '\r' || line_pos >= (SENTENCE_SIZE - 1))
+        if (byte == '\r' || line_pos >= (DATA_BUFF_SIZE - 1))
         {
             /* Null-terminate and dispatch the completed line */
             line_buf[line_pos] = '\0';
@@ -655,6 +618,7 @@ void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &seri
             if (line_pos > 0)
             {
 				serial.sendLogLine(line_buf);
+				serial.sendLogLine("\r");
                 HAL_Delay(line_delay_ms);
             }
  
@@ -676,27 +640,11 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	 * Add a delay between each start and send an
 	 * info message */
 
-	static EEPROMsimple eeprom_storage(hspi_eeprom, cs_port, cs_pin);
-	eeprom_dev = &eeprom_storage;
-
-	cam1_dev.init(GPIOF, GPIO_PIN_0, GPIOB, GPIO_PIN_6);
-	HAL_Delay(500);
-	cam2_dev.init(GPIOF, GPIO_PIN_1, GPIOA, GPIO_PIN_8);
-
-	/* Diagnostic: verify SPI reaches the EEPROM before anything else touches I2C.
-	 * Expected status = 0x00 (WIP=0, WEL=0, BP=00) at power-on.
-	 * 0xFF means the SPI peripheral is not responding — most common cause is
-	 * PA4 configured as SPI1_NSS (hardware NSS) in CubeMX instead of plain
-	 * GPIO_Output, which triggers a Mode Fault (MODF) the moment CS is asserted.
-	 * Fix in CubeMX: set SPI NSS = Software, leave PA4 as GPIO_Output. */
-	{
-		uint8_t eeprom_status = eeprom_dev->ReadStatus();
-		if (eeprom_status == 0xFF) {
-			serial.sendErrorMsg("[EEPROM] SPI not responding (0xFF) — check MODF/NSS config and MISO wiring");
-		} else {
-			serial.sendInfoDataMsg("[EEPROM] SPI OK, status=0x%02X (expect 0x00 at power-on)", eeprom_status);
-		}
-	}
+	// GPS initialization 
+	this->gps_hi2c = hi2c1;
+    
+    std::memset(&internal_gps_storage, 0, sizeof(struct gps_data));
+    std::strcpy(internal_gps_storage.time, "00:00:00");
 
 	if(!DS1307_Init(hi2c1))
 	{
@@ -726,8 +674,23 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	}
 
 	BNO_enableGyro(5000, serial);
-	BNO_enableAccel(5000, serial);
+	//BNO_enableAccel(5000, serial);
+	BNO_enableLinearAcceleration(5000, serial);
 	BNO_enableMag(10000, serial);
+	BNO_enableRotationVector(10000, serial);
+
+	HAL_Delay(100);
+
+	EEPROM_Init();
+	// TODO: constructor?
+	static EEPROMsimple eeprom_storage(hspi_eeprom, cs_port, cs_pin);
+	eeprom_dev = &eeprom_storage;
+
+	uint8_t eeprom_status = eeprom_dev->ReadStatus();
+	if (eeprom_status == 0xFF)
+	{
+		serial.sendErrorMsg("[EEPROM] SPI not responding (0xFF) — check MODF/NSS config and MISO wiring");
+	}
 
 	if(!cam1_dev.probeDevice()) {
         serial.sendErrorMsg("Warning: RunCam 1 Handshake Communication timed out.\r\n");

@@ -12,7 +12,7 @@
 #ifndef EEPROM_SIMPLE_H
 #define EEPROM_SIMPLE_H
 
-#include "stm32g4xx_hal.h"   // Replace xxxx with your STM32 family, e.g. stm32f4xx_hal.h
+#include "stm32g4xx_hal.h" 
 
 /* ---------- 25LC1024 SPI opcodes ---------- */
 #define EEPROM_WRITE   0x02
@@ -22,6 +22,7 @@
 
 /* ---------- Timing ---------- */
 #define EEPROM_WRITE_DELAY_MS  10   // Max page-write cycle time per datasheet
+#define EEPROM_WIP_BIT 0x01
 
 /* ---------- SPI timeout (ms) ---------- */
 #define EEPROM_SPI_TIMEOUT     100
@@ -37,6 +38,9 @@ public:
                  uint16_t           csPin);
 
     ~EEPROMsimple();
+
+
+    bool _waitForReady(uint32_t	timeout_ms);
 
     /* (Re-)configure CS pin and store SPI handle. Call once after construction
      * if you need to change the CS pin at runtime. */
