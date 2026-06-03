@@ -23,6 +23,7 @@ CommandManager::CommandManager()
     command_map.emplace("LOG", std::bind(&CommandManager::do_logs, this, _1, _2, _3, _4));
     command_map.emplace("CAL2", std::bind(&CommandManager::do_cal2, this, _1, _2, _3, _4));
     command_map.emplace("CTRL", std::bind(&CommandManager::do_ctrl, this, _1, _2, _3, _4));
+    command_map.emplace("GPS", std::bind(&CommandManager::do_gps, this, _1, _2, _3, _4));
 }
 
 uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors)
@@ -601,4 +602,48 @@ void CommandManager::do_logs(SerialManager &ser, MissionManager &info, SensorMan
   }
 
   sensors.EEPROM_replayLog(100, ser);
+}
+
+void CommandManager::do_gps(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+	if(!data)
+	{
+	  ser.sendErrorMsg("COMMAND 'GPS' REJECTED: DID NOT RECEIVE ANY DATA");
+	  return;
+	}
+
+	char buf[DATA_SIZE];
+	strncpy(buf, data, sizeof(buf) - 1);
+	buf[sizeof(buf) - 1] = '\0';
+
+	float vals[3];
+	int val_count = 0;
+
+	for(char *tok = strtok(buf, "|"); tok != nullptr; tok = strtok(nullptr, "|"))
+	{
+		if(val_count >= 3)
+		{
+			val_count++;
+			break;
+		}
+
+		char *end = nullptr;
+		float val = strtof(tok, &end);
+
+		if(end == tok || *end != '\0')
+		{
+			ser.sendErrorMsg("COMMAND 'GPS' REJECTED: RECEIVED INVALID FIELD");
+			return;
+		}
+		vals[val_count++] = val;
+	}
+
+	if(val_count > 3)
+	{
+		ser.sendErrorMsg("COMMAND 'GPS' REJECTED: RECEIVED >3 FIELDS");
+		return;
+	}
+
+	//TODO: Finish
+
 }

@@ -57,6 +57,14 @@ void SensorManager::BNO_enableAccel(int microsec, SerialManager &serial)
 	}
 }
 
+void SensorManager::BNO_enableLinearAcceleration(int microsec, SerialManager &serial)
+{
+	if(BNO085_EnableLinearAcceleration(&bno_dev, microsec) != BNO085_OK)
+	{
+		serial.sendErrorMsg("BNO LINEAR ACCELERATION ENABLE DID NOT RETURN OK STATUS");
+	}
+}
+
 void SensorManager::BNO_enableMag(int microsec, SerialManager &serial)
 {
 	if(BNO085_EnableMagnetometer(&bno_dev, microsec) != BNO085_OK)
@@ -162,6 +170,15 @@ void SensorManager::getGameRotationVector(float* data_out)
 	data_out[4] = bno_dev.quat_accuracy;
 }
 
+
+void SensorManager::getEulerRotationVector(float* data_out)
+{
+	updateBNO();
+	data_out[0] = bno_dev.euler.roll;
+	data_out[1] = bno_dev.euler.pitch;
+	data_out[2] = bno_dev.euler.yaw;
+	data_out[3] = bno_dev.quat_accuracy;
+}
 struct rpy_data SensorManager::getIMUData() // out of date
 {
 	struct rpy_data data;
@@ -198,6 +215,14 @@ void SensorManager::getRawAccel(float* data_out)
 	data_out[1] = bno_dev.accel.y;
 	data_out[2] = bno_dev.accel.z; // need the raw not sensor fusion ones
 	data_out[3] = bno_dev.accel.accuracy;
+}
+
+void SensorManager::getLinearAccel(float* data_out)
+{
+	data_out[0] = bno_dev.linear_accel.x;
+	data_out[1] = bno_dev.linear_accel.y;
+	data_out[2] = bno_dev.linear_accel.z; // need the raw not sensor fusion ones
+	data_out[3] = bno_dev.linear_accel.accuracy;
 }
 
 struct rpy_data SensorManager::getCalibratedAccel(float* calib_bias, float* calib_scale)
@@ -617,9 +642,10 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	}
 
 	BNO_enableGyro(5000, serial);
-	BNO_enableAccel(5000, serial);
+	//BNO_enableAccel(5000, serial);
+	BNO_enableLinearAcceleration(5000, serial);
 	BNO_enableMag(10000, serial);
-	BNO_enableGameRotationVector(10000, serial);
+	BNO_enableRotationVector(10000, serial);
 
 	HAL_Delay(100);
 
