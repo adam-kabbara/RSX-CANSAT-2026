@@ -173,7 +173,6 @@ void SensorManager::getGameRotationVector(float* data_out)
 
 void SensorManager::getEulerRotationVector(float* data_out)
 {
-	updateBNO();
 	data_out[0] = bno_dev.euler.roll;
 	data_out[1] = bno_dev.euler.pitch;
 	data_out[2] = bno_dev.euler.yaw;
@@ -182,8 +181,8 @@ void SensorManager::getEulerRotationVector(float* data_out)
 struct rpy_data SensorManager::getIMUData() // out of date
 {
 	struct rpy_data data;
-	data.gyro_r = bno_dev.gyro.x * (180.0f / M_PI);
-	data.gyro_p = -bno_dev.gyro.y * (180.0f / M_PI);
+	data.gyro_r = -bno_dev.gyro.x * (180.0f / M_PI);
+	data.gyro_p = bno_dev.gyro.y * (180.0f / M_PI);
 	data.gyro_y = -bno_dev.gyro.z * (180.0f / M_PI);
 	// no idea if this is correct
 	if(bno_last_t == 0.0)

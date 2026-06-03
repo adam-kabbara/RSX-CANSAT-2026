@@ -117,9 +117,13 @@ extern "C" void main_cpp()
     while(1)
     {
         while(mission_mgr.getOpState() == IDLE)
-        { // todo add calibration code
-			sensors.updateMotor();
+        {
 			sensors.updateGPS();
+			if(sensors.BNO_dataReady())
+			{
+				sensors.updateBNO();
+			}
+			sensors.updateMotor();
 
             if(cmd_ready)
             {
@@ -133,8 +137,6 @@ extern "C" void main_cpp()
 
             }
             HAL_Delay(10);
-
-            sensors.updateMotor();
         }
 
         if(mission_mgr.getOpMode() == OPMODE_SIM)
@@ -144,7 +146,25 @@ extern "C" void main_cpp()
             // Wait until first simulation packet is received
             while(mission_mgr.getOpMode() == OPMODE_SIM && mission_mgr.isWaitingSimp())
             {
-                HAL_Delay(100);
+            	if(cmd_ready)
+				{
+					memcpy(cmd_buff, (const char*)rx_buff, CMD_BUFF_SIZE);
+					cmd_ready = 0;
+
+					if(cmd_mgr.processCommand(cmd_buff, serial, mission_mgr, sensors))
+					{
+						mission_mgr.setLastCommand(cmd_buff);
+					}
+
+				}
+				HAL_Delay(10);
+
+				sensors.updateGPS();
+				if(sensors.BNO_dataReady())
+				{
+					sensors.updateBNO();
+				}
+				sensors.updateMotor();
             }
         }
 

@@ -240,12 +240,12 @@ void MissionManager::incrPacketCount()
 
 void MissionManager::waitingForSimp()
 {
-    waiting_for_simp = 1;
+    waiting_for_simp = true;
 }
 
 void MissionManager::simpRecv()
 {
-    waiting_for_simp = 0;
+    waiting_for_simp = false;
 }
 
 bool MissionManager::isWaitingSimp()

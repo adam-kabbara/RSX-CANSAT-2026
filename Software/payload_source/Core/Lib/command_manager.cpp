@@ -142,7 +142,7 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
         {
             sensors.EEPROM_resetData();
             info.init_params();
-            ser.sendInfoMsg("STARTING TELEMETRY TRANSMISSION.");
+            ser.sendInfoMsg("ATTEMPTING TO START MISSION.");
             info.setOpState(LAUNCH_PAD);
             sensors.EEPROM_updateState(LAUNCH_PAD);
             status_update(ser, info);
@@ -366,10 +366,9 @@ void CommandManager::do_cal(SerialManager &ser, MissionManager &info, SensorMana
 	  ser.sendErrorDataMsg("BMP ERROR %d", ret);
 	  return;
   }
-  ser.sendInfoDataMsg("Getting pressure value: %f", sensors.getPressure());
   info.setAltCalibration(pressure_to_alt(sensors.getPressure()));
   sensors.EEPROM_updateAltitude(info.getLaunchAlt());
-  ser.sendInfoDataMsg("Launch Altitude calibrated to %f", info.getLaunchAlt());
+  ser.sendInfoDataMsg("Launch Altitude calibrated to %.1f m", info.getLaunchAlt());
   status_update(ser, info);
 } // END: do_Cal()
 
