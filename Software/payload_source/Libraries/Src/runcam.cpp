@@ -14,7 +14,8 @@ void RunCam::init(GPIO_TypeDef* tx_gpio_port, uint16_t tx_gpio_pin,
     rx_pin  = rx_gpio_pin;
 
     // Spin up Core Trace & DWT cycle counter clocks
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk; 
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    *((volatile uint32_t*)0xE0001FB0) = 0xC5ACCE55;
     DWT->CTRL |= (1UL << 0);                        
     DWT->CYCCNT = 0;
 
@@ -90,6 +91,7 @@ void RunCam::bitBangWriteByte(uint8_t byte)
 
 uint8_t RunCam::bitBangReadByte() 
 {
+    __disable_irq();
     uint8_t byte = 0;
     uint32_t timeout = 80000; 
 
@@ -112,6 +114,7 @@ uint8_t RunCam::bitBangReadByte()
         if ((rx_port->IDR & rx_pin) != 0) byte |= (1 << i); 
     }
     delay_us(9);
+    __disable_irq();
     return byte;
 }
 
