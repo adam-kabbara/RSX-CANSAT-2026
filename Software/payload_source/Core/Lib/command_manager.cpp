@@ -594,6 +594,56 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  ser.sendInfoDataMsg("Motor running %s for %lu ms.", direction ? "forward" : "reverse", (unsigned long)duration);
 	  }
   }
+  else if(strcmp(mec, "CAM1") == 0)
+  {
+	  if(info.getOpState() != IDLE || info.getOpState() != LANDED)
+	  {
+		  ser.sendErrorMsg("ERROR: CANNOT CHANGE CAMERA IN CURRENT STATE!");
+		  return;
+	  }
+	  int cam_id = atoi(val);
+	  if(cam_id == 0)
+	  {
+		  // Ground
+		  sensors.ground_runcam_start();
+		  ser.sendInfoMsg("Attempted to start ground cam");
+	  }
+	  else if(cam_id == 1)
+	  {
+		  // Payload
+		  sensors.payload_runcam_start();
+		  ser.sendInfoMsg("Attempted to start payload cam");
+	  }
+	  else
+	  {
+		  ser.sendErrorMsg("ERROR: DID NOT RECEIVE VALID CAMERA ID!");
+	  }
+  }
+  else if(strcmp(mec, "CAM0") == 0)
+  {
+	  if(info.getOpState() != IDLE || info.getOpState() != LANDED)
+	  {
+		  ser.sendErrorMsg("ERROR: CANNOT CHANGE CAMERA IN CURRENT STATE!");
+		  return;
+	  }
+	  int cam_id = atoi(val);
+	  if(cam_id == 0)
+	  {
+		  // Ground
+		  sensors.ground_runcam_stop();
+		  ser.sendInfoMsg("Attempted to stop ground cam");
+	  }
+	  else if(cam_id == 1)
+	  {
+		  // Payload
+		  sensors.payload_runcam_stop();
+		  ser.sendInfoMsg("Attempted to stop payload cam");
+	  }
+	  else
+	  {
+		  ser.sendErrorMsg("ERROR: DID NOT RECEIVE VALID CAMERA ID!");
+	  }
+  }
   else
   {
 	  ser.sendErrorDataMsg("ERROR: UNRECOGNIZED MEC COMMAND: %s", mec);

@@ -141,8 +141,6 @@ class GraphWindow(QMainWindow):
             ("Mission Time", "00:00:00"),
             ("Packets", "0/0"),
             ("Satellites", "0"),
-            ("Camera 1", "Unknown"),
-            ("Camera 2", "Unknown"),
             ("Accel XYZ", "0|0|0"),
             ("Position", "0|0|0"),
             ("GPS Altitude", "0.0 m"),
@@ -404,12 +402,6 @@ class GraphWindow(QMainWindow):
 
     def update_sats(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Satellites")].setText(cosmetics.data_status_blue(str(val)))
-
-    def update_camera1_status(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Camera 1")].setText(cosmetics.data_status_blue(str))
-
-    def update_camera2_status(self, str):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Camera 2")].setText(cosmetics.data_status_blue(str))
 
     def update_gps_alt(self, val):
         self.sidebar_data_labels[self.sidebar_data_dict.get("GPS Altitude")].setText(

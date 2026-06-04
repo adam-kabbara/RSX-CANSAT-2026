@@ -1,7 +1,7 @@
 #include "runcam.hpp"
-#include "serial_manager.hpp"
+//#include "serial_manager.hpp"
 
-extern SerialManager serial;
+//extern SerialManager serial;
 
 RunCam::RunCam() : tx_port(nullptr), tx_pin(0), rx_port(nullptr), rx_pin(0), is_recording(false) {}
 
@@ -83,7 +83,7 @@ uint8_t RunCam::bitBangReadByte()
     uint32_t start = DWT->CYCCNT;
     while ((rx_port->IDR & rx_pin) != 0) {
         if ((DWT->CYCCNT - start) > (170000UL * 100)) {
-            serial.sendErrorMsg("[RunCam] bitBangReadByte: timeout — no start bit");
+           // serial.sendErrorMsg("[RunCam] bitBangReadByte: timeout — no start bit");
             return 0x00;
         }
     }
@@ -121,15 +121,15 @@ bool RunCam::probeDevice()
     uint8_t packet[3] = {0xCC, 0x00, 0x00};
     packet[2] = compound_crc(packet, 2);
 
-    serial.sendInfoDataMsg("[RunCam] probeDevice: RX idle=%d (expect 1)", (rx_port->IDR & rx_pin) ? 1 : 0);
-    serial.sendInfoDataMsg("[RunCam] probeDevice: sending {0x%02X, 0x%02X, 0x%02X}", packet[0], packet[1], packet[2]);
+    //serial.sendInfoDataMsg("[RunCam] probeDevice: RX idle=%d (expect 1)", (rx_port->IDR & rx_pin) ? 1 : 0);
+    //serial.sendInfoDataMsg("[RunCam] probeDevice: sending {0x%02X, 0x%02X, 0x%02X}", packet[0], packet[1], packet[2]);
 
     __disable_irq();
     sendPacket(packet, 3);
     uint8_t sync_byte = bitBangReadByte();
     __enable_irq();
 
-    serial.sendInfoDataMsg("[RunCam] probeDevice: got 0x%02X (expect 0xCC)", sync_byte);
+    //serial.sendInfoDataMsg("[RunCam] probeDevice: got 0x%02X (expect 0xCC)", sync_byte);
     return (sync_byte == 0xCC);
 }
 
@@ -138,11 +138,11 @@ void RunCam::startRecording()
     uint8_t packet[4] = {0xCC, 0x01, 0x03, 0x00};
     packet[3] = compound_crc(packet, 3);
 
-    serial.sendInfoDataMsg("[RunCam] toggleRecording: sending {0x%02X, 0x%02X, 0x%02X, 0x%02X}",
-                           packet[0], packet[1], packet[2], packet[3]);
+    //serial.sendInfoDataMsg("[RunCam] toggleRecording: sending {0x%02X, 0x%02X, 0x%02X, 0x%02X}",
+                           //packet[0], packet[1], packet[2], packet[3]);
     sendPacket(packet, 4);
     is_recording = true;
-    serial.sendInfoDataMsg("[RunCam] toggleRecording: done, is_recording=%d", (int)is_recording);
+    //serial.sendInfoDataMsg("[RunCam] toggleRecording: done, is_recording=%d", (int)is_recording);
 }
 
 void RunCam::stopRecording()
@@ -150,9 +150,9 @@ void RunCam::stopRecording()
 	uint8_t packet[4] = {0xCC, 0x01, 0x04, 0x00};
 	packet[3] = compound_crc(packet, 3);
 
-	serial.sendInfoDataMsg("[RunCam] toggleRecording: sending {0x%02X, 0x%02X, 0x%02X, 0x%02X}",
-						   packet[0], packet[1], packet[2], packet[3]);
+	//serial.sendInfoDataMsg("[RunCam] toggleRecording: sending {0x%02X, 0x%02X, 0x%02X, 0x%02X}",
+						   //packet[0], packet[1], packet[2], packet[3]);
 	sendPacket(packet, 4);
 	is_recording = true;
-	serial.sendInfoDataMsg("[RunCam] toggleRecording: done, is_recording=%d", (int)is_recording);
+	//serial.sendInfoDataMsg("[RunCam] toggleRecording: done, is_recording=%d", (int)is_recording);
 }
