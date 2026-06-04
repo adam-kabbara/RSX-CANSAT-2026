@@ -7,7 +7,6 @@
 #include "serial_manager.hpp"
 #include "telemetry_manager.hpp"
 #include "command_manager.hpp"
-#include "controller.hpp"
 
 extern "C" volatile uint8_t send_flag;
 extern "C" volatile uint8_t pvd_flag;
@@ -39,8 +38,6 @@ extern "C" void main_cpp()
     TelemetryManager telemetry_mgr;
 
     SensorManager sensors;
-
-    Controller pid_controller;
 
 	if (__HAL_RCC_GET_FLAG(RCC_FLAG_LPWRRST)){
 		serial.sendErrorMsg("Reset Reason: low power reset");
@@ -240,11 +237,6 @@ extern "C" void main_cpp()
 
             	mission_mgr.update_alt_buffer(pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt());
 				glider_ekf_update_baro(pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt(), 1.0f);
-
-				if(mission_mgr.getOpState() == DESCENT || mission_mgr.getOpState() == PROBE_RELEASE || mission_mgr.getOpState() == PAYLOAD_RELEASE)
-				{
-					pid_controller.update();
-				}
 
 				OperatingState next_state = update_state(sensors, mission_mgr, mission_mgr.getOpState());
 				if(next_state != mission_mgr.getOpState())
