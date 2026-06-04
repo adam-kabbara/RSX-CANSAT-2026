@@ -605,6 +605,11 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
     
     gps_parser.GPS_Init(hi2c1);
 
+	if (!gps_parser.GPS_probe())
+	{
+		serial.sendErrorMsg("GPS Init failed");
+	}
+
     HAL_Delay(100);
 
 	if(!DS1307_Init(hi2c1))
