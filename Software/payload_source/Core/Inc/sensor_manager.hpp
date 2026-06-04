@@ -17,6 +17,7 @@
 #include "drv.hpp"
 #include "eeprom.hpp"
 #include "GPS.hpp"
+#include "runcam.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,6 +75,9 @@ private:
 	void EEPROM_saveRecovery();
 
 	GPS gps_parser;
+
+	RunCam ground_camera;
+	RunCam payload_camera;
 
 public:
 

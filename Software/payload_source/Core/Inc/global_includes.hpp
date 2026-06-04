@@ -56,6 +56,11 @@ enum OperatingState {
 	IDLE = 7
 };
 
+enum CameraID {
+	GROUND_CAMERA = 0,
+	PAYLOAD_CAMERA = 1
+};
+
 enum OperatingMode {
 	OPMODE_FLIGHT = 0,
 	OPMODE_SIM = 1
