@@ -300,6 +300,15 @@ void CommandManager::do_sim(SerialManager &ser, MissionManager &info, SensorMana
   }
   else if(strcmp(data, "DISABLE") == 0)
   {
+	if(info.getOpMode() == OPMODE_SIM)
+	{
+		info.setSimStatus(SIM_OFF);
+		info.setOpMode(OPMODE_FLIGHT);
+		sensors.EEPROM_updateMode(info.getOpMode());
+		ser.sendInfoDataMsg("SET CANSAT TO FLIGHT MODE.");
+		status_update(ser, info);
+	}
+
     switch(info.getSimStatus())
     {
       case SIM_ON:

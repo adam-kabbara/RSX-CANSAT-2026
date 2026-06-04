@@ -36,7 +36,7 @@
 #define DESCENT_FALL_THRESHOLD_M 5
 #define EGG_ALT_THRESHOLD_M 4
 #define EGG_TIMING_BUDGET_MS 100
-#define LANDED_THRESHOLD_M 2
+#define LANDED_THRESHOLD_M 3.5
 #define MAX_EXP_CURRENT_A 2.5
 
 enum SimModeStatus {
@@ -54,6 +54,11 @@ enum OperatingState {
 	PAYLOAD_RELEASE = 5,
 	LANDED = 6,
 	IDLE = 7
+};
+
+enum CameraID {
+	GROUND_CAMERA = 0,
+	PAYLOAD_CAMERA = 1
 };
 
 enum OperatingMode {

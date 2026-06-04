@@ -597,7 +597,8 @@ void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &seri
 
 void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
 		SPI_HandleTypeDef *hspi_eeprom, GPIO_TypeDef *cs_port, uint16_t cs_pin,
-		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4)
+		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4
+		)
 {
 	/* Start all sensors that need to be started
 	 * Add a delay between each start and send an
@@ -672,6 +673,11 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	servo_egg.Init(htim3, TIM_CHANNEL_3, 500, 2500, 90, -90);
 
 	motor.Init(htim2, TIM_CHANNEL_2);
+
+	HAL_Delay(100);
+
+	ground_camera.Init(CameraID::GROUND_CAMERA);
+	payload_camera.Init(CameraID::PAYLOAD_CAMERA);
 
 	HAL_Delay(100);
 

@@ -417,8 +417,8 @@ class CommandWindow(QMainWindow):
         program_camera_box = QHBoxLayout()
 
         self.camera_id_field = QComboBox()
-        self.camera_id_field.addItem("CAMERA1")
-        self.camera_id_field.addItem("CAMERA2")
+        self.camera_id_field.addItem("GROUND CAM")
+        self.camera_id_field.addItem("PAYLOAD CAM")
         self.camera_id_field.setFont(button_font)
         self.camera_id_field.activated.connect(self.camera_id_edited)
 
