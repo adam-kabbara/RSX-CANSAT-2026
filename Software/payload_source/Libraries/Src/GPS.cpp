@@ -7,9 +7,26 @@ void GPS::GPS_Init(I2C_HandleTypeDef *i2c)
 	internal_gps_storage = gps_data{};
 }
 
+bool GPS::GPS_probe() 
+{
+    if (gps_hi2c == nullptr) return false;
+
+    uint8_t reg = 0xFD;
+    uint8_t avail[2] = {0, 0};
+    // Write register address, then read 2 bytes
+    if (HAL_I2C_Master_Transmit(gps_hi2c, UBLOX_I2C_ADDR, &reg, 1, 5) != HAL_OK)
+        return false;
+    if (HAL_I2C_Master_Receive(gps_hi2c, UBLOX_I2C_ADDR, avail, 2, 5) != HAL_OK)
+        return false;
+    return true; // device responded
+}
+
 void GPS::GPS_update()
 {
 	if (gps_hi2c == nullptr) return;
+
+    uint8_t reg = 0xFF;
+    if (HAL_I2C_Master_Transmit(gps_hi2c, UBLOX_I2C_ADDR, &reg, 1, 5) != HAL_OK) return;
 
 	uint8_t rx_byte = 0;
 
