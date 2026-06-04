@@ -191,7 +191,7 @@ extern "C" void main_cpp()
 
             if(send_flag)
             {
-            	
+            	/*
 				float pos[3];
 				float vel[3];
 				float x_q[4];
@@ -205,7 +205,7 @@ extern "C" void main_cpp()
 				float rpy[3];
 				quat_to_rpy(x_q, rpy);
 				serial.sendInfoDataMsg("EKF State: RPY (%.3f, %.3f, %.3f)", rpy[0], rpy[1], rpy[2]);
-				
+				*/
 				telemetry_mgr.sampleSensors(sensors, mission_mgr, serial);
             	telemetry_mgr.build_data_str(send_buff, sizeof(send_buff));
 
@@ -272,11 +272,10 @@ extern "C" void main_cpp()
 				glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
             }
 
-			struct gps_data gps_data = sensors.getGPSData();
-			if(gps_data.data_ready)
+			if(sensors.GPS_dataReady())
 			{
-				gps_data.data_ready = false;
-				ekf_gps_update(gps_data.latitude, gps_data.longitude, gps_data.altitude, gps_data.sog_ms, gps_data.cog_true, gps_data.rms_range);
+				sensors.GPS_dataReadyOff();
+				ekf_gps_update(sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt(), sensors.getGPS_sog(), sensors.getGPS_cog(), sensors.getGPS_rms());
 			}
 
             sensors.updateMotor();

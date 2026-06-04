@@ -245,60 +245,12 @@ void SensorManager::getRawMag(float* data_out)
 
 void SensorManager::updateGPS()
 {
-    if (gps_hi2c == nullptr) return;
-
-    uint8_t rx_byte = 0;
-
-    // Direct buffer extraction via current address reads
-    while (HAL_I2C_Master_Receive(gps_hi2c, UBLOX_I2C_ADDR, &rx_byte, 1, 5) == HAL_OK) {
-        // Break out immediately if the receiver data stream is resting/empty
-        if (rx_byte == 0xFF) {
-            break; 
-        }
-
-        if (rx_byte == '$') {
-            gps_buf_idx = 0;
-        }
-
-        if (gps_buf_idx < (sizeof(gps_nmea_buffer) - 1)) {
-            gps_nmea_buffer[gps_buf_idx++] = (char)rx_byte;
-        }
-
-        if (rx_byte == '\n') {
-            gps_nmea_buffer[gps_buf_idx] = '\0';
-            
-            // Local string safety check
-            char parse_scratchpad[100];
-            std::strncpy(parse_scratchpad, gps_nmea_buffer, sizeof(parse_scratchpad));
-
-            // Only run parsing routine if it contains the GNS fix sentence layout
-        	gps_parser.ublox_parse(parse_scratchpad, internal_gps_storage);
-            
-            gps_buf_idx = 0; 
-        }
-    }
-
-	if (internal_gps_storage.fix_quality > 0) {
-		char ln[128];
-		snprintf(ln, sizeof ln,
-			"GPS q%u sats%u hdop%.1f lat%.6f lon%.6f alt%.1f\r\n",
-			internal_gps_storage.fix_quality,
-			internal_gps_storage.sats,
-			(double)internal_gps_storage.hdop,
-			internal_gps_storage.latitude,
-			internal_gps_storage.longitude,
-			(double)internal_gps_storage.altitude);
-	}
-}
-
-struct gps_data SensorManager::getGPSData()
-{
-	return internal_gps_storage;
+    gps_parser.GPS_update();
 }
 
 void SensorManager::getGPSTime(char time_str[DATA_SIZE])
 {
-	const char *t = internal_gps_storage.time;
+	const char *t = gps_parser.internal_gps_storage.time;
 
 	if(strlen(t) >= 6)
 	{
@@ -311,6 +263,50 @@ void SensorManager::getGPSTime(char time_str[DATA_SIZE])
 	}
 }
 
+float SensorManager::getGPS_alt()
+{
+	return gps_parser.internal_gps_storage.altitude;
+}
+
+float SensorManager::getGPS_lat()
+{
+	return gps_parser.internal_gps_storage.latitude;
+}
+
+float SensorManager::getGPS_lon()
+{
+	return gps_parser.internal_gps_storage.longitude;
+}
+
+int SensorManager::getGPS_sat()
+{
+	return gps_parser.internal_gps_storage.sats;
+}
+
+float SensorManager::getGPS_cog()
+{
+	return gps_parser.internal_gps_storage.cog_true;
+}
+
+float SensorManager::getGPS_rms()
+{
+	return gps_parser.internal_gps_storage.rms_range;
+}
+
+float SensorManager::getGPS_sog()
+{
+	return gps_parser.internal_gps_storage.sog_ms;
+}
+
+bool SensorManager::GPS_dataReady()
+{
+	return gps_parser.internal_gps_storage.data_ready;
+}
+
+void SensorManager::GPS_dataReadyOff()
+{
+	gps_parser.internal_gps_storage.data_ready = false;
+}
 
 cam_status SensorManager::getCameraStatus()
 {
@@ -606,27 +602,31 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	/* Start all sensors that need to be started
 	 * Add a delay between each start and send an
 	 * info message */
-
-	// GPS initialization 
-	this->gps_hi2c = hi2c1;
     
-    std::memset(&internal_gps_storage, 0, sizeof(struct gps_data));
-    std::strcpy(internal_gps_storage.time, "00:00:00");
+    gps_parser.GPS_Init(hi2c1);
+
+    HAL_Delay(100);
 
 	if(!DS1307_Init(hi2c1))
 	{
 		serial.sendErrorMsg("RTC Init failed");
 	}
 
+	HAL_Delay(100);
+
 	if(!INA219setup(MAX_EXP_CURRENT_A, 0.1, 0))
 	{
 		serial.sendErrorMsg("INA Init failed");
 	}
 
+	HAL_Delay(100);
+
 	if(BMP5_Init(&bmp_dev, hi2c1, BMP5_I2C_ADDR_FIRST))
 	{
 		serial.sendErrorMsg("BMP Init failed");
 	}
+
+	HAL_Delay(100);
 
 	if(BMP5_Start_Mode(&bmp_dev, 1, BMP5_ODR_120HZ, BMP5_OSR_X4, BMP5_OSR_X1))
 	{
@@ -648,16 +648,15 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 
 	HAL_Delay(100);
 
-	EEPROM_Init();
-	// TODO: constructor?
 	static EEPROMsimple eeprom_storage(hspi_eeprom, cs_port, cs_pin);
 	eeprom_dev = &eeprom_storage;
 
 	uint8_t eeprom_status = eeprom_dev->ReadStatus();
 	if (eeprom_status == 0xFF)
 	{
-		serial.sendErrorMsg("[EEPROM] SPI not responding (0xFF) — check MODF/NSS config and MISO wiring");
+		serial.sendErrorMsg("[EEPROM] SPI not responding (0xFF)");
 	}
+	EEPROM_Init();
 
 	HAL_Delay(100);
 

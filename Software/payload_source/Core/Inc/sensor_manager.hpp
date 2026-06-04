@@ -73,11 +73,7 @@ private:
 	void EEPROM_Init();
 	void EEPROM_saveRecovery();
 
-	I2C_HandleTypeDef *gps_hi2c = nullptr;
 	GPS gps_parser;
-	gps_data internal_gps_storage;
-	char gps_nmea_buffer[100];
-	uint8_t gps_buf_idx = 0; // counter tracking string length
 
 public:
 
@@ -105,7 +101,6 @@ public:
 	void BNO_RotateY(BNO085_t *bno_dev, float angle_rad);
 	void getRawGyro(float* data_out);
 	struct rpy_data getCalibratedGyro(float* calib_bias);
-
 	struct rpy_data getIMUData();
 
 	void getGameRotationVector(float* data_out);
@@ -118,13 +113,21 @@ public:
 	void getRawMag(float* data_out);
 
 	void updateGPS();
-	struct gps_data getGPSData();
+	float getGPS_alt();
+	float getGPS_lat();
+	float getGPS_lon();
+	int getGPS_sat();
+	float getGPS_cog();
+	float getGPS_rms();
+	float getGPS_sog();
+	void GPS_dataReadyOff();
+	bool GPS_dataReady();
+	void getGPSTime(char time_str[DATA_SIZE]);
 
 	cam_status getCameraStatus();
 
 	void setRTCTime(uint8_t h, uint8_t m, uint8_t s);
 	void getRTCTime(char time_str[DATA_SIZE]);
-	void getGPSTime(char time_str[DATA_SIZE]);
 
 	void activate_egg_release();
 	void activate_nosecone_release();

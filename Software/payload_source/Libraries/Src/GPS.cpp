@@ -1,6 +1,47 @@
 #include "GPS.hpp"
-#include <cstring>
-#include <cstdlib>
+
+void GPS::GPS_Init(I2C_HandleTypeDef *i2c)
+{
+	gps_hi2c = i2c;
+	gps_buf_idx = 0;
+	internal_gps_storage = gps_data{};
+}
+
+void GPS::GPS_update()
+{
+	if (gps_hi2c == nullptr) return;
+
+	uint8_t rx_byte = 0;
+
+	// Direct buffer extraction via current address reads
+	while (HAL_I2C_Master_Receive(gps_hi2c, UBLOX_I2C_ADDR, &rx_byte, 1, 5) == HAL_OK) {
+		// Break out immediately if the receiver data stream is resting/empty
+		if (rx_byte == 0xFF) {
+			break;
+		}
+
+		if (rx_byte == '$') {
+			gps_buf_idx = 0;
+		}
+
+		if (gps_buf_idx < (sizeof(gps_nmea_buffer) - 1)) {
+			gps_nmea_buffer[gps_buf_idx++] = (char)rx_byte;
+		}
+
+		if (rx_byte == '\n') {
+			gps_nmea_buffer[gps_buf_idx] = '\0';
+
+			// Local string safety check
+			char parse_scratchpad[100];
+			std::strncpy(parse_scratchpad, gps_nmea_buffer, sizeof(parse_scratchpad));
+
+			// Only run parsing routine if it contains the GNS fix sentence layout
+			ublox_parse(parse_scratchpad, internal_gps_storage);
+
+			gps_buf_idx = 0;
+		}
+	}
+}
 
 double GPS::nmeaToDecimalDegrees(const char* token) {
     if (token == NULL || token[0] == '\0') return NAN;

@@ -52,13 +52,11 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mis
 	packet.ACCEL_P = (int)lroundf(gyro_accel_data.accel_p);
 	packet.ACCEL_Y = (int)lroundf(gyro_accel_data.accel_y);
 
-	struct gps_data gps_data_vals = sensors.getGPSData();
-
-	strcpy(packet.GPS_TIME, gps_data_vals.time);
-	packet.GPS_ALTITUDE = gps_data_vals.altitude;
-	packet.GPS_LATITUDE = gps_data_vals.latitude;
-	packet.GPS_LONGITUDE = gps_data_vals.longitude;
-	packet.GPS_SATS = gps_data_vals.sats;
+	sensors.getGPSTime(packet.GPS_TIME);
+	packet.GPS_ALTITUDE = sensors.getGPS_alt();
+	packet.GPS_LATITUDE = sensors.getGPS_lat();
+	packet.GPS_LONGITUDE = sensors.getGPS_lon();
+	packet.GPS_SATS = sensors.getGPS_sat();
 
 	cmd_buff_to_echo(packet.CMD_ECHO, mission_info.getLastCommand());
 

@@ -87,39 +87,6 @@ struct bar_data {
 	float altitude;
 };
 
-struct gps_data {
-	char    time[DATA_SIZE];   // UTC, "hhmmss.ss"
-	double  latitude;          // decimal degrees, +N / -S   (double, not float)
-	double  longitude;         // decimal degrees, +E / -W
-	char    ns, ew;            // raw hemisphere chars
-	char    pos_mode[8];       // GNS field 6: one char per constellation (N/A/D/F/R...)
-	uint8_t fix_quality  = 0;  // 0 = invalid, 1 = GPS fix, 2 = DGPS fix, etc. (GGA field 6)
-	uint8_t sats;              // numSV
-	float   hdop;
-	float   altitude;          // m above MSL
-	float   geoid_sep;         // m
-	float   diff_age;          // s   (NAN if absent)
-	int     diff_station;
-	char    nav_status;        // NMEA 4.10 nav status
-
-	// --- GST: error statistics, all metres ---
-	float   rms_range;
-	float   std_major, std_minor, orient;   // error ellipse: axes (m), orientation (deg)
-	float   std_lat, std_lon, std_alt;       // per-axis 1-sigma error (m)
-
-	// --- GSA ---
-	float   pdop, vdop;
-	char    fix_type;          // '1' none, '2' 2D, '3' 3D
-
-	// VTG / RMC — horizontal velocity
-	float cog_true  = 0.0f;   // course over ground, deg true (0..360)
-	float sog_knots = 0.0f;   // speed over ground, knots
-	float sog_kmh   = 0.0f;   // km/h
-	float sog_ms    = 0.0f;   // m/s (derived, the one you'll probably use)
-
-	bool data_ready = false; // set to true when lat, lon, velocity
-};
-
 struct recovery_data {
 	float launch_altitude;
 	OperatingState state;
