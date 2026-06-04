@@ -59,6 +59,7 @@ private:
 public:
 	struct gps_data internal_gps_storage;
 	void GPS_Init(I2C_HandleTypeDef *i2c);
+	bool GPS_probe();
 	void GPS_update();
 	static double nmeaToDecimalDegrees(const char* token);
 	static void ublox_parse_GGA(char *line, struct gps_data &data);
