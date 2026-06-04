@@ -144,7 +144,7 @@ class GraphWindow(QMainWindow):
             ("Camera 1", "Unknown"),
             ("Camera 2", "Unknown"),
             ("Accel XYZ", "0|0|0"),
-            ("Quaternion", "0|0|0|0"),
+            ("Position", "0|0|0"),
             ("GPS Altitude", "0.0 m"),
             ("GPS Time", "00:00:00"),
             ("CMD ECHO", "N/A")
@@ -313,9 +313,9 @@ class GraphWindow(QMainWindow):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Pressure")].setText(
             cosmetics.data_status_blue(str(val)) + " kPa")
         
-    def update_quaternion(self, w, x, y, z):
-        self.sidebar_data_labels[self.sidebar_data_dict.get("Quaternion")].setText(
-            cosmetics.data_status_blue(f"{w}|{x}|{y}|{z}"))
+    def update_pos(self, pos_roll, pos_pitch, pos_yaw):
+        self.sidebar_data_labels[self.sidebar_data_dict.get("Position")].setText(
+            cosmetics.data_status_blue(f"{pos_roll}|{pos_pitch}|{pos_yaw}"))
         
     def update_accel_xyz(self, x, y, z):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Accel XYZ")].setText(
