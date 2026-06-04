@@ -43,15 +43,15 @@ pip install pybind11 matplotlib numpy
 
 ```powershell
 # 1. Check the pybind11 cmake dir for your environment
-C:\Users\<you>\miniconda3\envs\cansat\python.exe -m pybind11 --cmakedir
+C:\Users\adamk\miniconda3\envs\cansat\python.exe -m pybind11 --cmakedir
 
 # 2. Configure (replace python313.lib if your Python version differs —
-#    check with: dir C:\Users\<you>\miniconda3\envs\cansat\libs\)
+#    check with: dir C:\Users\adamk\miniconda3\envs\cansat\libs\)
 cmake -B build -G "Visual Studio 17 2022" `
-  -Dpybind11_DIR="C:\Users\<you>\\miniconda3\envs\cansat\Lib\site-packages\pybind11\share\cmake\pybind11" `
-  -DPYTHON_EXECUTABLE="C:\Users\<you>\miniconda3\envs\cansat\python.exe" `
-  -DPYTHON_LIBRARIES="C:\Users\<you>\miniconda3\envs\cansat\libs\python313.lib" `
-  -DPYTHON_INCLUDE_DIR="C:\Users\<you>\miniconda3\envs\cansat\include"
+  -Dpybind11_DIR="C:\Users\adamk\\miniconda3\envs\cansat\Lib\site-packages\pybind11\share\cmake\pybind11" `
+  -DPYTHON_EXECUTABLE="C:\Users\adamk\miniconda3\envs\cansat\python.exe" `
+  -DPYTHON_LIBRARIES="C:\Users\adamk\miniconda3\envs\cansat\libs\python313.lib" `
+  -DPYTHON_INCLUDE_DIR="C:\Users\adamk\miniconda3\envs\cansat\include"
 
 # 3. Build
 cmake --build build --config Release
@@ -60,7 +60,7 @@ cmake --build build --config Release
 copy build\Release\pathguidance*.pyd .
 
 # 5. Run
-C:\Users\<you>\miniconda3\envs\cansat\python.exe sim.py        # writes path_plot.png
+C:\Users\adamk\miniconda3\envs\cansat\python.exe sim.py        # writes path_plot.png
 ```
 
 ### Linux / macOS
