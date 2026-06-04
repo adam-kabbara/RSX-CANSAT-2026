@@ -296,11 +296,7 @@ class DataProcessor(QObject):
             and data.POS_PITCH is not None
             and data.POS_YAW is not None
         ):
-            # attitude = self._quaternion_to_euler_degrees(
-            #     data.POS_ROLL,
-            #     data.POS_PITCH,
-            #     data.POS_YAW,
-            # )
+
             self._graph_ui.update_attitude(data.POS_ROLL, data.POS_PITCH, data.POS_YAW)
             self._graph_ui.update_pos(data.POS_ROLL, data.POS_PITCH, data.POS_YAW)
 

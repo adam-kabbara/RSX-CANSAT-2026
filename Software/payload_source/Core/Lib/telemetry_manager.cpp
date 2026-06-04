@@ -60,17 +60,27 @@ void TelemetryManager::sampleSensors(SensorManager &sensors, MissionManager &mis
 
 	cmd_buff_to_echo(packet.CMD_ECHO, mission_info.getLastCommand());
 
-	packet.POS_ROLL = 0.0;
-	packet.POS_PITCH = 0.0;
-	packet.POS_YAW = 0.0;
+	float quat[4];
+	sensors.getGameRotationVector(quat);
+	float accel[4];
+	sensors.getLinearAccel(accel);
+	CPL_IMU_to_NED(accel, quat);
 
-	packet.VELOCITY_X = 0.0;
-	packet.VELOCITY_Y = 0.0;
-	packet.VELOCITY_Z = 0.0;
+	float rpy[3];
+	quat_to_rpy(quat, rpy);
+	packet.POS_ROLL = rpy[0] * 180.0f / M_PI;
+	packet.POS_PITCH = rpy[1] * 180.0f / M_PI;
+	packet.POS_YAW = rpy[2] * 180.0f / M_PI;
 
-	packet.ACCEL_XX = 0.0;
-	packet.ACCEL_YY = 0.0;
-	packet.ACCEL_ZZ = 0.0;
+	float ekf_vel[3];
+	ekf_get_vel(ekf_vel);
+	packet.VELOCITY_X = ekf_vel[0];
+	packet.VELOCITY_Y = ekf_vel[1];
+	packet.VELOCITY_Z = ekf_vel[2];
+
+	packet.ACCEL_XX = accel[0];
+	packet.ACCEL_YY = accel[1];
+	packet.ACCEL_ZZ = accel[2];
 }
 
 void TelemetryManager::build_data_str(char *buff, size_t size)

@@ -11,6 +11,7 @@
 #include "serial_manager.hpp"
 #include "sensor_manager.hpp"
 #include "mission_manager.hpp"
+#include "glider_ekf.h"
 
 class TelemetryManager
 {
