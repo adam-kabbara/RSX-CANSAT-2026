@@ -595,6 +595,26 @@ void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &seri
     serial.sendLogEnd();
 }
 
+void SensorManager::ground_runcam_start()
+{
+	ground_camera.startRecording();
+}
+
+void SensorManager::ground_runcam_stop()
+{
+	ground_camera.stopRecording();
+}
+
+void SensorManager::payload_runcam_start()
+{
+	payload_camera.startRecording();
+}
+
+void SensorManager::payload_runcam_stop()
+{
+	payload_camera.stopRecording();
+}
+
 void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
 		SPI_HandleTypeDef *hspi_eeprom, GPIO_TypeDef *cs_port, uint16_t cs_pin,
 		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4

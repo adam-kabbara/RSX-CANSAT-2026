@@ -422,15 +422,21 @@ class CommandWindow(QMainWindow):
         self.camera_id_field.setFont(button_font)
         self.camera_id_field.activated.connect(self.camera_id_edited)
 
-        self.program_camera_button = QPushButton("TOGGLE CAMERA")
-        self.program_camera_button.setFont(button_font)
-        self.program_camera_button.clicked.connect(lambda: self.command_manager.command__toggle_camera(self.__camera_id))
+        self.start_camera_button = QPushButton("START")
+        self.start_camera_button.setFont(button_font)
+        self.start_camera_button.clicked.connect(lambda: self.command_manager.command__start_camera(self.__camera_id))
 
-        program_camera_box.addWidget(self.program_camera_button)
+        self.stop_camera_button = QPushButton("STOP")
+        self.stop_camera_button.setFont(button_font)
+        self.stop_camera_button.clicked.connect(lambda: self.command_manager.command__stop_camera(self.__camera_id))
+
+        program_camera_box.addWidget(self.start_camera_button)
+        program_camera_box.addWidget(self.stop_camera_button)
         program_camera_box.addWidget(self.camera_id_field)
         
         self.camera_id_field.hide()
-        self.program_camera_button.hide()
+        self.start_camera_button.hide()
+        self.stop_camera_button.hide()
         ### end program camera
 
         force_release_box = QHBoxLayout()
@@ -451,11 +457,6 @@ class CommandWindow(QMainWindow):
 
         force_release_box.addWidget(self.mec_release_field)
         force_release_box.addWidget(self.mec_activate_button)
-
-        self.camera_status_button = QPushButton("GET CAMERA STATUS")
-        self.camera_status_button.setFont(button_font)
-        self.camera_status_button.clicked.connect(self.command_manager.command__cam_status)
-        self.camera_status_button.hide()
 
         self.custom_msg_field = QLineEdit()
         self.custom_msg_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
@@ -516,7 +517,6 @@ class CommandWindow(QMainWindow):
         commands_layout.addLayout(set_dc_motor_box)
         commands_layout.addLayout(program_servo_box)
         commands_layout.addLayout(program_camera_box)
-        commands_layout.addWidget(self.camera_status_button)
         commands_layout.addLayout(force_release_box)
         
         # BACK button (universal)
@@ -561,9 +561,9 @@ class CommandWindow(QMainWindow):
             self.program_servo_button,
             self.servo_id_field,
             self.servo_val_field,
-            self.program_camera_button,
+            self.start_camera_button,
+            self.stop_camera_button,
             self.camera_id_field,
-            self.camera_status_button,
             self.mec_release_field,
             self.mec_activate_button,
             self.button_back
