@@ -490,6 +490,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 	  if(val_int == 0)
 	  {
 		  sensors.activate_nosecone_release();
+      ser.sendInfoMsg("I AM HERE AAAAAAAAAAA");
 		  if(info.getOpState() != DESCENT)
 		  {
 			  info.setOpState(DESCENT);
