@@ -8,6 +8,7 @@ import time
 from serial.serial import SerialManager
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QMessageBox
+from data.audio_tts import AudioTTS
 
 class Commands(QObject):
 
@@ -19,6 +20,7 @@ class Commands(QObject):
         self._serial   = serial
         self._joystick = joystick
         self._graph_ui = graph_ui
+        self._tts = AudioTTS()
 
         # Joystick attitude accumulators (initialized so callbacks can run safely)
         self._joy_roll = 0.0
@@ -50,6 +52,7 @@ class Commands(QObject):
     def command__restart(self):
         if self._serial.send_data(self._cmd(op="RST")):
             self.print_signal.emit("Sent restart signal")
+            self._tts.speak("Restarting processor")
                                     
     def command__write_servo(self, servo_id, servo_val):
         if servo_id == -1 or servo_val not in range(-90, 91):
@@ -109,10 +112,10 @@ class Commands(QObject):
                 self.print_signal.emit(f"Sent payload camera start command")
 
     def command__mec_release(self, mec_id):
-        self.print_signal.emit(f"REL:{mec_id}")
-        return
         if self._serial.send_data(self._cmd(op="MEC", val=f"REL:{mec_id}")):
-            self.print_signal.emit(f'Sent force {["NOSECONE release", "CPL release", "WING DEPLOYMENT", "EGG release"][mec_id]} command')
+            release_name = self._mec_release_name(mec_id)
+            self.print_signal.emit(f'Sent force {release_name} command')
+            self._tts.speak(f"Activating {release_name} release")
 
     def command__stop_camera(self, camera_id):
         if self._serial.send_data(self._cmd(op="MEC", val=f"CAM0:{camera_id}")):
@@ -152,6 +155,7 @@ class Commands(QObject):
     def command__start_mission(self):
         if self._serial.send_data(self._cmd(op="CX", val="ON")):  
             self.print_signal.emit("SENT TRANSMISSION ON COMMAND")
+            self._tts.speak("Starting mission")
             return 1
         else:
             return 0
@@ -168,6 +172,7 @@ class Commands(QObject):
         if response == QMessageBox.StandardButton.Yes:
             if self._serial.send_data(self._cmd(op="CX", val="OFF")):
                 self.print_signal.emit("SENT TRANSMISSION OFF COMMAND")
+                self._tts.speak("Ending mission")
                 return 1
         return 0
     
@@ -224,3 +229,14 @@ class Commands(QObject):
             return
         self._joystick.set_update_interval_ms(update_interval_ms)
         self.print_signal.emit(f"Updated joystick update interval to {update_interval_ms} ms")
+
+    def _mec_release_name(self, mec_id):
+        release_names = [
+            "nose cone release",
+            "payload release",
+            "wing deployment",
+            "egg release",
+        ]
+        if 0 <= mec_id < len(release_names):
+            return release_names[mec_id]
+        return f"release mechanism {mec_id}"

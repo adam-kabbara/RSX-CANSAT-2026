@@ -4,6 +4,11 @@ Package runner
 ** Use python main.py -c to only show command window
 ** Use python main.py --omit-screen-resolution to test without configured display placement
 """
+#PLACE ON TOP CUZ OTHER IMPROTS MAY TAKE SO LONG, THIS GIVE IMMEDIATE FEEDBACK TO USER
+from data.audio_tts import AudioTTS
+tts = AudioTTS()
+tts.speak("Ground station software booting up")
+
 from PyQt6.QtCore import QPoint, QSize, Qt, QTimer
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWidgets import QMainWindow
