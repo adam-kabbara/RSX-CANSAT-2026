@@ -32,6 +32,7 @@ class GraphWindow(QMainWindow):
     def __init__(self, parent=None):
 
         super().__init__(parent)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
 
         self.graphs = []
         self.plotters = []
