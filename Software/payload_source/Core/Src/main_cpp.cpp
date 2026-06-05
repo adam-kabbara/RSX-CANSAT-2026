@@ -318,6 +318,13 @@ extern "C" void main_cpp()
 						sensors.writeAileronServoPPM(aileron_pwm);
 						sensors.writeElevatorServoPPM(elevator_pwm);
 					}
+
+					rsx::State s;
+					s.n = pos[0]; s.e = pos[1]; s.d = pos[2];
+					s.vn = vel[0]; s.ve = vel[1]; s.vd = vel[2];
+					s.roll = rpy[0]; s.pitch = rpy[1]; s.yaw = rpy[2];
+
+					rsx::PlanStatus r = guidance.replan(s);
 				}
 			}
 
