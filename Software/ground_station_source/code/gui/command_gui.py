@@ -48,6 +48,7 @@ class CommandWindow(QMainWindow):
 
         super().__init__(parent)
 
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
         self.setFixedSize(1920, 480)
 
         self.__set_time_id        = 0 # 0 for computer time, 1 for GPS time
