@@ -6,6 +6,9 @@
 # Cron starts with a minimal environment, so set the basics explicitly.
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
+# Source the virtual environment if your Python dependencies are installed there.
+source ~/RSX-CANSAT-2026/Software/ground_station_source/genv/bin/activate
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Change this to the Python script you want to run at boot.
