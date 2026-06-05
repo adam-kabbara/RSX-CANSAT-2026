@@ -37,8 +37,13 @@ private:
     bool egg_flag = false;
     int landed_trigger_count = 0;
     float egg_alt_cal = 0.0f;
+    float landing_coords[2];
 
 public:
+
+    void set_landing_coords(float lat, float lon);
+    float get_landing_lat();
+    float get_landing_lon();
 
     bool nosecone_check();
     bool probe_check();
