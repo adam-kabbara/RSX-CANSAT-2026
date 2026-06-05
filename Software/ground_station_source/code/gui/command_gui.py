@@ -119,6 +119,8 @@ class CommandWindow(QMainWindow):
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
 
+        self.adjustSize()
+
         # grid_layout = QGridLayout(self.central_widget)
         # grid_layout.setHorizontalSpacing(10)
         # grid_layout.setVerticalSpacing(20)
