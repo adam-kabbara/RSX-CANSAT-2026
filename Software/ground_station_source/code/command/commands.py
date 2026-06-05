@@ -101,25 +101,25 @@ class Commands(QObject):
             return True
         return False
 
-    def command__toggle_camera(self, camera_id):
-        if camera_id == "CAMERA1":
-            cam_token = "1"
-        elif camera_id == "CAMERA2":
-            cam_token = "2"
-        else:
-            cam_token = f"1"
-            
-        cam_msg = f"CAM:{cam_token}"
-        if self._serial.send_data(self._cmd(op="MEC", val=cam_msg)):
-            self.print_signal.emit(f"Sent Camera {camera_id} toggle command")
+    def command__start_camera(self, camera_id):
+        if self._serial.send_data(self._cmd(op="MEC", val=f"CAM1:{camera_id}")):
+            if camera_id == 0:
+                self.print_signal.emit(f"Sent ground camera start command")
+            else:
+                self.print_signal.emit(f"Sent payload camera start command")
 
     def command__mec_release(self, mec_id):
+        self.print_signal.emit(f"REL:{mec_id}")
+        return
         if self._serial.send_data(self._cmd(op="MEC", val=f"REL:{mec_id}")):
             self.print_signal.emit(f'Sent force {["NOSECONE release", "CPL release", "WING DEPLOYMENT", "EGG release"][mec_id]} command')
 
-    def command__cam_status(self):
-        if self._serial.send_data(self._cmd(op="MEC", val="CAMERA_STATUS:X")):
-            self.print_signal.emit("Requesting CAMERA status")
+    def command__stop_camera(self, camera_id):
+        if self._serial.send_data(self._cmd(op="MEC", val=f"CAM0:{camera_id}")):
+            if camera_id == 0:
+                self.print_signal.emit(f"Sent ground camera stop command")
+            else:
+                self.print_signal.emit(f"Sent payload camera stop command")
        
     def command__sim_mode(self, mode: str):
         if self._serial.send_data(self._cmd(op="SIM", val=mode)):

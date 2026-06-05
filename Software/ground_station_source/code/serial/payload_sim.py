@@ -276,7 +276,7 @@ class PayloadSim(QObject):
         mission_time_utc = time.strftime("%H:%M:%S", time.gmtime(self.mission_time))
         cam_status = self._camera_status_bits()
         flight_ctrl = self._flight_ctrl_mode()
-        quat_w, quat_x, quat_y, quat_z = self._quaternion_values()
+        roll, pitch, yaw = self._attitude_values()
 
         telemetry = (
             f"{self._team_id},{mission_time_utc},{self.packet_count},{self.mode},{self.state},"
@@ -286,7 +286,7 @@ class PayloadSim(QObject):
             f"{accel_r:.1f},{accel_p:.1f},{accel_y:.1f},"
             f"{current_time},{gps_altitude:.1f},{latitude:.7f},{longitude:.7f},"
             f"{self.gps_sats},{self.cmd_echo},{cam_status},"
-            f"{flight_ctrl},{quat_w:.4f},{quat_x:.4f},{quat_y:.4f},{quat_z:.4f},"
+            f"{flight_ctrl},{roll:.4f},{pitch:.4f},{yaw:.4f},"
             f"{self.velocity_x:.2f},{self.velocity_y:.2f},{self.velocity_z:.2f},"
             f"{self.acceleration_x:.2f},{self.acceleration_y:.2f},{self.acceleration_z:.2f}"
         )
@@ -529,24 +529,12 @@ class PayloadSim(QObject):
     def _flight_ctrl_mode(self):
         return "AUTONOMOUS" if self.transmitting else "MANUAL"
 
-    def _quaternion_values(self):
+    def _attitude_values(self):
         roll = math.radians(self.roll_deg)
         pitch = math.radians(self.pitch_deg)
         yaw = math.radians(self.yaw_deg)
 
-        cr = math.cos(roll * 0.5)
-        sr = math.sin(roll * 0.5)
-        cp = math.cos(pitch * 0.5)
-        sp = math.sin(pitch * 0.5)
-        cy = math.cos(yaw * 0.5)
-        sy = math.sin(yaw * 0.5)
-
-        return (
-            cr * cp * cy + sr * sp * sy,
-            sr * cp * cy - cr * sp * sy,
-            cr * sp * cy + sr * cp * sy,
-            cr * cp * sy - sr * sp * cy,
-        )
+        return roll, pitch, yaw
 
     def _camera_status_bits(self):
         return int(self.cam1_active) + (2 * int(self.cam2_active))

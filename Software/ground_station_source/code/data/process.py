@@ -38,9 +38,9 @@ class TelemetryData:
     GPS_SATS: str
     CMD_ECHO: str
     PACKET_RECV: int
-    QUATERNION_X: float | None
-    QUATERNION_Y: float | None
-    QUATERNION_Z: float | None
+    POS_ROLL: float | None
+    POS_PITCH: float | None
+    POS_YAW: float | None
     VELOCITY_X: float | None
     VELOCITY_Y: float | None
     VELOCITY_Z: float | None
@@ -292,19 +292,13 @@ class DataProcessor(QObject):
             self._graph_ui.update_cmd_echo(data.CMD_ECHO)
 
         if (
-            data.QUATERNION_X is not None
-            and data.QUATERNION_Y is not None
-            and data.QUATERNION_Z is not None
+            data.POS_ROLL is not None
+            and data.POS_PITCH is not None
+            and data.POS_YAW is not None
         ):
-            quaternion_w = self._quaternion_w(data.QUATERNION_X, data.QUATERNION_Y, data.QUATERNION_Z)
-            attitude = self._quaternion_to_euler_degrees(
-                quaternion_w,
-                data.QUATERNION_X,
-                data.QUATERNION_Y,
-                data.QUATERNION_Z,
-            )
-            self._graph_ui.update_attitude(*attitude)
-            self._graph_ui.update_quaternion(quaternion_w, data.QUATERNION_X, data.QUATERNION_Y, data.QUATERNION_Z)
+
+            self._graph_ui.update_attitude(data.POS_ROLL, data.POS_PITCH, data.POS_YAW)
+            self._graph_ui.update_pos(data.POS_ROLL, data.POS_PITCH, data.POS_YAW)
 
         if data.ACCEL_X is not None and data.ACCEL_Y is not None and data.ACCEL_Z is not None:
             self._graph_ui.update_accel_xyz(data.ACCEL_X, data.ACCEL_Y, data.ACCEL_Z)
@@ -340,9 +334,9 @@ class DataProcessor(QObject):
             GPS_SATS     = self._field(fields, 20),
             CMD_ECHO     = self._field(fields, 21),
             PACKET_RECV  = self._graph_ui.get_packet_count(),
-            QUATERNION_X = self._parse_float(self._field(fields, 22)),
-            QUATERNION_Y = self._parse_float(self._field(fields, 23)),
-            QUATERNION_Z = self._parse_float(self._field(fields, 24)),
+            POS_ROLL     = self._parse_float(self._field(fields, 22)),
+            POS_PITCH    = self._parse_float(self._field(fields, 23)),
+            POS_YAW      = self._parse_float(self._field(fields, 24)),
             VELOCITY_X   = self._parse_float(self._field(fields, 25)),
             VELOCITY_Y   = self._parse_float(self._field(fields, 26)),
             VELOCITY_Z   = self._parse_float(self._field(fields, 27)),
@@ -376,30 +370,3 @@ class DataProcessor(QObject):
             return int(float(value))
         except ValueError:
             return None
-        
-    def _quaternion_w(self, x, y, z):
-        return math.sqrt(max(0.0, 1.0 - (x * x + y * y + z * z)))
-
-    def _quaternion_to_euler_degrees(self, w, x, y, z):
-        norm = math.sqrt(w * w + x * x + y * y + z * z)
-        if norm == 0.0:
-            return None
-
-        w /= norm
-        x /= norm
-        y /= norm
-        z /= norm
-
-        sinr_cosp = 2.0 * (w * x + y * z)
-        cosr_cosp = 1.0 - 2.0 * (x * x + y * y)
-        roll = math.degrees(math.atan2(sinr_cosp, cosr_cosp))
-
-        sinp = 2.0 * (w * y - z * x)
-        sinp = max(-1.0, min(1.0, sinp))
-        pitch = math.degrees(math.asin(sinp))
-
-        siny_cosp = 2.0 * (w * z + x * y)
-        cosy_cosp = 1.0 - 2.0 * (y * y + z * z)
-        yaw = math.degrees(math.atan2(siny_cosp, cosy_cosp)) % 360.0
-
-        return roll, pitch, yaw

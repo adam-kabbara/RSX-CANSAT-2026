@@ -18,6 +18,7 @@
 #include "eeprom.hpp"
 #include "runcam.hpp"
 #include "GPS.hpp"
+#include "runcam.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,11 +78,10 @@ private:
 	void EEPROM_Init();
 	void EEPROM_saveRecovery();
 
-	I2C_HandleTypeDef *gps_hi2c = nullptr;
 	GPS gps_parser;
-	gps_data internal_gps_storage;
-	char gps_nmea_buffer[100];
-	uint8_t gps_buf_idx = 0; // counter tracking string length
+
+	RunCam ground_camera;
+	RunCam payload_camera;
 
 public:
 
@@ -109,7 +109,6 @@ public:
 	void BNO_RotateY(BNO085_t *bno_dev, float angle_rad);
 	void getRawGyro(float* data_out);
 	struct rpy_data getCalibratedGyro(float* calib_bias);
-
 	struct rpy_data getIMUData();
 
 	void getGameRotationVector(float* data_out);
@@ -122,7 +121,16 @@ public:
 	void getRawMag(float* data_out);
 
 	void updateGPS();
-	struct gps_data getGPSData();
+	float getGPS_alt();
+	float getGPS_lat();
+	float getGPS_lon();
+	int getGPS_sat();
+	float getGPS_cog();
+	float getGPS_rms();
+	float getGPS_sog();
+	void GPS_dataReadyOff();
+	bool GPS_dataReady();
+	void getGPSTime(char time_str[DATA_SIZE]);
 
 	cam_status getCameraStatus();
 	void toggleCamera1();
@@ -130,7 +138,6 @@ public:
 
 	void setRTCTime(uint8_t h, uint8_t m, uint8_t s);
 	void getRTCTime(char time_str[DATA_SIZE]);
-	void getGPSTime(char time_str[DATA_SIZE]);
 
 	void activate_egg_release();
 	void activate_nosecone_release();
@@ -144,6 +151,8 @@ public:
 	void writeMotor(uint8_t dir, uint32_t time_ms);
 	void stopMotor();
 	void updateMotor();
+	void writeAileronServoPPM(uint16_t val);
+	void writeElevatorServoPPM(uint16_t val);
 
 	void EEPROM_resetLog();
 	void EEPROM_updateAltitude(float alt);
@@ -159,6 +168,11 @@ public:
 	struct recovery_data EEPROM_getRecoveryData();
 	bool EEPROM_addLogLine(char *buffer);
 	void EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &serial);
+
+	void ground_runcam_start();
+	void payload_runcam_start();
+	void ground_runcam_stop();
+	void payload_runcam_stop();
 
 	void startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
 			SPI_HandleTypeDef *hspi_eeprom, GPIO_TypeDef *cs_port, uint16_t cs_pin,

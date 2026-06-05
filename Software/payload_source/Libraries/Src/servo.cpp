@@ -31,6 +31,8 @@ void Servo::Init(TIM_HandleTypeDef *htim, uint32_t channel, uint16_t minPPMPulse
 /* ::::::::::::::: Position ::::::::::::::: */
 void Servo::SetPPMPulseWidth(uint16_t width)
 {
+	if (width > MaxPPMPulseWidth) width = MaxPPMPulseWidth;
+	if (width < MinPPMPulseWidth) width = MinPPMPulseWidth;
 	__HAL_TIM_SET_COMPARE(_htim, _channel, PPMPulseWidth = width);
 }
 

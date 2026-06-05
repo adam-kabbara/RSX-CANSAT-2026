@@ -1,45 +1,32 @@
 #include "runcam.hpp"
-#include "serial_manager.hpp"
+//#include "serial_manager.hpp"
 
-extern SerialManager serial;
+//extern SerialManager serial;
 
 RunCam::RunCam() : tx_port(nullptr), tx_pin(0), rx_port(nullptr), rx_pin(0), is_recording(false) {}
 
-void RunCam::init(GPIO_TypeDef* tx_gpio_port, uint16_t tx_gpio_pin,
-                  GPIO_TypeDef* rx_gpio_port, uint16_t rx_gpio_pin)
+void RunCam::Init(CameraID id)
 {
-    tx_port = tx_gpio_port;
-    tx_pin  = tx_gpio_pin;
-    rx_port = rx_gpio_port;
-    rx_pin  = rx_gpio_pin;
+	if(id == CameraID::GROUND_CAMERA)
+	{
+		tx_port = G_CAM_OUT_GPIO_Port;
+		tx_pin  = G_CAM_OUT_Pin;
+		rx_port = G_CAM_IN_GPIO_Port;
+		rx_pin  = G_CAM_IN_Pin;
+	}
+	else
+	{
+		tx_port = PG_CAM_OUT_GPIO_Port;
+		tx_pin  = PG_CAM_OUT_Pin;
+		rx_port = PG_CAM_IN_GPIO_Port;
+		rx_pin  = PG_CAM_IN_Pin;
+	}
 
     // Spin up DWT cycle counter
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
     *((volatile uint32_t*)0xE0001FB0) = 0xC5ACCE55; // unlock DWT LAR
     DWT->CTRL |= (1UL << 0);
     DWT->CYCCNT = 0;
-
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOF_CLK_ENABLE();
-
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-    // TX pin — fast push-pull output, start HIGH (UART idle)
-    GPIO_InitStruct.Pin   = tx_pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    HAL_GPIO_Init(tx_port, &GPIO_InitStruct);
-    tx_port->BSRR = tx_pin; // idle HIGH
-
-    // RX pin — input with pull-up
-    GPIO_InitStruct.Pin  = rx_pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(rx_port, &GPIO_InitStruct);
-
-    HAL_Delay(100);
 }
 
 // 170 MHz / 115200 = 1476 cycles per bit
@@ -149,13 +136,13 @@ bool RunCam::probeDevice()
     return (sync_byte == 0xCC);
 }
 
-void RunCam::toggleRecording()
+void RunCam::startRecording()
 {
-    uint8_t packet[4] = {0xCC, 0x01, 0x01, 0x00};
+    uint8_t packet[4] = {0xCC, 0x01, 0x03, 0x00};
     packet[3] = compound_crc(packet, 3);
 
-    serial.sendInfoDataMsg("[RunCam] toggleRecording: sending {0x%02X, 0x%02X, 0x%02X, 0x%02X}",
-                           packet[0], packet[1], packet[2], packet[3]);
+    //serial.sendInfoDataMsg("[RunCam] toggleRecording: sending {0x%02X, 0x%02X, 0x%02X, 0x%02X}",
+                           //packet[0], packet[1], packet[2], packet[3]);
     sendPacket(packet, 4);
     is_recording = true;
     //serial.sendInfoDataMsg("[RunCam] toggleRecording: done, is_recording=%d", (int)is_recording);
@@ -169,6 +156,6 @@ void RunCam::stopRecording()
 	//serial.sendInfoDataMsg("[RunCam] toggleRecording: sending {0x%02X, 0x%02X, 0x%02X, 0x%02X}",
 						   //packet[0], packet[1], packet[2], packet[3]);
 	sendPacket(packet, 4);
-	is_recording = false;
+	is_recording = true;
 	//serial.sendInfoDataMsg("[RunCam] toggleRecording: done, is_recording=%d", (int)is_recording);
 }

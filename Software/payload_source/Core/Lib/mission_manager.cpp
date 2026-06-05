@@ -287,3 +287,19 @@ void MissionManager::enableLogfile()
 {
     logfile_chk = true;
 }
+
+void MissionManager::set_landing_coords(float lat, float lon)
+{
+	landing_coords[0] = lat;
+	landing_coords[1] = lon;
+}
+
+float MissionManager::get_landing_lat()
+{
+	return landing_coords[0];
+}
+
+float MissionManager::get_landing_lon()
+{
+	return landing_coords[1];
+}
