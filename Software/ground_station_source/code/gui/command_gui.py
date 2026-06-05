@@ -20,7 +20,8 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QSystemTrayIcon,
     QMessageBox,
-    QApplication, QAbstractItemView, QTableWidget, QTableWidgetItem, QHeaderView
+    QApplication, QAbstractItemView, QTableWidget, QTableWidgetItem, QHeaderView,
+    QSizePolicy
 )
 
 from command.commands import Commands
@@ -130,7 +131,7 @@ class CommandWindow(QMainWindow):
         # commands_group_box.setMinimumWidth(500)
         commands_layout = QVBoxLayout(commands_group_box)
         commands_layout.setContentsMargins(15, 20, 15, 15)
-        commands_layout.setSpacing(10)
+        commands_layout.setSpacing(8)
 
         self.button_actuation = QPushButton("ACTUATION")
         self.button_actuation.setFont(button_font)
@@ -607,6 +608,26 @@ class CommandWindow(QMainWindow):
             self.combo_select_port,
             self.button_refresh_ports
         ]
+
+        all_touch_widgets = (
+            self.buttons_main + self.buttons_adv + self.buttons_mission_control + 
+            self.buttons_actuation + self.buttons_setup + self.buttons_sensor + self.buttons_connection
+        )
+
+        for widget in all_touch_widgets:
+            if isinstance(widget, (QPushButton, QComboBox, QLineEdit)):
+                widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+                # if isinstance(widget, (QLineEdit, QComboBox)):
+                #     font = widget.font()
+                #     font.setPointSize(25)
+                #     widget.setFont(font)
+                if isinstance(widget, (QLineEdit, QComboBox)):
+                    widget.setStyleSheet(widget.styleSheet() + """
+                        QLineEdit, QComboBox { 
+                            font-size: 18px !important; 
+                        }
+                    """)
 
         self.get_log_overlay = QLabel("Logfile collection in progress.", self)
         self.get_log_overlay.setAlignment(Qt.AlignmentFlag.AlignCenter)
