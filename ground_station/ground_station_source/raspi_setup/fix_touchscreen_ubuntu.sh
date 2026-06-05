@@ -28,6 +28,16 @@ if ! xinput list >/dev/null 2>&1; then
 	exit 1
 fi
 
+for _ in $(seq 1 60); do
+	if xrandr --query | grep -q "^HDMI-2 connected"; then
+		break
+	fi
+	sleep 1
+done
+
+echo "=== XRANDR OUTPUT ===" >> "$LOGFILE"
+xrandr --query >> "$LOGFILE" 2>&1
+
 xinput map-to-output "wch.cn USB2IIC_CTP_CONTROL" HDMI-2 >> "$LOGFILE" 2>&1
 EXIT_CODE=$?
 
