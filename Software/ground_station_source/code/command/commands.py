@@ -109,6 +109,8 @@ class Commands(QObject):
                 self.print_signal.emit(f"Sent payload camera start command")
 
     def command__mec_release(self, mec_id):
+        self.print_signal.emit(f"REL:{mec_id}")
+        return
         if self._serial.send_data(self._cmd(op="MEC", val=f"REL:{mec_id}")):
             self.print_signal.emit(f'Sent force {["NOSECONE release", "CPL release", "WING DEPLOYMENT", "EGG release"][mec_id]} command')
 
