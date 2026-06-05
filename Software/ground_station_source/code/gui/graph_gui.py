@@ -274,7 +274,7 @@ class GraphWindow(QMainWindow):
         graph_parent_group.addWidget(sidebar_widget, stretch=25)
         graph_parent_group.setSpacing(10)
 
-        QTimer.singleShot(500, self.adjustSize)
+        QTimer.singleShot(500, lambda: self.setGeometry(0, 0, 1600, 900))
 
     def set_port_text_closed(self):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Port")].setText(cosmetics.data_status_red("CLOSED"))
