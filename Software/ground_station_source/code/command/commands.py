@@ -59,23 +59,23 @@ class Commands(QObject):
             self._serial.error_catch.emit("Enter a servo # and value btwn -90 and 90")
         elif servo_id == 0: # nosecone servo
             if servo_val not in range(-90, 91):
-                self._serial.error_catch.emit("Nosecone servo value must be between 0 and 90")
+                self._serial.error_catch.emit("Nosecone servo value must be between -90 and 90")
                 return
         elif servo_id == 1: # container servo
             if servo_val not in range(-30, 91):
-                self._serial.error_catch.emit("Container servo value must be between 0 and 90")
+                self._serial.error_catch.emit("Container servo value must be between -30 and 90")
                 return
         elif servo_id == 2: # elevation servo
             if servo_val not in range(0, 56):
-                self._serial.error_catch.emit("Elevation servo value must be between -90 and 90")
+                self._serial.error_catch.emit("Elevation servo value must be between 0 and 55")
                 return
         elif servo_id == 3: # aileron servo
-            if servo_val not in range(-60, 91):
+            if servo_val not in range(-90, 61):
                 self._serial.error_catch.emit("Aileron servo value must be between -60 and 60")
                 return
         elif servo_id == 4: # egg servo
-            if servo_val not in range(-55, 91):
-                self._serial.error_catch.emit("Egg servo value must be between -55 and 90")
+            if servo_val not in range(-30, 31):
+                self._serial.error_catch.emit("Egg servo value must be between -30 and 30")
                 return
         if self._serial.send_data(self._cmd(op="MEC", val=f"SERVO:{servo_id}|{servo_val}")):
             self.print_signal.emit(f"Sent command to program servo {servo_id} to {servo_val}")

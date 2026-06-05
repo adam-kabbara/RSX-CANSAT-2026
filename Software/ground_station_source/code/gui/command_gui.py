@@ -389,11 +389,11 @@ class CommandWindow(QMainWindow):
         set_dc_motor_box.addWidget(self.dc_motor_val_field)
 
         self.SERVO_PLACEHOLDER = {
-            0: "Angle (0=closed, 90=open)",
-            1: "Angle (0=closed, 90=open)",
-            2: "Angle (-90=down, 90=up)",
-            3: "Angle (-60=left, 60=right)",
-            4: "Angle (-55=hold, 90=release)",
+            0: "-30=release, 30=lock)",
+            1: "-30=closed, 90=open",
+            2: "0 to 55",
+            3: "[min] to 60",
+            4: "-30=lock, 90=release",
         }
 
         program_servo_box = QHBoxLayout()
