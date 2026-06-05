@@ -688,7 +688,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = G_CAM_OUT_Pin|PG_CAM_OUT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
   /*Configure GPIO pins : SERVO_WING_DIR_Pin SERVO_WING_PWM_Pin SPI_CS_GPIO_OUT_Pin */
@@ -701,7 +701,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : PG_CAM_IN_Pin */
   GPIO_InitStruct.Pin = PG_CAM_IN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(PG_CAM_IN_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : IMU_INT_Pin */
@@ -713,7 +713,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : G_CAM_IN_Pin */
   GPIO_InitStruct.Pin = G_CAM_IN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(G_CAM_IN_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PB8 */

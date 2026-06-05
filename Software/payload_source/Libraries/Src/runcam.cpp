@@ -92,14 +92,16 @@ uint8_t RunCam::bitBangReadByte()
 {
     uint8_t byte = 0;
 
-    // wait for start bit (RX drops LOW) — 100 ms timeout using DWT
+    // 1. Wait for start bit (RX drops LOW) with interrupts ENABLED
     uint32_t start = DWT->CYCCNT;
     while ((rx_port->IDR & rx_pin) != 0) {
-        if ((DWT->CYCCNT - start) > (170000UL * 100)) {
-            serial.sendErrorMsg("[RunCam] bitBangReadByte: timeout — no start bit");
+        if ((DWT->CYCCNT - start) > (170000UL * 100)) { // 100ms timeout
             return 0x00;
         }
     }
+
+    // 2. Start bit detected! Immediately mask interrupts to lock timing
+    __disable_irq();
 
     // Step to the middle of the start bit, then precisely jump bit by bit
     uint32_t target_cycle = DWT->CYCCNT + 738; 
@@ -107,8 +109,8 @@ uint8_t RunCam::bitBangReadByte()
     // 8 data bits
     for (int i = 0; i < 8; i++) {
         target_cycle += 1476;
-        while (DWT->CYCCNT < target_cycle); // Wait for the exact absolute cycle window
-        
+        while ((int32_t)(target_cycle - DWT->CYCCNT) > 0); 
+
         if ((rx_port->IDR & rx_pin) != 0) {
             byte |= (1 << i);
         }
@@ -116,7 +118,10 @@ uint8_t RunCam::bitBangReadByte()
 
     // Wait for stop bit window to clear out
     target_cycle += 1476;
-    while (DWT->CYCCNT < target_cycle);
+    while ((int32_t)(target_cycle - DWT->CYCCNT) > 0);
+
+    // 3. Release interrupts back to the system
+    __enable_irq();
 
     return byte;
 }
@@ -134,17 +139,13 @@ bool RunCam::probeDevice()
     uint8_t packet[3] = {0xCC, 0x00, 0x00};
     packet[2] = compound_crc(packet, 2);
 
-    serial.sendInfoDataMsg("[RunCam] probeDevice: RX idle=%d (expect 1)", (rx_port->IDR & rx_pin) ? 1 : 0);
-    serial.sendInfoDataMsg("[RunCam] probeDevice: sending {0x%02X, 0x%02X, 0x%02X}", packet[0], packet[1], packet[2]);
-
+    // sendPacket handles its own brief __disable_irq() block internally
     sendPacket(packet, 3);
-    HAL_Delay(10); // give camera time to respond
-
-    __disable_irq();
+    
+    // Read the response byte with interrupts active during the idle wait
     uint8_t sync_byte = bitBangReadByte();
-    __enable_irq();
 
-    serial.sendInfoDataMsg("[RunCam] probeDevice: got 0x%02X (expect 0xCC)", sync_byte);
+    // Expecting 0xCC back from the camera
     return (sync_byte == 0xCC);
 }
 
@@ -156,6 +157,18 @@ void RunCam::toggleRecording()
     serial.sendInfoDataMsg("[RunCam] toggleRecording: sending {0x%02X, 0x%02X, 0x%02X, 0x%02X}",
                            packet[0], packet[1], packet[2], packet[3]);
     sendPacket(packet, 4);
-    is_recording = !is_recording;
-    serial.sendInfoDataMsg("[RunCam] toggleRecording: done, is_recording=%d", (int)is_recording);
+    is_recording = true;
+    //serial.sendInfoDataMsg("[RunCam] toggleRecording: done, is_recording=%d", (int)is_recording);
+}
+
+void RunCam::stopRecording()
+{
+	uint8_t packet[4] = {0xCC, 0x01, 0x04, 0x00};
+	packet[3] = compound_crc(packet, 3);
+
+	//serial.sendInfoDataMsg("[RunCam] toggleRecording: sending {0x%02X, 0x%02X, 0x%02X, 0x%02X}",
+						   //packet[0], packet[1], packet[2], packet[3]);
+	sendPacket(packet, 4);
+	is_recording = false;
+	//serial.sendInfoDataMsg("[RunCam] toggleRecording: done, is_recording=%d", (int)is_recording);
 }
