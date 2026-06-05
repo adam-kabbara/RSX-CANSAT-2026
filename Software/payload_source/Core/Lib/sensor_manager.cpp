@@ -674,6 +674,21 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 		serial.sendErrorMsg("GPS Init failed");
 	}
 
+	HAL_Delay(100);
+
+	ground_camera.Init(CameraID::GROUND_CAMERA);
+	payload_camera.Init(CameraID::PAYLOAD_CAMERA);
+
+	if (!ground_camera.probeDevice())
+	{
+		serial.sendErrorMsg("Ground Camera Init failed");
+	}
+
+	if (!payload_camera.probeDevice())
+	{
+		serial.sendErrorMsg("Payload Camera Init failed");
+	}
+
     HAL_Delay(100);
 
 	if(!DS1307_Init(hi2c1))
@@ -727,16 +742,6 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	}
 	EEPROM_Init();
 
-	cam1_dev.init(G_CAM_OUT_GPIO_Port, G_CAM_OUT_Pin, G_CAM_IN_GPIO_Port, G_CAM_IN_Pin);
-	cam2_dev.init(PG_CAM_OUT_GPIO_Port, PG_CAM_OUT_Pin, PG_CAM_IN_GPIO_Port, PG_CAM_IN_Pin);
-
-	if(!cam1_dev.probeDevice()) {
-        serial.sendErrorMsg("Warning: RunCam 1 Handshake Communication timed out.\r\n");
-    }
-	if(!cam2_dev.probeDevice()) {
-        serial.sendErrorMsg("Warning: RunCam 2 Handshake Communication timed out.\r\n");
-    }
-
 	HAL_Delay(100);
 
 	servo_nosecone.Init(htim4, TIM_CHANNEL_2, 500, 2500, 90, -90);
@@ -744,11 +749,6 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	servo_elevator.Init(htim3, TIM_CHANNEL_1, 500, 2500, 90, -90);
 	servo_aileron.Init(htim3, TIM_CHANNEL_2, 500, 2500, 90, -90);
 	servo_egg.Init(htim3, TIM_CHANNEL_3, 500, 2500, 90, -90);
-
-	HAL_Delay(100);
-
-	ground_camera.Init(CameraID::GROUND_CAMERA);
-	payload_camera.Init(CameraID::PAYLOAD_CAMERA);
 
 	HAL_Delay(100);
 
