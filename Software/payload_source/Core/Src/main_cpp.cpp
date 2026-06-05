@@ -326,20 +326,32 @@ extern "C" void main_cpp()
             if (!plan_done && mission_mgr.getOpState() == PROBE_RELEASE)
             {
                 rsx::GuidanceParams gp;
-                // start = where descent began, land = target — BOTH in the EKF's NED frame:
-                float pos[3];
+
+                // start = current position/heading at deploy — BOTH in the EKF's NED frame:
+                float pos[3], vel[3], q[4], rpy[3];
                 ekf_get_pos(pos);
+                ekf_get_vel(vel);
+                ekf_get_quaternion(q);
+                quat_to_rpy(q, rpy);                 // rpy[2] = yaw
+
                 gp.start_n = pos[0];
                 gp.start_e = pos[1];
                 gp.start_d = pos[2];
 
+                // deploy heading (RESPECTED): course-over-ground if moving, else attitude yaw
+                float vh = sqrtf(vel[0]*vel[0] + vel[1]*vel[1]);
+                gp.start_heading = (vh > 2.0f) ? atan2f(vel[1], vel[0])   // atan2(vE, vN)
+                                               : rpy[2];                    // yaw fallback
+
+                // landing target from mission config (not return-to-home)
                 float land_ne[2];
                 convert_gps_to_local_ned2(mission_mgr.get_landing_lat(), mission_mgr.get_landing_lon(), 0.0f, land_ne);
-                gp.land_n  = land_ne[0];
+                gp.land_n = land_ne[0];
                 gp.land_e = land_ne[1];
-                gp.land_d  = 0.0f;                                  // ground = launch level (Down=0)
-                gp.land_heading = 0.0f;                 // into wind
+                gp.land_d = 0.0f;                    // ground = launch level (Down = 0)
+
                 gp.glide_ratio  = 3.0f;
+
                 guidance.setParams(gp);
                 rsx::PlanStatus st = guidance.plan();
                 serial.sendInfoDataMsg("Plan status=%d", (int)st);
