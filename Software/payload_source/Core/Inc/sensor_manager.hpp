@@ -145,6 +145,8 @@ public:
 	void writeMotor(uint8_t dir, uint32_t time_ms);
 	void stopMotor();
 	void updateMotor();
+	void writeAileronServoPPM(uint16_t val);
+	void writeElevatorServoPPM(uint16_t val);
 
 	void EEPROM_resetLog();
 	void EEPROM_updateAltitude(float alt);

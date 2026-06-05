@@ -408,7 +408,9 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
   {
     ser.sendInfoMsg("Starting auto calibration...");
     sensors.BNO_calibrate(ser);
-    int gyro_acc, accel_acc, mag_acc = 0;
+    int gyro_acc = 0;
+    int accel_acc = 0;
+    int mag_acc = 0;
     float * rawRotVec = new float[5];
     float * rawAccel = new float[4];
     float * rawMag = new float[4];
@@ -702,6 +704,6 @@ void CommandManager::do_gps(SerialManager &ser, MissionManager &info, SensorMana
 		return;
 	}
 
-	//TODO: Finish
-
+	info.set_landing_coords(vals[0], vals[1]);
+	ser.sendInfoDataMsg("Set landing coords to %.4f %.4f", info.get_landing_lat(), info.get_landing_lon());
 }

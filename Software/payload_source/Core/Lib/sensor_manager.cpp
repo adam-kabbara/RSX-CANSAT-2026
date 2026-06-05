@@ -330,7 +330,7 @@ void SensorManager::getRTCTime(char time_str[DATA_SIZE])
 
 void SensorManager::activate_egg_release()
 {
-	// writeEggServo(90);
+	writeEggServo(90);
 }
 
 void SensorManager::activate_wing_deployment()
@@ -365,6 +365,16 @@ void SensorManager::writeElevatorServo(float val)
 void SensorManager::writeAileronServo(float val)
 {
 	servo_aileron.SetAngle(val);
+}
+
+void SensorManager::writeElevatorServoPPM(uint16_t val)
+{
+	servo_elevator.SetPPMPulseWidth(val);
+}
+
+void SensorManager::writeAileronServoPPM(uint16_t val)
+{
+	servo_aileron.SetPPMPulseWidth(val);
 }
 
 void SensorManager::writeEggServo(float val)

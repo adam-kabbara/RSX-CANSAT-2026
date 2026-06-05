@@ -68,6 +68,8 @@ void glider_ekf_update_gps(const float32_t* gps_pos_ne, const float32_t* gps_vel
  */
 void glider_ekf_update_compass(float32_t compass_yaw_rad, float32_t r_noise);
 
+void convert_gps_to_local_ned2(float curr_lat, float curr_lon, float curr_alt, float* current_pos_ne);
+
 #ifdef __cplusplus
 }
 #endif
