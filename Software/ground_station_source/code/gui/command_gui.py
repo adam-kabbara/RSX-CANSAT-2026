@@ -47,6 +47,8 @@ class CommandWindow(QMainWindow):
 
         super().__init__(parent)
 
+        self.setFixedSize(1920, 480)
+
         self.__set_time_id        = 0 # 0 for computer time, 1 for GPS time
         self.__camera_id          = 1
         self.__mec_id             = 0
@@ -116,16 +118,19 @@ class CommandWindow(QMainWindow):
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
 
-        grid_layout = QGridLayout(self.central_widget)
-        grid_layout.setHorizontalSpacing(10)
-        grid_layout.setVerticalSpacing(20)
-        grid_layout.setContentsMargins(10, 10, 10, 10)
+        # grid_layout = QGridLayout(self.central_widget)
+        # grid_layout.setHorizontalSpacing(10)
+        # grid_layout.setVerticalSpacing(20)
+        # grid_layout.setContentsMargins(10, 10, 10, 10)
 
         # ------ COMMANDS GROUP ------ #
-        commands_group_box = QGroupBox()
-        commands_group_box.setMinimumHeight(300)
-        commands_group_box.setMinimumWidth(500)
+        commands_group_box = QGroupBox(self.central_widget)
+        commands_group_box.setGeometry(0, 0, 640, 480)
+        # commands_group_box.setMinimumHeight(300)
+        # commands_group_box.setMinimumWidth(500)
         commands_layout = QVBoxLayout(commands_group_box)
+        commands_layout.setContentsMargins(15, 20, 15, 15)
+        commands_layout.setSpacing(10)
 
         self.button_actuation = QPushButton("ACTUATION")
         self.button_actuation.setFont(button_font)
@@ -523,9 +528,9 @@ class CommandWindow(QMainWindow):
         # BACK button (universal)
         commands_layout.addWidget(self.button_back)
 
-        grid_layout.setColumnStretch(0,1)
+        # grid_layout.setColumnStretch(0,1)
 
-        grid_layout.addWidget(commands_group_box, 0, 0)
+        # grid_layout.addWidget(commands_group_box, 0, 0)
 
         # Store buttons in groups so we can control them later
         self.buttons_main = [
@@ -612,14 +617,18 @@ class CommandWindow(QMainWindow):
         # ------ END COMMANDS GROUP ------ #
 
         # ------  LOG GROUP ------ #
-        gui_log_widget = QWidget()
+        gui_log_widget = QWidget(self.central_widget)
         gui_log_layout = QVBoxLayout(gui_log_widget)
-        sat_log_widget = QWidget()
+        sat_log_widget = QWidget(self.central_widget)
         sat_log_layout = QVBoxLayout(sat_log_widget)
-        gui_log_widget.setFixedHeight(300)
-        gui_log_widget.setFixedWidth(500)
-        sat_log_widget.setFixedHeight(300)
-        sat_log_widget.setFixedWidth(500)
+        # gui_log_widget.setFixedHeight(300)
+        # gui_log_widget.setFixedWidth(500)
+        # sat_log_widget.setFixedHeight(300)
+        # sat_log_widget.setFixedWidth(500)
+        gui_log_widget.setGeometry(640, 0, 640, 480)
+        sat_log_widget.setGeometry(1280, 0, 640, 480)
+        gui_log_layout.setContentsMargins(10, 15, 10, 15)
+        sat_log_layout.setContentsMargins(10, 15, 10, 15)
 
         gui_log_title = QLabel("Command Log")
         gui_log_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -663,13 +672,13 @@ class CommandWindow(QMainWindow):
         sat_log_layout.addWidget(cansat_log_title)
         sat_log_layout.addWidget(self.cansat_log)
 
-        grid_layout.setColumnStretch(1,1)
+        # grid_layout.setColumnStretch(1,1)
 
-        grid_layout.addWidget(gui_log_widget, 0, 1)
+        # grid_layout.addWidget(gui_log_widget, 0, 1)
 
-        grid_layout.setColumnStretch(2,1)
+        # grid_layout.setColumnStretch(2,1)
 
-        grid_layout.addWidget(sat_log_widget, 0, 2)
+        # grid_layout.addWidget(sat_log_widget, 0, 2)
         # ------ END LOG GROUP ------ #
 
     def resizeEvent(self, event):
