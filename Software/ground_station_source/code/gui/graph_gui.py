@@ -141,10 +141,10 @@ class GraphWindow(QMainWindow):
             ("Mission Time", "00:00:00"),
             ("Packets", "0/0"),
             ("Satellites", "0"),
-            ("Accel XYZ", "0|0|0"),
-            ("Position", "0|0|0"),
             ("GPS Altitude", "0.0 m"),
             ("GPS Time", "00:00:00"),
+            ("Accel XYZ", "0|0|0"),
+            ("Position", "0|0|0"),
             ("CMD ECHO", "N/A")
         ]
 
