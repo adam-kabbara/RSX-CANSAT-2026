@@ -183,7 +183,6 @@ extern "C" void main_cpp()
         while(mission_mgr.getOpState() != IDLE)
         {
 			sensors.updateMotor();
-			sensors.updateGPS();
 			
             if(cmd_ready)
             {
@@ -276,65 +275,63 @@ extern "C" void main_cpp()
 					glider_ekf_predict_bno_mode(raw_accel, dt);
 					glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
 				}
-            }
-
-			if(sensors.GPS_dataReady())
-			{
-				sensors.GPS_dataReadyOff();
-				ekf_gps_update(sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt(), sensors.getGPS_sog(), sensors.getGPS_cog(), sensors.getGPS_rms());
-
-				if(plan_done)
+				sensors.updateGPS();
+				if(sensors.GPS_dataReady())
 				{
-					uint32_t now = HAL_GetTick();
-					float dt = (now - ctrl_timer) / 1000.0f;
-					if (dt <= 0.f) dt = 0.02f;
-					ctrl_timer = now;
+					sensors.GPS_dataReadyOff();
+					ekf_gps_update(sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt(), sensors.getGPS_sog(), sensors.getGPS_cog(), sensors.getGPS_rms());
 
-					// --- build guidance State from the EKF ---
-					rsx::State st;
-					float pos[3], vel[3], q[4], rpy[3];
-					ekf_get_pos(pos);
-					ekf_get_vel(vel);
-					ekf_get_quaternion(q);
-					quat_to_rpy(q, rpy);
-					st.n = pos[0]; st.e = pos[1]; st.d = pos[2];
-					st.vn = vel[0]; st.ve = vel[1]; st.vd = vel[2];
-					st.roll = rpy[0]; st.pitch = rpy[1]; st.yaw = rpy[2];
-
-					// --- guidance -> heading command ---
-					float target_heading = 0.0f;
-					if(mission_mgr.getFlightCtrl() == AUTONOMOUS)
+					if(plan_done)
 					{
-						rsx::HeadingCmd cmd = guidance.getHeading(st);
-						if(cmd.valid && cmd.phase != rsx::Phase::Landed)
+						uint32_t now = HAL_GetTick();
+						float dt = (now - ctrl_timer) / 1000.0f;
+						if (dt <= 0.f) dt = 0.02f;
+						ctrl_timer = now;
+
+						// --- build guidance State from the EKF ---
+						rsx::State st;
+						float pos[3], vel[3], q[4], rpy[3];
+						ekf_get_pos(pos);
+						ekf_get_vel(vel);
+						ekf_get_quaternion(q);
+						quat_to_rpy(q, rpy);
+						st.n = pos[0]; st.e = pos[1]; st.d = pos[2];
+						st.vn = vel[0]; st.ve = vel[1]; st.vd = vel[2];
+						st.roll = rpy[0]; st.pitch = rpy[1]; st.yaw = rpy[2];
+
+						// --- guidance -> heading command ---
+						float target_heading = 0.0f;
+						if(mission_mgr.getFlightCtrl() == AUTONOMOUS)
 						{
-							target_heading = cmd.heading;
+							rsx::HeadingCmd cmd = guidance.getHeading(st);
+							if(cmd.valid && cmd.phase != rsx::Phase::Landed)
+							{
+								target_heading = cmd.heading;
+								float speed = sqrtf(st.vn*st.vn + st.ve*st.ve + st.vd*st.vd);
+								uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt);
+								uint16_t elevator_pwm = controller.update_pitch_control(5.0f, st.vd, speed, st.pitch, dt);
+								sensors.writeAileronServoPPM(aileron_pwm);
+								sensors.writeElevatorServoPPM(elevator_pwm);
+							}
+						}
+						else
+						{
 							float speed = sqrtf(st.vn*st.vn + st.ve*st.ve + st.vd*st.vd);
 							uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt);
 							uint16_t elevator_pwm = controller.update_pitch_control(5.0f, st.vd, speed, st.pitch, dt);
 							sensors.writeAileronServoPPM(aileron_pwm);
 							sensors.writeElevatorServoPPM(elevator_pwm);
 						}
-					}
-					else
-					{
-						float speed = sqrtf(st.vn*st.vn + st.ve*st.ve + st.vd*st.vd);
-						uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt);
-						uint16_t elevator_pwm = controller.update_pitch_control(5.0f, st.vd, speed, st.pitch, dt);
-						sensors.writeAileronServoPPM(aileron_pwm);
-						sensors.writeElevatorServoPPM(elevator_pwm);
-					}
 
-					rsx::State s;
-					s.n = pos[0]; s.e = pos[1]; s.d = pos[2];
-					s.vn = vel[0]; s.ve = vel[1]; s.vd = vel[2];
-					s.roll = rpy[0]; s.pitch = rpy[1]; s.yaw = rpy[2];
+						rsx::State s;
+						s.n = pos[0]; s.e = pos[1]; s.d = pos[2];
+						s.vn = vel[0]; s.ve = vel[1]; s.vd = vel[2];
+						s.roll = rpy[0]; s.pitch = rpy[1]; s.yaw = rpy[2];
 
-					rsx::PlanStatus r = guidance.replan(s);
+						rsx::PlanStatus r = guidance.replan(s);
+					}
 				}
-			}
-
-            sensors.updateMotor();
+            }
 
             if (!plan_done && mission_mgr.getOpState() == PROBE_RELEASE)
             {
