@@ -88,6 +88,9 @@ BNO085_Status_t BNO085_GetData(BNO085_t *bno) {
 	uint16_t cargo = bno->packet_length > SHTP_HEADER_SIZE
 	                 ? (uint16_t)(bno->packet_length - SHTP_HEADER_SIZE) : 0U;
 	BNO085_ParseInputReport(bno, cargo);
+	//printf("[BNO] ch=%d len=%d d0=%02X d1=%02X d2=%02X d5=%02X\n",
+	       //shtpHeader[2], bno->packet_length,
+	       //shtpData[0], shtpData[1], shtpData[2], shtpData[5]);
 	return BNO085_OK;
 }
 
@@ -428,40 +431,39 @@ static BNO085_Status_t BNO085_SetFeatureCommand(BNO085_t *bno, uint8_t report_id
  * 	multiple [timestamp + report] pairs.
  */
 static void BNO085_ParseInputReport(BNO085_t *bno, uint16_t cargo_length) {
-	if(!bno || cargo_length == 0) { return; }
+    if(!bno || cargo_length == 0) { return; }
 
-	uint16_t offset = 0;
+    uint16_t offset = 0;
+    while(offset < cargo_length) {
+        uint8_t id = shtpData[offset];
 
-	while(offset < cargo_length) {
-		uint8_t report_id = shtpData[offset];
+        if(id == SHTP_REPORT_BASE_TIMESTAMP) {     // 0xFB: skip the 5-byte timestamp
+            offset += TIMESTAMP_RECORD_SIZE;
+            continue;
+        }
+        if(id == SHTP_REPORT_PRODUCT_ID_RESPONSE ||
+           id == SHTP_REPORT_COMMAND_RESPONSE     ||
+           id == SHTP_REPORT_GET_FEATURE_RESPONSE) {
+            BNO085_ParseReport(bno, &shtpData[offset]);
+            break;
+        }
 
-		if(report_id == SHTP_REPORT_BASE_TIMESTAMP) {
-			offset += TIMESTAMP_RECORD_SIZE;
-			if(offset >= cargo_length) { break; }
+        if(BNO085_ParseReport(bno, &shtpData[offset])) { bno->data_available = true; }
 
-			uint8_t inner_id = shtpData[offset];
-			if(BNO085_ParseReport(bno, &shtpData[offset])) { bno->data_available = true; }
-
-			// Advance by true report size so multi-report packets are handled correctly
-			switch(inner_id) {
-				case SENSOR_REPORTID_ROTATION_VECTOR:
-				case SENSOR_REPORTID_GAME_ROTATION_VECTOR:
-				case SENSOR_REPORTID_GEOMAGNETIC_ROTATION_VECTOR:
-					offset += 14; break;
-				default:
-					offset += 10; break;
-			}
-
-		} else if(report_id == SHTP_REPORT_PRODUCT_ID_RESPONSE ||
-		          report_id == SHTP_REPORT_COMMAND_RESPONSE     ||
-		          report_id == SHTP_REPORT_GET_FEATURE_RESPONSE) {
-			BNO085_ParseReport(bno, &shtpData[offset]);
-			break;
-
-		} else {
-			break;	// Unrecognised — stop to avoid runaway
-		}
-	}
+        // advance by this report's on-wire length
+        switch(id) {
+            case SENSOR_REPORTID_ROTATION_VECTOR:
+            case SENSOR_REPORTID_GEOMAGNETIC_ROTATION_VECTOR: offset += 14; break;
+            case SENSOR_REPORTID_GAME_ROTATION_VECTOR:        offset += 12; break;  // no accuracy field
+            case SENSOR_REPORTID_ACCELEROMETER:
+            case SENSOR_REPORTID_LINEAR_ACCELERATION:
+            case SENSOR_REPORTID_GYROSCOPE_CALIBRATED:
+            case SENSOR_REPORTID_MAGNETIC_FIELD:
+            case SENSOR_REPORTID_GRAVITY:                     offset += 10; break;
+            default:
+                return;   // unknown id mid-packet: bail to avoid runaway
+        }
+    }
 }
 
 /**

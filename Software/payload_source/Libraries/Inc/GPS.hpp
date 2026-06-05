@@ -2,6 +2,7 @@
 #define GPS_H
 
 #include "global_includes.hpp"
+#include "serial_manager.hpp"
 #include <cstring>
 #include <cstdlib>
 
@@ -21,7 +22,7 @@ extern "C" {
 class GPS {
 private:
 	struct gps_data {
-		char    time[DATA_SIZE] = "00:00:00";   // UTC, "hhmmss.ss"
+		char    time[DATA_SIZE] = "000000.00";   // UTC, "hhmmss.ss"
 		double  latitude;          // decimal degrees, +N / -S   (double, not float)
 		double  longitude;         // decimal degrees, +E / -W
 		char    ns, ew;            // raw hemisphere chars
@@ -64,7 +65,7 @@ public:
 	struct gps_data internal_gps_storage;
 	void GPS_Init(I2C_HandleTypeDef *i2c);
 	bool GPS_probe();
-	void GPS_update();
+	void GPS_update(SerialManager &serial);
 	static double nmeaToDecimalDegrees(const char* token);
 	static void ublox_parse_GGA(char *line, struct gps_data &data);
 	static void ublox_parse_GNS(char *line, struct gps_data &data);

@@ -2,26 +2,26 @@
 
 void GPS::GPS_configure_output(I2C_HandleTypeDef* i2c)
 {
-    uint8_t p[64];
-    uint16_t n = 0;
-    p[n++] = 0x00;   // version (0 = no transaction)
-    p[n++] = 0x01;   // layers: RAM  (re-send each boot)
-    p[n++] = 0x00;   // reserved
-    p[n++] = 0x00;
+	uint8_t p[64];
+	uint16_t n = 0;
+	p[n++] = 0x00;   // version (0 = no transaction)
+	p[n++] = 0x01;   // layers: RAM  (re-send each boot)
+	p[n++] = 0x00;   // reserved
+	p[n++] = 0x00;
 
-    // --- disable what we don't parse (value 0) ---
-    n = valset_add_u1(p, n, 0x209100BA, 0); // CFG-MSGOUT-NMEA_ID_GGA_I2C
-    n = valset_add_u1(p, n, 0x209100C9, 0); // GLL
-    n = valset_add_u1(p, n, 0x209100BF, 0); // GSA
-    n = valset_add_u1(p, n, 0x209100C4, 0); // GSV  <-- the big one
-    n = valset_add_u1(p, n, 0x209100B0, 0); // VTG
-    n = valset_add_u1(p, n, 0x209100D8, 0); // ZDA
-    // --- enable what we parse (value 1 = every epoch) ---
-    n = valset_add_u1(p, n, 0x209100B5, 1); // GNS  (lat/lon/alt/sats/time)
-    n = valset_add_u1(p, n, 0x209100AB, 1); // RMC  (speed/course)
-    n = valset_add_u1(p, n, 0x209100D3, 1); // GST  (accuracy/rms)
+	// --- disable what we don't parse (value 0) ---
+	n = valset_add_u1(p, n, 0x209100BA, 0); // CFG-MSGOUT-NMEA_ID_GGA_I2C
+	n = valset_add_u1(p, n, 0x209100C9, 0); // GLL
+	n = valset_add_u1(p, n, 0x209100BF, 0); // GSA
+	n = valset_add_u1(p, n, 0x209100C4, 0); // GSV  <-- the big one
+	n = valset_add_u1(p, n, 0x209100B0, 0); // VTG
+	n = valset_add_u1(p, n, 0x209100D8, 0); // ZDA
+	// --- enable what we parse (value 1 = every epoch) ---
+	n = valset_add_u1(p, n, 0x209100B5, 1); // GNS  (lat/lon/alt/sats/time)
+	n = valset_add_u1(p, n, 0x209100AB, 1); // RMC  (speed/course)
+	n = valset_add_u1(p, n, 0x209100D3, 1); // GST  (accuracy/rms)
 
-    ubx_send(i2c, 0x06, 0x8A, p, n);        // CFG-VALSET
+	ubx_send(i2c, 0x06, 0x8A, p, n);        // CFG-VALSET
 }
 
 bool GPS::ubx_send(I2C_HandleTypeDef* i2c, uint8_t cls, uint8_t id,
@@ -57,7 +57,7 @@ void GPS::GPS_Init(I2C_HandleTypeDef *i2c)
 	gps_buf_idx = 0;
 	internal_gps_storage = gps_data{};
 	HAL_Delay(100);
-	GPS_configure_output(i2c);
+	//GPS_configure_output(i2c);
 }
 
 bool GPS::GPS_probe() 
@@ -74,40 +74,38 @@ bool GPS::GPS_probe()
     return true; // device responded
 }
 
-void GPS::GPS_update()
+void GPS::GPS_update(SerialManager &serial)
 {
-	if (gps_hi2c == nullptr) return;
+    if (gps_hi2c == nullptr) return;
 
-	// 1. How many bytes are available? (0xFD = MSB, 0xFE = LSB)
-	uint8_t reg = 0xFD, avail[2];
-	if (HAL_I2C_Master_Transmit(gps_hi2c, UBLOX_I2C_ADDR, &reg, 1, 5) != HAL_OK) return;
-	if (HAL_I2C_Master_Receive (gps_hi2c, UBLOX_I2C_ADDR, avail, 2, 5) != HAL_OK) return;
+    // count: read 0xFD/0xFE with proper register addressing (repeated-start)
+    uint8_t avail[2];
+    if (HAL_I2C_Mem_Read(gps_hi2c, UBLOX_I2C_ADDR, 0xFD,
+                         I2C_MEMADD_SIZE_8BIT, avail, 2, 5) != HAL_OK) return;
 
-	uint16_t n = ((uint16_t)avail[0] << 8) | avail[1];
-	if (n == 0) return;                       // nothing waiting -> return immediately, no stall
+    uint16_t n = ((uint16_t)avail[0] << 8) | avail[1];
+    if (n == 0 || n == 0xFFFF) return;          // empty / no data
 
-	// 2. Bound the work per call so one burst can't hog the loop
-	static const uint16_t MAX_PER_CALL = 256;
-	if (n > MAX_PER_CALL) n = MAX_PER_CALL;   // leftover drains on the next call
+    static const uint16_t MAX_PER_CALL = 64;
+    if (n > MAX_PER_CALL) n = MAX_PER_CALL;
 
-	// 3. Read the whole chunk in ONE transaction (stream register 0xFF)
-	uint8_t reg2 = 0xFF, chunk[MAX_PER_CALL];
-	if (HAL_I2C_Master_Transmit(gps_hi2c, UBLOX_I2C_ADDR, &reg2, 1, 5) != HAL_OK) return;
-	if (HAL_I2C_Master_Receive (gps_hi2c, UBLOX_I2C_ADDR, chunk, n, 20) != HAL_OK) return;
+    // stream: read N bytes from 0xFF
+    uint8_t chunk[MAX_PER_CALL];
+    if (HAL_I2C_Mem_Read(gps_hi2c, UBLOX_I2C_ADDR, 0xFF,
+                         I2C_MEMADD_SIZE_8BIT, chunk, n, 50) != HAL_OK) return;
 
-	// 4. Feed bytes into the line assembler (gps_buf_idx persists across calls)
-	for (uint16_t i = 0; i < n; ++i) {
-		uint8_t b = chunk[i];
-		if (b == 0xFF) continue;              // filler
-		if (b == '$') gps_buf_idx = 0;
-		if (gps_buf_idx < sizeof(gps_nmea_buffer) - 1)
-			gps_nmea_buffer[gps_buf_idx++] = (char)b;
-		if (b == '\n') {
-			gps_nmea_buffer[gps_buf_idx] = '\0';
-			ublox_parse(gps_nmea_buffer, internal_gps_storage);  // parse in place
-			gps_buf_idx = 0;
-		}
-	}
+    for (uint16_t i = 0; i < n; ++i) {
+        uint8_t b = chunk[i];
+        if (b == 0xFF) continue;
+        if (b == '$') gps_buf_idx = 0;
+        if (gps_buf_idx < sizeof(gps_nmea_buffer) - 1)
+            gps_nmea_buffer[gps_buf_idx++] = (char)b;
+        if (b == '\n') {
+            gps_nmea_buffer[gps_buf_idx] = '\0';
+            ublox_parse(gps_nmea_buffer, internal_gps_storage);
+            gps_buf_idx = 0;
+        }
+    }
 }
 
 double GPS::nmeaToDecimalDegrees(const char* token) {

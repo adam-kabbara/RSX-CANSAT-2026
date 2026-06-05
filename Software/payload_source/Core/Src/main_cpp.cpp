@@ -120,16 +120,21 @@ extern "C" void main_cpp()
     char cmd_buff[CMD_BUFF_SIZE];
     char send_buff[DATA_BUFF_SIZE];
 
+    HAL_TIM_Base_Start_IT(&htim2);
+
     while(1)
     {
         while(mission_mgr.getOpState() == IDLE)
         {
-			sensors.updateGPS();
-			if(sensors.BNO_dataReady())
-			{
-				sensors.updateBNO();
-			}
-			sensors.updateMotor();
+        	if(bno_flag)
+        	{
+        		bno_flag = 0;
+        		sensors.updateGPS(serial);
+				if(sensors.BNO_dataReady())
+				{
+					sensors.updateBNO();
+				}
+        	}
 
             if(cmd_ready)
             {
@@ -142,6 +147,7 @@ extern "C" void main_cpp()
                 }
 
             }
+            sensors.updateMotor();
             HAL_Delay(10);
         }
 
@@ -165,12 +171,15 @@ extern "C" void main_cpp()
 				}
 				HAL_Delay(10);
 
-				sensors.updateGPS();
-				if(sensors.BNO_dataReady())
+				if(bno_flag)
 				{
-					sensors.updateBNO();
+					bno_flag = 0;
+					sensors.updateGPS(serial);
+					if(sensors.BNO_dataReady())
+					{
+						sensors.updateBNO();
+					}
 				}
-				sensors.updateMotor();
             }
         }
 
@@ -178,7 +187,6 @@ extern "C" void main_cpp()
 
         HAL_TIM_Base_Start_IT(&htim1);
         HAL_TIM_Base_Start_IT(&htim8);
-        HAL_TIM_Base_Start_IT(&htim2);
 
         while(mission_mgr.getOpState() != IDLE)
         {
@@ -255,12 +263,18 @@ extern "C" void main_cpp()
 				}
 
 				update_flag = 0;
+				static float angle = 0.0f;
+				angle += 0.05f;
+				uint16_t test_pwm = 1500 + (int16_t)(300.0f * sinf(angle));
+
+				sensors.writeAileronServoPPM(test_pwm);
             }
 
             if(bno_flag)
             {
             	bno_flag = 0;
-				if(sensors.BNO_dataReady())
+
+            	if(sensors.BNO_dataReady())
 				{
 					sensors.updateBNO();
 					float raw_accel[4];
@@ -275,7 +289,8 @@ extern "C" void main_cpp()
 					glider_ekf_predict_bno_mode(raw_accel, dt);
 					glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
 				}
-				sensors.updateGPS();
+
+				sensors.updateGPS(serial);
 				if(sensors.GPS_dataReady())
 				{
 					sensors.GPS_dataReadyOff();
@@ -371,7 +386,6 @@ extern "C" void main_cpp()
 
         HAL_TIM_Base_Stop_IT(&htim1);
         HAL_TIM_Base_Stop_IT(&htim8);
-        HAL_TIM_Base_Stop_IT(&htim2);
 
         mission_mgr.reset_params();
         mission_mgr.waitingForSimp();
@@ -476,7 +490,7 @@ OperatingState update_state(SensorManager &sensors, MissionManager &mgr, Operati
 			}
 			else
 			{
-				if(HAL_GetTick()-egg_timer>=EGG_TIMING_BUDGET_MS && mgr.calculate_median_alt() < mgr.get_max_alt() * 0.77)
+				if(HAL_GetTick()-egg_timer>=EGG_TIMING_BUDGET_MS && mgr.calculate_median_alt() < mgr.get_max_alt() * 0.78)
 				{
 					if(!mgr.wing_check())
 					{

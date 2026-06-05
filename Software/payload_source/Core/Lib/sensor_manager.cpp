@@ -138,8 +138,9 @@ void SensorManager::BNO_RotateY(BNO085_t *bno_dev, float angle_rad)
 
 void SensorManager::updateBNO()
 {
-	BNO_RotateY(&bno_dev, M_PI / 2.0f); // rotate sensor data 90 degrees around Y axis to match CPL's frame of reference
 	BNO085_GetData(&bno_dev);
+	BNO_RotateY(&bno_dev, M_PI / 2.0f); // rotate sensor data 90 degrees around Y axis to match CPL's frame of reference
+	//printf("Gyro=%.4f\r\n", bno_dev.gyro.x);
 }
 
 void SensorManager::getRawGyro(float* data_out)
@@ -243,9 +244,9 @@ void SensorManager::getRawMag(float* data_out)
 	data_out[3] = bno_dev.mag.accuracy;
 }
 
-void SensorManager::updateGPS()
+void SensorManager::updateGPS(SerialManager &serial)
 {
-    gps_parser.GPS_update();
+    gps_parser.GPS_update(serial);
 }
 
 void SensorManager::getGPSTime(char time_str[DATA_SIZE])

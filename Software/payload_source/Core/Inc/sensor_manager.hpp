@@ -116,7 +116,7 @@ public:
 
 	void getRawMag(float* data_out);
 
-	void updateGPS();
+	void updateGPS(SerialManager &serial);
 	float getGPS_alt();
 	float getGPS_lat();
 	float getGPS_lon();

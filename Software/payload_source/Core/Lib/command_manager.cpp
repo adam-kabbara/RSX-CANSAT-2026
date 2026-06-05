@@ -191,7 +191,7 @@ void CommandManager::do_st(SerialManager &ser, MissionManager &info, SensorManag
     {
         char time_str[DATA_SIZE];
         char rtc_time_str[DATA_SIZE];
-        sensors.updateGPS();
+        sensors.updateGPS(ser);
         sensors.getGPSTime(time_str);
         if(sscanf(time_str, "%d:%d:%d", &h, &m, &s) == 3)
         {
@@ -425,9 +425,10 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
       gyro_acc = (int)rawRotVec[4];
       accel_acc = (int)rawAccel[3];
       mag_acc = (int)rawMag[3];
-      if (i % 100 == 0) {
+      if (i % 10 == 0) {
         ser.sendInfoDataMsg("Current calibration accuracy - Gyro: %d, Accel: %d, Mag: %d", gyro_acc, accel_acc, mag_acc);
       }
+      i++;
       HAL_Delay(50);
     }
     ser.sendInfoMsg("Calibration complete!");
