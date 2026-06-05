@@ -49,7 +49,7 @@ class CommandWindow(QMainWindow):
 
         self.__set_time_id        = 0 # 0 for computer time, 1 for GPS time
         self.__camera_id          = 1
-        self.__mec_id             = 1
+        self.__mec_id             = 0
         self.__servo_id           = 0 # first option is nosecone by gui default
         self.__servo_val          = -1
         self.__dc_motor_val       = 0
@@ -417,8 +417,8 @@ class CommandWindow(QMainWindow):
         program_camera_box = QHBoxLayout()
 
         self.camera_id_field = QComboBox()
-        self.camera_id_field.addItem("GROUND CAM")
-        self.camera_id_field.addItem("PAYLOAD CAM")
+        self.camera_id_field.addItem("GROUND CAM", 0)
+        self.camera_id_field.addItem("PAYLOAD CAM", 1)
         self.camera_id_field.setFont(button_font)
         self.camera_id_field.activated.connect(self.camera_id_edited)
 
@@ -441,10 +441,10 @@ class CommandWindow(QMainWindow):
 
         force_release_box = QHBoxLayout()
         self.mec_release_field = QComboBox()
-        self.mec_release_field.addItem("NOSECONE RELEASE")
-        self.mec_release_field.addItem("CPL RELEASE")
-        self.mec_release_field.addItem("WING DEPLOYMENT")
-        self.mec_release_field.addItem("EGG RELEASE")
+        self.mec_release_field.addItem("NOSECONE RELEASE", 0)
+        self.mec_release_field.addItem("CPL RELEASE", 1)
+        self.mec_release_field.addItem("WING DEPLOYMENT", 2)
+        self.mec_release_field.addItem("EGG RELEASE", 3)
         self.mec_release_field.setFont(button_font)
         self.mec_release_field.activated.connect(self.mec_rel_edited)
 
@@ -900,14 +900,14 @@ class CommandWindow(QMainWindow):
         self.__servo_val = int(self.servo_val_field.text())
 
     def camera_id_edited(self, index):
-        self.__camera_id = self.camera_id_field.itemText(index)
+        self.__camera_id = self.camera_id_field.itemData(index)
 
     def mec_rel_edited(self, index):
-        self.__mec_id = self.mec_release_field.itemText(index)
+        self.__mec_id = self.mec_release_field.itemData(index)
     
     def set_time_field_edited(self, index):
         self.__set_time_id = self.set_time_field.itemData(index)
-    
+
     def sim_mode_field_edited(self, index):
         self.__sim_mode = self.sim_mode_field.itemText(index)
 
