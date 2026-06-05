@@ -156,6 +156,6 @@ void RunCam::stopRecording()
 	//serial.sendInfoDataMsg("[RunCam] toggleRecording: sending {0x%02X, 0x%02X, 0x%02X, 0x%02X}",
 						   //packet[0], packet[1], packet[2], packet[3]);
 	sendPacket(packet, 4);
-	is_recording = true;
+	is_recording = false;
 	//serial.sendInfoDataMsg("[RunCam] toggleRecording: done, is_recording=%d", (int)is_recording);
 }
