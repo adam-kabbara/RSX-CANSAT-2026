@@ -341,11 +341,11 @@ void SensorManager::activate_wing_deployment()
 
 void SensorManager::activate_nosecone_release()
 {
-	// writeNoseconeServo(0);
+	writeNoseconeServo(-30);
 }
 void SensorManager::activate_probe_release()
 {
-	// writeContainerServo(0);
+	writeContainerServo(90);
 }
 
 void SensorManager::writeNoseconeServo(float val)
