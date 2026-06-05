@@ -900,10 +900,10 @@ class CommandWindow(QMainWindow):
         self.__servo_val = int(self.servo_val_field.text())
 
     def camera_id_edited(self, index):
-        self.__camera_id = self.camera_id_field.itemText(index)
+        self.__camera_id = self.camera_id_field.itemData(index)
 
     def mec_rel_edited(self, index):
-        self.__mec_id = self.mec_release_field.itemText(index)
+        self.__mec_id = self.mec_release_field.itemData(index)
     
     def set_time_field_edited(self, index):
         self.__set_time_id = self.set_time_field.itemData(index)
