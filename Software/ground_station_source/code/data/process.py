@@ -9,6 +9,7 @@ from dataclasses import dataclass, fields, asdict
 from PyQt6.QtCore import QObject, pyqtSignal
 from gui.graph_gui import GraphWindow
 from .simp import SimpManager
+from .audio_tts import AudioTTS
 
 current_telemetry_state = ""
 
@@ -67,6 +68,7 @@ class DataProcessor(QObject):
         self._write_to_log  = False
         self._graph_ui      = graph_ui
         self._simp          = simp
+        self._tts           = AudioTTS()
         self._csv_error_msg = ""
 
         self._csv_fields = [field.name for field in fields(TelemetryData)]
@@ -170,6 +172,7 @@ class DataProcessor(QObject):
             # Start sending SIMP commands
             if "SIM_START" in msg:
                 self._simp.simp_enable()
+                self._tts.speak("SIMP mode enabled")
                 return
 
             # Get logfile

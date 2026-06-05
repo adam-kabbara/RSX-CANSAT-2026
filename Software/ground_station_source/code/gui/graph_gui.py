@@ -6,6 +6,7 @@ from . import cosmetics
 from .gps_map import GPSMapWidget
 from .attitude_indicator import AttitudeIndicator
 from .joystick_indicator import JoystickIndicator
+from data.audio_tts import AudioTTS
 import os
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QIcon
@@ -39,6 +40,7 @@ class GraphWindow(QMainWindow):
         self._graph_time_window = 500 # how long data stays on graph
         self._current_state = "Unknown"
         self._state_flash_on = True
+        self._tts = AudioTTS()
 
         self.setWindowTitle("Live Data")
         icon_path = os.path.join(os.path.dirname(__file__), '..', 'media', 'icon.png')
@@ -325,6 +327,8 @@ class GraphWindow(QMainWindow):
             if state_str in self.state_labels:
                 current_state_index = self.state_label_index.get(state_str)
                 _last_state_index = self.state_label_index.get(self._current_state)
+                previous_state_spoken = self._format_state_for_speech(self._current_state)
+                new_state_spoken = self._format_state_for_speech(state_str)
 
                 if self._current_state != "Unknown":
                     # Populate a single stage
@@ -367,6 +371,10 @@ class GraphWindow(QMainWindow):
                 self._current_state = state_str
                 self._state_flash_on = True
                 self._update_current_state_label()
+                if previous_state_spoken == "Unknown":
+                    self._tts.speak(f"State changed to {new_state_spoken}")
+                else:
+                    self._tts.speak(f"State changed from {previous_state_spoken} to {new_state_spoken}")
 
     def reset_states(self):
         self._current_state = "Unknown"
@@ -389,6 +397,11 @@ class GraphWindow(QMainWindow):
         else:
             state_text = cosmetics.data_status_init_color(self._current_state)
         self.state_label.setText("Current: " + state_text)
+
+    def _format_state_for_speech(self, state_str):
+        if not state_str or state_str == "Unknown":
+            return "Unknown"
+        return state_str.replace("_", " ").strip().title()
 
     def update_mode(self, str):
         self.sidebar_data_labels[self.sidebar_data_dict.get("Mode")].setText(cosmetics.data_status_blue(str))

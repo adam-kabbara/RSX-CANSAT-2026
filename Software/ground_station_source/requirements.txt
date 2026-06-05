@@ -57,6 +57,8 @@ striprtf==0.0.29
     # via cx-freeze
 wheel==0.47.0
     # via pip-tools
+pygame==2.6.1
+    # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
