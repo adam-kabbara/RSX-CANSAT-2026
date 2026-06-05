@@ -7,10 +7,13 @@
 #include "serial_manager.hpp"
 #include "telemetry_manager.hpp"
 #include "command_manager.hpp"
+#include "PathGuidance.hpp"
+#include "controller.hpp"
 
 extern "C" volatile uint8_t send_flag;
 extern "C" volatile uint8_t pvd_flag;
 extern "C" volatile uint8_t update_flag;
+extern "C" volatile uint8_t bno_flag;
 extern "C" UART_HandleTypeDef huart1;
 extern "C" TIM_HandleTypeDef htim1;
 extern "C" TIM_HandleTypeDef htim2;
@@ -66,6 +69,12 @@ extern "C" void main_cpp()
 	sensors.startSensors(serial, &hi2c1, &hspi1, SPI_CS_GPIO_OUT_GPIO_Port, SPI_CS_GPIO_OUT_Pin, &htim2, &htim3, &htim4);
 
 	glider_ekf_init();
+
+	rsx::PathGuidance guidance;
+
+	FlightControllers controller(RollControllerConfig{}, PitchControllerConfig{}, ServoHardwareConfig{});
+	uint32_t ctrl_timer = 0;
+	bool plan_done = false;
 
     struct recovery_data recovery = sensors.EEPROM_getRecoveryData();
 
@@ -169,11 +178,11 @@ extern "C" void main_cpp()
 
         HAL_TIM_Base_Start_IT(&htim1);
         HAL_TIM_Base_Start_IT(&htim8);
+        HAL_TIM_Base_Start_IT(&htim2);
 
         while(mission_mgr.getOpState() != IDLE)
         {
 			sensors.updateMotor();
-			sensors.updateGPS();
 			
             if(cmd_ready)
             {
@@ -248,33 +257,121 @@ extern "C" void main_cpp()
 				update_flag = 0;
             }
 
-            if(sensors.BNO_dataReady())
+            if(bno_flag)
             {
-            	sensors.updateBNO();
-				float raw_accel[4];
-				sensors.getLinearAccel(raw_accel);
-				uint32_t current_time = HAL_GetTick();
-				float dt = (current_time - bno_update_timer) / 1000.0f;
-				if(dt <= 0) dt = 0.02f; // sanity check
-				bno_update_timer = current_time;
-				float bno_quat[5];
-				sensors.getGameRotationVector(bno_quat);
-				CPL_IMU_to_NED(raw_accel, bno_quat);
-				glider_ekf_predict_bno_mode(raw_accel, dt);
-				glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
+            	bno_flag = 0;
+				if(sensors.BNO_dataReady())
+				{
+					sensors.updateBNO();
+					float raw_accel[4];
+					sensors.getLinearAccel(raw_accel);
+					uint32_t current_time = HAL_GetTick();
+					float dt = (current_time - bno_update_timer) / 1000.0f;
+					if(dt <= 0) dt = 0.02f; // sanity check
+					bno_update_timer = current_time;
+					float bno_quat[5];
+					sensors.getGameRotationVector(bno_quat);
+					CPL_IMU_to_NED(raw_accel, bno_quat);
+					glider_ekf_predict_bno_mode(raw_accel, dt);
+					glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
+				}
+				sensors.updateGPS();
+				if(sensors.GPS_dataReady())
+				{
+					sensors.GPS_dataReadyOff();
+					ekf_gps_update(sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt(), sensors.getGPS_sog(), sensors.getGPS_cog(), sensors.getGPS_rms());
+
+					if(plan_done)
+					{
+						uint32_t now = HAL_GetTick();
+						float dt = (now - ctrl_timer) / 1000.0f;
+						if (dt <= 0.f) dt = 0.02f;
+						ctrl_timer = now;
+
+						// --- build guidance State from the EKF ---
+						rsx::State st;
+						float pos[3], vel[3], q[4], rpy[3];
+						ekf_get_pos(pos);
+						ekf_get_vel(vel);
+						ekf_get_quaternion(q);
+						quat_to_rpy(q, rpy);
+						st.n = pos[0]; st.e = pos[1]; st.d = pos[2];
+						st.vn = vel[0]; st.ve = vel[1]; st.vd = vel[2];
+						st.roll = rpy[0]; st.pitch = rpy[1]; st.yaw = rpy[2];
+
+						// --- guidance -> heading command ---
+						float target_heading = 0.0f;
+						if(mission_mgr.getFlightCtrl() == AUTONOMOUS)
+						{
+							rsx::HeadingCmd cmd = guidance.getHeading(st);
+							if(cmd.valid && cmd.phase != rsx::Phase::Landed)
+							{
+								target_heading = cmd.heading;
+								float speed = sqrtf(st.vn*st.vn + st.ve*st.ve + st.vd*st.vd);
+								uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt);
+								uint16_t elevator_pwm = controller.update_pitch_control(5.0f, st.vd, speed, st.pitch, dt);
+								sensors.writeAileronServoPPM(aileron_pwm);
+								sensors.writeElevatorServoPPM(elevator_pwm);
+							}
+						}
+						else
+						{
+							float speed = sqrtf(st.vn*st.vn + st.ve*st.ve + st.vd*st.vd);
+							uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt);
+							uint16_t elevator_pwm = controller.update_pitch_control(5.0f, st.vd, speed, st.pitch, dt);
+							sensors.writeAileronServoPPM(aileron_pwm);
+							sensors.writeElevatorServoPPM(elevator_pwm);
+						}
+
+						rsx::State s;
+						s.n = pos[0]; s.e = pos[1]; s.d = pos[2];
+						s.vn = vel[0]; s.ve = vel[1]; s.vd = vel[2];
+						s.roll = rpy[0]; s.pitch = rpy[1]; s.yaw = rpy[2];
+
+						rsx::PlanStatus r = guidance.replan(s);
+					}
+				}
             }
 
-			if(sensors.GPS_dataReady())
-			{
-				sensors.GPS_dataReadyOff();
-				ekf_gps_update(sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt(), sensors.getGPS_sog(), sensors.getGPS_cog(), sensors.getGPS_rms());
-			}
+            if (!plan_done && mission_mgr.getOpState() == PROBE_RELEASE)
+            {
+                rsx::GuidanceParams gp;
 
-            sensors.updateMotor();
+                // start = current position/heading at deploy — BOTH in the EKF's NED frame:
+                float pos[3], vel[3], q[4], rpy[3];
+                ekf_get_pos(pos);
+                ekf_get_vel(vel);
+                ekf_get_quaternion(q);
+                quat_to_rpy(q, rpy);                 // rpy[2] = yaw
+
+                gp.start_n = pos[0];
+                gp.start_e = pos[1];
+                gp.start_d = pos[2];
+
+                // deploy heading (RESPECTED): course-over-ground if moving, else attitude yaw
+                float vh = sqrtf(vel[0]*vel[0] + vel[1]*vel[1]);
+                gp.start_heading = (vh > 2.0f) ? atan2f(vel[1], vel[0])   // atan2(vE, vN)
+                                               : rpy[2];                    // yaw fallback
+
+                // landing target from mission config (not return-to-home)
+                float land_ne[2];
+                convert_gps_to_local_ned2(mission_mgr.get_landing_lat(), mission_mgr.get_landing_lon(), 0.0f, land_ne);
+                gp.land_n = land_ne[0];
+                gp.land_e = land_ne[1];
+                gp.land_d = 0.0f;                    // ground = launch level (Down = 0)
+
+                gp.glide_ratio  = 3.0f;
+
+                guidance.setParams(gp);
+                rsx::PlanStatus st = guidance.plan();
+                serial.sendInfoDataMsg("Plan status=%d", (int)st);
+                plan_done = (st != rsx::PlanStatus::Infeasible);
+            }
         }
 
         HAL_TIM_Base_Stop_IT(&htim1);
         HAL_TIM_Base_Stop_IT(&htim8);
+        HAL_TIM_Base_Stop_IT(&htim2);
 
         mission_mgr.reset_params();
         mission_mgr.waitingForSimp();

@@ -56,6 +56,10 @@ private:
 	char gps_nmea_buffer[100];
 	uint8_t gps_buf_idx; // counter tracking string length
 
+	void GPS_configure_output(I2C_HandleTypeDef* i2c);
+	bool ubx_send(I2C_HandleTypeDef* i2c, uint8_t cls, uint8_t id, const uint8_t* payload, uint16_t len);
+	uint16_t valset_add_u1(uint8_t* p, uint16_t idx, uint32_t key, uint8_t val);
+
 public:
 	struct gps_data internal_gps_storage;
 	void GPS_Init(I2C_HandleTypeDef *i2c);

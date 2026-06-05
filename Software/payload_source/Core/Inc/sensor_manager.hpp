@@ -145,6 +145,8 @@ public:
 	void writeMotor(uint8_t dir, uint32_t time_ms);
 	void stopMotor();
 	void updateMotor();
+	void writeAileronServoPPM(uint16_t val);
+	void writeElevatorServoPPM(uint16_t val);
 
 	void EEPROM_resetLog();
 	void EEPROM_updateAltitude(float alt);
@@ -160,6 +162,11 @@ public:
 	struct recovery_data EEPROM_getRecoveryData();
 	bool EEPROM_addLogLine(char *buffer);
 	void EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &serial);
+
+	void ground_runcam_start();
+	void payload_runcam_start();
+	void ground_runcam_stop();
+	void payload_runcam_stop();
 
 	void startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
 			SPI_HandleTypeDef *hspi_eeprom, GPIO_TypeDef *cs_port, uint16_t cs_pin,

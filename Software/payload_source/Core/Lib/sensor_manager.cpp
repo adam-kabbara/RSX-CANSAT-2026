@@ -330,7 +330,7 @@ void SensorManager::getRTCTime(char time_str[DATA_SIZE])
 
 void SensorManager::activate_egg_release()
 {
-	// writeEggServo(90);
+	writeEggServo(90);
 }
 
 void SensorManager::activate_wing_deployment()
@@ -365,6 +365,16 @@ void SensorManager::writeElevatorServo(float val)
 void SensorManager::writeAileronServo(float val)
 {
 	servo_aileron.SetAngle(val);
+}
+
+void SensorManager::writeElevatorServoPPM(uint16_t val)
+{
+	servo_elevator.SetPPMPulseWidth(val);
+}
+
+void SensorManager::writeAileronServoPPM(uint16_t val)
+{
+	servo_aileron.SetPPMPulseWidth(val);
 }
 
 void SensorManager::writeEggServo(float val)
@@ -595,6 +605,26 @@ void SensorManager::EEPROM_replayLog(uint32_t line_delay_ms, SerialManager &seri
     serial.sendLogEnd();
 }
 
+void SensorManager::ground_runcam_start()
+{
+	ground_camera.startRecording();
+}
+
+void SensorManager::ground_runcam_stop()
+{
+	ground_camera.stopRecording();
+}
+
+void SensorManager::payload_runcam_start()
+{
+	payload_camera.startRecording();
+}
+
+void SensorManager::payload_runcam_stop()
+{
+	payload_camera.stopRecording();
+}
+
 void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1,
 		SPI_HandleTypeDef *hspi_eeprom, GPIO_TypeDef *cs_port, uint16_t cs_pin,
 		TIM_HandleTypeDef *htim2, TIM_HandleTypeDef *htim3, TIM_HandleTypeDef *htim4
@@ -671,8 +701,6 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	servo_elevator.Init(htim3, TIM_CHANNEL_1, 500, 2500, 90, -90);
 	servo_aileron.Init(htim3, TIM_CHANNEL_2, 500, 2500, 90, -90);
 	servo_egg.Init(htim3, TIM_CHANNEL_3, 500, 2500, 90, -90);
-
-	motor.Init(htim2, TIM_CHANNEL_2);
 
 	HAL_Delay(100);
 

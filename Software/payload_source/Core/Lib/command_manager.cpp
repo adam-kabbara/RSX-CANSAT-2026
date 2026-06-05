@@ -408,7 +408,9 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
   {
     ser.sendInfoMsg("Starting auto calibration...");
     sensors.BNO_calibrate(ser);
-    int gyro_acc, accel_acc, mag_acc = 0;
+    int gyro_acc = 0;
+    int accel_acc = 0;
+    int mag_acc = 0;
     float * rawRotVec = new float[5];
     float * rawAccel = new float[4];
     float * rawMag = new float[4];
@@ -550,23 +552,23 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  {
 		  	  case 0:
 		  		  sensors.writeNoseconeServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to nosecone servo.", servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %f to nosecone servo.", servo_val);
 		  		  break;
 		  	  case 1:
 		  		  sensors.writeContainerServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to container servo.", servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %f to container servo.", servo_val);
 		  		  break;
 		  	  case 2:
 		  		  sensors.writeElevatorServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to elevator servo.", servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %f to elevator servo.", servo_val);
 		  		  break;
 		  	  case 3:
 		  		  sensors.writeAileronServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to aileron servo.", servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %f to aileron servo.", servo_val);
 		  		  break;
 		  	  case 4:
 		  		  sensors.writeEggServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %d to egg servo.", servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %f to egg servo.", servo_val);
 		  		  break;
 		  	  default:
 		  		  ser.sendErrorMsg("ERROR: SERVO ID DOES NOT MATCH 0-6");
@@ -592,6 +594,56 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  uint32_t duration  = (uint32_t)(DC_val > 0 ? DC_val : -DC_val);
 		  sensors.writeMotor(direction, duration);
 		  ser.sendInfoDataMsg("Motor running %s for %lu ms.", direction ? "forward" : "reverse", (unsigned long)duration);
+	  }
+  }
+  else if(strcmp(mec, "CAM1") == 0)
+  {
+	  if(info.getOpState() != IDLE || info.getOpState() != LANDED)
+	  {
+		  ser.sendErrorMsg("ERROR: CANNOT CHANGE CAMERA IN CURRENT STATE!");
+		  return;
+	  }
+	  int cam_id = atoi(val);
+	  if(cam_id == 0)
+	  {
+		  // Ground
+		  sensors.ground_runcam_start();
+		  ser.sendInfoMsg("Attempted to start ground cam");
+	  }
+	  else if(cam_id == 1)
+	  {
+		  // Payload
+		  sensors.payload_runcam_start();
+		  ser.sendInfoMsg("Attempted to start payload cam");
+	  }
+	  else
+	  {
+		  ser.sendErrorMsg("ERROR: DID NOT RECEIVE VALID CAMERA ID!");
+	  }
+  }
+  else if(strcmp(mec, "CAM0") == 0)
+  {
+	  if(info.getOpState() != IDLE || info.getOpState() != LANDED)
+	  {
+		  ser.sendErrorMsg("ERROR: CANNOT CHANGE CAMERA IN CURRENT STATE!");
+		  return;
+	  }
+	  int cam_id = atoi(val);
+	  if(cam_id == 0)
+	  {
+		  // Ground
+		  sensors.ground_runcam_stop();
+		  ser.sendInfoMsg("Attempted to stop ground cam");
+	  }
+	  else if(cam_id == 1)
+	  {
+		  // Payload
+		  sensors.payload_runcam_stop();
+		  ser.sendInfoMsg("Attempted to stop payload cam");
+	  }
+	  else
+	  {
+		  ser.sendErrorMsg("ERROR: DID NOT RECEIVE VALID CAMERA ID!");
 	  }
   }
   else
@@ -652,6 +704,6 @@ void CommandManager::do_gps(SerialManager &ser, MissionManager &info, SensorMana
 		return;
 	}
 
-	//TODO: Finish
-
+	info.set_landing_coords(vals[0], vals[1]);
+	ser.sendInfoDataMsg("Set landing coords to %.4f %.4f", info.get_landing_lat(), info.get_landing_lon());
 }

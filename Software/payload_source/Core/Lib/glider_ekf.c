@@ -83,6 +83,26 @@ void convert_gps_to_local_ned(float curr_lat, float curr_lon, float curr_alt, fl
     current_pos_ne[1] = d_lon * meters_per_rad_lon; // Distance East (meters)
 }
 
+void convert_gps_to_local_ned2(float curr_lat, float curr_lon, float curr_alt, float* current_pos_ne) {
+
+    // 2. Convert current coordinates to radians
+    float curr_lat_rad = curr_lat * DEG_TO_RAD;
+    float curr_lon_rad = curr_lon * DEG_TO_RAD;
+
+    // 3. Calculate coordinate deltas
+    float d_lat = curr_lat_rad - home_lat_rad;
+    float d_lon = curr_lon_rad - home_lon_rad;
+
+    // 4. Flat-Earth Meridian/Prime-Vertical Radius Approximation
+    // Computes meters per radian at your current latitude location
+    float meters_per_rad_lat = EARTH_RADIUS;
+    float meters_per_rad_lon = EARTH_RADIUS * cosf(home_lat_rad);
+
+    // 5. Output positions in linear meters
+    current_pos_ne[0] = d_lat * meters_per_rad_lat; // Distance North (meters)
+    current_pos_ne[1] = d_lon * meters_per_rad_lon; // Distance East (meters)
+}
+
 void quat_to_rpy(const float32_t* q, float32_t* rpy) {
     float32_t qw = q[0], qx = q[1], qy = q[2], qz = q[3];
     // Roll (phi)

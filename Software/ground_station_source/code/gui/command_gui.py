@@ -49,7 +49,7 @@ class CommandWindow(QMainWindow):
 
         self.__set_time_id        = 0 # 0 for computer time, 1 for GPS time
         self.__camera_id          = 1
-        self.__mec_id             = 1
+        self.__mec_id             = 0
         self.__servo_id           = 0 # first option is nosecone by gui default
         self.__servo_val          = -1
         self.__dc_motor_val       = 0
@@ -417,28 +417,34 @@ class CommandWindow(QMainWindow):
         program_camera_box = QHBoxLayout()
 
         self.camera_id_field = QComboBox()
-        self.camera_id_field.addItem("GROUND CAM")
-        self.camera_id_field.addItem("PAYLOAD CAM")
+        self.camera_id_field.addItem("GROUND CAM", 0)
+        self.camera_id_field.addItem("PAYLOAD CAM", 1)
         self.camera_id_field.setFont(button_font)
         self.camera_id_field.activated.connect(self.camera_id_edited)
 
-        self.program_camera_button = QPushButton("TOGGLE CAMERA")
-        self.program_camera_button.setFont(button_font)
-        self.program_camera_button.clicked.connect(lambda: self.command_manager.command__toggle_camera(self.__camera_id))
+        self.start_camera_button = QPushButton("START")
+        self.start_camera_button.setFont(button_font)
+        self.start_camera_button.clicked.connect(lambda: self.command_manager.command__start_camera(self.__camera_id))
 
-        program_camera_box.addWidget(self.program_camera_button)
+        self.stop_camera_button = QPushButton("STOP")
+        self.stop_camera_button.setFont(button_font)
+        self.stop_camera_button.clicked.connect(lambda: self.command_manager.command__stop_camera(self.__camera_id))
+
+        program_camera_box.addWidget(self.start_camera_button)
+        program_camera_box.addWidget(self.stop_camera_button)
         program_camera_box.addWidget(self.camera_id_field)
         
         self.camera_id_field.hide()
-        self.program_camera_button.hide()
+        self.start_camera_button.hide()
+        self.stop_camera_button.hide()
         ### end program camera
 
         force_release_box = QHBoxLayout()
         self.mec_release_field = QComboBox()
-        self.mec_release_field.addItem("NOSECONE RELEASE")
-        self.mec_release_field.addItem("CPL RELEASE")
-        self.mec_release_field.addItem("WING DEPLOYMENT")
-        self.mec_release_field.addItem("EGG RELEASE")
+        self.mec_release_field.addItem("NOSECONE RELEASE", 0)
+        self.mec_release_field.addItem("CPL RELEASE", 1)
+        self.mec_release_field.addItem("WING DEPLOYMENT", 2)
+        self.mec_release_field.addItem("EGG RELEASE", 3)
         self.mec_release_field.setFont(button_font)
         self.mec_release_field.activated.connect(self.mec_rel_edited)
 
@@ -451,11 +457,6 @@ class CommandWindow(QMainWindow):
 
         force_release_box.addWidget(self.mec_release_field)
         force_release_box.addWidget(self.mec_activate_button)
-
-        self.camera_status_button = QPushButton("GET CAMERA STATUS")
-        self.camera_status_button.setFont(button_font)
-        self.camera_status_button.clicked.connect(self.command_manager.command__cam_status)
-        self.camera_status_button.hide()
 
         self.custom_msg_field = QLineEdit()
         self.custom_msg_field.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
@@ -516,7 +517,6 @@ class CommandWindow(QMainWindow):
         commands_layout.addLayout(set_dc_motor_box)
         commands_layout.addLayout(program_servo_box)
         commands_layout.addLayout(program_camera_box)
-        commands_layout.addWidget(self.camera_status_button)
         commands_layout.addLayout(force_release_box)
         
         # BACK button (universal)
@@ -561,9 +561,9 @@ class CommandWindow(QMainWindow):
             self.program_servo_button,
             self.servo_id_field,
             self.servo_val_field,
-            self.program_camera_button,
+            self.start_camera_button,
+            self.stop_camera_button,
             self.camera_id_field,
-            self.camera_status_button,
             self.mec_release_field,
             self.mec_activate_button,
             self.button_back
@@ -900,14 +900,14 @@ class CommandWindow(QMainWindow):
         self.__servo_val = int(self.servo_val_field.text())
 
     def camera_id_edited(self, index):
-        self.__camera_id = self.camera_id_field.itemText(index)
+        self.__camera_id = self.camera_id_field.itemData(index)
 
     def mec_rel_edited(self, index):
-        self.__mec_id = self.mec_release_field.itemText(index)
+        self.__mec_id = self.mec_release_field.itemData(index)
     
     def set_time_field_edited(self, index):
         self.__set_time_id = self.set_time_field.itemData(index)
-    
+
     def sim_mode_field_edited(self, index):
         self.__sim_mode = self.sim_mode_field.itemText(index)
 
