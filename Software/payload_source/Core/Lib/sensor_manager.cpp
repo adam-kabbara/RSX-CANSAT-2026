@@ -702,8 +702,6 @@ void SensorManager::startSensors(SerialManager &serial, I2C_HandleTypeDef *hi2c1
 	servo_aileron.Init(htim3, TIM_CHANNEL_2, 500, 2500, 90, -90);
 	servo_egg.Init(htim3, TIM_CHANNEL_3, 500, 2500, 90, -90);
 
-	motor.Init(htim2, TIM_CHANNEL_2);
-
 	HAL_Delay(100);
 
 	ground_camera.Init(CameraID::GROUND_CAMERA);

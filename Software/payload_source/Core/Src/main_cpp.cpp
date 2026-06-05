@@ -13,6 +13,7 @@
 extern "C" volatile uint8_t send_flag;
 extern "C" volatile uint8_t pvd_flag;
 extern "C" volatile uint8_t update_flag;
+extern "C" volatile uint8_t bno_flag;
 extern "C" UART_HandleTypeDef huart1;
 extern "C" TIM_HandleTypeDef htim1;
 extern "C" TIM_HandleTypeDef htim2;
@@ -177,6 +178,7 @@ extern "C" void main_cpp()
 
         HAL_TIM_Base_Start_IT(&htim1);
         HAL_TIM_Base_Start_IT(&htim8);
+        HAL_TIM_Base_Start_IT(&htim2);
 
         while(mission_mgr.getOpState() != IDLE)
         {
@@ -256,20 +258,24 @@ extern "C" void main_cpp()
 				update_flag = 0;
             }
 
-            if(sensors.BNO_dataReady())
+            if(bno_flag)
             {
-            	sensors.updateBNO();
-				float raw_accel[4];
-				sensors.getLinearAccel(raw_accel);
-				uint32_t current_time = HAL_GetTick();
-				float dt = (current_time - bno_update_timer) / 1000.0f;
-				if(dt <= 0) dt = 0.02f; // sanity check
-				bno_update_timer = current_time;
-				float bno_quat[5];
-				sensors.getGameRotationVector(bno_quat);
-				CPL_IMU_to_NED(raw_accel, bno_quat);
-				glider_ekf_predict_bno_mode(raw_accel, dt);
-				glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
+            	bno_flag = 0;
+				if(sensors.BNO_dataReady())
+				{
+					sensors.updateBNO();
+					float raw_accel[4];
+					sensors.getLinearAccel(raw_accel);
+					uint32_t current_time = HAL_GetTick();
+					float dt = (current_time - bno_update_timer) / 1000.0f;
+					if(dt <= 0) dt = 0.02f; // sanity check
+					bno_update_timer = current_time;
+					float bno_quat[5];
+					sensors.getGameRotationVector(bno_quat);
+					CPL_IMU_to_NED(raw_accel, bno_quat);
+					glider_ekf_predict_bno_mode(raw_accel, dt);
+					glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
+				}
             }
 
 			if(sensors.GPS_dataReady())
@@ -368,6 +374,7 @@ extern "C" void main_cpp()
 
         HAL_TIM_Base_Stop_IT(&htim1);
         HAL_TIM_Base_Stop_IT(&htim8);
+        HAL_TIM_Base_Stop_IT(&htim2);
 
         mission_mgr.reset_params();
         mission_mgr.waitingForSimp();
