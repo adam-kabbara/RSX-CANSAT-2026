@@ -387,6 +387,14 @@ class CommandWindow(QMainWindow):
         set_dc_motor_box.addWidget(self.set_dc_motor_button)
         set_dc_motor_box.addWidget(self.dc_motor_val_field)
 
+        self.SERVO_PLACEHOLDER = {
+            0: "Angle (0=closed, 90=open)",
+            1: "Angle (0=closed, 90=open)",
+            2: "Angle (-90=down, 90=up)",
+            3: "Angle (-60=left, 60=right)",
+            4: "Angle (-55=hold, 90=release)",
+        }
+
         program_servo_box = QHBoxLayout()
 
         self.servo_id_field = QComboBox()
@@ -928,6 +936,7 @@ class CommandWindow(QMainWindow):
 
     def servo_id_edited(self, index):
         self.__servo_id = self.servo_id_field.itemData(index)
+        self.servo_val_field.setPlaceholderText(self.SERVO_PLACEHOLDER.get(self.__servo_id, "Angle (-90 to 90)"))
     
     def servo_val_edited(self):
         self.servo_val_field.clearFocus()

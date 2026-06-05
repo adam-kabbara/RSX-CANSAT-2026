@@ -58,12 +58,18 @@ class Commands(QObject):
         if servo_id == -1 or servo_val not in range(-90, 91):
             self._serial.error_catch.emit("Enter a servo # and value btwn -90 and 90")
         elif servo_id == 0: # nosecone servo
-            pass
+            if servo_val not in range(0, 91):
+                self._serial.error_catch.emit("Nosecone servo value must be between 0 and 90")
+                return
         elif servo_id == 1: # container servo
-            pass
+            if servo_val not in range(0, 91):
+                self._serial.error_catch.emit("Container servo value must be between 0 and 90")
+                return
         elif servo_id == 2: # elevation servo
-            pass
-        elif servo_id == 3: # aerlon servo
+            if servo_val not in range(-90, 91):
+                self._serial.error_catch.emit("Elevation servo value must be between -90 and 90")
+                return
+        elif servo_id == 3: # aileron servo
             if servo_val not in range(-60, 61):
                 self._serial.error_catch.emit("Aileron servo value must be between -60 and 60")
                 return
