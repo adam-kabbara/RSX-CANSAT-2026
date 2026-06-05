@@ -48,8 +48,8 @@ class CommandWindow(QMainWindow):
 
         super().__init__(parent)
 
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
-        self.setFixedSize(1920, 480)
+        # self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+        self.setFixedSize(1920, 440)
 
         self.__set_time_id        = 0 # 0 for computer time, 1 for GPS time
         self.__camera_id          = 1
@@ -129,7 +129,7 @@ class CommandWindow(QMainWindow):
 
         # ------ COMMANDS GROUP ------ #
         commands_group_box = QGroupBox(self.central_widget)
-        commands_group_box.setGeometry(0, 0, 640, 480)
+        commands_group_box.setGeometry(0, 0, 640, 440)
         # commands_group_box.setMinimumHeight(300)
         # commands_group_box.setMinimumWidth(500)
         commands_layout = QVBoxLayout(commands_group_box)
@@ -389,7 +389,7 @@ class CommandWindow(QMainWindow):
         set_dc_motor_box.addWidget(self.dc_motor_val_field)
 
         self.SERVO_PLACEHOLDER = {
-            0: "-30=release, 30=lock)",
+            0: "-30=release, 30=lock",
             1: "-30=closed, 90=open",
             2: "0 to 55",
             3: "[min] to 60",
@@ -657,8 +657,8 @@ class CommandWindow(QMainWindow):
         # gui_log_widget.setFixedWidth(500)
         # sat_log_widget.setFixedHeight(300)
         # sat_log_widget.setFixedWidth(500)
-        gui_log_widget.setGeometry(640, 0, 640, 480)
-        sat_log_widget.setGeometry(1280, 0, 640, 480)
+        gui_log_widget.setGeometry(640, 0, 640, 440)
+        sat_log_widget.setGeometry(1280, 0, 640, 440)
         gui_log_layout.setContentsMargins(10, 15, 10, 15)
         sat_log_layout.setContentsMargins(10, 15, 10, 15)
 
