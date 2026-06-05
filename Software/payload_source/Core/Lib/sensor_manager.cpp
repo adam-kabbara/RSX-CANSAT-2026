@@ -336,7 +336,7 @@ void SensorManager::activate_egg_release()
 
 void SensorManager::activate_wing_deployment()
 {
-	// writeMotor(0, 0);
+	writeMotor(0, 4000);
 }
 
 void SensorManager::activate_nosecone_release()
