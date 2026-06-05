@@ -152,10 +152,10 @@ class DynamicPlotterDualAxis(BaseDynamicPlotter):
         self.plt.addItem(self.left_label, ignoreBounds=True)
         self.right_view.addItem(self.right_label, ignoreBounds=True)
 
-        self.plt.getViewBox().setYRange(-5, 5)
+        self.plt.getViewBox().setYRange(-6, 6)
         self.plt.getViewBox().disableAutoRange(axis=pg.ViewBox.YAxis)
 
-        self.right_view.setYRange(-0.6, 0.6)
+        self.right_view.setYRange(-2, 2)
         self.right_view.disableAutoRange(axis=pg.ViewBox.YAxis)
 
     def _sync_right_view(self):

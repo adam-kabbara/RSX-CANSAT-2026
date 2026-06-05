@@ -69,7 +69,7 @@ class GraphWindow(QMainWindow):
 
         graph_info = [
             {"title": "Altitude", "type": "single", "x_unit": "s", "y_unit": "m"},
-            {"title": "Voltage / Current", "type": "dual_axis", "x_unit": "s", "left_y_unit": "V", "right_y_unit": "mA"},
+            {"title": "Voltage / Current", "type": "dual_axis", "x_unit": "s", "left_y_unit": "V", "right_y_unit": "A"},
             {"title": "Velocity", "type": "multi", "lines": 3, "x_unit": "s", "y_unit": "m/s^2",  "label_one": "X", "label_two": "Y",
              "label_three": "Z", "timescale": 30},
             {"title": "Gyro RPY", "type": "multi", "lines": 3, "x_unit": "s", "y_unit": "deg/s", "label_one": "R", "label_two": "P",
