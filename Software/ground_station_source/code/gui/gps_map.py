@@ -92,14 +92,14 @@ class GPSMapWidget(QWidget):
         self._view.page().runJavaScript(js_code)
 
     @staticmethod
-    def _build_draw_rect_js(lat1, lon1, lat2, lon2):
-        if (not (-90 <= lat1 <= 90 and -90 <= lat2 <= 90) or
-                not (-180 <= lon1 <= 180 and -180 <= lon2 <= 180)):
+    def _build_draw_poly_js(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4):
+        if (not (-90 <= lat1 <= 90 and -90 <= lat2 <= 90 and -90 <= lat3 <= 90 and -90 <= lat4 <= 90) or
+                not (-180 <= lon1 <= 180 and -180 <= lon2 <= 180 and -180 <= lon3 <= 180 and -180 <= lon4 <= 180)):
             return None
-        return f"window.drawGpsRect({lat1}, {lon1}, {lat2}, {lon2});"
+        return f"window.drawGpsPoly({lat1}, {lon1}, {lat2}, {lon2}, {lat3}, {lon3}, {lat4}, {lon4});"
 
-    def draw_rect(self, lat1, lon1, lat2, lon2):
-        js_code = self._build_draw_rect_js(lat1, lon1, lat2, lon2)
+    def draw_polygon(self, lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4):
+        js_code = self._build_draw_poly_js(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4)
         if js_code is None:
             return False
         self._view.page().runJavaScript(js_code)

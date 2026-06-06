@@ -488,8 +488,8 @@ class GraphWindow(QMainWindow):
         else:
             self.map_widget.add_point(lat, lon)
 
-    def draw_gps_rect(self, lat1, lon1, lat2, lon2):
-        return self.map_widget.draw_rect(lat1, lon1, lat2, lon2)
+    def draw_gps_poly(self, lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4):
+        return self.map_widget.draw_polygon(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4)
 
     def closeEvent(self, event):
         app = QApplication.instance()

@@ -40,7 +40,7 @@
         var trace = L.polyline([], {color: '#00d4ff', weight: 3, opacity: 0.8});
         var marker;
         var startMarker;
-        var gpsRectangle;
+        var gpsShape;
         var firstPoint = true;
         var payloadIcon = L.icon({
             iconUrl: 'icon.ico',
@@ -120,71 +120,36 @@
             trace.setLatLngs([]);
             if (marker) { map.removeLayer(marker); marker = null; }
             if (startMarker) { map.removeLayer(startMarker); startMarker = null; }
-            if (gpsRectangle) { map.removeLayer(gpsRectangle); gpsRectangle = null; }
+            if (gpsShape) { map.removeLayer(gpsShape); gpsShape = null; }
             firstPoint = true;
             map.setView([0, 0], 2);
         }
 
-        // function drawGpsCircle(lat, lon, radius) {
-        //     if (!map) {
-        //         initMap(lat, lon, 15);
-        //     }
-
-        //     var center = [lat, lon];
-        //     if (gpsCircle) {
-        //         map.removeLayer(gpsCircle);
-        //     }
-
-        //     gpsCircle = L.circle(center, {
-        //         radius: radius,
-        //         color: '#ffd166',
-        //         weight: 2,
-        //         fillColor: '#ffd166',
-        //         fillOpacity: 0.15
-        //     }).addTo(map);
-
-        //     gpsCircle.bindPopup("GPS target radius: " + radius + " m");
-        //     map.fitBounds(gpsCircle.getBounds(), {padding: [20, 20]});
-        // }
-
-        function drawGpsRect(lat1, lon1, lat2, lon2) {
+        function drawGpsPoly(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4) {
             if (!map) {
                 initMap(lat1, lon1, 15);
             }
 
-            var width = Math.abs(lon2 - lon1);
-            var height = Math.abs(lat2 - lat1);
-
-            var bounds = [
-                [Math.min(lat1, lat2), Math.min(lon1, lon2)],
-                [Math.max(lat1, lat2), Math.max(lon1, lon2)]
+            var corners = [
+                [lat1, lon1],
+                [lat2, lon2],
+                [lat3, lon3],
+                [lat4, lon4]
             ];
 
-            // var center = [lat1, lon1];
-            // var halfWidth = width / 2;
-            // var halfHeight = height / 2;
+            if (gpsShape) {
+                map.removeLayer(gpsShape);
+            }
 
-            // var bounds = [
-            //     [lat1 - halfHeight, lon1 - halfWidth],
-            //     [lat2 + halfHeight, lon2 + halfWidth]
-            // ];
-
-            // if (gpsCircle) {
-            //     map.removeLayer(gpsCircle);
-            // }
-
-            gpsRectangle = L.rectangle(bounds, {
+            gpsShape = L.polygon(corners, {
                 color: '#ffd166',
                 weight: 2,
                 fillColor: '#ffd166',
                 fillOpacity: 0.15
             }).addTo(map);
 
-            var widthM  = Math.round(width  * 111320 * Math.cos(lat1 * Math.PI / 180));
-            var heightM = Math.round(height * 110540);
-            gpsRectangle.bindPopup("GPS target area: " + widthM + " m x " + heightM + " m");
-
-            map.fitBounds(gpsRectangle.getBounds(), {padding: [20, 20]});
+            gpsShape.bindPopup("GPS target area");
+            map.fitBounds(gpsShape.getBounds(), { padding: [20, 20] });
         }
 
         function setZoom(zoom) {
@@ -195,7 +160,8 @@
         window.addPoint = addPoint;
         window.clearMap = clearMap;
         // window.drawGpsCircle = drawGpsCircle;
-        window.drawGpsRect = drawGpsRect;
+        // window.drawGpsRect = drawGpsRect;
+        window.drawGpsPoly = drawGpsPoly;
         window.setZoom = setZoom;
     </script>
 </body>

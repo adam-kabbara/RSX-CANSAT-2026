@@ -63,6 +63,10 @@ class CommandWindow(QMainWindow):
         self.__gps_lon1            = 0.0
         self.__gps_lat2            = 0.0
         self.__gps_lon2            = 0.0
+        self.__gps_lat3            = 0.0
+        self.__gps_lon3            = 0.0
+        self.__gps_lat4            = 0.0
+        self.__gps_lon4            = 0.0
         self.__sim_mode           = "ENABLE"
         self.__flight_ctrl        = "AUTONOMOUS"
         self.__custom_msg         = ""
@@ -224,41 +228,73 @@ class CommandWindow(QMainWindow):
         self.button_set_gps.hide()
 
         self.gps_lat1 = QLineEdit()
-        self.gps_lat1.setPlaceholderText("SW Latitude")
+        self.gps_lat1.setPlaceholderText("Lat 1")
         self.gps_lat1.setValidator(QDoubleValidator())
         self.gps_lat1.setStyleSheet(cosmetics.team_id_stylesheet())
         self.gps_lat1.editingFinished.connect(self.gps_lat1_edited)
         
 
         self.gps_lon1 = QLineEdit()
-        self.gps_lon1.setPlaceholderText("SW Longitude")
+        self.gps_lon1.setPlaceholderText("Lon 1")
         self.gps_lon1.setValidator(QDoubleValidator())
         self.gps_lon1.setStyleSheet(cosmetics.team_id_stylesheet())
         self.gps_lon1.editingFinished.connect(self.gps_lon1_edited)
         
 
         self.gps_lat2 = QLineEdit()
-        self.gps_lat2.setPlaceholderText("NE Latitude")
+        self.gps_lat2.setPlaceholderText("Lat 2")
         self.gps_lat2.setValidator(QDoubleValidator())
         self.gps_lat2.setStyleSheet(cosmetics.team_id_stylesheet())
         self.gps_lat2.editingFinished.connect(self.gps_lat2_edited)
 
         self.gps_lon2 = QLineEdit()
-        self.gps_lon2.setPlaceholderText("NE Longitude")
+        self.gps_lon2.setPlaceholderText("Lon 2")
         self.gps_lon2.setValidator(QDoubleValidator())
         self.gps_lon2.setStyleSheet(cosmetics.team_id_stylesheet())
         self.gps_lon2.editingFinished.connect(self.gps_lon2_edited)
+
+        self.gps_lat3 = QLineEdit()
+        self.gps_lat3.setPlaceholderText("Lat 3")
+        self.gps_lat3.setValidator(QDoubleValidator())
+        self.gps_lat3.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_lat3.editingFinished.connect(self.gps_lat3_edited)
+
+        self.gps_lon3 = QLineEdit()
+        self.gps_lon3.setPlaceholderText("Lon 3")
+        self.gps_lon3.setValidator(QDoubleValidator())
+        self.gps_lon3.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_lon3.editingFinished.connect(self.gps_lon3_edited)
+
+        self.gps_lat4 = QLineEdit()
+        self.gps_lat4.setPlaceholderText("Lat 4")
+        self.gps_lat4.setValidator(QDoubleValidator())
+        self.gps_lat4.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_lat4.editingFinished.connect(self.gps_lat4_edited)
+
+        self.gps_lon4 = QLineEdit()
+        self.gps_lon4.setPlaceholderText("Lon 4")
+        self.gps_lon4.setValidator(QDoubleValidator())
+        self.gps_lon4.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_lon4.editingFinished.connect(self.gps_lon4_edited)
 
         self.gps_lat1.hide()
         self.gps_lon1.hide()
         self.gps_lat2.hide()
         self.gps_lon2.hide()
+        self.gps_lat3.hide()
+        self.gps_lon3.hide()
+        self.gps_lat4.hide()
+        self.gps_lon4.hide()
 
         set_gps_box.addWidget(self.button_set_gps)
         set_gps_box.addWidget(self.gps_lat1)
         set_gps_box.addWidget(self.gps_lon1)
         set_gps_box.addWidget(self.gps_lat2)
         set_gps_box.addWidget(self.gps_lon2)
+        set_gps_box.addWidget(self.gps_lat3)
+        set_gps_box.addWidget(self.gps_lon3)
+        set_gps_box.addWidget(self.gps_lat4)
+        set_gps_box.addWidget(self.gps_lon4)
 
         self.button_set_sim_mode = QPushButton("SET SIM MODE")
         self.button_set_sim_mode.setFont(button_font)
@@ -601,6 +637,10 @@ class CommandWindow(QMainWindow):
             self.gps_lon1,
             self.gps_lat2,
             self.gps_lon2,
+            self.gps_lat3,
+            self.gps_lon3,
+            self.gps_lat4,
+            self.gps_lon4,
             self.button_back,
             self.button_set_time,
             self.set_time_field,
@@ -911,14 +951,38 @@ class CommandWindow(QMainWindow):
         self.gps_lon2.clearFocus()
         if self.gps_lon2.text():
             self.__gps_lon2 = float(self.gps_lon2.text())
+    
+    def gps_lat3_edited(self):
+        self.gps_lat3.clearFocus()
+        if self.gps_lat3.text():
+            self.__gps_lat3 = float(self.gps_lat3.text())
+    
+    def gps_lon3_edited(self):
+        self.gps_lon3.clearFocus()
+        if self.gps_lon3.text():
+            self.__gps_lon3 = float(self.gps_lon3.text())
+    
+    def gps_lat4_edited(self):
+        self.gps_lat4.clearFocus()
+        if self.gps_lat4.text():
+            self.__gps_lat4 = float(self.gps_lat4.text())
+    
+    def gps_lon4_edited(self):
+        self.gps_lon4.clearFocus()
+        if self.gps_lon4.text():
+            self.__gps_lon4 = float(self.gps_lon4.text())
 
     def set_gps_coordinates(self):
         lat1_text = self.gps_lat1.text().strip()
         lon1_text = self.gps_lon1.text().strip()
         lat2_text = self.gps_lat2.text().strip()
         lon2_text = self.gps_lon2.text().strip()
+        lat3_text = self.gps_lat3.text().strip()
+        lon3_text = self.gps_lon3.text().strip()
+        lat4_text = self.gps_lat4.text().strip()
+        lon4_text = self.gps_lon4.text().strip()
 
-        if not lat1_text or not lon1_text or not lat2_text or not lon2_text:
+        if not lat1_text or not lon1_text or not lat2_text or not lon2_text or not lat3_text or not lon3_text or not lat4_text or not lon4_text:
             self.update_gui_log_error("ERROR: Enter latitude, longitude, and radius before setting GPS coordinates.")
             return
 
@@ -927,6 +991,10 @@ class CommandWindow(QMainWindow):
             lon1 = float(lon1_text)
             lat2 = float(lat2_text)
             lon2 = float(lon2_text)
+            lat3 = float(lat3_text)
+            lon3 = float(lon3_text)
+            lat4 = float(lat4_text)
+            lon4 = float(lon4_text)
         except ValueError:
             self.update_gui_log_error("ERROR: GPS coordinates must be numeric.")
             return
@@ -947,13 +1015,33 @@ class CommandWindow(QMainWindow):
             self.update_gui_log_error("ERROR: Longitude 2 must be between -180 and 180.")
             return
 
+        if not (-90 <= lat3 <= 90):
+            self.update_gui_log_error("ERROR: Latitude 3 must be between -90 and 90.")
+            return
+
+        if not (-180 <= lon3 <= 180):
+            self.update_gui_log_error("ERROR: Longitude 3 must be between -180 and 180.")
+            return
+
+        if not (-90 <= lat4 <= 90):
+            self.update_gui_log_error("ERROR: Latitude 4 must be between -90 and 90.")
+            return
+
+        if not (-180 <= lon4 <= 180):
+            self.update_gui_log_error("ERROR: Longitude 4 must be between -180 and 180.")
+            return
+
         self.__gps_lat1 = lat1
         self.__gps_lon1 = lon1
         self.__gps_lat2 = lat2
         self.__gps_lon2 = lon2
+        self.__gps_lat3 = lat3
+        self.__gps_lon3 = lon3
+        self.__gps_lat4 = lat4
+        self.__gps_lon4 = lon4
 
-        if self.command_manager.command__set_gps(lat1, lon1, lat2, lon2):
-            self._graph_ui.draw_gps_rect(lat1, lon1, lat2, lon2)
+        if self.command_manager.command__set_gps(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4):
+            self._graph_ui.draw_gps_poly(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4)
 
     def servo_id_edited(self, index):
         self.__servo_id = self.servo_id_field.itemData(index)
