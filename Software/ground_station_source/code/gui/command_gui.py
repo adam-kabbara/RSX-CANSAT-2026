@@ -543,7 +543,7 @@ class CommandWindow(QMainWindow):
         # ACTUATION buttons
         commands_layout.addLayout(set_dc_motor_box)
         commands_layout.addLayout(program_servo_box)
-        commands_layout.addLayout(program_camera_box)
+        #commands_layout.addLayout(program_camera_box)
         commands_layout.addLayout(force_release_box)
         
         # BACK button (universal)
@@ -589,9 +589,9 @@ class CommandWindow(QMainWindow):
             self.program_servo_button,
             self.servo_id_field,
             self.servo_val_field,
-            self.start_camera_button,
-            self.stop_camera_button,
-            self.camera_id_field,
+            #self.start_camera_button,
+            #self.stop_camera_button,
+            #self.camera_id_field,
             self.mec_release_field,
             self.mec_activate_button,
             self.button_back
