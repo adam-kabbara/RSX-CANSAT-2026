@@ -40,7 +40,7 @@
         var trace = L.polyline([], {color: '#00d4ff', weight: 3, opacity: 0.8});
         var marker;
         var startMarker;
-        var gpsCircle;
+        var gpsRectangle;
         var firstPoint = true;
         var payloadIcon = L.icon({
             iconUrl: 'icon.ico',
@@ -120,60 +120,71 @@
             trace.setLatLngs([]);
             if (marker) { map.removeLayer(marker); marker = null; }
             if (startMarker) { map.removeLayer(startMarker); startMarker = null; }
-            if (gpsCircle) { map.removeLayer(gpsCircle); gpsCircle = null; }
+            if (gpsRectangle) { map.removeLayer(gpsRectangle); gpsRectangle = null; }
             firstPoint = true;
             map.setView([0, 0], 2);
         }
 
-        function drawGpsCircle(lat, lon, radius) {
-            if (!map) {
-                initMap(lat, lon, 15);
-            }
+        // function drawGpsCircle(lat, lon, radius) {
+        //     if (!map) {
+        //         initMap(lat, lon, 15);
+        //     }
 
-            var center = [lat, lon];
-            if (gpsCircle) {
-                map.removeLayer(gpsCircle);
-            }
+        //     var center = [lat, lon];
+        //     if (gpsCircle) {
+        //         map.removeLayer(gpsCircle);
+        //     }
 
-            gpsCircle = L.circle(center, {
-                radius: radius,
-                color: '#ffd166',
-                weight: 2,
-                fillColor: '#ffd166',
-                fillOpacity: 0.15
-            }).addTo(map);
+        //     gpsCircle = L.circle(center, {
+        //         radius: radius,
+        //         color: '#ffd166',
+        //         weight: 2,
+        //         fillColor: '#ffd166',
+        //         fillOpacity: 0.15
+        //     }).addTo(map);
 
-            gpsCircle.bindPopup("GPS target radius: " + radius + " m");
-            map.fitBounds(gpsCircle.getBounds(), {padding: [20, 20]});
-        }
+        //     gpsCircle.bindPopup("GPS target radius: " + radius + " m");
+        //     map.fitBounds(gpsCircle.getBounds(), {padding: [20, 20]});
+        // }
 
         function drawGpsRect(lat1, lon1, lat2, lon2) {
             if (!map) {
                 initMap(lat1, lon1, 15);
             }
 
-            var center = [lat1, lon1];
-            var halfWidth = width / 2;
-            var halfHeight = height / 2;
+            var width = Math.abs(lon2 - lon1);
+            var height = Math.abs(lat2 - lat1);
 
             var bounds = [
-                [lat1 - halfHeight, lon1 - halfWidth],
-                [lat2 + halfHeight, lon2 + halfWidth]
+                [Math.min(lat1, lat2), Math.min(lon1, lon2)],
+                [Math.max(lat1, lat2), Math.max(lon1, lon2)]
             ];
 
-            if (gpsCircle) {
-                map.removeLayer(gpsCircle);
-            }
+            // var center = [lat1, lon1];
+            // var halfWidth = width / 2;
+            // var halfHeight = height / 2;
 
-            gpsCircle = L.rectangle(bounds, {
+            // var bounds = [
+            //     [lat1 - halfHeight, lon1 - halfWidth],
+            //     [lat2 + halfHeight, lon2 + halfWidth]
+            // ];
+
+            // if (gpsCircle) {
+            //     map.removeLayer(gpsCircle);
+            // }
+
+            gpsRectangle = L.rectangle(bounds, {
                 color: '#ffd166',
                 weight: 2,
                 fillColor: '#ffd166',
                 fillOpacity: 0.15
             }).addTo(map);
 
-            gpsCircle.bindPopup("GPS target area: " + width + " m x " + height + " m");
-            map.fitBounds(gpsCircle.getBounds(), {padding: [20, 20]});
+            var widthM  = Math.round(width  * 111320 * Math.cos(lat1 * Math.PI / 180));
+            var heightM = Math.round(height * 110540);
+            gpsRectangle.bindPopup("GPS target area: " + widthM + " m x " + heightM + " m");
+
+            map.fitBounds(gpsRectangle.getBounds(), {padding: [20, 20]});
         }
 
         function setZoom(zoom) {
@@ -183,7 +194,7 @@
         window.initMap = initMap;
         window.addPoint = addPoint;
         window.clearMap = clearMap;
-        window.drawGpsCircle = drawGpsCircle;
+        // window.drawGpsCircle = drawGpsCircle;
         window.drawGpsRect = drawGpsRect;
         window.setZoom = setZoom;
     </script>

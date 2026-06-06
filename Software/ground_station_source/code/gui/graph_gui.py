@@ -488,13 +488,8 @@ class GraphWindow(QMainWindow):
         else:
             self.map_widget.add_point(lat, lon)
 
-    def draw_rect(self, lat1, lon1, lat2, lon2):
-        """Draw a rectangular GPS geofence overlay and replace the previous one."""
-        js_code = self._build_draw_rect_js(lat1, lon1, lat2, lon2)
-        if js_code is None:
-            return False
-        self._view.page().runJavaScript(js_code)
-        return True
+    def draw_gps_rect(self, lat1, lon1, lat2, lon2):
+        return self.map_widget.draw_rect(lat1, lon1, lat2, lon2)
 
     def closeEvent(self, event):
         app = QApplication.instance()

@@ -98,12 +98,11 @@ class GPSMapWidget(QWidget):
             return None
         return f"window.drawGpsRect({lat1}, {lon1}, {lat2}, {lon2});"
 
-    def draw_gps_rect(self, lat1, lon1, lat2, lon2):
+    def draw_rect(self, lat1, lon1, lat2, lon2):
         js_code = self._build_draw_rect_js(lat1, lon1, lat2, lon2)
         if js_code is None:
             return False
         self._view.page().runJavaScript(js_code)
-        return True
 
     def reset(self):
         """Clear all GPS data and reset the map view."""
