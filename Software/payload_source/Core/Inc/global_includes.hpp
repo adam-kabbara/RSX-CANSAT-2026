@@ -16,6 +16,7 @@
 #include <string>
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 #include <cmath>
 #include <algorithm>
 #include <cstdint>

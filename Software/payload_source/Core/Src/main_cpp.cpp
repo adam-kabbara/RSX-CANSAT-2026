@@ -188,6 +188,9 @@ extern "C" void main_cpp()
         HAL_TIM_Base_Start_IT(&htim1);
         HAL_TIM_Base_Start_IT(&htim8);
 
+        bno_update_timer = HAL_GetTick();
+        ctrl_timer = HAL_GetTick();
+
         while(mission_mgr.getOpState() != IDLE)
         {
 			sensors.updateMotor();
@@ -261,13 +264,6 @@ extern "C" void main_cpp()
 					sensors.EEPROM_updateState(next_state);
 					mission_mgr.setOpState(next_state);
 				}
-
-				update_flag = 0;
-				static float angle = 0.0f;
-				angle += 0.05f;
-				uint16_t test_pwm = 1500 + (int16_t)(300.0f * sinf(angle));
-
-				sensors.writeAileronServoPPM(test_pwm);
             }
 
             if(bno_flag)

@@ -490,8 +490,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 	  if(val_int == 0)
 	  {
 		  sensors.activate_nosecone_release();
-      ser.sendInfoMsg("I AM HERE AAAAAAAAAAA");
-		  if(info.getOpState() != DESCENT)
+		  if(info.getOpState() != DESCENT && info.getOpState() != PROBE_RELEASE && info.getOpState() != PAYLOAD_RELEASE)
 		  {
 			  info.setOpState(DESCENT);
 			  sensors.EEPROM_updateState(DESCENT);
@@ -501,7 +500,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 	  else if(val_int == 1)
 	  {
 		  sensors.activate_probe_release();
-		  if(info.getOpState() != PROBE_RELEASE)
+		  if(info.getOpState() != PROBE_RELEASE && info.getOpState() != PAYLOAD_RELEASE)
 		  {
 			  info.setOpState(PROBE_RELEASE);
 			  sensors.EEPROM_updateState(PROBE_RELEASE);
@@ -511,7 +510,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 	  else if(val_int == 2)
 	  {
 		  sensors.activate_wing_deployment();
-		  if(info.getOpState() != PROBE_RELEASE)
+		  if(info.getOpState() != PROBE_RELEASE && info.getOpState() != PAYLOAD_RELEASE)
 		  {
 			  info.setOpState(PROBE_RELEASE);
 			  sensors.EEPROM_updateState(PROBE_RELEASE);
@@ -554,23 +553,23 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
 		  {
 		  	  case 0:
 		  		  sensors.writeNoseconeServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %f to nosecone servo.", servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %.1f to nosecone servo.", servo_val);
 		  		  break;
 		  	  case 1:
 		  		  sensors.writeContainerServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %f to container servo.", servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %.1f to container servo.", servo_val);
 		  		  break;
 		  	  case 2:
 		  		  sensors.writeElevatorServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %f to elevator servo.", servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %.1f to elevator servo.", servo_val);
 		  		  break;
 		  	  case 3:
 		  		  sensors.writeAileronServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %f to aileron servo.", servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %.1f to aileron servo.", servo_val);
 		  		  break;
 		  	  case 4:
 		  		  sensors.writeEggServo(servo_val);
-		  		  ser.sendInfoDataMsg("Wrote %f to egg servo.", servo_val);
+		  		  ser.sendInfoDataMsg("Wrote %.1f to egg servo.", servo_val);
 		  		  break;
 		  	  default:
 		  		  ser.sendErrorMsg("ERROR: SERVO ID DOES NOT MATCH 0-6");
@@ -600,7 +599,7 @@ void CommandManager::do_mec(SerialManager &ser, MissionManager &info, SensorMana
   }
   else if(strcmp(mec, "CAM1") == 0)
   {
-	  if(info.getOpState() != IDLE || info.getOpState() != LANDED)
+	  if(info.getOpState() != IDLE && info.getOpState() != LANDED)
 	  {
 		  ser.sendErrorMsg("ERROR: CANNOT CHANGE CAMERA IN CURRENT STATE!");
 		  return;
@@ -700,9 +699,9 @@ void CommandManager::do_gps(SerialManager &ser, MissionManager &info, SensorMana
 		vals[val_count++] = val;
 	}
 
-	if(val_count > 3)
+	if(val_count < 2)
 	{
-		ser.sendErrorMsg("COMMAND 'GPS' REJECTED: RECEIVED >3 FIELDS");
+		ser.sendErrorDataMsg("COMMAND 'GPS' REJECTED: RECEIVED %d FIELDS", val_count);
 		return;
 	}
 

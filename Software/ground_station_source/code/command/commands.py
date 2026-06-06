@@ -75,7 +75,7 @@ class Commands(QObject):
                 return
         elif servo_id == 4: # egg servo
             if servo_val not in range(-30, 90):
-                self._serial.error_catch.emit("Egg servo value must be between -30 and 30")
+                self._serial.error_catch.emit("Egg servo value must be between -30 and 90")
                 return
         if self._serial.send_data(self._cmd(op="MEC", val=f"SERVO:{servo_id}|{servo_val}")):
             self.print_signal.emit(f"Sent command to program servo {servo_id} to {servo_val}")

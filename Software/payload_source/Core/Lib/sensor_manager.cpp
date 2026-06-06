@@ -5,11 +5,6 @@
  */
 
 #include "sensor_manager.hpp"
-#include <math.h>
-#include "serial_manager.hpp"
-
-extern "C" UART_HandleTypeDef huart1;
-SerialManager serial(huart1);
 
 SensorManager::SensorManager()
 {
