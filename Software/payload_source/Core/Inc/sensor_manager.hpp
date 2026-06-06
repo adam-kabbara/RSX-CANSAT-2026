@@ -36,7 +36,7 @@ private:
 	/* Any sensor specific variables should be private */
 	/* Note: do not initialize a sensor here. Instead,
 	 * create a pointer and initialize it in the constructor. */
-	BMP5 bmp_dev;
+BMP5 bmp_dev;
 	BNO085_t bno_dev;
 	uint32_t bno_last_t = 0.0;
 	float prev_gyro_r;

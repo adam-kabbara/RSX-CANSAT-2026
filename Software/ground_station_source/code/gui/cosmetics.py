@@ -280,13 +280,13 @@ def log_overlay_stylesheet():
     return f"""
             background-color: {theme_color("logs", "overlay_background", "rgba(0, 0, 0, 215)")};
             color: {theme_color("logs", "overlay_text", "white")};
-            font-size: 18px;
+            font-size: 25px;
         """
 
 def log_stylesheet():
     return f"""
             QTableWidget {{
-                font-size: 18px;
+                font-size: 25px;
                 background-color: {theme_color("logs", "background", "#dcdcdc")};
                 border-radius: 6px;
                 padding: 3px;
