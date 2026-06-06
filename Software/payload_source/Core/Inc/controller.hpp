@@ -8,8 +8,8 @@
 // Configuration structures for easy tuning
 struct RollControllerConfig {
     float p_heading     = 1.5f;   // Outer loop: Heading error to target roll
-    float kp            = 2.0f;   // Inner loop: Roll proportional gain
-    float ki            = 0.5f;   // Inner loop: Roll integral gain
+    float kp            = 3.0f;   // Inner loop: Roll proportional gain
+    float ki            = 0.0f;   // Inner loop: Roll integral gain
     float kd            = 0.1f;   // Inner loop: Roll derivative gain
     float max_roll      = 0.523f; // Maximum bank limit (~30 degrees in radians)
     float i_term_clamp  = 100.0f; // Anti-windup clamp for integral term

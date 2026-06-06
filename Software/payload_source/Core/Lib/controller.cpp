@@ -29,7 +29,7 @@ uint16_t FlightControllers::update_roll_control(float target_heading, float curr
     while (heading_error < -M_PI) heading_error += 2.0f * M_PI;
 
     // Command a target roll angle proportional to heading error
-    float target_roll = heading_error * rc.p_heading;
+    float target_roll = 0.3f;
 
     // Cap the roll demand to structural/aerodynamic bank limits
     target_roll = clamp(target_roll, -rc.max_roll, rc.max_roll);
