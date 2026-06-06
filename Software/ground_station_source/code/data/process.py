@@ -264,7 +264,8 @@ class DataProcessor(QObject):
             self._graph_ui.update_velocity_graph(new_velocity_data)
    
         if data.GPS_LATITUDE is not None and data.GPS_LONGITUDE is not None:
-            self._graph_ui.update_gps_map(data.GPS_LATITUDE, data.GPS_LONGITUDE)
+            if data.GPS_LATITUDE > 0 and data.GPS_LONGITUDE > 0:
+                self._graph_ui.update_gps_map(data.GPS_LATITUDE, data.GPS_LONGITUDE)
 
         if data.GPS_ALTITUDE is not None:
             self._graph_ui.update_gps_alt(data.GPS_ALTITUDE)
