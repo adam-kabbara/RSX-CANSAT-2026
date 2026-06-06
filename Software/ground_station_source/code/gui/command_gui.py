@@ -515,7 +515,6 @@ class CommandWindow(QMainWindow):
         commands_layout.addWidget(self.button_test_connection)
         
         # MISSION_CONTROL buttons
-        commands_layout.addWidget(self.button_altitude_cal)
         commands_layout.addWidget(self.button_transmit_on)
         commands_layout.addWidget(self.button_transmit_off)
         commands_layout.addWidget(self.button_get_log_data)
@@ -576,7 +575,6 @@ class CommandWindow(QMainWindow):
         ]
 
         self.buttons_mission_control = [
-            self.button_altitude_cal,
             self.button_transmit_on,
             self.button_transmit_off,
             self.button_get_log_data,
