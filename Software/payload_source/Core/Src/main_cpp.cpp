@@ -10,6 +10,51 @@
 #include "PathGuidance.hpp"
 #include "controller.hpp"
 
+// ── Competition field GPS boundary corners ────────────────────────────────────
+// Four corners of the allowed flight area in decimal degrees (lat, lon).
+// At planning time each corner is converted to the EKF local NED frame;
+// the axis-aligned bounding box of those NED points becomes the hard flight boundary.
+// Midpoint / EKF home: 38.375977, -79.607846
+static constexpr float kFieldCorners[4][2] = {
+    {38.381305f, -79.607000f},  // corner NW
+    {38.377439f, -79.602209f},  // corner NE
+    {38.374956f, -79.613029f},  // corner W
+    {38.372403f, -79.606825f},  // corner S
+};
+
+// ── Landing axis ──────────────────────────────────────────────────────────────
+// Runway line equation (WGS-84, decimal degrees):  lon = -1.5561798 * lat - 19.8879258
+// Axis bearing derivation:
+//   direction vector in lat/lon space: (dLat=1, dLon=-1.5561798)
+//   in NED (m): dN = dLat*111320, dE = dLon*111320*cos(38.376°)
+//             = (111320,  -1.5561798 * 87268)
+//             = (111320,  -135805)
+//   bearing = atan2(dE, dN) = atan2(-135805, 111320) ≈ -0.884 rad
+//   ≈ -50.6° (NW–SE axis); the planner picks the better approach end automatically.
+static constexpr float kLandingAxisRad = -0.884f;
+
+// ── Glider aerodynamic and geometric parameters ───────────────────────────────
+// Tune these to match the actual airframe.
+static constexpr float kGlideRatio      = 3.0f;  // nominal glide ratio (horizontal/vertical)
+static constexpr float kMinTurnRadius   = 25.f;  // minimum turn radius (m) — physical limit
+static constexpr float kMaxSpiralRadius = 70.f;  // maximum loiter spiral radius (m)
+static constexpr float kApproachLength  = 40.f;  // final straight approach leg length (m)
+static constexpr float kLookaheadDrop   = 8.f;   // carrot lookahead in altitude drop (m)
+
+// Forward azimuth (NED bearing) from point 1 to point 2, both in decimal degrees.
+// Returns radians: 0 = North, +π/2 = East.
+[[maybe_unused]]
+static float gps_bearing_rad(float lat1_deg, float lon1_deg, float lat2_deg, float lon2_deg)
+{
+    static constexpr float kPi = 3.14159265358979f;
+    const float lat1 = lat1_deg * kPi / 180.f;
+    const float lat2 = lat2_deg * kPi / 180.f;
+    const float dLon = (lon2_deg - lon1_deg) * kPi / 180.f;
+    const float y = sinf(dLon) * cosf(lat2);
+    const float x = cosf(lat1) * sinf(lat2) - sinf(lat1) * cosf(lat2) * cosf(dLon);
+    return atan2f(y, x);  // range [-π, +π]
+}
+
 extern "C" volatile uint8_t send_flag;
 extern "C" volatile uint8_t pvd_flag;
 extern "C" volatile uint8_t update_flag;
@@ -191,6 +236,13 @@ extern "C" void main_cpp()
         bno_update_timer = HAL_GetTick();
         ctrl_timer = HAL_GetTick();
 
+        // GPS-derived position & velocity state (reset each mission run)
+        double   gps_prev_lat  = 0.0, gps_prev_lon = 0.0;
+        float    gps_prev_alt  = 0.f;
+        uint32_t gps_prev_tick = 0;
+        bool     gps_has_prev  = false;
+        float    gps_vn = 0.f, gps_ve = 0.f, gps_vd = 0.f;  // NED m/s
+
         while(mission_mgr.getOpState() != IDLE)
         {
 			sensors.updateMotor();
@@ -303,6 +355,34 @@ extern "C" void main_cpp()
 					sensors.GPS_dataReadyOff();
 					ekf_gps_update(sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt(), sensors.getGPS_sog(), sensors.getGPS_cog(), sensors.getGPS_pdop());
 					serial.sendInfoDataMsg("GPS Update: Lat=%.6f, Lon=%.6f, Alt=%.1f, SOG=%.1f m/s, COG=%.1f deg, PDOP=%.1f", sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt(), sensors.getGPS_sog(), sensors.getGPS_cog(), sensors.getGPS_pdop());
+
+					// ── GPS position → NED ──────────────────────────────────────────────
+					const double gps_lat = sensors.getGPS_lat();
+					const double gps_lon = sensors.getGPS_lon();
+					const float  gps_alt = sensors.getGPS_alt();  // MSL (m)
+					float gps_ne[2];
+					convert_gps_to_local_ned((float)gps_lat, (float)gps_lon, 0.f, gps_ne);
+					// NED down = home_alt_m - GPS_alt_MSL (positive below home during descent)
+					const float gps_d = home_alt_m - gps_alt;
+
+					// ── Velocity from GPS position differencing ─────────────────────────
+					const uint32_t gps_now = HAL_GetTick();
+					if (gps_has_prev) {
+						const float gps_dt = (gps_now - gps_prev_tick) / 1000.0f;
+						if (gps_dt > 0.05f && gps_dt < 5.0f) {  // sanity: 50 ms – 5 s
+							float prev_ne[2];
+							convert_gps_to_local_ned((float)gps_prev_lat, (float)gps_prev_lon, 0.f, prev_ne);
+							gps_vn = (gps_ne[0] - prev_ne[0]) / gps_dt;
+							gps_ve = (gps_ne[1] - prev_ne[1]) / gps_dt;
+							gps_vd = (gps_prev_alt - gps_alt)  / gps_dt;  // positive while descending
+						}
+					}
+					gps_prev_lat  = gps_lat;
+					gps_prev_lon  = gps_lon;
+					gps_prev_alt  = gps_alt;
+					gps_prev_tick = gps_now;
+					gps_has_prev  = true;
+
 					if(plan_done)
 					{
 						uint32_t now = HAL_GetTick();
@@ -310,16 +390,14 @@ extern "C" void main_cpp()
 						if (dt <= 0.f) dt = 0.02f;
 						ctrl_timer = now;
 
-						// --- build guidance State from the EKF ---
+						// Position from GPS; velocity from GPS differencing; attitude from EKF
 						rsx::State st;
-						float pos[3], vel[3], q[4], rpy[3];
-						ekf_get_pos(pos);
-						ekf_get_vel(vel);
+						float q[4], rpy[3];
 						ekf_get_quaternion(q);
 						quat_to_rpy(q, rpy);
-						st.n = pos[0]; st.e = pos[1]; st.d = pos[2];
-						st.vn = vel[0]; st.ve = vel[1]; st.vd = vel[2];
-						st.roll = rpy[0]; st.pitch = rpy[1]; st.yaw = rpy[2];
+						st.n  = gps_ne[0]; st.e  = gps_ne[1]; st.d  = gps_d;
+						st.vn = gps_vn;    st.ve  = gps_ve;    st.vd = gps_vd;
+						st.roll = rpy[0];  st.pitch = rpy[1];  st.yaw = rpy[2];
 
 						// --- guidance -> heading command ---
 						float target_heading = 0.0f;
@@ -345,12 +423,7 @@ extern "C" void main_cpp()
 							sensors.writeElevatorServoPPM(elevator_pwm);
 						}
 
-						rsx::State s;
-						s.n = pos[0]; s.e = pos[1]; s.d = pos[2];
-						s.vn = vel[0]; s.ve = vel[1]; s.vd = vel[2];
-						s.roll = rpy[0]; s.pitch = rpy[1]; s.yaw = rpy[2];
-
-						rsx::PlanStatus r = guidance.replan(s);
+						guidance.replan(st);
 					}
 				}
             }
@@ -359,35 +432,77 @@ extern "C" void main_cpp()
             {
                 rsx::GuidanceParams gp;
 
-                // start = current position/heading at deploy — BOTH in the EKF's NED frame:
-                float pos[3], vel[3], q[4], rpy[3];
-                ekf_get_pos(pos);
-                ekf_get_vel(vel);
+                // ── Deploy position from GPS, attitude from EKF ───────────────────────
+                float dep_ne[2];
+                convert_gps_to_local_ned((float)sensors.getGPS_lat(),
+                                          (float)sensors.getGPS_lon(),
+                                          0.f, dep_ne);
+                gp.start_n = dep_ne[0];                        // North offset from home (m)
+                gp.start_e = dep_ne[1];                        // East  offset from home (m)
+                gp.start_d = home_alt_m - sensors.getGPS_alt(); // NED down (m), positive below home
+
+                // Heading: GPS-differenced velocity when moving; fall back to EKF yaw.
+                float q[4], rpy[3];
                 ekf_get_quaternion(q);
-                quat_to_rpy(q, rpy);                 // rpy[2] = yaw
+                quat_to_rpy(q, rpy);
+                const float gh = hypotf(gps_vn, gps_ve);
+                gp.start_heading = (gps_has_prev && gh > 2.0f) ? atan2f(gps_ve, gps_vn) : rpy[2];
 
-                gp.start_n = pos[0];
-                gp.start_e = pos[1];
-                gp.start_d = pos[2];
-
-                // deploy heading (RESPECTED): course-over-ground if moving, else attitude yaw
-                float vh = sqrtf(vel[0]*vel[0] + vel[1]*vel[1]);
-                gp.start_heading = (vh > 2.0f) ? atan2f(vel[1], vel[0])   // atan2(vE, vN)
-                                               : rpy[2];                    // yaw fallback
-
-                // landing target from mission config (not return-to-home)
+                // ── Landing target — convert GPS lat/lon to local NED ─────────────────
+                // Set the landing GPS coords via the "GPS" ground command before flight.
                 float land_ne[2];
-                convert_gps_to_local_ned(mission_mgr.get_landing_lat(), mission_mgr.get_landing_lon(), 0.0f, land_ne);
-                gp.land_n = land_ne[0];
-                gp.land_e = land_ne[1];
-                gp.land_d = 0.0f;                    // ground = launch level (Down = 0)
+                convert_gps_to_local_ned(mission_mgr.get_landing_lat(),
+                                         mission_mgr.get_landing_lon(),
+                                         0.0f, land_ne);
+                gp.land_n = land_ne[0];  // North offset from home (m)
+                gp.land_e = land_ne[1];  // East  offset from home (m)
+                gp.land_d = 0.0f;        // Down = 0 → land at the same altitude as home
 
-                gp.glide_ratio  = 3.0f;
+                // ── Landing axis ──────────────────────────────────────────────────────
+                // Pre-derived from the runway line equation (lon = -1.5561798*lat - 19.8879).
+                // The planner resolves the 180° ambiguity (picks the better approach end).
+                // Override at runtime via the "AXIS" command if needed (calls gps_bearing_rad).
+                gp.landing_axis = kLandingAxisRad;
+
+                // ── Glider aerodynamics ───────────────────────────────────────────────
+                gp.glide_ratio = kGlideRatio;           // nominal L/D; updated in-flight by replan()
+
+                // ── Path geometry ─────────────────────────────────────────────────────
+                gp.approach_len    = kApproachLength;   // final straight leg length (m)
+                gp.min_turn_radius = kMinTurnRadius;    // physical minimum turn radius (m)
+                gp.max_radius      = kMaxSpiralRadius;  // maximum loiter spiral radius (m)
+
+                // ── Competition field bounding box ────────────────────────────────────
+                // Convert the 4 GPS corners to NED and take the axis-aligned bounding box.
+                // The planner rejects any candidate path that exits this rectangle.
+                {
+                    float cn[2];
+                    float bNmin = 1e9f, bNmax = -1e9f, bEmin = 1e9f, bEmax = -1e9f;
+                    for (int i = 0; i < 4; ++i) {
+                        convert_gps_to_local_ned(kFieldCorners[i][0], kFieldCorners[i][1], 0.f, cn);
+                        if (cn[0] < bNmin) bNmin = cn[0];
+                        if (cn[0] > bNmax) bNmax = cn[0];
+                        if (cn[1] < bEmin) bEmin = cn[1];
+                        if (cn[1] > bEmax) bEmax = cn[1];
+                    }
+                    gp.box_n_min = bNmin;
+                    gp.box_n_max = bNmax;
+                    gp.box_e_min = bEmin;
+                    gp.box_e_max = bEmax;
+                }
+
+                // ── Tracker ───────────────────────────────────────────────────────────
+                gp.lookahead_drop = kLookaheadDrop;     // carrot lookahead in altitude drop (m)
 
                 guidance.setParams(gp);
-                rsx::PlanStatus st = guidance.plan();
-                serial.sendInfoDataMsg("Plan status=%d", (int)st);
-                plan_done = (st != rsx::PlanStatus::Infeasible);
+                rsx::PlanStatus planStatus = guidance.plan();
+                serial.sendInfoDataMsg("Guidance plan: status=%d land_dir=%.0f side=%d R=%.1f N=%d",
+                    (int)planStatus,
+                    guidance.landingDirection() * 180.f / 3.14159f,
+                    guidance.spiralSide(),
+                    guidance.spiralRadius(),
+                    guidance.loops());
+                plan_done = (planStatus != rsx::PlanStatus::Infeasible);
             }
         }
 

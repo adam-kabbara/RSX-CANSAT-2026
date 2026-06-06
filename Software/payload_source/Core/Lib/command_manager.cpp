@@ -24,7 +24,8 @@ CommandManager::CommandManager()
     command_map.emplace("LOG", std::bind(&CommandManager::do_logs, this, _1, _2, _3, _4));
     command_map.emplace("CAL2", std::bind(&CommandManager::do_cal2, this, _1, _2, _3, _4));
     command_map.emplace("CTRL", std::bind(&CommandManager::do_ctrl, this, _1, _2, _3, _4));
-    command_map.emplace("GPS", std::bind(&CommandManager::do_gps, this, _1, _2, _3, _4));
+    command_map.emplace("GPS",  std::bind(&CommandManager::do_gps,  this, _1, _2, _3, _4));
+    command_map.emplace("AXIS", std::bind(&CommandManager::do_axis, this, _1, _2, _3, _4));
 }
 
 uint8_t CommandManager::processCommand(const char *cmd_buff, SerialManager &ser, MissionManager &info, SensorManager &sensors)
@@ -143,6 +144,16 @@ void CommandManager::do_cx(SerialManager &ser, MissionManager &info, SensorManag
         {
             sensors.EEPROM_resetData();
             info.init_params();
+
+            // Zero the EKF home origin at the current GPS lat/lon and barometer altitude.
+            // Must happen before the mission starts so all subsequent NED positions are
+            // relative to this launch-site origin.
+            sensors.updateBMP();
+            const float home_baro_alt = pressure_to_alt(sensors.getPressure());
+            zero_ekf_pos((float)sensors.getGPS_lat(), (float)sensors.getGPS_lon(), home_baro_alt);
+            ser.sendInfoDataMsg("EKF home zeroed: lat=%.6f lon=%.6f baro_alt=%.1f m",
+                sensors.getGPS_lat(), sensors.getGPS_lon(), home_baro_alt);
+
             ser.sendInfoMsg("ATTEMPTING TO START MISSION.");
             info.setOpState(LAUNCH_PAD);
             sensors.EEPROM_updateState(LAUNCH_PAD);
@@ -715,5 +726,46 @@ void CommandManager::do_gps(SerialManager &ser, MissionManager &info, SensorMana
 	}
 
 	info.set_landing_coords(vals[0], vals[1]);
-	ser.sendInfoDataMsg("Set landing coords to %.4f %.4f", info.get_landing_lat(), info.get_landing_lon());
+	ser.sendInfoDataMsg("Set landing coords to %.6f %.6f", info.get_landing_lat(), info.get_landing_lon());
+}
+
+// AXIS|lat|lon  -- set the axis reference GPS point.
+// The bearing from the landing point to this point defines the runway orientation.
+// Send this command (and GPS) before wing deployment.
+void CommandManager::do_axis(SerialManager &ser, MissionManager &info, SensorManager &sensors, const char *data)
+{
+	if(!data)
+	{
+		ser.sendErrorMsg("COMMAND 'AXIS' REJECTED: DID NOT RECEIVE ANY DATA");
+		return;
+	}
+
+	char buf[DATA_SIZE];
+	strncpy(buf, data, sizeof(buf) - 1);
+	buf[sizeof(buf) - 1] = '\0';
+
+	float vals[2];
+	int val_count = 0;
+
+	for(char *tok = strtok(buf, "|"); tok != nullptr; tok = strtok(nullptr, "|"))
+	{
+		if(val_count >= 2) { val_count++; break; }
+		char *end = nullptr;
+		float val = strtof(tok, &end);
+		if(end == tok || *end != '\0')
+		{
+			ser.sendErrorMsg("COMMAND 'AXIS' REJECTED: RECEIVED INVALID FIELD");
+			return;
+		}
+		vals[val_count++] = val;
+	}
+
+	if(val_count < 2)
+	{
+		ser.sendErrorDataMsg("COMMAND 'AXIS' REJECTED: RECEIVED %d FIELDS", val_count);
+		return;
+	}
+
+	info.set_landing_axis_coords(vals[0], vals[1]);
+	ser.sendInfoDataMsg("Set landing axis ref to %.6f %.6f", info.get_landing_axis_lat(), info.get_landing_axis_lon());
 }

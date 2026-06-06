@@ -318,17 +318,20 @@ PlanStatus PathGuidance::replan(const State& s) {
 
 Vec2 PathGuidance::evalS(float s, float* psi, float* kappa) const {
     if (n_seg_ == 0) { if(psi)*psi=0; if(kappa)*kappa=0; return {}; }
-    if (s < 0.f) s = 0.f; if (s > total_len_) s = total_len_;
+    if (s < 0.f) s = 0.f;
+    if (s > total_len_) s = total_len_;
     int idx = 0;
     for (int i = 0; i < n_seg_; ++i) if (s >= seg_[i].s0) idx = i;
     const Segment& g = seg_[idx];
     float t = s - g.s0; if (t > g.len) t = g.len;
     if (g.type == SegType::Line) {
-        if(psi)*psi=g.psi0; if(kappa)*kappa=0.f;
+        if(psi)*psi=g.psi0;
+        if(kappa)*kappa=0.f;
         return { g.n0 + t*cosf(g.psi0), g.e0 + t*sinf(g.psi0) };
     }
     const float k = g.kappa0;
-    if(psi)*psi = g.psi0 + k*t; if(kappa)*kappa = k;
+    if(psi)*psi = g.psi0 + k*t;
+    if(kappa)*kappa = k;
     if (fabsf(k) < 1e-6f) return { g.n0 + t*cosf(g.psi0), g.e0 + t*sinf(g.psi0) };
     const float p1 = g.psi0 + k*t;
     return { g.n0 + (sinf(p1) - sinf(g.psi0))/k, g.e0 + (cosf(g.psi0) - cosf(p1))/k };

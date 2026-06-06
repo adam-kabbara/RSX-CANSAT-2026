@@ -42,19 +42,55 @@ struct Segment {
 };
 
 struct GuidanceParams {
-    float start_n = 0.f, start_e = 0.f, start_d = 0.f;   // deploy position/altitude
-    float start_heading = 0.f;                            // deploy heading (RESPECTED)
-    float land_n  = 0.f, land_e  = 0.f, land_d  = 0.f;
-    float landing_axis = 0.f;        // landing line orientation (rad); dir chosen by solver
+    // ── Deploy / current-state position ──────────────────────────────────────
+    // Position in the EKF local NED frame (metres from home/launch origin).
+    // Fill from ekf_get_pos() at the moment the wings deploy.
+    float start_n = 0.f;       // North offset from home (m)
+    float start_e = 0.f;       // East  offset from home (m)
+    float start_d = 0.f;       // Down  offset from home (m), positive = below home
 
-    float glide_ratio    = 3.0f;
-    float approach_len   = 40.f;     // final straight leg L3 (m)
-    float min_turn_radius = 25.f;    // align-arc radius and minimum spiral radius
-    float max_radius     = 70.f;     // maximum spiral radius
+    // Deploy heading in NED radians (0 = North, +π/2 = East).
+    // Prefer course-over-ground (atan2(vE, vN)) when moving; fall back to yaw.
+    float start_heading = 0.f;
 
-    // hard bounding box (NED, m)
-    float box_n_min = -250.f, box_n_max = 250.f, box_e_min = -250.f, box_e_max = 250.f;
+    // ── Landing target ────────────────────────────────────────────────────────
+    // Landing position in the EKF local NED frame (metres).
+    // Convert from GPS lat/lon with convert_gps_to_local_ned().
+    float land_n  = 0.f;       // North offset from home (m)
+    float land_e  = 0.f;       // East  offset from home (m)
+    float land_d  = 0.f;       // Down at landing — 0.0 = same altitude as home
 
+    // Landing axis orientation in NED radians (0 = N-S axis, +π/2 = E-W axis).
+    // The solver picks which end of the axis to approach from (180° ambiguity resolved).
+    // Compute via gps_bearing_rad(landing_lat, landing_lon, axis_ref_lat, axis_ref_lon);
+    // use the "AXIS" ground command to set the axis reference GPS point.
+    float landing_axis = 0.f;
+
+    // ── Glider aerodynamics ───────────────────────────────────────────────────
+    // Nominal glide ratio (horizontal distance / altitude drop).
+    // replan() updates this in-flight using the measured L/D.
+    float glide_ratio = 3.0f;
+
+    // ── Path geometry ─────────────────────────────────────────────────────────
+    // Length of the final straight approach leg leading into the landing point (m).
+    float approach_len = 40.f;
+
+    // Minimum turn radius (m). Used for the Dubins align arc and as the lower
+    // bound on the spiral radius. Must match the glider's physical minimum.
+    float min_turn_radius = 25.f;
+
+    // Maximum allowed spiral radius (m). Caps how wide the loiter circle grows.
+    float max_radius = 70.f;
+
+    // ── Hard bounding box (NED, metres from EKF home) ─────────────────────────
+    // Any candidate path that exits this rectangle is rejected.
+    // Set to the competition field boundary converted to the NED frame.
+    float box_n_min = -250.f, box_n_max = 250.f;
+    float box_e_min = -250.f, box_e_max = 250.f;
+
+    // ── Lookahead tracker ─────────────────────────────────────────────────────
+    // How far ahead (in altitude drop, m) the "carrot" point is placed on the
+    // path for pure-pursuit tracking. Larger = smoother, slower to respond.
     float lookahead_drop = 8.f;
 };
 
