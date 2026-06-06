@@ -147,6 +147,35 @@
             map.fitBounds(gpsCircle.getBounds(), {padding: [20, 20]});
         }
 
+        function drawGpsRect(lat1, lon1, lat2, lon2) {
+            if (!map) {
+                initMap(lat1, lon1, 15);
+            }
+
+            var center = [lat1, lon1];
+            var halfWidth = width / 2;
+            var halfHeight = height / 2;
+
+            var bounds = [
+                [lat1 - halfHeight, lon1 - halfWidth],
+                [lat2 + halfHeight, lon2 + halfWidth]
+            ];
+
+            if (gpsCircle) {
+                map.removeLayer(gpsCircle);
+            }
+
+            gpsCircle = L.rectangle(bounds, {
+                color: '#ffd166',
+                weight: 2,
+                fillColor: '#ffd166',
+                fillOpacity: 0.15
+            }).addTo(map);
+
+            gpsCircle.bindPopup("GPS target area: " + width + " m x " + height + " m");
+            map.fitBounds(gpsCircle.getBounds(), {padding: [20, 20]});
+        }
+
         function setZoom(zoom) {
             if (map) map.setZoom(zoom);
         }
@@ -155,6 +184,7 @@
         window.addPoint = addPoint;
         window.clearMap = clearMap;
         window.drawGpsCircle = drawGpsCircle;
+        window.drawGpsRect = drawGpsRect;
         window.setZoom = setZoom;
     </script>
 </body>

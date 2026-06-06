@@ -92,14 +92,14 @@ class GPSMapWidget(QWidget):
         self._view.page().runJavaScript(js_code)
 
     @staticmethod
-    def _build_draw_circle_js(lat, lon, radius):
-        if not (-90 <= lat <= 90) or not (-180 <= lon <= 180) or radius <= 0:
+    def _build_draw_rect_js(lat1, lon1, lat2, lon2):
+        if (not (-90 <= lat1 <= 90 and -90 <= lat2 <= 90) or
+                not (-180 <= lon1 <= 180 and -180 <= lon2 <= 180)):
             return None
-        return f"window.drawGpsCircle({lat}, {lon}, {radius});"
+        return f"window.drawGpsRect({lat1}, {lon1}, {lat2}, {lon2});"
 
-    def draw_circle(self, lat, lon, radius):
-        """Draw a single GPS circle overlay and replace the previous one."""
-        js_code = self._build_draw_circle_js(lat, lon, radius)
+    def draw_gps_rect(self, lat1, lon1, lat2, lon2):
+        js_code = self._build_draw_rect_js(lat1, lon1, lat2, lon2)
         if js_code is None:
             return False
         self._view.page().runJavaScript(js_code)

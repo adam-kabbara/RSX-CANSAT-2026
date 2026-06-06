@@ -224,20 +224,90 @@ PlanStatus PathGuidance::plan() {
     return solveState({ p_.start_n, p_.start_e }, p_.start_heading, p_.start_d);
 }
 
+PlanStatus PathGuidance::buildLoiterTail(Vec2 cur, float dCur) {
+    // Keep the CURRENT spiral (same side, same landing direction, anchored to the
+    // approach). Re-close the remaining budget by re-choosing loops + radius,
+    // biased to the current radius so an on-track replan barely changes anything.
+    // No Dubins entry -- we just continue the loiter we're already flying.
+    const float dir  = (float)sdir_;
+    const float psi4 = psi4_;
+    const Vec2  land { p_.land_n, p_.land_e };
+    const Vec2  ad   = dirOf(psi4);
+    const float L3   = p_.approach_len;
+    const Vec2  pt3  = sub(land, mul(ad, L3));
+    const float budget = gr_ * (p_.land_d - dCur);
+    if (budget <= 0.f) return PlanStatus::Infeasible;
+
+    const float boxfit = fminf(p_.max_radius,
+                         fminf(0.5f*(p_.box_n_max - p_.box_n_min) - 1.f,
+                               0.5f*(p_.box_e_max - p_.box_e_min) - 1.f));
+    const float minR = p_.min_turn_radius, hiR = fmaxf(minR + 0.5f, boxfit);
+
+    auto sweepAt = [&](float R, int N, Vec2& C, float& aNow, float& aExit)->float {
+        C = add(pt3, mul(rightN(psi4), R * dir));
+        aExit = ang(sub(pt3, C));
+        aNow  = ang(sub(cur, C));
+        const float partial = wrap2pi(dir * (aExit - aNow));
+        return partial + kTwoPi * (float)N;
+    };
+
+    float bestR = 0.f; int bestN = -1; float bestScore = 1e30f;
+    Vec2 bestC{}; float bestANow = 0.f, bestSweep = 0.f;
+    for (int N = 0; N < 8; ++N) {
+        auto resid = [&](float R){ Vec2 C; float an, ae; const float sw = sweepAt(R,N,C,an,ae);
+                                   return R*sw + L3 - budget; };
+        const float flo = resid(minR), fhi = resid(hiR);
+        if (flo > 0.f || fhi < 0.f) continue;          // this N can't bracket a root
+        float rlo = minR, rhi = hiR;
+        for (int it = 0; it < 60; ++it) { const float rm = 0.5f*(rlo+rhi);
+            if (resid(rm) < 0.f) rlo = rm; else rhi = rm; }
+        const float R = 0.5f*(rlo+rhi);
+        Vec2 C; float aNow, aExit; const float sweep = sweepAt(R, N, C, aNow, aExit);
+        if (C.n-R < p_.box_n_min || C.n+R > p_.box_n_max ||
+            C.e-R < p_.box_e_min || C.e+R > p_.box_e_max) continue;   // box
+        const float score = (R - R_)*(R - R_);          // stay near current radius
+        if (score < bestScore) { bestScore=score; bestR=R; bestN=N; bestC=C; bestANow=aNow; bestSweep=sweep; }
+    }
+    if (bestN < 0) return PlanStatus::Infeasible;        // caller rolls back
+
+    start_ = cur; start_d_ = dCur;
+    n_seg_ = 0;
+    const Vec2 sp { bestC.n + bestR*cosf(bestANow), bestC.e + bestR*sinf(bestANow) };
+    pushSeg(SegType::Arc, bestR*bestSweep, sp.n, sp.e, headOnCircle(bestANow, sdir_), (float)sdir_/bestR);
+    pushSeg(SegType::Line, L3, pt3.n, pt3.e, psi4, 0.f);
+    float acc = 0.f; for (int i=0;i<n_seg_;++i){ seg_[i].s0=acc; acc+=seg_[i].len; }
+    total_len_ = acc; c_ = bestC; R_ = bestR; N_ = bestN;
+    residual_ = (budget - total_len_) / gr_;
+    return (status_ = PlanStatus::Ok);
+}
+
 PlanStatus PathGuidance::replan(const State& s) {
+    // "In the loiter" = physically on/near the current spiral circle (robust to a
+    // sudden z-shift, which would fool an altitude-band test).
+    const Vec2 cur { s.n, s.e };
+    const float radial = (R_ > 1.f) ? hypotf(cur.n - c_.n, cur.e - c_.e) : 1e9f;
+    const bool nearSpiral = (R_ > 1.f) && (fabsf(radial - R_) < fmaxf(15.f, 0.5f * R_));
+
     const float vh = hypotf(s.vn, s.ve);
     if (s.vd > 0.3f && vh > 0.5f) {
         float gm = vh / s.vd; if (gm < 1.f) gm = 1.f; if (gm > 8.f) gm = 8.f; gr_ = gm;
     }
     const float chi = (vh > 0.5f) ? atan2f(s.ve, s.vn) : s.yaw;
 
-    // snapshot for transactional rollback
     Segment snap[kMaxSeg]; for (int i=0;i<n_seg_;++i) snap[i]=seg_[i];
     const int sn=n_seg_; const Vec2 sc=c_, sst=start_; const float sR=R_, sp=psi4_;
     const int sN=N_, ssd=sdir_; const float sz=start_d_, sl=total_len_, sr=residual_;
     const PlanStatus sS=status_;
 
-    PlanStatus r = solveState({ s.n, s.e }, chi, s.d);
+    PlanStatus r;
+    if (nearSpiral) {
+        r = buildLoiterTail(cur, s.d);              // keep & resize the loiter we're on
+        if (r == PlanStatus::Infeasible)            // can't absorb on this circle ->
+            r = solveState(cur, chi, s.d);          //   full re-solve (may relocate)
+    } else {
+        r = solveState(cur, chi, s.d);              // align/homing/approach: full re-solve
+    }
+
     if (r == PlanStatus::Infeasible) {
         for (int i=0;i<sn;++i) seg_[i]=snap[i];
         n_seg_=sn; c_=sc; start_=sst; R_=sR; psi4_=sp; N_=sN; sdir_=ssd;

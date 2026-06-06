@@ -119,6 +119,7 @@ private:
     void       pathExtents(const Candidate& c, Vec2 P0, float chi0,
                            float& nmin, float& nmax, float& emin, float& emax) const;
     PlanStatus solveState(Vec2 P0, float chi0, float dStart);
+    PlanStatus buildLoiterTail(Vec2 cur, float dCur);   // replan while established in the loiter
     void       emitSegments(const Candidate& c, Vec2 P0, float chi0);
     void       pushSeg(SegType t, float len, float n0, float e0, float psi0, float kappa0);
 

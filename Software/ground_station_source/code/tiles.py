@@ -891,6 +891,13 @@ class TileServerHandler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def _handle_download(self):
+        # KMZ_BBOX = {
+        #     "lat1": 38.37560099,   # SW lat
+        #     "lon1": -79.61154982,  # SW lon
+        #     "lat2": 38.38188891,   # NE lat
+        #     "lon2": -79.60701948,  # NE lon
+        # }
+
         length = int(self.headers.get('Content-Length', 0))
         raw = self.rfile.read(length)
         try:
@@ -899,6 +906,8 @@ class TileServerHandler(SimpleHTTPRequestHandler):
             lon1 = float(params['lon1'])
             lat2 = float(params['lat2'])
             lon2 = float(params['lon2'])
+            # lat1, lon1 = KMZ_BBOX["lat1"], KMZ_BBOX["lon1"]
+            # lat2, lon2 = KMZ_BBOX["lat2"], KMZ_BBOX["lon2"]
             zoom_min = int(params.get('zoom_min', 12))
             zoom_max = int(params.get('zoom_max', 16))
         except (KeyError, ValueError, json.JSONDecodeError) as exc:
