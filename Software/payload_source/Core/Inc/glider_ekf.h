@@ -31,6 +31,8 @@ void CPL_IMU_to_NED(float32_t* accel, float32_t* quat);
  */
 void glider_ekf_init(void);
 
+void zero_ekf_pos(float curr_lat, float curr_lon, float curr_alt);
+
 /**
  * @brief High-rate state propagation step using IMU inputs.
  * @param raw_accel Pointer to a 3-element float array containing [ax, ay, az] in m/s^2.

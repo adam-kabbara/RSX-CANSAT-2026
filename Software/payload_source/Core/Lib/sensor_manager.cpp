@@ -294,6 +294,11 @@ float SensorManager::getGPS_sog()
 	return gps_parser.internal_gps_storage.sog_ms;
 }
 
+float SensorManager::getGPS_pdop()
+{
+	return gps_parser.internal_gps_storage.pdop;
+}
+
 bool SensorManager::GPS_dataReady()
 {
 	return gps_parser.internal_gps_storage.data_ready;

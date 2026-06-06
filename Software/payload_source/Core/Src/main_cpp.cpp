@@ -256,7 +256,7 @@ extern "C" void main_cpp()
             	}
 
             	mission_mgr.update_alt_buffer(pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt());
-				glider_ekf_update_baro(pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt(), 1.0f);
+				//glider_ekf_update_baro(pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt(), 1.0f);
 
 				OperatingState next_state = update_state(sensors, mission_mgr, mission_mgr.getOpState());
 				if(next_state != mission_mgr.getOpState())
@@ -268,6 +268,10 @@ extern "C" void main_cpp()
 
             if(bno_flag)
             {
+				sensors.updateBMP();
+				float pressure_val;
+            	pressure_val = sensors.getPressure();
+				glider_ekf_update_baro(pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt(), 1.0f);
             	bno_flag = 0;
 
             	if(sensors.BNO_dataReady())
@@ -281,16 +285,23 @@ extern "C" void main_cpp()
 					sensors.getGameRotationVector(bno_quat);
 					float raw_accel[4];
 					CPL_IMU_to_NED(raw_accel, bno_quat);
+					float velocities[3];
+					ekf_get_vel(velocities);
+					//serial.sendInfoDataMsg("Vel before prediction: NED (%.1f, %.1f, %.1f) m/s", velocities[0], velocities[1], velocities[2]);
 					glider_ekf_predict(dt);
+					ekf_get_vel(velocities);
+					//serial.sendInfoDataMsg("Vel after prediction: NED (%.1f, %.1f, %.1f) m/s", velocities[0], velocities[1], velocities[2]);
 					glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
+					ekf_get_vel(velocities);
+					//serial.sendInfoDataMsg("Vel after BNO update: NED (%.1f, %.1f, %.1f) m/s", velocities[0], velocities[1], velocities[2]);
 				}
 
 				sensors.updateGPS(serial);
 				if(sensors.GPS_dataReady())
 				{
 					sensors.GPS_dataReadyOff();
-					ekf_gps_update(sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt(), sensors.getGPS_sog(), sensors.getGPS_cog(), sensors.getGPS_rms());
-
+					ekf_gps_update(sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt(), sensors.getGPS_sog(), sensors.getGPS_cog(), sensors.getGPS_pdop());
+					serial.sendInfoDataMsg("GPS Update: Lat=%.6f, Lon=%.6f, Alt=%.1f, SOG=%.1f m/s, COG=%.1f deg, PDOP=%.1f", sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt(), sensors.getGPS_sog(), sensors.getGPS_cog(), sensors.getGPS_pdop());
 					if(plan_done)
 					{
 						uint32_t now = HAL_GetTick();

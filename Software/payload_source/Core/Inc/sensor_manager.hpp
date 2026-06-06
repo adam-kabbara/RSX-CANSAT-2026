@@ -124,6 +124,7 @@ public:
 	float getGPS_cog();
 	float getGPS_rms();
 	float getGPS_sog();
+	float getGPS_pdop();
 	void GPS_dataReadyOff();
 	bool GPS_dataReady();
 	void getGPSTime(char time_str[DATA_SIZE]);

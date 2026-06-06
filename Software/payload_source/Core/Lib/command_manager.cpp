@@ -7,6 +7,7 @@
   */
 
 #include "command_manager.hpp"
+#include "glider_ekf.h"
 
 CommandManager::CommandManager()
 {
@@ -391,7 +392,15 @@ void CommandManager::do_cal2(SerialManager &ser, MissionManager &info, SensorMan
 
   if(strcmp(data, "MAG") == 0)
   {
-
+    sensors.updateGPS(ser);
+    if(sensors.GPS_dataReady())
+    {
+      sensors.GPS_dataReadyOff();
+    zero_ekf_pos(sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt());
+    ser.sendInfoMsg("EKF position reset to GPS position");
+    } else {
+      ser.sendErrorMsg("Cannot reset EKF position to GPS position because GPS data is not ready");
+    }
   }
   else if(strcmp(data, "EGG") == 0)
   {

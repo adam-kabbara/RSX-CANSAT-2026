@@ -33,32 +33,52 @@ float home_lon_rad = 0.0f;
 float home_alt_m   = 0.0f;
 bool  is_home_set  = false;
 
-const float EARTH_RADIUS = 6378137.0f; 
+const float EARTH_RADIUS = 6378137.0f;
 const float DEG_TO_RAD   = M_PI / 180.0f;
 
 // Saved course-over-ground vector from the latest GPS string parse
 static float32_t last_gps_course_rad = 0.0f;
 static bool last_gps_course_valid = false;
 
+// Last GPS speed-over-ground — used to clamp horizontal velocity magnitude
+static float32_t last_sog_ms = 0.0f;
+
+// Baro velocity estimation — least-squares fit over a ring buffer of readings
+#define BARO_VEL_WINDOW 5
+static float32_t baro_alt_history[BARO_VEL_WINDOW];
+static float32_t baro_time_history[BARO_VEL_WINDOW];
+static uint8_t   baro_history_idx   = 0;
+static uint8_t   baro_history_count = 0;
+static float32_t baro_time_accum    = 0.0f; // incremented each predict tick
+
+// ============================================================================
+// UPDATE MASK — controls which states are corrected by a given measurement
+// ============================================================================
+typedef enum {
+    UPDATE_MASK_ALL      = 0xFF, // GPS: correct position, velocity, attitude, bias
+    UPDATE_MASK_ATT_ONLY = 0x02  // IMU: correct attitude and bias only, never position/velocity
+} UpdateMask;
+
 // ============================================================================
 // CORE MATH UTILITIES
 // ============================================================================
 static void quaternion_to_rotation_matrix(const float32_t* q, float32_t* R) {
-   float32_t qw = q[0], qx = q[1], qy = q[2], qz = q[3];
-   R[0] = 1.0f - 2.0f*(qy*qy + qz*qz); R[1] = 2.0f*(qx*qy - qw*qz);        R[2] = 2.0f*(qx*qz + qw*qy);
-   R[3] = 2.0f*(qx*qy + qw*qz);        R[4] = 1.0f - 2.0f*(qx*qx + qz*qz); R[5] = 2.0f*(qy*qz - qw*qx);
-   R[6] = 2.0f*(qx*qz - qw*qy);        R[7] = 2.0f*(qy*qz + qw*qx);        R[8] = 1.0f - 2.0f*(qx*qx + qy*qy);
+    float32_t qw = q[0], qx = q[1], qy = q[2], qz = q[3];
+    R[0] = 1.0f - 2.0f*(qy*qy + qz*qz); R[1] = 2.0f*(qx*qy - qw*qz);        R[2] = 2.0f*(qx*qz + qw*qy);
+    R[3] = 2.0f*(qx*qy + qw*qz);        R[4] = 1.0f - 2.0f*(qx*qx + qz*qz); R[5] = 2.0f*(qy*qz - qw*qx);
+    R[6] = 2.0f*(qx*qz - qw*qy);        R[7] = 2.0f*(qy*qz + qw*qx);        R[8] = 1.0f - 2.0f*(qx*qx + qy*qy);
 }
 
 void CPL_IMU_to_NED(float32_t* accel, float32_t* quat) {
-   accel[0] = -accel[0]; 
-   accel[2] = -accel[2]; 
-   quat[1] = -quat[1];   
-   quat[3] = -quat[3];   
+    accel[0] = -accel[0];
+    accel[2] = -accel[2];
+    quat[1]  = -quat[1];
+    quat[3]  = -quat[3];
 }
 
 void quat_to_rpy(const float32_t* q, float32_t* rpy) {
     float32_t qw = q[0], qx = q[1], qy = q[2], qz = q[3];
+
     // Roll (phi)
     float32_t sinr_cosp = 2.0f * (qw * qx + qy * qz);
     float32_t cosr_cosp = 1.0f - 2.0f * (qx * qx + qy * qy);
@@ -66,9 +86,8 @@ void quat_to_rpy(const float32_t* q, float32_t* rpy) {
 
     // Pitch (theta)
     float32_t sinp = 2.0f * (qw * qy - qz * qx);
-
-    if (fabsf(sinp) >= 1) {
-        rpy[1] = copysignf(M_PI / 2.0f, sinp); // Use 90 degrees if out of range
+    if (fabsf(sinp) >= 1.0f) {
+        rpy[1] = copysignf(M_PI / 2.0f, sinp);
     } else {
         rpy[1] = asinf(sinp);
     }
@@ -93,133 +112,189 @@ void convert_gps_to_local_ned(float curr_lat, float curr_lon, float curr_alt, fl
     float d_lat = curr_lat_rad - home_lat_rad;
     float d_lon = curr_lon_rad - home_lon_rad;
 
-    float meters_per_rad_lat = EARTH_RADIUS; 
+    float meters_per_rad_lat = EARTH_RADIUS;
     float meters_per_rad_lon = EARTH_RADIUS * cosf(home_lat_rad);
 
-    current_pos_ne[0] = d_lat * meters_per_rad_lat; 
-    current_pos_ne[1] = d_lon * meters_per_rad_lon; 
+    current_pos_ne[0] = d_lat * meters_per_rad_lat; // North
+    current_pos_ne[1] = d_lon * meters_per_rad_lon; // East
 }
 
 void ekf_get_pos(float32_t* pos_out) {
-    pos_out[0] = x_pos_vel_biases[0]; 
-    pos_out[1] = x_pos_vel_biases[1]; 
-    pos_out[2] = x_pos_vel_biases[2]; 
+    pos_out[0] = x_pos_vel_biases[0];
+    pos_out[1] = x_pos_vel_biases[1];
+    pos_out[2] = x_pos_vel_biases[2];
 }
 
 void ekf_get_vel(float32_t* vel_out) {
-    vel_out[0] = x_pos_vel_biases[3]; 
-    vel_out[1] = x_pos_vel_biases[4]; 
-    vel_out[2] = x_pos_vel_biases[5]; 
+    vel_out[0] = x_pos_vel_biases[3];
+    vel_out[1] = x_pos_vel_biases[4];
+    vel_out[2] = x_pos_vel_biases[5];
 }
 
 void ekf_get_quaternion(float32_t* quat_out) {
     memcpy(quat_out, x_q, sizeof(x_q));
 }
 
+// ============================================================================
+// INIT
+// ============================================================================
 void glider_ekf_init(void) {
-   arm_mat_init_f32(&P_mat, STATE_DIM, STATE_DIM, P_data);
-   arm_mat_init_f32(&Q_mat, STATE_DIM, STATE_DIM, Q_data);
-   arm_mat_init_f32(&F_mat, STATE_DIM, STATE_DIM, F_data);
-   
-   arm_mat_init_f32(&F_T_mat,   STATE_DIM, STATE_DIM, F_T_data);
-   arm_mat_init_f32(&FP_mat,    STATE_DIM, STATE_DIM, FP_data);
-   arm_mat_init_f32(&FPF_T_mat, STATE_DIM, STATE_DIM, FPF_T_data);
+    arm_mat_init_f32(&P_mat, STATE_DIM, STATE_DIM, P_data);
+    arm_mat_init_f32(&Q_mat, STATE_DIM, STATE_DIM, Q_data);
+    arm_mat_init_f32(&F_mat, STATE_DIM, STATE_DIM, F_data);
 
-   memset(P_data, 0, sizeof(P_data));
-   memset(Q_data, 0, sizeof(Q_data));
-   
-   for(int i = 0; i < STATE_DIM; i++) {
-       P_data[i * STATE_DIM + i] = 0.05f;  
-       Q_data[i * STATE_DIM + i] = 0.002f; // Low tracking noise since kinematics are driven by velocity
-   }
+    arm_mat_init_f32(&F_T_mat,   STATE_DIM, STATE_DIM, F_T_data);
+    arm_mat_init_f32(&FP_mat,    STATE_DIM, STATE_DIM, FP_data);
+    arm_mat_init_f32(&FPF_T_mat, STATE_DIM, STATE_DIM, FPF_T_data);
+
+    memset(P_data, 0, sizeof(P_data));
+    memset(Q_data, 0, sizeof(Q_data));
+
+    // Initial covariance — modest uncertainty across all states
+    for (int i = 0; i < STATE_DIM; i++) {
+        P_data[i * STATE_DIM + i] = 0.05f;
+    }
+
+    // Process noise — tuned per state type:
+    // Position: low, kinematics are well-defined
+    Q_data[0 * STATE_DIM + 0] = 0.01f;
+    Q_data[1 * STATE_DIM + 1] = 0.01f;
+    Q_data[2 * STATE_DIM + 2] = 0.01f;
+    // Velocity: higher — GPS updates infrequent, P must grow enough
+    // between updates so incoming corrections are weighted aggressively
+    Q_data[3 * STATE_DIM + 3] = 0.1f;
+    Q_data[4 * STATE_DIM + 4] = 0.1f;
+    Q_data[5 * STATE_DIM + 5] = 0.2f;  // Down velocity — raised for 1Hz baro; P must grow
+                                        // fast enough for position updates to pull velocity along
+    // Attitude error: tight, BNO constrains these at high rate
+    Q_data[6 * STATE_DIM + 6] = 0.001f;
+    Q_data[7 * STATE_DIM + 7] = 0.001f;
+    Q_data[8 * STATE_DIM + 8] = 0.005f; // Yaw noisier than roll/pitch
+    // Accel bias: very slow-moving
+    Q_data[9  * STATE_DIM + 9]  = 0.0001f;
+    Q_data[10 * STATE_DIM + 10] = 0.0001f;
+    Q_data[11 * STATE_DIM + 11] = 0.0001f;
 }
 
 // ============================================================================
-// 1. VELOCITY-DRIVEN PREDICTION STEP (Replaces direct raw Accel dead-reckoning)
+// 1. VELOCITY-DRIVEN PREDICTION STEP
 // ============================================================================
 void glider_ekf_predict(float32_t dt) {
     if (dt <= 0.0f) return;
 
-    // Kinematics: Propagate position coordinates using the latest filter velocity states
+    // Propagate position from last known velocity.
+    // Velocity is held constant between GPS updates — no artificial damping.
+    // Increasing uncertainty is expressed by P growing through Q, not by
+    // shrinking the velocity state toward zero.
     x_pos_vel_biases[0] += x_pos_vel_biases[3] * dt; // Pos North
     x_pos_vel_biases[1] += x_pos_vel_biases[4] * dt; // Pos East
     x_pos_vel_biases[2] += x_pos_vel_biases[5] * dt; // Pos Down
 
-    // Build the 12x12 Kinematic State Transition Jacobian (F Matrix)
+    // Build kinematic Jacobian F (identity base + dPos/dVel coupling)
     memset(F_data, 0, sizeof(F_data));
-    for(int i = 0; i < STATE_DIM; i++) F_data[i * STATE_DIM + i] = 1.0f; // Diagonal base
+    for (int i = 0; i < STATE_DIM; i++) F_data[i * STATE_DIM + i] = 1.0f;
 
-    // Position updates map directly to velocity states: dPos / dVel = dt
-    F_data[0 * STATE_DIM + 3] = dt; 
-    F_data[1 * STATE_DIM + 4] = dt; 
-    F_data[2 * STATE_DIM + 5] = dt; 
+    // dPos/dVel = dt
+    F_data[0 * STATE_DIM + 3] = dt;
+    F_data[1 * STATE_DIM + 4] = dt;
+    F_data[2 * STATE_DIM + 5] = dt;
 
-    // Execute CMSIS-DSP Matrix Calculations: P = F * P * F^T + Q
+    // Velocity diagonals remain 1.0 — no decay term.
+
+    // P = F * P * F^T + Q
     arm_mat_trans_f32(&F_mat, &F_T_mat);
     arm_mat_mult_f32(&F_mat, &P_mat, &FP_mat);
     arm_mat_mult_f32(&FP_mat, &F_T_mat, &FPF_T_mat);
     arm_mat_add_f32(&FPF_T_mat, &Q_mat, &P_mat);
+
+    // Advance baro time accumulator for least-squares velocity estimation
+    baro_time_accum += dt;
+
+    // Clamp horizontal velocity magnitude to last known GPS SOG.
+    // Preserves direction, caps magnitude — prevents any source of velocity
+    // growth (P cross-term bleed, floating point accumulation) from integrating
+    // into position between GPS updates. In flight SOG is updated every 1Hz
+    // so the ceiling always reflects current flight speed.
+    float32_t vel_mag;
+    arm_sqrt_f32(x_pos_vel_biases[3] * x_pos_vel_biases[3]
+               + x_pos_vel_biases[4] * x_pos_vel_biases[4], &vel_mag);
+    if (vel_mag > last_sog_ms && vel_mag > 0.0f) {
+        float32_t scale = last_sog_ms / vel_mag;
+        x_pos_vel_biases[3] *= scale;
+        x_pos_vel_biases[4] *= scale;
+    }
 }
 
 // ============================================================================
-// 2. SCALAR SENSOR CORRECTION EXTENSION
+// 2. SCALAR SENSOR CORRECTION
 // ============================================================================
-static void execute_scalar_update(uint8_t state_index, float32_t innovation, float32_t r_noise) {
-   float32_t PH_T[STATE_DIM];
-   
-   for(int i = 0; i < STATE_DIM; i++) {
-       PH_T[i] = P_data[i * STATE_DIM + state_index];
-   }
+static void execute_scalar_update(uint8_t state_index, float32_t innovation,
+                                  float32_t r_noise, UpdateMask mask) {
+    float32_t PH_T[STATE_DIM];
+    for (int i = 0; i < STATE_DIM; i++) {
+        PH_T[i] = P_data[i * STATE_DIM + state_index];
+    }
 
-   float32_t S = P_data[state_index * STATE_DIM + state_index] + r_noise;
-   if (S <= 0.0f) return; 
-   float32_t S_inv = 1.0f / S; 
+    float32_t S = P_data[state_index * STATE_DIM + state_index] + r_noise;
+    if (S <= 0.0f) return;
+    float32_t S_inv = 1.0f / S;
 
-   float32_t K[STATE_DIM];
-   float32_t dx[STATE_DIM];
-   for(int i = 0; i < STATE_DIM; i++) {
-       K[i] = PH_T[i] * S_inv;
-       dx[i] = K[i] * innovation;
-   }
+    float32_t K[STATE_DIM];
+    float32_t dx[STATE_DIM];
+    for (int i = 0; i < STATE_DIM; i++) {
+        K[i]  = PH_T[i] * S_inv;
+        dx[i] = K[i] * innovation;
+    }
 
-   // Apply calculated error corrections directly to the velocity states
-   x_pos_vel_biases[0] += dx[0]; x_pos_vel_biases[1] += dx[1]; x_pos_vel_biases[2] += dx[2]; 
-   x_pos_vel_biases[3] += dx[3]; x_pos_vel_biases[4] += dx[4]; x_pos_vel_biases[5] += dx[5]; 
-   
-   // Apply small-angle orientation modifications to the active quaternion
-   float32_t qw = x_q[0], qx = x_q[1], qy = x_q[2], qz = x_q[3];
-   x_q[0] += 0.5f * (-qx*dx[6] - qy*dx[7] - qz*dx[8]);
-   x_q[1] += 0.5f * ( qw*dx[6] - qz*dx[7] + qy*dx[8]);
-   x_q[2] += 0.5f * ( qz*dx[6] + qw*dx[7] - qx*dx[8]);
-   x_q[3] += 0.5f * (-qy*dx[6] + qx*dx[7] + qw*dx[8]);
-   
-   float32_t sum = x_q[0]*x_q[0] + x_q[1]*x_q[1] + x_q[2]*x_q[2] + x_q[3]*x_q[3];
-   float32_t norm;
-   arm_sqrt_f32(sum, &norm);
-   if(norm > 0.0f) {
-       x_q[0] /= norm; x_q[1] /= norm; x_q[2] /= norm; x_q[3] /= norm;
-   }
+    // Position + Velocity corrections — skipped for attitude-only updates.
+    // Without this gate, rotating the board fires attitude corrections that
+    // bleed into position/velocity through dense off-diagonal P terms.
+    if (mask != UPDATE_MASK_ATT_ONLY) {
+        x_pos_vel_biases[0] += dx[0];
+        x_pos_vel_biases[1] += dx[1];
+        x_pos_vel_biases[2] += dx[2];
+        x_pos_vel_biases[3] += dx[3];
+        x_pos_vel_biases[4] += dx[4];
+        x_pos_vel_biases[5] += dx[5];
+    }
 
-   x_pos_vel_biases[6] += dx[9];  
-   x_pos_vel_biases[7] += dx[10]; 
-   x_pos_vel_biases[8] += dx[11]; 
+    // Attitude correction — always applied
+    float32_t qw = x_q[0], qx = x_q[1], qy = x_q[2], qz = x_q[3];
+    x_q[0] += 0.5f * (-qx*dx[6] - qy*dx[7] - qz*dx[8]);
+    x_q[1] += 0.5f * ( qw*dx[6] - qz*dx[7] + qy*dx[8]);
+    x_q[2] += 0.5f * ( qz*dx[6] + qw*dx[7] - qx*dx[8]);
+    x_q[3] += 0.5f * (-qy*dx[6] + qx*dx[7] + qw*dx[8]);
 
-   // Update Covariance Matrix: P = P - K * H * P
-   for(int i = 0; i < STATE_DIM; i++) {
-       for(int j = 0; j < STATE_DIM; j++) {
-           P_data[i * STATE_DIM + j] -= K[i] * P_data[state_index * STATE_DIM + j];
-       }
-   }
+    float32_t sum = x_q[0]*x_q[0] + x_q[1]*x_q[1] + x_q[2]*x_q[2] + x_q[3]*x_q[3];
+    float32_t norm;
+    arm_sqrt_f32(sum, &norm);
+    if (norm > 0.0f) {
+        x_q[0] /= norm; x_q[1] /= norm; x_q[2] /= norm; x_q[3] /= norm;
+    }
+
+    // Accel bias correction — always applied
+    x_pos_vel_biases[6] += dx[9];
+    x_pos_vel_biases[7] += dx[10];
+    x_pos_vel_biases[8] += dx[11];
+
+    // Covariance update: P = P - K * H * P
+    // Runs unconditionally — attitude measurements still reduce uncertainty
+    // in position/velocity through the covariance cross-terms, which is correct.
+    for (int i = 0; i < STATE_DIM; i++) {
+        for (int j = 0; j < STATE_DIM; j++) {
+            P_data[i * STATE_DIM + j] -= K[i] * P_data[state_index * STATE_DIM + j];
+        }
+    }
 }
 
 // ============================================================================
-// 3. FUSED IMU + GPS ORIENTATION CRADLE
+// 3. FUSED IMU + GPS ORIENTATION UPDATE
 // ============================================================================
 void glider_ekf_update_bno_quaternion(float32_t* bno_q, float32_t r_noise) {
     float32_t qw_e = x_q[0], qx_e = x_q[1], qy_e = x_q[2], qz_e = x_q[3];
     float32_t qw_b = bno_q[0], qx_b = bno_q[1], qy_b = bno_q[2], qz_b = bno_q[3];
 
-    // Extract the error quaternion vector components
+    // Error quaternion vector components
     float32_t qe_x =  qw_e*qx_b - qx_e*qw_b - qy_e*qz_b + qz_e*qy_b;
     float32_t qe_y =  qw_e*qy_b + qx_e*qz_b - qy_e*qw_b - qz_e*qx_b;
     float32_t qe_z =  qw_e*qz_b - qx_e*qy_b + qy_e*qx_b - qz_e*qw_b;
@@ -228,16 +303,15 @@ void glider_ekf_update_bno_quaternion(float32_t* bno_q, float32_t r_noise) {
     float32_t pitch_innovation = 2.0f * qe_y;
     float32_t yaw_innovation   = 2.0f * qe_z;
 
-    // Correct Roll and Pitch axes using the high-rate IMU vector fields
-    execute_scalar_update(6, roll_innovation,  r_noise);
-    execute_scalar_update(7, pitch_innovation, r_noise);
+    // Roll and pitch: high-rate IMU, attitude-only mask
+    execute_scalar_update(6, roll_innovation,  r_noise, UPDATE_MASK_ATT_ONLY);
+    execute_scalar_update(7, pitch_innovation, r_noise, UPDATE_MASK_ATT_ONLY);
 
-    // --- FUSED HEADING YAW SELECTION ---
-    // If the glider has forward velocity, overwrite the IMU's raw yaw drift with the GPS Course Over Ground.
-    // If stationary or flying too slowly, fall back safely to the IMU orientation.
-    float32_t ground_speed_sq = (x_pos_vel_biases[3] * x_pos_vel_biases[3]) + (x_pos_vel_biases[4] * x_pos_vel_biases[4]);
-    
-    if (last_gps_course_valid && (ground_speed_sq > 4.0f)) { // 4.0f maps to > 2.0 m/s threshold
+    // Yaw: fuse GPS course-over-ground when moving, fall back to IMU otherwise
+    float32_t ground_speed_sq = (x_pos_vel_biases[3] * x_pos_vel_biases[3])
+                              + (x_pos_vel_biases[4] * x_pos_vel_biases[4]);
+
+    if (last_gps_course_valid && (ground_speed_sq > 4.0f)) { // > ~2 m/s
         float32_t siny_cosp = 2.0f * (x_q[0] * x_q[3] + x_q[1] * x_q[2]);
         float32_t cosy_cosp = 1.0f - 2.0f * (x_q[2] * x_q[2] + x_q[3] * x_q[3]);
         float32_t predicted_yaw = atan2f(siny_cosp, cosy_cosp);
@@ -246,58 +320,125 @@ void glider_ekf_update_bno_quaternion(float32_t* bno_q, float32_t r_noise) {
         while (heading_innovation >  M_PI) heading_innovation -= 2.0f * M_PI;
         while (heading_innovation < -M_PI) heading_innovation += 2.0f * M_PI;
 
-        // Apply heading update with a mixed noise weighting to fuse both inputs cleanly
-        execute_scalar_update(8, heading_innovation, 0.5f);
+        execute_scalar_update(8, heading_innovation, 0.5f, UPDATE_MASK_ATT_ONLY);
     } else {
-        // Fallback to internal IMU tracking if GPS velocity drops below threshold
-        execute_scalar_update(8, yaw_innovation, r_noise);
+        execute_scalar_update(8, yaw_innovation, r_noise, UPDATE_MASK_ATT_ONLY);
     }
 }
 
 void glider_ekf_update_baro(float32_t baro_alt, float32_t r_noise) {
-   // In NED, Down position = -Altitude
-   float32_t innovation = (-baro_alt) - x_pos_vel_biases[2];
-   
-   // FORCE HIGH TRUST: Override incoming r_noise to prioritize the barometer
-   float32_t trusted_baro_noise = 0.15f; 
-   execute_scalar_update(2, innovation, trusted_baro_noise); // State index 2 = Down Position
+    // Don't process baro until home altitude is established — otherwise
+    // Down position is computed relative to 0.0 AGL which is wrong by ~442m
+    if (!is_home_set) return;
+
+    // Convert absolute baro altitude to AGL relative to home
+    baro_alt = baro_alt - home_alt_m;
+
+    // Position update — NED: Down = -Altitude
+    float32_t pos_innovation = (-baro_alt) - x_pos_vel_biases[2];
+    execute_scalar_update(2, pos_innovation, 0.15f, UPDATE_MASK_ALL);
+
+    // Store reading in ring buffer for least-squares velocity estimation
+    baro_alt_history[baro_history_idx]  = baro_alt;
+    baro_time_history[baro_history_idx] = baro_time_accum;
+    baro_history_idx = (baro_history_idx + 1) % BARO_VEL_WINDOW;
+    if (baro_history_count < BARO_VEL_WINDOW) baro_history_count++;
+
+    if (baro_history_count < 2) {
+        // Not enough history yet — soft zero anchor to prevent free drift
+        execute_scalar_update(5, 0.0f - x_pos_vel_biases[5], 2.0f, UPDATE_MASK_ALL);
+        return;
+    }
+
+    // Least-squares linear fit: alt = a*t + b, slope = d(alt)/dt
+    // vel_down (NED) = -slope. Fitting over multiple samples makes this
+    // robust to individual noisy readings — one bad sample shifts the slope
+    // by only 1/n rather than dominating the estimate.
+    float32_t sum_t  = 0.0f, sum_a  = 0.0f;
+    float32_t sum_tt = 0.0f, sum_ta = 0.0f;
+    float32_t n = (float32_t)baro_history_count;
+
+    for (uint8_t i = 0; i < baro_history_count; i++) {
+        float32_t t = baro_time_history[i];
+        float32_t a = baro_alt_history[i];
+        sum_t  += t;
+        sum_a  += a;
+        sum_tt += t * t;
+        sum_ta += t * a;
+    }
+
+    float32_t denom = (n * sum_tt - sum_t * sum_t);
+    if (fabsf(denom) < 1e-6f) {
+        execute_scalar_update(5, 0.0f - x_pos_vel_biases[5], 2.0f, UPDATE_MASK_ALL);
+        return;
+    }
+
+    float32_t slope    = (n * sum_ta - sum_t * sum_a) / denom; // d(alt)/dt
+    float32_t vel_down = -slope; // NED: Down = -altitude rate
+
+    // Noise inversely scales with window fill — more samples = more confidence.
+    // Floor at 0.1 to avoid overconfidence even with a full window.
+    float32_t vel_noise = fmaxf(1.0f / n, 0.1f);
+    execute_scalar_update(5, vel_down - x_pos_vel_biases[5], vel_noise, UPDATE_MASK_ALL);
 }
 
 // ============================================================================
-// 4. GPS PARSING DATA STRATIFICATION
+// 4. GPS UPDATE
 // ============================================================================
 void ekf_gps_update(double lat, double lon, float alt, float sog_ms, float cog_true, float rms_range) {
-   float32_t current_pos_ne[2];
-   convert_gps_to_local_ned(lat, lon, alt, current_pos_ne);
+    // Reject fixes with no altitude — GPS hasn't achieved a 3D lock yet.
+    // This prevents home_alt_m being set to 0.0, which would cause a permanent
+    // ~442m offset in Down position for the rest of the flight.
+    if (alt == 0.0f) return;
 
-   // Construct GPS Down Position from Altitude relative to launch-pad home
-   // Remember: In NED, Down = -Altitude
-   float32_t gps_pos_down = -(alt - home_alt_m);
+    // Auto-set home position on first valid 3D fix.
+    // Keeps zero_ekf_pos() as an optional manual override but ensures
+    // the filter always has a valid baseline before processing measurements.
+    if (!is_home_set) {
+        zero_ekf_pos((float)lat, (float)lon, alt);
+        return; // don't use this fix as a measurement, just establish home
+    }
 
-   // Extract horizontal velocities
-   float32_t gps_vel_ned[3];
-   last_gps_course_rad = cog_true * DEG_TO_RAD;
-   last_gps_course_valid = (last_gps_course_rad != 0.0f);
+    last_gps_course_rad = cog_true * DEG_TO_RAD;
+    last_gps_course_valid = (sog_ms > 1.0f); // raised from 0.5 — COG is unreliable below 1 m/s
+    last_sog_ms = sog_ms;
 
-   gps_vel_ned[0] = sog_ms * cosf(last_gps_course_rad); // North Velocity
-   gps_vel_ned[1] = sog_ms * sinf(last_gps_course_rad); // East Velocity
-   gps_vel_ned[2] = 0.0f;                               // Default Down Velocity if not provided by GPS
+    float32_t current_pos_ne[2];
+    convert_gps_to_local_ned((float)lat, (float)lon, alt, current_pos_ne);
+    float32_t gps_pos_down = -(alt - home_alt_m);
 
-   // Pass values to the filter update step
-   // We pass gps_pos_down directly into our explicit position array update below
-   glider_ekf_update_gps_3d(current_pos_ne, gps_pos_down, gps_vel_ned, rms_range); 
+    float32_t gps_vel_ned[3];
+    gps_vel_ned[0] = sog_ms * cosf(last_gps_course_rad); // North
+    gps_vel_ned[1] = sog_ms * sinf(last_gps_course_rad); // East
+    gps_vel_ned[2] = 0.0f;
+
+    // PDOP is not position error in metres — scale it up and enforce a 5m floor.
+    // Your GPS is showing ±10m position noise while stationary; trusting raw PDOP
+    // causes the filter to jump to every noisy fix rather than smoothing over them.
+    float32_t effective_r = fmaxf(rms_range * 3.0f, 5.0f);
+
+    glider_ekf_update_gps_3d(current_pos_ne, gps_pos_down, gps_vel_ned, effective_r);
 }
 
-void glider_ekf_update_gps_3d(const float32_t* gps_pos_ne, float32_t gps_pos_down, const float32_t* gps_vel_ned, float32_t r_pos) {
-   // 1. Horizontal Updates (Standard trust based on GPS signal quality metrics)
-   execute_scalar_update(0, gps_pos_ne[0]  - x_pos_vel_biases[0], r_pos); // North Pos
-   execute_scalar_update(1, gps_pos_ne[1]  - x_pos_vel_biases[1], r_pos); // East Pos
-   execute_scalar_update(3, gps_vel_ned[0] - x_pos_vel_biases[3], 0.1f);  // North Vel
-   execute_scalar_update(4, gps_vel_ned[1] - x_pos_vel_biases[4], 0.1f);  // East Vel
+void glider_ekf_update_gps_3d(const float32_t* gps_pos_ne, float32_t gps_pos_down,
+                               const float32_t* gps_vel_ned, float32_t r_pos) {
+    // Position updates always — even noisy GPS position is a useful long-term anchor
+    execute_scalar_update(0, gps_pos_ne[0] - x_pos_vel_biases[0], r_pos, UPDATE_MASK_ALL);
+    execute_scalar_update(1, gps_pos_ne[1] - x_pos_vel_biases[1], r_pos, UPDATE_MASK_ALL);
 
-   // 2. Vertical Update (LOW TRUST / HEAVILY PENALIZED)
-   // We artificially inflate the GPS vertical noise parameter to 15.0 meters.
-   // This allows the barometer to dominate the state while GPS handles long-term drift.
-   float32_t high_gps_alt_noise = 15.0f; 
-   execute_scalar_update(2, gps_pos_down - x_pos_vel_biases[2], high_gps_alt_noise); // Down Pos
+    // Velocity updates only above 1 m/s SOG. Below that, GPS COG is dominated
+    // by receiver noise and derived velocity is meaningless — feeding it in
+    // drives position away from the fix rather than toward it.
+    // When slow/stationary, apply a soft zero-velocity anchor instead.
+    if (last_sog_ms > 1.0f) {
+        execute_scalar_update(3, gps_vel_ned[0] - x_pos_vel_biases[3], 0.5f, UPDATE_MASK_ALL);
+        execute_scalar_update(4, gps_vel_ned[1] - x_pos_vel_biases[4], 0.5f, UPDATE_MASK_ALL);
+    } else {
+        execute_scalar_update(3, 0.0f - x_pos_vel_biases[3], 0.5f, UPDATE_MASK_ALL);
+        execute_scalar_update(4, 0.0f - x_pos_vel_biases[4], 0.5f, UPDATE_MASK_ALL);
+    }
+
+    // Vertical: barometer dominates altitude; GPS handles long-term drift only
+    // float32_t high_gps_alt_noise = 15.0f;
+    // execute_scalar_update(2, gps_pos_down - x_pos_vel_biases[2], high_gps_alt_noise, UPDATE_MASK_ALL);
 }
