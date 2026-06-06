@@ -134,7 +134,7 @@ void SensorManager::BNO_RotateY(BNO085_t *bno_dev, float angle_rad)
 void SensorManager::updateBNO()
 {
 	BNO085_GetData(&bno_dev);
-	BNO_RotateY(&bno_dev, M_PI / 2.0f); // rotate sensor data 90 degrees around Y axis to match CPL's frame of reference
+	//BNO_RotateY(&bno_dev, M_PI / 2.0f); // rotate sensor data 90 degrees around Y axis to match CPL's frame of reference
 	//printf("Gyro=%.4f\r\n", bno_dev.gyro.x);
 }
 

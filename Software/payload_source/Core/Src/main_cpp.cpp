@@ -273,16 +273,15 @@ extern "C" void main_cpp()
             	if(sensors.BNO_dataReady())
 				{
 					sensors.updateBNO();
-					float raw_accel[4];
-					sensors.getLinearAccel(raw_accel);
 					uint32_t current_time = HAL_GetTick();
 					float dt = (current_time - bno_update_timer) / 1000.0f;
 					if(dt <= 0) dt = 0.02f; // sanity check
 					bno_update_timer = current_time;
 					float bno_quat[5];
 					sensors.getGameRotationVector(bno_quat);
+					float raw_accel[4];
 					CPL_IMU_to_NED(raw_accel, bno_quat);
-					glider_ekf_predict_bno_mode(raw_accel, dt);
+					glider_ekf_predict(dt);
 					glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
 				}
 
@@ -366,7 +365,7 @@ extern "C" void main_cpp()
 
                 // landing target from mission config (not return-to-home)
                 float land_ne[2];
-                convert_gps_to_local_ned2(mission_mgr.get_landing_lat(), mission_mgr.get_landing_lon(), 0.0f, land_ne);
+                convert_gps_to_local_ned(mission_mgr.get_landing_lat(), mission_mgr.get_landing_lon(), 0.0f, land_ne);
                 gp.land_n = land_ne[0];
                 gp.land_e = land_ne[1];
                 gp.land_d = 0.0f;                    // ground = launch level (Down = 0)

@@ -37,11 +37,7 @@ void glider_ekf_init(void);
  * @param raw_gyro  Pointer to a 3-element float array containing [wx, wy, wz] in rad/s.
  * @param dt        The time delta since the last IMU sample in seconds (e.g., 0.01f for 100Hz).
  */
-void glider_ekf_predict(float32_t* raw_accel, float32_t* raw_gyro, float32_t dt);
-
-void glider_ekf_predict_bno_mode(float32_t* raw_accel, float32_t dt);
-
-void glider_ekf_update_bno_quaternion(float32_t* bno_q, float32_t r_noise);
+void glider_ekf_predict(float32_t dt);
 
 /**
  * @brief Asynchronous correction step using Barometer data.
@@ -50,7 +46,8 @@ void glider_ekf_update_bno_quaternion(float32_t* bno_q, float32_t r_noise);
  */
 void glider_ekf_update_baro(float32_t baro_alt, float32_t r_noise);
 
-void ekf_gps_update(double lat, double lon, float alt, float sog_ms, float cog_true, float rms_range);
+void glider_ekf_update_bno_quaternion(float32_t* bno_q, float32_t r_noise);
+
 
 /**
  * @brief Asynchronous correction step using GPS data.
@@ -59,16 +56,11 @@ void ekf_gps_update(double lat, double lon, float alt, float sog_ms, float cog_t
  * @param r_pos       The position measurement noise variance.
  * @param r_vel       The velocity measurement noise variance.
  */
-void glider_ekf_update_gps(const float32_t* gps_pos_ne, const float32_t* gps_vel_ned, float32_t r_pos, float32_t r_vel);
+void ekf_gps_update(double lat, double lon, float alt, float sog_ms, float cog_true, float rms_range);
 
-/**
- * @brief Asynchronous correction step using the Magnetic Compass.
- * @param compass_yaw_rad The tilt-compensated absolute heading in radians (-PI to +PI).
- * @param r_noise         The heading measurement noise variance.
- */
-void glider_ekf_update_compass(float32_t compass_yaw_rad, float32_t r_noise);
+void glider_ekf_update_gps_3d(const float32_t* gps_pos_ne, float32_t gps_pos_down, const float32_t* gps_vel_ned, float32_t r_pos);
 
-void convert_gps_to_local_ned2(float curr_lat, float curr_lon, float curr_alt, float* current_pos_ne);
+void convert_gps_to_local_ned(float curr_lat, float curr_lon, float curr_alt, float* current_pos_ne);
 
 #ifdef __cplusplus
 }
