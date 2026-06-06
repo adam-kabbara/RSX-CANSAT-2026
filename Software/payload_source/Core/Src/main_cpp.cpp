@@ -341,7 +341,7 @@ extern "C" void main_cpp()
 							{
 								target_heading = cmd.heading;
 								float speed = sqrtf(st.vn*st.vn + st.ve*st.ve + st.vd*st.vd);
-								uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt);
+								uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt, true);
 								uint16_t elevator_pwm = controller.update_pitch_control(5.0f, st.vd, speed, st.pitch, dt);
 								sensors.writeAileronServoPPM(aileron_pwm);
 								sensors.writeElevatorServoPPM(elevator_pwm);
@@ -350,7 +350,7 @@ extern "C" void main_cpp()
 						else
 						{
 							float speed = sqrtf(st.vn*st.vn + st.ve*st.ve + st.vd*st.vd);
-							uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt);
+							uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt, true);
 							uint16_t elevator_pwm = controller.update_pitch_control(5.0f, st.vd, speed, st.pitch, dt);
 							sensors.writeAileronServoPPM(aileron_pwm);
 							sensors.writeElevatorServoPPM(elevator_pwm);
