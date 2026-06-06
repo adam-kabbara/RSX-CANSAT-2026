@@ -283,12 +283,13 @@ extern "C" void main_cpp()
 					bno_update_timer = current_time;
 					float bno_quat[5];
 					sensors.getGameRotationVector(bno_quat);
-					float raw_accel[4];
-					CPL_IMU_to_NED(raw_accel, bno_quat);
+					float linear_accel[4];
+					sensors.getLinearAccel(linear_accel);
+					CPL_IMU_to_NED(linear_accel, bno_quat);
 					float velocities[3];
 					ekf_get_vel(velocities);
 					//serial.sendInfoDataMsg("Vel before prediction: NED (%.1f, %.1f, %.1f) m/s", velocities[0], velocities[1], velocities[2]);
-					glider_ekf_predict(dt);
+					glider_ekf_predict(linear_accel, dt);
 					ekf_get_vel(velocities);
 					//serial.sendInfoDataMsg("Vel after prediction: NED (%.1f, %.1f, %.1f) m/s", velocities[0], velocities[1], velocities[2]);
 					glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
