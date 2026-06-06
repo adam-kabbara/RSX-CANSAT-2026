@@ -286,7 +286,7 @@ extern "C" void main_cpp()
 					CPL_IMU_to_NED(raw_accel, bno_quat);
 					glider_ekf_predict(dt);
 					glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
-					if (no_guidance) {
+					if (mission_mgr.getFlightCtrl() == MANUAL) {
 					float q[4], rpy[3];
 					ekf_get_quaternion(q);
 					quat_to_rpy(q, rpy);
@@ -314,7 +314,7 @@ extern "C" void main_cpp()
 					sensors.GPS_dataReadyOff();
 					ekf_gps_update(sensors.getGPS_lat(), sensors.getGPS_lon(), sensors.getGPS_alt(), sensors.getGPS_sog(), sensors.getGPS_cog(), sensors.getGPS_rms());
 
-					if(plan_done && !no_guidance)
+					if(plan_done && mission_mgr.getFlightCtrl() == AUTONOMOUS)
 					{
 						uint32_t now = HAL_GetTick();
 						float dt = (now - ctrl_timer) / 1000.0f;
@@ -366,7 +366,7 @@ extern "C" void main_cpp()
 				}
             }
 
-            if (!plan_done && mission_mgr.getOpState() == PROBE_RELEASE && !no_guidance)
+            if (!plan_done && mission_mgr.getOpState() == PROBE_RELEASE && mission_mgr.getFlightCtrl() == AUTONOMOUS)
             {
                 rsx::GuidanceParams gp;
 
