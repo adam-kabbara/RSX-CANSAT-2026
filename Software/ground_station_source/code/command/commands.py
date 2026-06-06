@@ -104,9 +104,10 @@ class Commands(QObject):
         elif self._serial.send_data(self._cmd(op="CAL2", val=cal_type)):
             self.print_signal.emit(f"Sent {cal_type} calibration command")
 
-    def command__set_gps(self, __gps_lat, __gps_lon, __gps_rad):
-        if self._serial.send_data(self._cmd(op="GPS", val=(f"{__gps_lat}|{__gps_lon}|{__gps_rad}"))):
-            self.print_signal.emit(f"Sent command to set GPS coordinates to LAT:{__gps_lat}, LON:{__gps_lon}, RAD:{__gps_rad}")
+    def command__set_gps(self, __gps_lat1, __gps_lon1, __gps_lat2, __gps_lon2):
+        val = f"{__gps_lat1}|{__gps_lon1}|{__gps_lat2}|{__gps_lon2}"
+        if self._serial.send_data(self._cmd(op="GPS", val=val)):
+            self.print_signal.emit(f"Sent command to set GPS coordinates to LAT1:{__gps_lat1}, LON1:{__gps_lon1}, LAT2:{__gps_lat2}, LON2:{__gps_lon2}")
             return True
         return False
 
