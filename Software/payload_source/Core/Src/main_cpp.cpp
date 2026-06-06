@@ -297,7 +297,7 @@ extern "C" void main_cpp()
 					uint32_t now = HAL_GetTick();
 					float dt = (now - baro_timer) / 1000.0f;
 					float down_vel = (alt_cur - baro_prev) / dt;
-					uint16_t aileron_pwm  = controller.update_roll_control(rpy[2] - 0.09, rpy[2], rpy[0], dt);
+					uint16_t aileron_pwm  = controller.update_roll_control(rpy[2] - 0.09, rpy[2], rpy[0], dt, false);
 					uint16_t elevator_pwm = controller.update_pitch_control(5.0f, down_vel, 12.0f, rpy[1], dt);
 					//serial.sendInfoDataMsg("Roll %.4f", rpy[0]);
 					sensors.writeAileronServoPPM(aileron_pwm);

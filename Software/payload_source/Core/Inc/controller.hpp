@@ -46,7 +46,7 @@ public:
      * @param dt Sampling time delta in seconds
      * @return PWM pulse width in microseconds (typically 1100 - 1900)
      */
-    uint16_t update_roll_control(float target_heading, float current_heading, float current_roll, float dt);
+    uint16_t update_roll_control(float target_heading, float current_heading, float current_roll, float dt, bool auto);
 
     /**
      * @brief Computes the Pitch (Elevator) servo command tailored for a strict constant descent rate.
