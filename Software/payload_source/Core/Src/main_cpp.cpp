@@ -74,6 +74,9 @@ uint32_t nosecone_rel__payload_rel_timer = 0;
 uint32_t wing_servo_timer = 0;
 uint32_t egg_timer = 0;
 uint32_t bno_update_timer = 0;
+float baro_prev = 0;
+uint32_t baro_timer = 0;
+bool no_guidance = true;
 OperatingState update_state(SensorManager &sensors, MissionManager &mgr, OperatingState current_state);
 
 extern "C" void main_cpp()
@@ -347,6 +350,26 @@ extern "C" void main_cpp()
 					glider_ekf_update_bno_quaternion(bno_quat, bno_quat[4]);
 					ekf_get_vel(velocities);
 					//serial.sendInfoDataMsg("Vel after BNO update: NED (%.1f, %.1f, %.1f) m/s", velocities[0], velocities[1], velocities[2]);
+					if (mission_mgr.getFlightCtrl() == MANUAL) {
+					float q[4], rpy[3];
+					ekf_get_quaternion(q);
+					quat_to_rpy(q, rpy);
+					sensors.updateBMP();
+					float pressure_val;
+            		pressure_val = sensors.getPressure();
+					float alt_cur = pressure_to_alt(pressure_val) - mission_mgr.getLaunchAlt();
+					uint32_t now = HAL_GetTick();
+					float dt = (now - baro_timer) / 1000.0f;
+					float down_vel = (alt_cur - baro_prev) / dt;
+					uint16_t aileron_pwm  = controller.update_roll_control(rpy[2] - 0.09, rpy[2], rpy[0], dt, false);
+					uint16_t elevator_pwm = controller.update_pitch_control(5.0f, down_vel, 12.0f, rpy[1], dt);
+					//serial.sendInfoDataMsg("Roll %.4f", rpy[0]);
+					sensors.writeAileronServoPPM(aileron_pwm);
+					//HAL_Delay(10);
+					sensors.writeElevatorServoPPM(elevator_pwm);
+					//HAL_Delay(10);
+					}
+
 				}
 
 				sensors.updateGPS(serial);
@@ -383,7 +406,7 @@ extern "C" void main_cpp()
 					gps_prev_tick = gps_now;
 					gps_has_prev  = true;
 
-					if(plan_done)
+					if(plan_done && mission_mgr.getFlightCtrl() == AUTONOMOUS)
 					{
 						uint32_t now = HAL_GetTick();
 						float dt = (now - ctrl_timer) / 1000.0f;
@@ -408,7 +431,7 @@ extern "C" void main_cpp()
 							{
 								target_heading = cmd.heading;
 								float speed = sqrtf(st.vn*st.vn + st.ve*st.ve + st.vd*st.vd);
-								uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt);
+								uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt, true);
 								uint16_t elevator_pwm = controller.update_pitch_control(5.0f, st.vd, speed, st.pitch, dt);
 								sensors.writeAileronServoPPM(aileron_pwm);
 								sensors.writeElevatorServoPPM(elevator_pwm);
@@ -417,7 +440,7 @@ extern "C" void main_cpp()
 						else
 						{
 							float speed = sqrtf(st.vn*st.vn + st.ve*st.ve + st.vd*st.vd);
-							uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt);
+							uint16_t aileron_pwm  = controller.update_roll_control(target_heading, st.yaw, st.roll, dt, true);
 							uint16_t elevator_pwm = controller.update_pitch_control(5.0f, st.vd, speed, st.pitch, dt);
 							sensors.writeAileronServoPPM(aileron_pwm);
 							sensors.writeElevatorServoPPM(elevator_pwm);
@@ -428,7 +451,7 @@ extern "C" void main_cpp()
 				}
             }
 
-            if (!plan_done && mission_mgr.getOpState() == PROBE_RELEASE)
+            if (!plan_done && mission_mgr.getOpState() == PROBE_RELEASE && mission_mgr.getFlightCtrl() == AUTONOMOUS)
             {
                 rsx::GuidanceParams gp;
 

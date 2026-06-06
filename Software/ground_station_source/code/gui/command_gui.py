@@ -59,10 +59,10 @@ class CommandWindow(QMainWindow):
         self.__dc_motor_val       = 0
         self.__joy_sensitivity    = 0.05
         self.__joy_update_ms      = 20
-        self.__gps_lat1            = 0.0
-        self.__gps_lon1            = 0.0
-        self.__gps_lat2            = 0.0
-        self.__gps_lon2            = 0.0
+        self.__gps_nw = (0.0, 0.0)
+        self.__gps_ne = (0.0, 0.0)
+        self.__gps_se = (0.0, 0.0)
+        self.__gps_sw = (0.0, 0.0)
         self.__sim_mode           = "ENABLE"
         self.__flight_ctrl        = "AUTONOMOUS"
         self.__custom_msg         = ""
@@ -223,42 +223,37 @@ class CommandWindow(QMainWindow):
         self.button_set_gps.clicked.connect(self.set_gps_coordinates)
         self.button_set_gps.hide()
 
-        self.gps_lat1 = QLineEdit()
-        self.gps_lat1.setPlaceholderText("SW Latitude")
-        self.gps_lat1.setValidator(QDoubleValidator())
-        self.gps_lat1.setStyleSheet(cosmetics.team_id_stylesheet())
-        self.gps_lat1.editingFinished.connect(self.gps_lat1_edited)
-        
+        self.gps_nw = QLineEdit()
+        self.gps_nw.setPlaceholderText("NW (lat, lon)")
+        self.gps_nw.setValidator(None)  # validate manually, pairs don't suit QDoubleValidator
+        self.gps_nw.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_nw.editingFinished.connect(self.gps_nw_edited)
 
-        self.gps_lon1 = QLineEdit()
-        self.gps_lon1.setPlaceholderText("SW Longitude")
-        self.gps_lon1.setValidator(QDoubleValidator())
-        self.gps_lon1.setStyleSheet(cosmetics.team_id_stylesheet())
-        self.gps_lon1.editingFinished.connect(self.gps_lon1_edited)
-        
+        self.gps_ne = QLineEdit()
+        self.gps_ne.setPlaceholderText("NE (lat, lon)")
+        self.gps_ne.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_ne.editingFinished.connect(self.gps_ne_edited)
 
-        self.gps_lat2 = QLineEdit()
-        self.gps_lat2.setPlaceholderText("NE Latitude")
-        self.gps_lat2.setValidator(QDoubleValidator())
-        self.gps_lat2.setStyleSheet(cosmetics.team_id_stylesheet())
-        self.gps_lat2.editingFinished.connect(self.gps_lat2_edited)
+        self.gps_se = QLineEdit()
+        self.gps_se.setPlaceholderText("SE (lat, lon)")
+        self.gps_se.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_se.editingFinished.connect(self.gps_se_edited)
 
-        self.gps_lon2 = QLineEdit()
-        self.gps_lon2.setPlaceholderText("NE Longitude")
-        self.gps_lon2.setValidator(QDoubleValidator())
-        self.gps_lon2.setStyleSheet(cosmetics.team_id_stylesheet())
-        self.gps_lon2.editingFinished.connect(self.gps_lon2_edited)
+        self.gps_sw = QLineEdit()
+        self.gps_sw.setPlaceholderText("SW (lat, lon)")
+        self.gps_sw.setStyleSheet(cosmetics.team_id_stylesheet())
+        self.gps_sw.editingFinished.connect(self.gps_sw_edited)
 
-        self.gps_lat1.hide()
-        self.gps_lon1.hide()
-        self.gps_lat2.hide()
-        self.gps_lon2.hide()
+        self.gps_nw.hide()
+        self.gps_ne.hide()
+        self.gps_se.hide()
+        self.gps_sw.hide()
 
         set_gps_box.addWidget(self.button_set_gps)
-        set_gps_box.addWidget(self.gps_lat1)
-        set_gps_box.addWidget(self.gps_lon1)
-        set_gps_box.addWidget(self.gps_lat2)
-        set_gps_box.addWidget(self.gps_lon2)
+        set_gps_box.addWidget(self.gps_nw)
+        set_gps_box.addWidget(self.gps_ne)
+        set_gps_box.addWidget(self.gps_se)
+        set_gps_box.addWidget(self.gps_sw)
 
         self.button_set_sim_mode = QPushButton("SET SIM MODE")
         self.button_set_sim_mode.setFont(button_font)
@@ -597,10 +592,10 @@ class CommandWindow(QMainWindow):
 
         self.buttons_setup = [
             self.button_set_gps,
-            self.gps_lat1,
-            self.gps_lon1,
-            self.gps_lat2,
-            self.gps_lon2,
+            self.gps_nw,
+            self.gps_ne,
+            self.gps_se,
+            self.gps_sw,
             self.button_back,
             self.button_set_time,
             self.set_time_field,
@@ -891,69 +886,83 @@ class CommandWindow(QMainWindow):
         self.joystick_update_interval_field.clearFocus()
         if self.joystick_update_interval_field.text():
             self.__joy_update_ms = int(self.joystick_update_interval_field.text())
+    
+    def _parse_coord_pair(self, text):
+        parts = text.strip().split(",")
+        if len(parts) != 2:
+            raise ValueError("Expected format: lat, lon")
+        lat, lon = float(parts[0].strip()), float(parts[1].strip())
+        if not (-90 <= lat <= 90):
+            raise ValueError(f"Latitude {lat} out of range")
+        if not (-180 <= lon <= 180):
+            raise ValueError(f"Longitude {lon} out of range")
+        return lat, lon
 
-    def gps_lat1_edited(self):
-        self.gps_lat1.clearFocus()
-        if self.gps_lat1.text():
-            self.__gps_lat1 = float(self.gps_lat1.text())
-
-    def gps_lon1_edited(self):
-        self.gps_lon1.clearFocus()
-        if self.gps_lon1.text():
-            self.__gps_lon1 = float(self.gps_lon1.text())
-
-    def gps_lat2_edited(self):
-        self.gps_lat2.clearFocus()
-        if self.gps_lat2.text():
-            self.__gps_lat2 = float(self.gps_lat2.text())
-
-    def gps_lon2_edited(self):
-        self.gps_lon2.clearFocus()
-        if self.gps_lon2.text():
-            self.__gps_lon2 = float(self.gps_lon2.text())
-
-    def set_gps_coordinates(self):
-        lat1_text = self.gps_lat1.text().strip()
-        lon1_text = self.gps_lon1.text().strip()
-        lat2_text = self.gps_lat2.text().strip()
-        lon2_text = self.gps_lon2.text().strip()
-
-        if not lat1_text or not lon1_text or not lat2_text or not lon2_text:
-            self.update_gui_log_error("ERROR: Enter latitude, longitude, and radius before setting GPS coordinates.")
-            return
-
+    def gps_nw_edited(self):
+        self.gps_nw.clearFocus()
         try:
-            lat1 = float(lat1_text)
-            lon1 = float(lon1_text)
-            lat2 = float(lat2_text)
-            lon2 = float(lon2_text)
+            self.__gps_nw = self._parse_coord_pair(self.gps_nw.text())
         except ValueError:
-            self.update_gui_log_error("ERROR: GPS coordinates must be numeric.")
+            pass
+
+    def gps_ne_edited(self):
+        self.gps_ne.clearFocus()
+        try:
+            self.__gps_ne = self._parse_coord_pair(self.gps_ne.text())
+        except ValueError:
+            pass
+
+    def gps_se_edited(self):
+        self.gps_se.clearFocus()
+        try:
+            self.__gps_se = self._parse_coord_pair(self.gps_se.text())
+        except ValueError:
+            pass
+
+    def gps_sw_edited(self):
+        self.gps_sw.clearFocus()
+        try:
+            self.__gps_sw = self._parse_coord_pair(self.gps_sw.text())
+        except ValueError:
+            pass
+
+    def _sort_corners_to_winding_order(self, corners):
+        # Find centroid
+        clat = sum(c[0] for c in corners) / 4
+        clon = sum(c[1] for c in corners) / 4
+
+        # Sort by angle from centroid, clockwise from north
+        import math
+        def angle(c):
+            # atan2 from center, y=lat x=lon, clockwise from north
+            return math.atan2(c[1] - clon, c[0] - clat)
+
+        return sorted(corners, key=angle, reverse=True)
+    
+    def set_gps_coordinates(self):
+        try:
+            nw = self._parse_coord_pair(self.gps_nw.text())
+            ne = self._parse_coord_pair(self.gps_ne.text())
+            se = self._parse_coord_pair(self.gps_se.text())
+            sw = self._parse_coord_pair(self.gps_sw.text())
+        except ValueError as e:
+            self.update_gui_log_error(f"ERROR: {e}")
             return
 
-        if not (-90 <= lat1 <= 90):
-            self.update_gui_log_error("ERROR: Latitude 1 must be between -90 and 90.")
-            return
+        # Unpack in NW → NE → SE → SW winding order
+        sorted_corners = self._sort_corners_to_winding_order([nw, ne, se, sw])
+        lat1, lon1 = sorted_corners[0]
+        lat2, lon2 = sorted_corners[1]
+        lat3, lon3 = sorted_corners[2]
+        lat4, lon4 = sorted_corners[3]
 
-        if not (-180 <= lon1 <= 180):
-            self.update_gui_log_error("ERROR: Longitude 1 must be between -180 and 180.")
-            return
+        self.__gps_nw = nw
+        self.__gps_ne = ne
+        self.__gps_se = se
+        self.__gps_sw = sw
 
-        if not (-90 <= lat2 <= 90):
-            self.update_gui_log_error("ERROR: Latitude 2 must be between -90 and 90.")
-            return
-
-        if not (-180 <= lon2 <= 180):
-            self.update_gui_log_error("ERROR: Longitude 2 must be between -180 and 180.")
-            return
-
-        self.__gps_lat1 = lat1
-        self.__gps_lon1 = lon1
-        self.__gps_lat2 = lat2
-        self.__gps_lon2 = lon2
-
-        if self.command_manager.command__set_gps(lat1, lon1, lat2, lon2):
-            self._graph_ui.draw_gps_rect(lat1, lon1, lat2, lon2)
+        if self.command_manager.command__set_gps(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4):
+            self._graph_ui.draw_gps_poly(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4)
 
     def servo_id_edited(self, index):
         self.__servo_id = self.servo_id_field.itemData(index)

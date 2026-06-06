@@ -16,7 +16,8 @@ float FlightControllers::clamp(float value, float min_val, float max_val) {
     return std::max(min_val, std::min(value, max_val));
 }
 
-uint16_t FlightControllers::update_roll_control(float target_heading, float current_heading, float current_roll, float dt) {
+uint16_t FlightControllers::update_roll_control(float target_heading, float current_heading, float current_roll, float dt, bool auto) {
+    if (auto){
     if (dt <= 0.0f) return sc.center_pwm;
 
     // ------------------------------------------------------------------------
@@ -29,7 +30,10 @@ uint16_t FlightControllers::update_roll_control(float target_heading, float curr
     while (heading_error < -M_PI) heading_error += 2.0f * M_PI;
 
     // Command a target roll angle proportional to heading error
-    float target_roll = heading_error * rc.p_heading;
+    float target_roll = rc.p_heading * heading_error;
+    } else {
+        
+    }float target_roll = 0.3f;
 
     // Cap the roll demand to structural/aerodynamic bank limits
     target_roll = clamp(target_roll, -rc.max_roll, rc.max_roll);
@@ -58,7 +62,7 @@ uint16_t FlightControllers::update_roll_control(float target_heading, float curr
     int16_t servo_offset = static_cast<int16_t>(total_output * sc.scale_factor);
     servo_offset = clamp(servo_offset, -sc.max_trim, sc.max_trim);
 
-    return static_cast<uint16_t>(sc.center_pwm + servo_offset);
+    return static_cast<uint16_t>(sc.center_pwm - servo_offset);
 }
 
 uint16_t FlightControllers::update_pitch_control(float target_sink, float current_sink, float current_speed, float current_pitch, float dt) {
