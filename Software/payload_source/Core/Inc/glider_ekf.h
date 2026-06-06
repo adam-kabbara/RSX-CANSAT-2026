@@ -31,13 +31,15 @@ void CPL_IMU_to_NED(float32_t* accel, float32_t* quat);
  */
 void glider_ekf_init(void);
 
+void zero_ekf_pos(float curr_lat, float curr_lon, float curr_alt);
+
 /**
  * @brief High-rate state propagation step using IMU inputs.
  * @param raw_accel Pointer to a 3-element float array containing [ax, ay, az] in m/s^2.
  * @param raw_gyro  Pointer to a 3-element float array containing [wx, wy, wz] in rad/s.
  * @param dt        The time delta since the last IMU sample in seconds (e.g., 0.01f for 100Hz).
  */
-void glider_ekf_predict(float32_t dt);
+void glider_ekf_predict(const float32_t* linear_accel_body, float32_t dt);
 
 /**
  * @brief Asynchronous correction step using Barometer data.

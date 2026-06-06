@@ -303,3 +303,19 @@ float MissionManager::get_landing_lon()
 {
 	return landing_coords[1];
 }
+
+void MissionManager::set_landing_axis_coords(float lat, float lon)
+{
+	landing_axis_coords[0] = lat;
+	landing_axis_coords[1] = lon;
+}
+
+float MissionManager::get_landing_axis_lat()
+{
+	return landing_axis_coords[0];
+}
+
+float MissionManager::get_landing_axis_lon()
+{
+	return landing_axis_coords[1];
+}

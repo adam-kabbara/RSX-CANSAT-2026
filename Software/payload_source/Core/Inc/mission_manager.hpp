@@ -37,13 +37,20 @@ private:
     bool egg_flag = false;
     int landed_trigger_count = 0;
     float egg_alt_cal = 0.0f;
-    float landing_coords[2];
+    float landing_coords[2];       // landing target  [lat_deg, lon_deg]
+    float landing_axis_coords[2];  // axis ref point  [lat_deg, lon_deg] — bearing to this defines the runway direction
 
 public:
 
     void set_landing_coords(float lat, float lon);
     float get_landing_lat();
     float get_landing_lon();
+
+    // Axis reference point — bearing from landing_coords to this point defines the landing axis.
+    // Set via the "AXIS" ground command before wing deployment.
+    void set_landing_axis_coords(float lat, float lon);
+    float get_landing_axis_lat();
+    float get_landing_axis_lon();
 
     bool nosecone_check();
     bool probe_check();
