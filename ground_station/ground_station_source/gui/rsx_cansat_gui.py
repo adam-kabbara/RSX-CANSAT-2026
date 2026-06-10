@@ -1,5 +1,12 @@
 """
 GUI for real-time CANSAT data visualisation
+
+Author: RSX
+Version: 1.4
+
+TODO:  
+- graph should auto scroll?
+- remove command log horizontal scrolling (idk how)
 """
 import sys
 import webbrowser
@@ -14,8 +21,8 @@ import pyqtgraph as pg
 from pyqtgraph import mkPen
 from enum import Enum
 from PyQt6.QtSerialPort import QSerialPortInfo, QSerialPort
-from PyQt6.QtCore import Qt, pyqtSignal, QIODevice, QTimer, QTime, pyqtSlot, QUrl, QProcess
-from PyQt6.QtGui import QFont, QIcon, QIntValidator, QColor, QPalette, QTextCursor
+from PyQt6.QtCore import Qt, pyqtSignal, QIODevice, QTimer, QTime, pyqtSlot, QUrl
+from PyQt6.QtGui import QFont, QIcon, QIntValidator, QColor, QPalette
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -33,10 +40,11 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
     QTabWidget,
     QFormLayout,
-    QTextEdit,
+    QListWidget,
+    QListWidgetItem,
+    QAbstractItemView,
     QApplication,
 )
-from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 # Structure to store packet data
 @dataclass(frozen=True)
@@ -284,11 +292,6 @@ class GroundStationApp(QMainWindow):
         self.__last_gyro_r                  = 0.0
         self.__last_gyro_p                  = 0.0
         self.__last_gyro_y                  = 0.0
-        self.__log_repeat_count             = 0
-        self.__last_msg                     = None
-        self.__last_msg_sat                 = False
-        self.__simulation_proc              = None
-        self.__simulation_mode              = False
 
         self.setWindowTitle("CANSAT Ground Station")
         self.setWindowIcon(QIcon('icon.png'))
@@ -551,11 +554,6 @@ class GroundStationApp(QMainWindow):
         self.team_id_field_info.hide()
         self.team_id_field.hide()
 
-        self.gui_simulation_button = QPushButton("Start GUI Simulation")
-        self.gui_simulation_button.setFont(button_font)
-        self.gui_simulation_button.clicked.connect(self.start_stop_gui_simulation) #TODO: WRITE THIS FUNCTION
-        self.gui_simulation_button.hide()
-
         commands_layout.addWidget(self.button_connection_group)
         commands_layout.addWidget(self.combo_select_port)
         commands_layout.addWidget(self.button_connect)
@@ -581,7 +579,6 @@ class GroundStationApp(QMainWindow):
         commands_layout.addWidget(self.button_get_log_data)
         commands_layout.addWidget(self.probe_release_force)
         commands_layout.addLayout(team_id_editing_box)
-        commands_layout.addWidget(self.gui_simulation_button)
         commands_layout.addWidget(self.button_back)
 
         grid_layout.setColumnStretch(0,1)
@@ -604,7 +601,6 @@ class GroundStationApp(QMainWindow):
             self.button_get_log_data,
             self.team_id_field,
             self.team_id_field_info,
-            self.gui_simulation_button,
         ]
 
         self.buttons_telemetry = [
@@ -713,12 +709,6 @@ class GroundStationApp(QMainWindow):
         self.camera2_status_label.setText(f'<span style="color:black;">CAMERA2 Status: \
                                               </span><span style="color:GREY;">N/A</span>')
 
-        self.simulation_on_or_off = QLabel()
-        self.simulation_on_or_off.setFont(command_status_font)
-        self.simulation_on_or_off.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
-        self.simulation_on_or_off.setText(f'<span style="color:black;">GUI Simulation: \
-                                              </span><span style="color:GREY;">OFF</span>')
-        
         status_layout.addWidget(self.label_port)
         status_layout.addWidget(self.label_remote_mode)
         status_layout.addWidget(self.label_remote_state)
@@ -728,7 +718,6 @@ class GroundStationApp(QMainWindow):
         status_layout.addWidget(self.camera1_status_label)
         status_layout.addWidget(self.camera2_status_label)
         status_layout.addWidget(self.label_cmd_echo)
-        status_layout.addWidget(self.simulation_on_or_off)
 
         grid_layout.setColumnStretch(1,1)
 
@@ -739,49 +728,25 @@ class GroundStationApp(QMainWindow):
         log_widget = QWidget()
         log_layout = QVBoxLayout(log_widget)
 
-        gui_log_title = QLabel("Command Log")
-        gui_log_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        gui_log_title.setFont(graph_sidebar_font)
+        log_title = QLabel("Command Log")
+        log_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        log_title.setFont(graph_sidebar_font)
 
-        cansat_log_title = QLabel("CanSat Log")
-        cansat_log_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        cansat_log_title.setFont(graph_sidebar_font)
-
-        self.gui_log = QTextEdit()
-        self.gui_log.setReadOnly(True)
+        self.gui_log = QListWidget()
+        self.gui_log.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        self.gui_log.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.gui_log.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.gui_log.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        self.gui_log.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.gui_log.setStyleSheet("""
-            QTextEdit {
+            QListWidget {
                 font-size: 18px;
                 background-color: #dcdcdc;
                 border-radius: 6px;
                 padding: 3px;
-                font-family: monospace;
             }
         """)
 
-        self.cansat_log = QTextEdit()
-        self.cansat_log.setReadOnly(True)
-        self.cansat_log.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.cansat_log.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        self.cansat_log.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.cansat_log.setStyleSheet("""
-            QTextEdit {
-                font-size: 18px;
-                background-color: #dcdcdc;
-                border-radius: 6px;
-                padding: 3px;
-                font-family: monospace;
-            }
-        """)
-
-        log_layout.addWidget(gui_log_title)
+        log_layout.addWidget(log_title)
         log_layout.addWidget(self.gui_log)
-
-        log_layout.addWidget(cansat_log_title)
-        log_layout.addWidget(self.cansat_log)
 
         grid_layout.setColumnStretch(2,1)
 
@@ -810,8 +775,6 @@ class GroundStationApp(QMainWindow):
                                     stop:1 rgba(210, 210, 210, 255)); 
             }
         """)
-        self.tab_widget.currentChanged.connect(self.on_tab_changed)
-
 
         self.graphs = []
         self.plotters = []
@@ -827,8 +790,7 @@ class GroundStationApp(QMainWindow):
             {"title": "Magnetometer", "lines": 3, "2d": False, "x_unit": "s", "y_unit": "G"},
             {"title": "Rotation", "lines": 1, "2d": False, "x_unit": "s", "y_unit": "deg/s"},
             {"title": "GPS Lat v Long", "lines": 1, "2d": True, "x_unit": "Latitude", "y_unit": "Longitude"},
-            {"title": "GPS Altitude", "lines": 1, "2d": False, "x_unit": "s", "y_unit": "m"},
-            {"title": "GPS Map", "lines": 1, "2d": False, "x_unit": "s", "y_unit": "m"}
+            {"title": "GPS Altitude", "lines": 1, "2d": False, "x_unit": "s", "y_unit": "m"}
         ]   
         
         self.graph_title_to_index = {
@@ -843,7 +805,6 @@ class GroundStationApp(QMainWindow):
             "Rotation" : 8,
             "GPS" : 9,
             "GPS Altitude": 10,
-            "GPS Map": 11
         }
 
         # Loop through each graph and create a plot using the plot classes
@@ -853,20 +814,10 @@ class GroundStationApp(QMainWindow):
             tab_content = QGroupBox()
             tab_layout = QVBoxLayout()
 
-            if entry["title"] == "GPS Map":
-                self.gps_map_webview = QWebEngineView()
-                tab_layout.addWidget(self.gps_map_webview)
-                tab_content.setLayout(tab_layout)
-                self.tab_widget.addTab(tab_content, entry["title"])
-                self.graphs.append(None)
-                self.plotters.append(None)
-                continue
-
             graph = pg.PlotWidget()
             graph.setBackground('w')
             graph.setAlignment(Qt.AlignmentFlag.AlignCenter)
             tab_layout.addWidget(graph)
-            
 
             tab_content.setLayout(tab_layout)
 
@@ -970,68 +921,44 @@ class GroundStationApp(QMainWindow):
         self.showMaximized()
     
     # ------ FUNCTIONS ------ #
-    def on_tab_changed(self, index):
-        # If the new tab is the GPS Map tab, update the map view
-        if index == self.graph_title_to_index.get("GPS Map"):
-            self.update_map_view(self.GPS_LAT, self.GPS_LONG)
-
     def update_map_view(self, lat, lon):
         try:
-            # Currently map is plotting dummy data. 
-            # TODO: use real GPS data from lat and lon variables to plot to the webview
-            if self.gps_map_webview:
-                url = f"http://127.0.0.1:5000"
-                self.gps_map_webview.load(QUrl(url))
-                self.update_gui_log(f"Updated embedded map view to: {url}")
-            
-        except Exception as e:
-            self.update_gui_log_error(f"Map update failed: {e}")
-            webbrowser.open("map.html", new=2)
+            # if self.GPS_LAT or self.GPS_LONG are not valid, open a not updated map thing
+            if lat is None or lon is None or lat == 0.0 or lon == 0.0:
+                self.update_gui_log("No GPS data yet", "red")
+                return
+            '''
+            map_object = folium.Map(location=[lat, lon], zoom_start=15, prefer_canvas=True)
+            folium.Marker([lat, lon], tooltip="CanSat Location").add_to(map_object)
 
+            html = map_object.get_root().render()
+            html = html.replace(
+                    'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css',
+                    'leaflet/leaflet.css'
+                ).replace(
+                    'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js',
+                    'leaflet/leaflet.js'
+                )
+            
+            with open("map.html", "w", encoding="utf-8") as f:
+                f.write(html)
+        
+            webbrowser.open("map.html", new=2) '''
+            webbrowser.open(f"https://www.google.com/maps/place/{lat},{lon}", new=2) # use google maps if there is data
+
+
+        except Exception as e:
+            self.update_gui_log(f"Map update failed: {e}", "red")
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.get_log_overlay.setGeometry(self.rect())
 
-    def update_gui_log(self, msg):
-        self.update_logs(msg, sat_msg = False, color="black")
-
-    def update_gui_log_error(self, msg):
-        self.update_logs(msg, sat_msg = False, color="red")
-
-    def update_cansat_log(self, msg):
-        self.update_logs(msg, sat_msg = True, color="blue")
-
-    def update_cansat_log_error(self, msg):
-        self.update_logs(msg, sat_msg = True, color="red")
-
-    def update_logs(self, msg, sat_msg = False, color="black"):
-        if sat_msg == False:
-            target_log = self.gui_log
-        else:
-            target_log = self.cansat_log
-
-        current_time = QTime.currentTime().toString('h:mm AP')
-        target_log.setTextColor(QColor(color))
-
-        if msg == self.__last_msg and sat_msg == self.__last_msg_sat:
-            self.__log_repeat_count += 1
-            cursor = target_log.textCursor()
-            cursor.movePosition(QTextCursor.MoveOperation.End)
-            cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock, QTextCursor.MoveMode.MoveAnchor)
-            cursor.movePosition(QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.KeepAnchor)
-            cursor.insertText(f"{current_time} [{self.__log_repeat_count}] {msg}")
-            cursor.clearSelection()
-            cursor.movePosition(QTextCursor.MoveOperation.End)
-            target_log.setTextCursor(cursor)
-        else:
-            self.__log_repeat_count = 1
-            self.__last_msg = msg
-            self.__last_msg_sat = sat_msg
-            target_log.append(f"{current_time}      {msg}")
-
-        scrollbar = target_log.verticalScrollBar()
-        scrollbar.setValue(scrollbar.maximum())
+    def update_gui_log(self, msg, color="black"):
+        log_item = QListWidgetItem(f"{QTime.currentTime().toString('h:mm AP')}     {msg}")
+        log_item.setForeground(QColor(color))
+        self.gui_log.addItem(log_item)
+        self.gui_log.scrollToBottom()
 
     # Change what buttons are shown in the commands box
     def command_group_change_buttons(self, mode):
@@ -1107,7 +1034,7 @@ class GroundStationApp(QMainWindow):
         if self.__serial.isOpen() is True:
             self.__serial.close()
             if self.__serial.isOpen():
-                self.update_gui_log_error("ERROR: Could not close port!")
+                self.update_gui_log("ERROR: Could not close port!", "red")
             else:
                 self.update_gui_log("Ground port was closed")
                 self.set_port_text_closed()
@@ -1119,7 +1046,7 @@ class GroundStationApp(QMainWindow):
             else:
                 self.update_gui_log(f"FAILED to open port: {self.__PORT_SELECTED_INFO.portName()}!")
         else:
-            self.update_gui_log_error("Select port before connecting!")
+            self.update_gui_log("Select port before connecting!", "red")
 
     def check_remote_connection(self):
         if(self.send_data("CMD,%d,TEST,X" % self.__TEAM_ID)):
@@ -1141,39 +1068,10 @@ class GroundStationApp(QMainWindow):
 
     def program_servo(self):
         if(self.__servo_id == -1 or self.__servo_val == -1):
-            self.update_gui_log_error("ERROR: Enter a servo # and value first!")
+            self.update_gui_log("ERROR: Enter a servo # and value first!", "red")
         elif(self.send_data("CMD,%d,MEC,SERVO:%d|%d" % (self.__TEAM_ID, self.__servo_id, self.__servo_val))):
             servo_label = self.servo_id_field.itemText(self.servo_id_field.findData(self.__servo_id))
             self.update_gui_log(f"Sent command to program {servo_label} to {self.__servo_val}")
-
-    def start_stop_gui_simulation(self):
-        if self.__simulation_proc and self.__simulation_proc.state() == QProcess.ProcessState.Running:
-            # need to stop the simulation - will act as a toggle y'allsies
-            self.__simulation_proc.terminate()
-            self.__simulation_proc.waitForFinished(3000) # TODO: make this not block
-            self.__simulation_mode = False
-            self.__simulation_proc = None
-            self.simulation_on_or_off.setText(f'<span style="color:black;">GUI Simulation: \
-                                              </span><span style="color:GREY;">OFF</span>') 
-            self.gui_simulation_button.setText("Start GUI Simulation")
-            self.update_gui_log("GUI Simulation stopped") # TODO: CHECK IF LUKE WANTS THIS
-        else:
-            # need to start simulation - yeehaw!
-            self.__simulation_proc = QProcess(self)
-            self.__simulation_proc.readyReadStandardOutput.connect(self.recv_simulation_data)
-            self.__simulation_proc.start("python", ["cansat_simulation.py"])
-            self.__simulation_mode = True
-            self.simulation_on_or_off.setText(f'<span style="color:black;">GUI Simulation: \
-                                              </span><span style="color:GREEN;">ON</span>') 
-            self.gui_simulation_button.setText("Stop GUI Simulation")
-            self.update_gui_log("GUI Simulation started") # TODO: CHECK IF LUKE WANTS THIS
-    
-    def recv_simulation_data(self):
-        while self.__simulation_proc.canReadLine():
-            line = self.__simulation_proc.readLine().data().decode().strip()
-            self.__recveived_data = line # TODO: CHECK IF THIS IS RIGHT - THERE IS A TYPO WITH THIS VARIABLE THAT IS BOTHERING MEEEEE
-            self.__data_received.emit() 
-
 
     def toggle_camera(self):
         if(self.send_data("CMD,%d,MEC,%s:X" % (self.__TEAM_ID, self.__camera_id))):
@@ -1266,37 +1164,33 @@ class GroundStationApp(QMainWindow):
     @pyqtSlot(QSerialPort.SerialPortError)
     def handle_serial_error(self, error):
         if error == QSerialPort.SerialPortError.ResourceError:
-            self.update_gui_log_error("SERIAL ERROR: Device disconnected")
+            self.update_gui_log("SERIAL ERROR: Device disconnected", "red")
             self.__serial.close()
             self.set_port_text_closed()
         
         elif error == QSerialPort.SerialPortError.OpenError:
-            self.update_gui_log_error("SERIAL ERROR: Could not open port")
+            self.update_gui_log("SERIAL ERROR: Could not open port", "red")
 
         elif error == QSerialPort.SerialPortError.DeviceNotFoundError:
-            self.update_gui_log_error("SERIAL ERROR: Device not found")
+            self.update_gui_log("SERIAL ERROR: Device not found", "red")
             self.__serial.close()
             self.set_port_text_closed()
 
         elif error != QSerialPort.SerialPortError.NoError:
-            self.update_gui_log_error(f"SERIAL ERROR: {error} detected")
+            self.update_gui_log(f"SERIAL ERROR: {error} detected")
 
     def send_data(self, msg):
-        if self.__simulation_mode and self.__simulation_proc:
-            self.__simulation_proc.write((msg + "\n").encode()) # sending to simulation!!!!
-            return 1
-
         if self.__serial.isOpen() is True:
             try:
                 msg = msg + "\n"
                 self.__serial.write(msg.encode())
                 return 1
             except Exception as e:
-                self.update_gui_log_error(f"ERROR: CANNOT SEND DATA - {e}")
+                self.update_gui_log(f"ERROR: CANNOT SEND DATA - {e}", "red")
                 self.__serial.close()
                 self.set_port_text_closed()
         else:
-            self.update_gui_log_error("ERROR: Open port before sending data!")
+            self.update_gui_log("ERROR: Open port before sending data!", "red")
             return 0
     
     def send_simp_data(self):
@@ -1378,7 +1272,7 @@ class GroundStationApp(QMainWindow):
             if "BEGIN_SIMP" in msg:
                 if(self.__cansat_mode == "SIM"):
                     try:
-                        with open("team1011_sim_data.txt", 'r') as file:
+                        with open("cansat_2023_simp.txt", 'r') as file:
                             for line in file:
                                 if line.startswith("CMD,$,SIMP"):
                                     line = line.replace('$', str(self.__TEAM_ID))
@@ -1386,18 +1280,17 @@ class GroundStationApp(QMainWindow):
                         self.current_simp_idx = 0
                         self.simp_timer.start(1000)
                     except FileNotFoundError:
-                        self.update_gui_log_error("ERROR: Could not find SIMP data file cansat_2023_simp.txt!")
+                        self.update_gui_log("ERROR: Could not find SIMP data file cansat_2023_simp.txt!", "red")
 
             if msg.startswith("$E"):
-                self.update_cansat_log_error(f"{msg_text}")
+                self.update_gui_log(f"-> {msg_text}", "red")
             else:
-                self.update_cansat_log(f"{msg_text}")
+                self.update_gui_log(f"-> {msg_text}", "blue")
         else: # telemetry
             self.parse_telemetry_string(msg)
     
     def reset_mission(self):     
         self.gui_log.clear()
-        self.cansat_log.clear()
         for plotter in self.plotters:
                 plotter.reset_plot()
         self.__csv_file.seek(0)
@@ -1421,10 +1314,6 @@ class GroundStationApp(QMainWindow):
         if self.__csv_file is not None:
             if not self.__csv_file.closed:
                 self.__csv_file.close()
-        if self.__simulation_proc:
-            self.__simulation_proc.terminate()
-            self.__simulation_proc.waitForFinished(3000)
-            self.__simulation_proc = None
 
     def update_packet_label(self):
         self.label_packet_count.setText(f'<span style="color:black;">Packets Received: \
