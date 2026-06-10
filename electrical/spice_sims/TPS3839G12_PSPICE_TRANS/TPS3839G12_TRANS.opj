@@ -1,0 +1,47 @@
+(ExpressProject "TPS3839G12_TRANS"
+  (ProjectVersion "19981106")
+  (ProjectType "Analog or A/D Mixed Mode")
+  (Folder "Design Resources"
+    (Folder "Library"
+      (File ".\TPS3839G12_trans.olb"
+        (Type "Schematic Library")))
+    (NoModify)
+    (File ".\TPS3839G12_trans.dsn"
+      (Type "Schematic Design"))
+    (BuildFileAddedOrDeleted "x")
+    (CompileFileAddedOrDeleted "x")
+    (PSPICE_Regenerate_Netlist_Flag "FALSE"))
+  (Folder "Outputs")
+  (Folder "PSpice Resources"
+    (Folder "Simulation Profiles"
+      (ActiveProfile ".\TPS3839G12_trans-pspicefiles\schematic1\trans.sim")
+      (File.PSpice.{09528990-3187-11D2-BC7B-00A0C90CBF91}
+         ".\TPS3839G12_trans-pspicefiles\schematic1\trans.sim"
+        (DisplayName "SCHEMATIC1-trans")
+        (Type "PSpice Profile")))
+    (Folder "Model Libraries"
+      (Sort User)
+      (File ".\TPS3839G12_trans.lib"
+        (Type "PSpiceLibrary")))
+    (Folder "Stimulus Files"
+      (Sort User))
+    (Folder "Include Files"
+      (Sort User)))
+  (DefaultLibraryBrowseDirectory "library\PSpice")
+  (PartMRUSelector
+    (TPS3839G12_TRANS
+      (FullPartName "TPS3839G12_TRANS.Normal")
+      (LibraryName
+         "C:\ELABTRANS_WS\ELABTRANS_DS\PART_NUMBERS\TPS3839G12\RELEASE_SANKALP\PSPICE\TPS3839G12_PSPICE_TRANS\TPS3839G12_TRANS.OLB")
+      (DeviceIndex "0")))
+  (ISPCBBASICLICENSE "false")
+  (GlobalState
+    (FileView
+      (Path "Design Resources"))
+    (HierarchyView)
+    (Doc
+      (Type "COrCapturePMDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -4 -23 0 226 0 382"))
+      (Tab 0)))
+  (MPSSessionName "x0146065"))

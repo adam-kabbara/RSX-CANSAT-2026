@@ -10,7 +10,7 @@ void loop()
 	while(1)
 	{
 		// Toggle Board LED
-		printf("Hello there!\n");
+		printf("Hello there!\r\n");
 		BSP_LED_Toggle(LED_GREEN);
 		HAL_Delay(1000);
 	}

@@ -204,15 +204,14 @@ typedef struct
   * @}
   */
 
+  /* USER CODE BEGIN */
 /** @defgroup STM32G4XX_NUCLEO_LOW_LEVEL_COM LOW LEVEL COM
   * @{
   */
 /**
- * @brief Definition for COM port1, connected to LPUART1
+ * @brief Definition for COM port1, connected to USART2
  */
 #if (USE_BSP_COM_FEATURE > 0)
-#if defined (USE_NUCLEO_32)
-/* NUCLEO-32 (e.g., NUCLEO-G431KB): VCP is on USART2 (PA2 TX, PA15 RX) */
 #define COM1_UART                             USART2
 #define COM1_CLK_ENABLE()                     __HAL_RCC_USART2_CLK_ENABLE()
 #define COM1_CLK_DISABLE()                    __HAL_RCC_USART2_CLK_DISABLE()
@@ -228,25 +227,8 @@ typedef struct
 #define COM1_RX_GPIO_CLK_ENABLE()             __HAL_RCC_GPIOA_CLK_ENABLE()
 #define COM1_RX_GPIO_CLK_DISABLE()            __HAL_RCC_GPIOA_CLK_DISABLE()
 #define COM1_RX_AF                            GPIO_AF7_USART2
-#else
-/* NUCLEO-64: VCP is on LPUART1 (PA2 TX, PA3 RX) */
-#define COM1_UART                             LPUART1
-#define COM1_CLK_ENABLE()                     __HAL_RCC_LPUART1_CLK_ENABLE()
-#define COM1_CLK_DISABLE()                    __HAL_RCC_LPUART1_CLK_DISABLE()
-
-#define COM1_TX_PIN                           GPIO_PIN_2
-#define COM1_TX_GPIO_PORT                     GPIOA
-#define COM1_TX_GPIO_CLK_ENABLE()             __HAL_RCC_GPIOA_CLK_ENABLE()
-#define COM1_TX_GPIO_CLK_DISABLE()            __HAL_RCC_GPIOA_CLK_DISABLE()
-#define COM1_TX_AF                            GPIO_AF12_LPUART1
-
-#define COM1_RX_PIN                           GPIO_PIN_3
-#define COM1_RX_GPIO_PORT                     GPIOA
-#define COM1_RX_GPIO_CLK_ENABLE()             __HAL_RCC_GPIOA_CLK_ENABLE()
-#define COM1_RX_GPIO_CLK_DISABLE()            __HAL_RCC_GPIOA_CLK_DISABLE()
-#define COM1_RX_AF                            GPIO_AF12_LPUART1
-#endif
 #define COM_POLL_TIMEOUT                      1000
+/* USER CODE END */
 
 #define MX_UART_InitTypeDef COM_InitTypeDef
 #endif /* (USE_BSP_COM_FEATURE > 0)*/

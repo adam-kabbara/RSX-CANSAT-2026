@@ -29,6 +29,7 @@ extern "C" {
 
 #include "custom_ranging_sensor.h"
 #include "stm32g4xx_nucleo.h"
+#include "stm32g4xx_nucleo_bus.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -86,19 +87,36 @@ void MX_TOF_Process(void)
 
 static void MX_VL53L3CX_SimpleRanging_Init(void)
 {
-  /* Initialize Virtual COM Port */
-  COM_InitTypeDef COM_Init;
+	/* USER CODE BEGIN */
+	  /* Initialize Virtual COM Port */
+	  COM_InitTypeDef COM_Init;
 
-  COM_Init.BaudRate   = BUS_UART1_BAUDRATE;
-  COM_Init.WordLength = COM_WORDLENGTH_8B;
-  COM_Init.StopBits   = COM_STOPBITS_1;
-  COM_Init.Parity     = COM_PARITY_NONE;
-  COM_Init.HwFlowCtl  = COM_HWCONTROL_NONE;
+	  COM_Init.BaudRate   = BUS_UART1_BAUDRATE;
+	  COM_Init.WordLength = COM_WORDLENGTH_8B;
+	  COM_Init.StopBits   = COM_STOPBITS_1;
+	  COM_Init.Parity     = COM_PARITY_NONE;
+	  COM_Init.HwFlowCtl  = COM_HWCONTROL_NONE;
 
-  BSP_COM_Init(COM1, &COM_Init);
-#if (USE_COM_LOG > 0)
-  BSP_COM_SelectLogPort(COM1);
-#endif
+	  BSP_COM_Init(COM1, &COM_Init);
+	#if (USE_COM_LOG > 0)
+	  BSP_COM_SelectLogPort(COM1);
+	#endif
+	  /* USER CODE END */
+
+  // I2C Bus Scan
+  BSP_I2C1_Init();
+  HAL_Delay(100); // Allow I2C to stabilize
+  printf("Scanning I2C bus...\n");
+  HAL_StatusTypeDef res;
+  for (uint16_t i = 0; i < 128; i++) {
+      res = HAL_I2C_IsDeviceReady(&hi2c1, i << 1, 1, 10);
+      if (res == HAL_OK) {
+          printf("I2C device found at address 0x%02X (8-bit: 0x%02X)\n", i, i << 1);
+      } else if (res != HAL_TIMEOUT && i == 0x29) {
+          printf("Address 0x29 check returned error: %d\n", res);
+      }
+  }
+  printf("I2C scan complete.\n");
 
   printf("VL53L3CX Simple Ranging demo application\n");
   status = CUSTOM_RANGING_SENSOR_Init(CUSTOM_VL53L3CX);

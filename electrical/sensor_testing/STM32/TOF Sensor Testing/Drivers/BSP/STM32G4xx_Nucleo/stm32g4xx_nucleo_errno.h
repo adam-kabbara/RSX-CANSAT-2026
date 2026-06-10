@@ -37,10 +37,9 @@
 #define BSP_ERROR_CLOCK_FAILURE               -9
 #define BSP_ERROR_MSP_FAILURE                 -10
 #define BSP_ERROR_FEATURE_NOT_SUPPORTED       -11
-/* Added for compatibility with newer BSP bus error reporting */
-#ifndef BSP_ERROR_BUS_ACKNOWLEDGE_FAILURE
+/* USER CODE BEGIN */
 #define BSP_ERROR_BUS_ACKNOWLEDGE_FAILURE     -12
-#endif
+/* USER CODE END */
 
 #ifdef __cplusplus
 }
