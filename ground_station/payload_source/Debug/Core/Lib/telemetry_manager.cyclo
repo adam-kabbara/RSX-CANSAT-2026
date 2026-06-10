@@ -1,0 +1,6 @@
+../Core/Inc/global_includes.hpp:100:20:const char* op_mode_to_string(OperatingMode, int)	4
+../Core/Inc/global_includes.hpp:126:20:const char* op_state_to_string(OperatingState)	1
+../Core/Inc/global_includes.hpp:142:20:const float pressure_to_alt(float)	1
+../Core/Lib/telemetry_manager.cpp:9:6:void TelemetryManager::sampleSensors(SensorManager&, MissionManager&)	2
+../Core/Lib/telemetry_manager.cpp:65:6:void TelemetryManager::build_data_str(char*, size_t)	1
+../Core/Lib/telemetry_manager.cpp:99:6:void TelemetryManager::cmd_buff_to_echo(char*, char*)	4

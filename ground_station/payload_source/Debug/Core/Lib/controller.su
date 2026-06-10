@@ -1,0 +1,2 @@
+../Core/Lib/controller.cpp:8:1:Controller::Controller()	16	static
+../Core/Lib/controller.cpp:10:6:void Controller::update()	16	static

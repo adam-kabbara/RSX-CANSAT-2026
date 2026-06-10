@@ -1,0 +1,7 @@
+../Libraries/Src/INA219.cpp:19:6:bool INA219setup(double, double, uint16_t)	64	static
+../Libraries/Src/INA219.cpp:47:6:void INA219overwriteConfiguration(uint16_t)	40	static
+../Libraries/Src/INA219.cpp:55:10:uint16_t INA219getConfiguration()	32	static
+../Libraries/Src/INA219.cpp:65:8:double INA219getCurrent()	48	static
+../Libraries/Src/INA219.cpp:78:8:double INA219getBusVoltage()	56	static
+../Libraries/Src/INA219.cpp:90:8:double INA219getShuntVoltage()	56	static
+../Libraries/Src/INA219.cpp:103:8:double INA219getPower()	56	static

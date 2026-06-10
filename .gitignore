@@ -25,3 +25,7 @@ electrical/pcb_boards/**/#auto_saved_files#
 electrical/pcb_boards/**/*.lck
 electrical/pcb_boards/**/*bak
 electrical/pcb_boards/**/_autosave_*
+
+# Ground Station Python Environment
+gs_env/
+.ignore

@@ -1,0 +1,39 @@
+../Core/Lib/sensor_manager.cpp:9:1:SensorManager::SensorManager()	1
+../Core/Lib/sensor_manager.cpp:14:6:void SensorManager::startTof()	1
+../Core/Lib/sensor_manager.cpp:19:6:void SensorManager::stopTof()	1
+../Core/Lib/sensor_manager.cpp:24:6:bool SensorManager::checkTof()	1
+../Core/Lib/sensor_manager.cpp:31:6:bool SensorManager::tofValid()	1
+../Core/Lib/sensor_manager.cpp:39:10:uint16_t SensorManager::tofDistReading()	1
+../Core/Lib/sensor_manager.cpp:47:5:int SensorManager::updateBMP()	1
+../Core/Lib/sensor_manager.cpp:52:7:float SensorManager::getPressure()	1
+../Core/Lib/sensor_manager.cpp:57:7:float SensorManager::getTemp()	1
+../Core/Lib/sensor_manager.cpp:62:7:float SensorManager::getVoltage()	1
+../Core/Lib/sensor_manager.cpp:67:7:float SensorManager::getCurrent()	1
+../Core/Lib/sensor_manager.cpp:72:6:void SensorManager::BNO_enableGyro(int, SerialManager&)	2
+../Core/Lib/sensor_manager.cpp:80:6:void SensorManager::BNO_enableAccel(int, SerialManager&)	2
+../Core/Lib/sensor_manager.cpp:88:6:void SensorManager::BNO_enableMag(int, SerialManager&)	2
+../Core/Lib/sensor_manager.cpp:96:6:void SensorManager::BNO_enableRotationVector(int, SerialManager&)	2
+../Core/Lib/sensor_manager.cpp:104:6:bool SensorManager::BNO_dataReady()	1
+../Core/Lib/sensor_manager.cpp:109:6:void SensorManager::updateBNO()	1
+../Core/Lib/sensor_manager.cpp:114:17:rpy_data SensorManager::getIMUData()	3
+../Core/Lib/sensor_manager.cpp:144:17:gps_data SensorManager::getGPSData()	1
+../Core/Lib/sensor_manager.cpp:156:12:cam_status SensorManager::getCameraStatus()	1
+../Core/Lib/sensor_manager.cpp:161:6:void SensorManager::setRTCTime(int, int, int)	1
+../Core/Lib/sensor_manager.cpp:166:6:void SensorManager::getRTCTime(char*)	1
+../Core/Lib/sensor_manager.cpp:171:6:void SensorManager::getGPSTime(char*)	1
+../Core/Lib/sensor_manager.cpp:176:6:void SensorManager::activate_egg_release()	1
+../Core/Lib/sensor_manager.cpp:181:6:void SensorManager::activate_wing_deployment()	1
+../Core/Lib/sensor_manager.cpp:186:6:void SensorManager::activate_nosecone_release()	1
+../Core/Lib/sensor_manager.cpp:190:6:void SensorManager::activate_probe_release()	1
+../Core/Lib/sensor_manager.cpp:195:6:void SensorManager::writeNoseconeServo(float)	1
+../Core/Lib/sensor_manager.cpp:200:6:void SensorManager::writeContainerServo(float)	1
+../Core/Lib/sensor_manager.cpp:205:6:void SensorManager::writeElevatorServo(float)	1
+../Core/Lib/sensor_manager.cpp:210:6:void SensorManager::writeAileronServo(float)	1
+../Core/Lib/sensor_manager.cpp:215:6:void SensorManager::writeEggServo(float)	1
+../Core/Lib/sensor_manager.cpp:220:6:void SensorManager::EEPROM_updateAltitude(float)	1
+../Core/Lib/sensor_manager.cpp:225:6:void SensorManager::EEPROM_updateState(OperatingState)	1
+../Core/Lib/sensor_manager.cpp:230:6:void SensorManager::EEPROM_updateMode(OperatingMode)	1
+../Core/Lib/sensor_manager.cpp:235:6:void SensorManager::EEPROM_updatePackets(int)	1
+../Core/Lib/sensor_manager.cpp:240:6:bool SensorManager::EEPROM_addLogLine(char*)	1
+../Core/Lib/sensor_manager.cpp:245:22:recovery_data SensorManager::EEPROM_getRecoveryData()	1
+../Core/Lib/sensor_manager.cpp:256:6:void SensorManager::startSensors(SerialManager&, I2C_HandleTypeDef*, TIM_HandleTypeDef*, TIM_HandleTypeDef*, TIM_HandleTypeDef*)	8
