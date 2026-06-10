@@ -1,0 +1,176 @@
+*$
+* TPS3839G12
+*****************************************************************************
+* (C) Copyright 2012 Texas Instruments Incorporated. All rights reserved.                                            
+*****************************************************************************
+** This model is designed as an aid for customers of Texas Instruments.
+** TI and its licensors and suppliers make no warranties, either expressed
+** or implied, with respect to this model, including the warranties of 
+** merchantability or fitness for a particular purpose.  The model is
+** provided solely on an "as is" basis.  The entire risk as to its quality
+** and performance is with the customer
+*****************************************************************************
+*
+* This model is subject to change without notice. Texas Instruments
+* Incorporated is not responsible for updating this model.
+*
+*****************************************************************************
+*
+** Released by: WEBENCH Design Center, Texas Instruments Inc.
+* Part: TPS3839G12
+* Date: 18SEP2012
+* Model Type: TRANSIENT
+* Simulator: PSPICE
+* Simulator Version: 16.2.0.p001
+* EVM Order Number:
+* EVM Users Guide: 
+* Datasheet: SBVS193A –JUNE 2012–REVISED SEPTEMBER 2012 
+*
+* Model Version: Final 1.00
+*
+*****************************************************************************
+*
+* Updates:
+*
+* Final 1.00
+* Release to Web.
+*
+****************************************************************************
+.SUBCKT TPS3839G12_TRANS GND RESET_B VDD  
+E_GAIN1         N451192 0 VALUE {1 * V(OVDRIVE_N)}
+X_U27         OVDRIVE_N OVDRIVE INV_BASIC_GEN PARAMS: VDD=1 VSS=0
++  VTHRESH=500E-3
+V_V5         N16859672 0 1
+R_R23         N451192 RESET_CTRL_BAR  288.54k  
+X_U25         RESET_CTRL_BAR RESET_CTRL INV_BASIC_GEN PARAMS: VDD=1 VSS=0
++  VTHRESH=500E-3
+X_U66         RESET_CTRL_FINAL N192225 BUF_BASIC_GEN PARAMS: VDD=1 VSS=0
++  VTHRESH=0.5
+D_D3         RESET_CTRL_BAR N451192 D_D1special 
+C_C25         0 RESET_CTRL_BAR  1u  
+R_R26         OUT1 N16873547  1  
+C_C26         0 N16873547  1n  
+V_V6         N127917 0 1
+X_U5         VDD_INT N08542 OUT1 COMP_BASIC_GEN PARAMS: VDD=1 VSS=0 VTHRESH=0.5
+E_ABM10         N127973 0 VALUE { V(N127643)*140u+5u    }
+R_R16         N146088 N147006  1  
+X_U29         N16873547 VDD_GOOD COMP_OUT AND2_BASIC_GEN PARAMS: VDD=1 VSS=0
++  VTHRESH=500E-3
+C_C11         0 N127643  1n  
+R_R11         N16929377 N127643  1  
+X_U16         VDD_GOOD VDDGOOD_N INV_BASIC_GEN PARAMS: VDD=1 VSS=0
++  VTHRESH=500E-3
+C_C3         0 N08542  1n  
+G_ABM2I1         N127479 TIMER_RAMP VALUE { IF(V(VDD_INT) <0.9,42u,V(N16943185)
++  )    }
+X_S9    0 N16820570 VDD RESET_B TPS3839_TOPLEVEL_S9 
+E_ABM7         N16929377 0 VALUE { LIMIT((V(VTHR)-V(VDD_INT))/V(VTHR),0.05,0.9)
++   
++     }
+X_U4         VDD_INT N194185 VDD_VALID COMP_BASIC_GEN PARAMS: VDD=1 VSS=0
++  VTHRESH=0.5
+C_C15         0 N147006  1n  
+E_ABM17         N146088 0 VALUE { IF(V(VDD_VALID) <0.5,0,V(N192225))  
++     }
+E_ABM11         N16933045 0 VALUE { LIMIT(0.5n/(V(N16932302)+1n),2u,42u)    }
+R_R6         N167703621 N08542  1  
+X_S8    N16820570 0 RESET_B 0 TPS3839_TOPLEVEL_S8 
+X_U26         TIMER_RAMP OVDRIVE_N INV_BASIC_GEN PARAMS: VDD=1 VSS=0
++  VTHRESH=500E-3
+R_R19         N16933045 N16943185  1  
+R_R2         0 GND  1  
+V_V7         N127479 0 1
+X_S6    COMP_OUT 0 TIMER_RAMP 0 TPS3839_TOPLEVEL_S6 
+E_ABM2         N167703621 0 VALUE { ((V(OUT1)*-V(VHYS)+V(VHYS)) + V(VTHR))    }
+C_C18         0 N16943185  1n  
+C_C14         0 N16932302  1n  
+E_GAIN2         VDD_INT 0 VALUE {1 * V(VDD)}
+V_V4         N16855039 0 400m
+E_ABM18         VHYS 0 VALUE { {Vhys}    }
+C_C12         0 TIMER_RAMP  1n  
+G_ABMII3         VDD 0 VALUE { IF(V(VDD) < 0.6, 0,150n)    }
+R_R15         N127973 N16932302  1  
+X_U6         N16853903 N16855039 N16858314 COMP_BASIC_GEN PARAMS: VDD=1 VSS=0
++  VTHRESH=0.5
+E_ABM16         VDD_GOOD 0 VALUE { IF(V(VDD_INT) <V(VTHR) ,0,1)  
++     }
+V_V3         N194185 0 599.99m
+D_D4         TIMER_RAMP N127479 D_D1 
+R_R24         N16853903 VDD_INT  20k TC=0,0 
+R_R25         RESET_CTRL_FINAL RESET_CTRL  1k TC=0,0 
+X_S10    0 N16858314 RESET_CTRL_FINAL N16859672 TPS3839_TOPLEVEL_S10 
+X_U65         N147006 N16820570 BUF_BASIC_GEN PARAMS: VDD=1 VSS=0 VTHRESH=0.5
+X_S7    VDDGOOD_N N127917 TIMER_RAMP N127917 TPS3839_TOPLEVEL_S7 
+E_ABM15         VTHR 0 VALUE { {Vth}    }
+.PARAM  vth=1.1 vhys=11m
+.ENDS TPS3839G12_TRANS
+*$
+.subckt TPS3839_TOPLEVEL_S9 1 2 3 4  
+S_S9         3 4 1 2 _S9
+RS_S9         1 2 1G
+.MODEL         _S9 VSWITCH Roff=1G Ron=100 Voff=-0.95 Von=-0.2
+.ends TPS3839_TOPLEVEL_S9
+*$
+.subckt TPS3839_TOPLEVEL_S8 1 2 3 4  
+S_S8         3 4 1 2 _S8
+RS_S8         1 2 1G
+.MODEL         _S8 VSWITCH Roff=1G Ron=100 Voff=0.2 Von=0.95
+.ends TPS3839_TOPLEVEL_S8
+*$
+.subckt TPS3839_TOPLEVEL_S6 1 2 3 4  
+S_S6         3 4 1 2 _S6
+RS_S6         1 2 1G
+.MODEL         _S6 VSWITCH Roff=100e6 Ron=1 Voff=0.2 Von=0.8
+.ends TPS3839_TOPLEVEL_S6
+*$
+.subckt TPS3839_TOPLEVEL_S10 1 2 3 4  
+S_S10         3 4 1 2 _S10
+RS_S10         1 2 1G
+.MODEL         _S10 VSWITCH Roff=60e6 Ron=100 Voff=-0.8 Von=-0.2
+.ends TPS3839_TOPLEVEL_S10
+*$
+.subckt TPS3839_TOPLEVEL_S7 1 2 3 4  
+S_S7         3 4 1 2 _S7
+RS_S7         1 2 1G
+.MODEL         _S7 VSWITCH Roff=100e6 Ron=0.1 Voff=0.2 Von=0.8
+.ends TPS3839_TOPLEVEL_S7
+.model D_D1special d
++ is=1e-015
++ tt=1e-011
++ rs=0.05
++ n=0.01
+*$
+.model D_D1 d
++ is=1e-015
++ tt=1e-011
++ rs=0.05
++ n=0.1
+*$
+.SUBCKT INV_BASIC_GEN A  Y PARAMS: VDD=1 VSS=0 VTHRESH=0.5 
+E_ABMGATE    YINT 0 VALUE {{IF(V(A) > {VTHRESH} , 
++ {VSS},{VDD})}}
+RINT YINT Y 1
+CINT Y 0 1n
+.ENDS INV_BASIC_GEN
+*$
+.SUBCKT COMP_BASIC_GEN INP INM Y PARAMS: VDD=1 VSS=0 VTHRESH=0.5	
+E_ABM Yint 0 VALUE {IF (V(INP) > 
++ V(INM), {VDD},{VSS})}
+R1 Yint Y 1
+C1 Y 0 1n
+.ENDS COMP_BASIC_GEN
+*$
+.SUBCKT AND2_BASIC_GEN A B Y PARAMS: VDD=1 VSS=0 VTHRESH=0.5 
+E_ABMGATE    YINT 0 VALUE {{IF(V(A) > {VTHRESH}  &  
++ V(B) > {VTHRESH},{VDD},{VSS})}}
+RINT YINT Y 1
+CINT Y 0 1n
+.ENDS AND2_BASIC_GEN
+*$
+.SUBCKT BUF_BASIC_GEN A  Y PARAMS: VDD=1 VSS=0 VTHRESH=0.5 
+E_ABMGATE    YINT 0 VALUE {{IF(V(A) > {VTHRESH} , 
++ {VDD},{VSS})}}
+RINT YINT Y 1
+CINT Y 0 1n
+.ENDS BUF_BASIC_GEN
+*$

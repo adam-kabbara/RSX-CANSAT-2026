@@ -1,0 +1,3 @@
+[submodule "electrical/spice_sims/pybis2spice"]
+	path = electrical/spice_sims/pybis2spice
+	url = https://github.com/kamratia1/pybis2spice.git
