@@ -7109,6 +7109,26 @@
 		)
 		(uuid "643b3a0d-657c-4ef8-8908-cf84976cdbb7")
 	)
+	(text "CPP\nscratched off"
+		(exclude_from_sim no)
+		(at 196.342 17.272 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "6bdfc597-375b-4296-bbcb-9c7877c274f8")
+	)
+	(text "Note: CPP = Changed After Production"
+		(exclude_from_sim no)
+		(at 245.872 176.784 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "857fdd83-2258-4602-8e87-fd25d4379b6c")
+	)
 	(text "three\nstate\nswtich"
 		(exclude_from_sim no)
 		(at 97.79 114.554 0)
@@ -8610,6 +8630,16 @@
 			(type default)
 		)
 		(uuid "775ef6bc-3132-4c44-987f-1cfa7fd73b02")
+	)
+	(polyline
+		(pts
+			(xy 201.7107 23.3647) (xy 193.04 20.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7a2681f8-06df-4710-a73c-aeb0582c3751")
 	)
 	(wire
 		(pts
